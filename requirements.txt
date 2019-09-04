@@ -1,0 +1,7 @@
+numpydoc
+setuptools
+wheel
+numpy
+jax
+matplotlib
+scipy
