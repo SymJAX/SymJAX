@@ -6,21 +6,41 @@ def isdep(item):
     return isinstance(item, Variable) or isinstance(item, Placeholder)
 
 
+class Op:
+
+    def __init__(self, fn, name=''):
+        """function that produces a new Op based on a given function"""
+        self.fn = fn
+        self.fn.__name__ = name
+
+    def __call__(self, *args, shape=None, dtype=None, **kwargs):
+        return Tensor(_eval=self.fn, args=args, kwargs=kwargs, shape=shape,
+                      dtype=dtype)
+
+
 class Tensor:
 
-    def __init__(self, _eval=None, shape=None, dtype=None):
-        if _eval is not None:
-            self._eval = _eval
-            tree = jax.eval_shape(self._eval, *self.args, **self.kwargs)
+    def __init__(self, _eval=None, args=[], kwargs={}, shape=None,
+                 dtype=None, name=''):
+
+        self.args, self.kwargs = args, kwargs
+        self.name = name
+        self._eval = _eval
+        self.eval_value = None
+
+        # set shape and dtype
+        if shape is None or dtype is None:
+            tree = jax.eval_shape(_eval, *self.args, **self.kwargs)
             self.shape, self.dtype = tree.shape, tree.dtype
         else:
-            assert shape is not None
-            assert dtype is not None
             self.shape = shape
             self.dtype = dtype
-        if not hasattr(self, 'name'):
-            self.name = ''
-        self.eval_value = None
+
+        # set dependencies
+        all_tensors = list(args) + list(kwargs.values())
+        all_dependencies = sum([arg.all_dependencies for arg in all_tensors
+                                if hasattr(arg,'all_dependencies')], [])
+        self.all_dependencies = list(set(all_tensors+all_dependencies))
 
     def __repr__(self):
         return '(Tensor' + self.name + ', dtype=' + str(self.dtype) + \
@@ -49,14 +69,6 @@ class Tensor:
         self.eval_value = self._eval(*args, **kwargs)
         return self.eval_value
 
-    def __add__(self, other):
-        return nadd(self, other)
-    def __ladd__(self, other):
-        return nadd(self.other)
-    def __sub__(self, other):
-        return nsub(self, other)
-    def __lsub__(self, other):
-        return nsub(self.other)
 
 
 
@@ -125,10 +137,21 @@ class Variable(Tensor):
 
     def __init__(self, value, name='', trainable=True):
         self.trainable = trainable
-        self.value = value
-        self.all_dependencies = [self]
-        self.name = 'Variable: name='+name+', trainable='+str(trainable)
-        super().__init__(shape=value.shape, dtype=value.dtype)
+        print(value)
+        if not isinstance(value, jax.interpreters.xla.DeviceArray):
+            self.value = np.array(value)
+            if NP.isscalar(value):
+                shape = ()
+                dtype = type(value)
+            else:
+                shape = NP.shape(value)
+                dtype = NP.dtype(value)
+        else:
+            self.value = value
+            shape = value.shape
+            dtype = value.dtype
+        name = 'Variable: name='+name+', trainable='+str(trainable)
+        super().__init__(shape=shape, dtype=dtype, name=name)
 
     def get(self, args, force=False):
         if self in args:
@@ -140,9 +163,8 @@ class Variable(Tensor):
 class Placeholder(Tensor):
 
     def __init__(self, shape, dtype, name=''):
-        self.name = 'Placeholder ' + name
-        self.all_dependencies = [self]
-        super().__init__(shape=shape, dtype=dtype)
+        name = 'Placeholder ' + name
+        super().__init__(shape=shape, dtype=dtype, name=name)
 
     def get(self, args, force=False):
         assert self in args

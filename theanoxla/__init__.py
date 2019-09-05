@@ -3,11 +3,11 @@
 
 
 __all__ = [
-        "datasets",
+#        "datasets",
         "nn",
-        "tensor",
-        "schedules",
-        "optimizers"]
+        "tensor"]
+#        "schedules",
+#        "optimizers"]
 
 __version__ = 'alpha.1'
 

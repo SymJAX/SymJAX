@@ -1,12 +1,32 @@
-import jax
-import jax.numpy as np
-import numpy as NP
+import jax.numpy as jnp
+from .base import Op
+from .base import Tensor
 
-from .. import NewOp
+cos = Op(jnp.cos)
+cos = Op(jnp.cos)
+add = Op(jnp.add)
+sum = Op(jnp.sum)
+sub = Op(jnp.subtract)
+mul = Op(jnp.multiply)
 
-cos = NewOp(np.cos)
-add = NewOp(np.add)
-sum = NewOp(np.sum)
-sub = NewOp(np.subtract)
-mul = NewOp(np.multiply)
+
+def __add__(self, other):
+    return add(self, other)
+def __radd__(self, other):
+    return add(self.other)
+def __sub__(self, other):
+    return sub(self, other)
+def __rsub__(self, other):
+    return sub(self.other)
+def __mul__(self, other):
+    return mul(self, other)
+def __rmul__(self, other):
+    return mul(self.other)
+
+Tensor.__add__ = __add__
+Tensor.__radd__ = __radd__
+Tensor.__sub__ = __sub__
+Tensor.__rsub__ = __rsub__
+Tensor.__mul__ = __mul__
+Tensor.__rmul__ = __rmul__
 

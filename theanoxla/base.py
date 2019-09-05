@@ -1,44 +1,26 @@
 import jax
 import jax.numpy as np
 import numpy as NP
+from . import tensor
 
-
-def NewOp(fn, name=''):
-    """function that produces a new Op based on a given function"""
-
-    def init(self, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
-        self.name = 'Tensor: name='+name+', op='+fn.__name__
-        all_tensors = list(args) + list(kwargs.values())
-        all_dependencies = sum([arg.all_dependencies for arg in all_tensors
-                                if hasattr(arg,'all_dependencies')], [])
-        self.all_dependencies = list(set(all_tensors+all_dependencies))
-        super(self.__class__, self).__init__(fn)
-
-    attributes = {'__init__': init}
-    new_class = type('NewOp'+fn.__name__, (Tensor,), attributes)
-    return new_class
-
-
-def gradients(tensor, params):
-    assert tensor.shape == ()
-    deps = tensor.all_dependencies
+def gradients(scalar, params):
+    assert scalar.shape == ()
+    deps = scalar.all_dependencies
     argnums = [i for i, dep in enumerate(deps) if dep in params]
     def fn(*args):
-        return tensor.get(dict([(dep,arg) for arg, dep in zip(args, deps)]),
+        return scalar.get(dict([(dep,arg) for arg, dep in zip(args, deps)]),
                           force=True)
     shapes = [param.shape for param in params]
     dtypes = [param.dtype for param in params]
     grad_fn = jax.grad(fn, argnums)
-    return List(grad_fn, shapes, dtypes, args=deps)
+    return tensor.List(grad_fn, shapes, dtypes, args=deps)
 
 
 def function(*args, outputs=[], updates={}):
 
     # ensure that we only aim at updating variables
     for update in updates.keys():
-        assert isinstance(update, Variable)
+        assert isinstance(update, tensor.Variable)
 
     # now create the functin that will take the inputs and return
     # the update values (if any) and the outputs, this function is the one that
