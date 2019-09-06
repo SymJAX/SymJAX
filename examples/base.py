@@ -7,19 +7,18 @@ import theanoxla
 import theanoxla.tensor as T
 
 key = jax.random.PRNGKey(1)
-z = T.Variable(np.random.normal(1, 1))
+z = T.Variable(np.random.normal(3, 3), name='z')
 
 
-w = T.Placeholder((1, 1), 'float32')
-y = T.cos(theanoxla.nn.activations.relu(z) + w)
+w = T.Placeholder((3, 3), 'float32', name='w')
+y = T.cos(theanoxla.nn.activations.leaky_relu(z,0.3) + w)
 cost = T.sum(y)
 
 grad = theanoxla.gradients(cost, [w, z])
-
 train = theanoxla.function(w, outputs=[cost],
                  updates={z:z-grad[1]*0.01})
 
 for i in range(10):
-    print(train(np.ones((1, 1))))
+    print(train(np.ones((3, 3))))
 
 

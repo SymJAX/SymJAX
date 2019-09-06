@@ -8,10 +8,14 @@ def isdep(item):
 
 class Op:
 
-    def __init__(self, fn, name=''):
+    """generates an op from a function that can then be called"""
+
+    def __init__(self, fn, name='', docstring=None):
         """function that produces a new Op based on a given function"""
         self.fn = fn
-        self.fn.__name__ = name
+        # set up the correct docstring
+        if docstring is not None:
+            self.__docstring__ = docstring
 
     def __call__(self, *args, shape=None, dtype=None, **kwargs):
         return Tensor(_eval=self.fn, args=args, kwargs=kwargs, shape=shape,
@@ -38,9 +42,11 @@ class Tensor:
 
         # set dependencies
         all_tensors = list(args) + list(kwargs.values())
-        all_dependencies = sum([arg.all_dependencies for arg in all_tensors
+        current_dependencies = [arg for arg in all_tensors if isdep(arg)]
+        above_dependencies = sum([arg.all_dependencies for arg in all_tensors
                                 if hasattr(arg,'all_dependencies')], [])
-        self.all_dependencies = list(set(all_tensors+all_dependencies))
+        self.all_dependencies = list(set(current_dependencies +
+                                         above_dependencies))
 
     def __repr__(self):
         return '(Tensor' + self.name + ', dtype=' + str(self.dtype) + \
@@ -48,6 +54,16 @@ class Tensor:
 
     def __str__(self):
         return self.__repr__()
+
+    def reset_value(self, propagate=False):
+        self.eval_value = None
+        if propagate:
+            for item in self.args:
+                if hasattr(item, 'reset_value'):
+                    item.reset_value(True)
+            for item in self.kwargs.values():
+                if hasattr(item, 'reset_value'):
+                    item.reset_value(True)
 
     def get(self, ins=dict(), force=False):
         # argument list
@@ -61,7 +77,7 @@ class Tensor:
                 args.append(arg)
         # kwarg dictionnary
         kwargs = dict()
-        for key, item in zip(self.kwargs.items()):
+        for key, item in zip(self.kwargs.keys(), self.kwargs.values()):
             if hasattr(item, 'get'):
                 kwargs.update({key: item.get(ins, force)})
             else:
@@ -83,6 +99,9 @@ class SubTuple(Tensor):
             self.name = ''
         super().__init__(shape=shape, dtype=dtype)
 
+    def reset_value(self, propagate=False):
+        self.parent.reset_value(propagate)
+
     def get(self, ins=dict(), force=False):
         return self.parent.get(ins, force)[self.index]
 
@@ -95,9 +114,11 @@ class List(list):
         self.args = args
         self.kwargs = kwargs
         all_tensors = list(args) + list(kwargs.values())
-        all_dependencies = sum([arg.all_dependencies for arg in all_tensors
-                                if hasattr(arg,'all_dependencies')], [])
-        self.all_dependencies = list(set(all_tensors+all_dependencies))
+        above_dependencies = sum([arg.all_dependencies for arg in all_tensors
+                                  if hasattr(arg,'all_dependencies')], [])
+        current_dependencies = [arg for arg in all_tensors if isdep(arg)]
+        self.all_dependencies = list(set(current_dependencies +
+                                         above_dependencies))
 
         self._eval = _eval
         self.shapes = shapes
@@ -109,7 +130,18 @@ class List(list):
         self.eval_value = None
         super().__init__(items)
 
-    def get(self, ins=dict(), force=True):
+    def reset_value(self, propagate):
+        self.eval_value = None
+        if propagate:
+            for item in self.args:
+                if hasattr(item, 'reset_value'):
+                    item.reset_value(True)
+            for item in self.kwargs.values():
+                if hasattr(item, 'reset_value'):
+                    item.reset_value(True)
+
+
+    def get(self, ins=dict(), force=False):
         if self.eval_value is not None and not force:
             return self.eval_value
 
@@ -137,7 +169,6 @@ class Variable(Tensor):
 
     def __init__(self, value, name='', trainable=True):
         self.trainable = trainable
-        print(value)
         if not isinstance(value, jax.interpreters.xla.DeviceArray):
             self.value = np.array(value)
             if NP.isscalar(value):

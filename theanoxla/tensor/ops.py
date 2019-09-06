@@ -2,12 +2,11 @@ import jax.numpy as jnp
 from .base import Op
 from .base import Tensor
 
-cos = Op(jnp.cos)
-cos = Op(jnp.cos)
-add = Op(jnp.add)
-sum = Op(jnp.sum)
-sub = Op(jnp.subtract)
-mul = Op(jnp.multiply)
+cos = Op(jnp.cos, name='cos')
+add = Op(jnp.add, name='add')
+sum = Op(jnp.sum, name='sum')
+sub = Op(jnp.subtract, name='sub')
+mul = Op(jnp.multiply, name='mul')
 
 
 def __add__(self, other):

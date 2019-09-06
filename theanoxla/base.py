@@ -16,31 +16,53 @@ def gradients(scalar, params):
     return tensor.List(grad_fn, shapes, dtypes, args=deps)
 
 
-def function(*args, outputs=[], updates={}):
+def function(*args, outputs=[], updates={}, device=None):
 
     # ensure that we only aim at updating variables
     for update in updates.keys():
         assert isinstance(update, tensor.Variable)
 
-    # now create the functin that will take the inputs and return
+    # now create the function that will take the inputs and return
     # the update values (if any) and the outputs, this function is the one that
     # will be jit compiled for performances
-    def fn(*fnargs, _args=args, _hiddens=updates):
-        _args = list(args) + list(_hiddens.keys())
-        kwargs = dict([(key, value) for key, value in zip(_args, fnargs)])
+    def jitfn(*args1):
+
+        # the args are made of the actual inputs of the final function as
+        # well as the values to be updated, we thus concatenate the latter to
+        # the former and then convert to a dict
+        _args = list(args) + list(updates.keys())
+        kwargs = dict([(key, value) for key, value in zip(_args, args1)])
+
+        # reset the values. This is needed as we do not force the value
+        # computation below, and values might already have been computed with
+        # some tracer to evaluate shape etc ... hence we force a full
+        # graph evaluation again
+        for output in outputs:
+            output.reset_value(True)
+        for output in updates.values():
+            output.reset_value(True)
+
         # compute the outputs
         fn_outputs = [output.get(kwargs) for output in outputs]
+
         # compute the values of the updates
         fn_updates = [output.get(kwargs) for output in updates.values()]
         return fn_outputs, fn_updates
-    global jitfn
-    jitfn = jax.jit(fn)
 
-    # now define the actual function that will be used by the user
-    def meta(*fnargs, hiddens=list(updates.keys())):
-        assert len(fnargs) == len(args)
-        outputs, updates2 = jitfn(*fnargs, *[hidden.value for hidden in hiddens])
-        for key, update in zip(updates.keys(), updates2):
-            key.value=update
-        return outputs
+    # we compile our underlying function
+    jitfn = jax.jit(jitfn, device_assignment=device)
+
+    # now define the actual user-function that will only take as input the
+    # inputs variables and internally also compute and update the variables
+    # if any, that are in updates
+    def meta(*args2):
+        assert len(args2) == len(args)
+        variables = list(updates.keys())
+        # retreive the function outputs and updated values
+        outputs2, updates2 = jitfn(*args2, *[var.value for var in variables])
+        # update the variables
+        for key, update in zip(variables, updates2):
+            key.value = update
+        return outputs2
+
     return meta
