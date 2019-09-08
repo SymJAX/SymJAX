@@ -25,14 +25,14 @@ def function(*args, outputs=[], updates={}, device=None):
     # now create the function that will take the inputs and return
     # the update values (if any) and the outputs, this function is the one that
     # will be jit compiled for performances
-    def jitfn(*args1):
+    def jitfn(*args1, rng):
 
         # the args are made of the actual inputs of the final function as
         # well as the values to be updated, we thus concatenate the latter to
         # the former and then convert to a dict
         _args = list(args) + list(updates.keys())
         kwargs = dict([(key, value) for key, value in zip(_args, args1)])
-
+        kwargs.update({'rng': rng})
         # reset the values. This is needed as we do not force the value
         # computation below, and values might already have been computed with
         # some tracer to evaluate shape etc ... hence we force a full
@@ -51,16 +51,29 @@ def function(*args, outputs=[], updates={}, device=None):
 
     # we compile our underlying function
     jitfn = jax.jit(jitfn, device_assignment=device)
-
     # now define the actual user-function that will only take as input the
     # inputs variables and internally also compute and update the variables
     # if any, that are in updates
-    def meta(*args2):
+    def meta(*args2, rng=None):
+
+        # ensure that the number of arguments is correct
         assert len(args2) == len(args)
+
+        # in the presence of RandomTensor(s) in the graph, we keep track of the
+        # number of functions calls to keep accumulating the PRNGKey of the jax
+        # key, otherwise each function call returns the same realisation
+        if rng is None:
+            if '_rng' not in globals():
+                globals()['_rng'] = 0
+            globals()['_rng'] += 1
+            rng = globals()['_rng']
+
+        # get the addition inputs to the function (the values to be updated)
         variables = list(updates.keys())
-        # retreive the function outputs and updated values
-        outputs2, updates2 = jitfn(*args2, *[var.value for var in variables])
-        # update the variables
+
+        # retreive the function outputs and updated values and apply them
+        outputs2, updates2 = jitfn(*args2, *[var.value for var in variables],
+                                   rng=rng)
         for key, update in zip(variables, updates2):
             key.value = update
         return outputs2
