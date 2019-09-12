@@ -14,21 +14,24 @@ y = T.cos(theanoxla.nn.activations.leaky_relu(z,0.3) + w + noise)
 cost = T.pool(y, (2, 2))
 cost = T.sum(cost)
 
+grads = theanoxla.gradients(cost, [w, z], [1])
+
 print(cost.get({w: np.random.randn(*SHAPE)}))
 noise.seed = 20
 print(cost.get({w: np.random.randn(*SHAPE)}))
 noise.seed = 40
 print(cost.get({w: np.random.randn(*SHAPE)}))
 
+updates = {z:z-0.01*grads[0]}
+fn1 = theanoxla.function(w, outputs=[cost])
+fn2 = theanoxla.function(w, outputs=[cost], updates=updates)
+print(fn1(np.random.randn(*SHAPE)))
+print(fn1(np.random.randn(*SHAPE)))
 
-#grad = theanoxla.gradients(cost, [w, z])
-#train = theanoxla.function(w, outputs=[cost, noise, noise2, T.cast(noise2 > 0.5, 'float32')],
-#                 updates={z:z-grad[1]*0.01})
+cost = list()
+for i in range(1000):
+    cost.append(fn2(np.ones(SHAPE))[0])
 
-#cost = list()
-#for i in range(1000):
-#    cost.append(train(np.ones((4, 4)))[0])
-
-#import matplotlib.pyplot as plt
-#plt.plot(cost)
-#plt.show()
+import matplotlib.pyplot as plt
+plt.plot(cost)
+plt.show()

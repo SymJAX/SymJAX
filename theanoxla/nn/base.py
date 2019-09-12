@@ -173,15 +173,16 @@ class Layer(Tensor):
 
 def ExponentialMovingAverage(value, alpha, step=None):
     if step is None:
-        _step = tensor.Variable(0, trainable=False, name='step')
+        _step = tensor.Variable(1, trainable=False, name='step')
     else:
         _step = step
     var = tensor.Variable(numpy.zeros(value.shape), trainable=False,
                             name='EMA'+value.name)
-    false_fn =  var * alpha + (1 - alpha) * value
+#    false_fn =  var * alpha + (1 - alpha) * value
 
-    new_value = tensor.cond(_step < 5, 0, lambda x:1, 0,
-                            lambda x: 0)
+    new_value = tensor.cond(_step == 1, tensor.List([value]), value,
+                            tensor.List([var, alpha, value]),
+                            var * alpha + (1 - alpha) * value)
     if step is None:
         updates = {var: new_value, _step: _step + 1}
     else:

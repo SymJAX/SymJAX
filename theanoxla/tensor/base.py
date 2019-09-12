@@ -253,23 +253,23 @@ class Tensor:
 
         # evaluate the function kwargs as explicit jax arrays
         kwargs = dict()
-        for name, var in self.kwargs.items():
-#            if name == 'true_fun' or name == 'false_fun':
-#                arg = self.kwargs[name[:-3]+'operand']
+        for name, var in list(self.kwargs.items()):
+            if name == 'true_fun' or name == 'false_fun':
+                arg = self.kwargs[name[:-3]+'operand']
 #                argv = get(arg, ins)
 #                feed_dict = dict(zip(arg, argv))
-#                if hasattr(var, 'get'):
-#                    kwargs.update({name: lambda args: get_output_for(var, dict(zip(arg, args)))})
-#                else:
-#                    kwargs.update({name: lambda args: var})
-#                print(name, 'output',var, argv, kwargs[name](argv))
+                if hasattr(var, 'get'):
+                    kwargs.update({name: lambda args, yy=arg, vv=var: vv.get(dict(zip(yy, args)))})
+                else:
+                    kwargs.update({name: lambda args, vv=var: vv})
+                print('HEEEEEEEEERE', name, 'output', arg)
 #                arg = self.kwargs['true_operand']
 #                argv = get(arg, ins)
-#                print('TRUE output', argv, kwargs['true_fun'](argv))
-#            else:
-            print(name, var)
-            kwargs.update({name: get(var, tracker)})
-#        print('function and kwargs', self.fn, kwargs)
+#                print('TRUE output', kwargs['true_fun'](0), kwargs['true_fun'])
+            else:
+                kwargs.update({name: get(var, tracker)})
+#        print(name, var)
+        print('function and kwargs', self.fn, kwargs)
         tracker[self] = self.fn(**kwargs)
         return tracker[self]
 
@@ -354,71 +354,83 @@ class SubTuple(Tensor):
     def __init__(self, shape, dtype, index, parent):
         self.parent = parent
         self.index = index
-        self.all_dependencies = parent.all_dependencies
         if not hasattr(self, 'name'):
             self.name = ''
         super().__init__(None, shape=shape, dtype=dtype)
 
-    def reset_value(self, propagate=False):
-        self.parent.reset_value(propagate)
-
-    def get(self, ins=dict()):
-        print(len(self.parent.get(ins)), self.index, self.parent.get(ins))
-        return self.parent.get(ins)[self.index]
+    def get(self, tracker=dict()):
+        return self.parent.get(tracker)[self.index]
 
 
 
-class List(list):
+class List:
 
-    def __init__(self, _eval, shapes, dtypes, args=[], kwargs={}):
+    def __init__(self, fn_or_list, shapes=None, dtypes=None, args=[], kwargs={}):
 
         # for convenience we only deal with kwargs, and thus transform
         # any given are into a kwarg based on the function signature
-        signature = list(inspect.signature(_eval).parameters.keys())
-        print('ICICICI', args, kwargs)
-        for arg, name in zip(args, signature[:len(args)]):
-            kwargs.update({name: arg})
+#        signature = list(inspect.signature(fn).parameters.keys())
+#        for arg, name in zip(args, signature[:len(args)]):
+#            kwargs.update({name: arg})
+        self.args = args
         self.kwargs = kwargs
-        all_tensors = list(kwargs.values())
-        above_dependencies = sum([arg.all_dependencies for arg in all_tensors
-                                  if hasattr(arg,'all_dependencies')], [])
-        current_dependencies = [arg for arg in all_tensors if isdep(arg)]
-        self.all_dependencies = list(set(current_dependencies +
-                                         above_dependencies))
-
-        self._eval = _eval
+        self.is_fn = callable(fn_or_list)
+        self.fn = fn_or_list
         self.shapes = shapes
         self.dtypes = dtypes
         self.name = ''
-        items = [SubTuple(shape, dtype, i, self)
-                 for shape, dtype, i in zip(self.shapes, self.dtypes,
-                                            range(len(shapes)))]
-        self.eval_value = None
-        super().__init__(items)
+        if self.is_fn:
+            self.items = [SubTuple(shape, dtype, i, self)
+                          for (i, shape), dtype in zip(enumerate(self.shapes),
+                                                       self.dtypes)]
+        else:
+            self.items = fn_or_list
+    def __iter__(self):
+        self.current_i = 0
+        return self
 
-    def reset_value(self, propagate):
-        self.eval_value = None
-        if propagate:
-            for item in self.kwargs.values():
-                if hasattr(item, 'reset_value'):
-                    item.reset_value(True)
+    def __next__(self):
+        self.current_i += 1
+        if self.current_i > len(self):
+            return StopIteration
+        return self[self.current_i-1]
 
+    def __getitem__(self, key):
+            return self.items[key]
 
-    def get(self, ins=dict()):
-        if self.eval_value is not None:
-            return self.eval_value
+    def __len__(self):
+            return len(self.items)
+
+    def get(self, tracker=dict()):
+        if self in tracker:
+            return tracker[self]
+
+        # if it was just a list of Tensor then evaluate them
+        if not self.is_fn:
+            values = list()
+            for var in self.items:
+                values.append(get(var, tracker))
+            tracker[self] = values
+            return values
 
         # kwarg dictionnary
+        args = list()
+        for var in self.args:
+            args.append(get(var, tracker))
+
         kwargs = dict()
         for name, var in self.kwargs.items():
-            kwargs.update({name: get(var,ins)})
+            kwargs.update({name: get(var, tracker)})
 
-        print('HERE', self._eval, kwargs, self.kwargs)
-        if 'args' in kwargs:
-            args = kwargs['args']
-            del kwargs['args']
-        self.eval_value = self._eval(*args, **kwargs)
-        return self.eval_value
+        # we add the list object itself into the dictionnary first
+        tracker[self] = self.fn(*args, **kwargs)
+
+        # then we add each element of the list into the dictionnary
+        for i in range(len(self)):
+            tracker[self[i]] = tracker[self][i]
+
+        return tracker[self]
+
 
 
 class Variable(Tensor):

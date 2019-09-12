@@ -3,13 +3,12 @@ import jax.numpy as np
 import numpy as NP
 from . import tensor
 
-def gradients(scalar, params):
+def gradients(scalar, deps, argnums):
     assert scalar.shape == ()
-    deps = scalar.all_dependencies
-    argnums = [i for i, dep in enumerate(deps) if dep in params]
+#    argnums = [i for i, dep in enumerate(deps) if dep in params]
     def fn(*args):
-        scalar.reset_value(True)
         return scalar.get(dict(zip(deps, list(args))))
+    params = [deps[i] for i in argnums]
     shapes = [param.shape for param in params]
     dtypes = [param.dtype for param in params]
     grad_fn = jax.grad(fn, argnums)
