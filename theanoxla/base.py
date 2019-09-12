@@ -8,56 +8,65 @@ def gradients(scalar, params):
     deps = scalar.all_dependencies
     argnums = [i for i, dep in enumerate(deps) if dep in params]
     def fn(*args):
-        return scalar.get(dict([(dep,arg) for arg, dep in zip(args, deps)]),
-                          force=True)
+        scalar.reset_value(True)
+        return scalar.get(dict(zip(deps, list(args))))
     shapes = [param.shape for param in params]
     dtypes = [param.dtype for param in params]
     grad_fn = jax.grad(fn, argnums)
     return tensor.List(grad_fn, shapes, dtypes, args=deps)
 
 
-def function(*args, outputs=[], updates={}, device=None):
+class function:
+    def __init__(self, *classargs, outputs=[], updates={}, device=None):
 
-    # ensure that we only aim at updating variables
-    for update in updates.keys():
-        assert isinstance(update, tensor.Variable)
+        # ensure that we only aim at updating variables
+        for update in updates.keys():
+            assert isinstance(update, tensor.Variable)
 
-    # now create the function that will take the inputs and return
-    # the update values (if any) and the outputs, this function is the one that
-    # will be jit compiled for performances
-    def jitfn(*args1, rng):
+        # now create the function that will take the inputs and return
+        # the update values (if any) and the outputs, this function is the one that
+        # will be jit compiled for performances
+        def jitfn(*jitargs, rng):
 
-        # the args are made of the actual inputs of the final function as
-        # well as the values to be updated, we thus concatenate the latter to
-        # the former and then convert to a dict
-        _args = list(args) + list(updates.keys())
-        kwargs = dict([(key, value) for key, value in zip(_args, args1)])
-        kwargs.update({'rng': rng})
-        # reset the values. This is needed as we do not force the value
-        # computation below, and values might already have been computed with
-        # some tracer to evaluate shape etc ... hence we force a full
-        # graph evaluation again
-        for output in outputs:
-            output.reset_value(True)
-        for output in updates.values():
-            output.reset_value(True)
+            # the args are made of the actual inputs of the final function as
+            # well as the values to be updated, we thus concatenate the latter to
+            # the former and then convert to a dict
+            allargs = list(classargs) + list(updates.keys())
+            kwargs = dict(zip(allargs, jitargs))
+            kwargs.update({'rng': rng})
 
-        # compute the outputs
-        fn_outputs = [output.get(kwargs) for output in outputs]
+            # compute the outputs
+            jit_outputs = [output.get(kwargs) for output in outputs]
 
-        # compute the values of the updates
-        fn_updates = [output.get(kwargs) for output in updates.values()]
-        return fn_outputs, fn_updates
+            # compute the values of the updates
+            jit_updates = [output.get(kwargs) for output in updates.values()]
+            return jit_outputs, jit_updates
 
-    # we compile our underlying function
-    jitfn = jax.jit(jitfn, device_assignment=device)
-    # now define the actual user-function that will only take as input the
-    # inputs variables and internally also compute and update the variables
-    # if any, that are in updates
-    def meta(*args2, rng=None):
+        # we compile our underlying function
+        jitfn = jax.jit(jitfn, device_assignment=device)
+        self.jitfn = jitfn
 
-        # ensure that the number of arguments is correct
-        assert len(args2) == len(args)
+        # now define the actual user-function that will only take as input the
+        # inputs variables and internally also compute and update the variables
+        # if any, that are in updates
+        def meta(*fnargs, rng):
+
+            # ensure that the number of arguments is correct
+            assert len(fnargs) == len(classargs)
+
+            # get the addition inputs to the function (the values to be updated)
+            variables = list(updates.keys())
+            update_args = [var.value for var in variables]
+
+            # retreive the function outputs and updated values and apply them
+            fn_outputs, fn_updates = self.jitfn(*fnargs, *update_args, rng=rng)
+            for key, update in zip(variables, fn_updates):
+                key.value = update
+            return fn_outputs
+
+        self.meta = meta
+
+    def __call__(self, *args, rng=None):
 
         # in the presence of RandomTensor(s) in the graph, we keep track of the
         # number of functions calls to keep accumulating the PRNGKey of the jax
@@ -68,14 +77,4 @@ def function(*args, outputs=[], updates={}, device=None):
             globals()['_rng'] += 1
             rng = globals()['_rng']
 
-        # get the addition inputs to the function (the values to be updated)
-        variables = list(updates.keys())
-
-        # retreive the function outputs and updated values and apply them
-        outputs2, updates2 = jitfn(*args2, *[var.value for var in variables],
-                                   rng=rng)
-        for key, update in zip(variables, updates2):
-            key.value = update
-        return outputs2
-
-    return meta
+        return self.meta(*args, rng=rng)

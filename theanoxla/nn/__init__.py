@@ -3,9 +3,10 @@
 
 
 __all__ = [
-#        "ops",
-#        "layers",
+        "optimizers",
         "activations"]
 #        "models"]
 
 from . import *
+from .base import *
+from .ops import *

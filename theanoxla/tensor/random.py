@@ -6,7 +6,7 @@ _normal = RandomOp(jnp.normal)
 _uniform = RandomOp(jnp.uniform)
 _bernoulli = RandomOp(jnp.bernoulli)
 
-def normal(shape, mean=0, var=1, dtype='float32'):
+def normal(shape=(), mean=0, var=1, dtype='float32'):
     """
     Generate a random Normal tensor with i.i.d. elements with
     given mean and variance.
@@ -31,7 +31,7 @@ def normal(shape, mean=0, var=1, dtype='float32'):
     return _normal(shape=shape, dtype=dtype, _dtype=dtype, _shape=shape)*var+mean
 
 
-def uniform(shape, lower=0, upper=1, dtype='float32'):
+def uniform(shape=(), lower=0, upper=1, dtype='float32'):
     """
     Generate a Uniform random tensor with i.i.d. elements with
     given upper and lower bound.
@@ -56,7 +56,7 @@ def uniform(shape, lower=0, upper=1, dtype='float32'):
     """
     return _uniform(shape=shape, minval=lower, maxval=upper, dtype=dtype, _dtype=dtype, _shape=shape)
 
-def bernoulli(shape, p=0.5, dtype='bool', name=''):
+def bernoulli(shape=(), p=0.5, dtype='bool', name=''):
     """
     Generate a Bernoulli random tensor with i.i.d. elements with
     success probability.

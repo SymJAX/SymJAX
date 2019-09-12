@@ -2,150 +2,6 @@ import jax.numpy as jnp
 import jax.lax as jla
 from .base import Op
 from .base import Tensor
-import numpy
-
-# basic arithmetic operators
-add = Op(jnp.add, name='add')
-sub = Op(jnp.subtract, name='sub')
-mul = Op(jnp.multiply, name='mul')
-div = Op(jnp.divide, name='div')
-
-# basic comparison operators
-eq = Op(jnp.equal, name='equal')
-geq = Op(jnp.greater_equal, name='geq')
-leq = Op(jnp.less_equal, name='leq')
-gr = Op(jnp.greater, name='greater')
-le = Op(jnp.less, name='less')
-neq = Op(jnp.not_equal, name='different')
-
-# access operator
-getitemop = Op(jnp.lax_numpy._rewriting_take)
-
-def _getitem(obj, key):
-    # the dtype never changes from accessing
-    dtype=obj.dtype
-    # first the case where the given key is a list of indices
-    if type(key) == list:
-        assert numpy.max(key) < obj.shape[0]
-        shape = (len(key), ) + obj.shape[1:]
-        return getitemop(obj, key, _shape=shape, _dtype=dtype)
-    elif type(key) == slice:
-        shape = (len(range(*key.indices(obj.shape[0]))),) + obj.shape[1:]
-        return getitemop(obj, key, _shape=shape, _dtype=dtype)
-    elif numpy.isscalar(key):
-        assert key < obj.shape[0]
-        shape = obj.shape[1:]
-        return getitemop(obj, key, _shape=shape, _dtype=dtype)
-
-    # we now consider the case of having multiple elements
-    # first we transform all the elements into the new shape
-    new_shape = tuple([len(range(*k.indices(dim)))
-                       for k, dim in zip(key, obj.shape[:len(key)])])
-    new_shape += obj.shape[len(key):]
-    return getitemop(obj, key, _shape=new_shape, _dtype=dtype)
-
-
-# overloading the getattr method
-Tensor.__getitem__ = _getitem
-# overloading the basic arithmetic operators
-Tensor.__add__ = lambda obj, other: add(obj, other)
-Tensor.__radd__ = Tensor.__add__
-Tensor.__sub__ = lambda obj, other: sub(obj, other)
-Tensor.__rsub__ = lambda obj, other: sub(other, obj)
-Tensor.__mul__ = lambda obj, other: mul(obj, other)
-Tensor.__rmul__ = Tensor.__mul__
-Tensor.__truediv__ = lambda obj, other: div(obj, other)
-Tensor.__rtruediv__ = lambda obj, other: div(other, obj)
-# overloading comparison operators
-Tensor.__eq__ = lambda obj, other: eq(obj, other)
-Tensor.__req__ = Tensor.__eq__
-Tensor.__lt__ = lambda obj, other: le(obj, other)
-Tensor.__rlt__ = Tensor.__gt__
-Tensor.__gt__ = lambda obj, other: gr(obj, other)
-Tensor.__rgt__ = Tensor.__lt__
-Tensor.__ge__ = lambda obj, other: geq(obj, other)
-Tensor.__rge__ = Tensor.__le__
-Tensor.__le__ = lambda obj, other: leq(obj, other)
-Tensor.__rle__ = Tensor.__ge__
-Tensor.__ne__ = lambda obj, other: neq(obj, other)
-Tensor.__rne__ = Tensor.__ne__
-
-
-
-#
-
-# other
-cos = Op(jnp.cos, name='cos')
-sum = Op(jnp.sum, name='sum')
-identity = lambda x:x
-matmul = Op(jnp.matmul, name='matmul')
-reshape = Op(jnp.reshape, name='reshape')
-square =  Op(jnp.square, name='square')
-sqrt =  Op(jnp.sqrt, name='sqrt')
-
-flatten = lambda input: reshape(input, (-1,))
-flatten2d = lambda input: reshape(input, (input.shape[0], -1))
-
-def get_cond(obj, ins=dict()):
-    # argument list
-    print(obj)
-    if obj.eval_value is not None:
-        return obj.eval_value
-
-    # if the value given is already a tensor, delegates the
-    # computation to its own method
-    if not obj.is_fn:
-        return obj.fn.get(ins)
-
-    # evaluate the function kwargs as explicit jax arrays
-    kwargs = dict()
-    for name, var in obj.kwargs.items():
-        # if it is a Tensor
-        if hasattr(var, 'get'):
-            kwargs.update({name: var.get(ins)})
-        # if it is a function as in cond
-        elif name=='true_fn':
-            value = var(0)
-            if hasattr(value, 'get'):
-                kwargs.update({name: lambda x:value.get(ins)})
-            else:
-                kwargs.update({name: lambda x:value})
-        elif name=='false_fn':
-            value = var(0)
-            if hasattr(value, 'get'):
-                kwargs.update({name: lambda x:value.get(ins)})
-            else:
-                kwargs.update({name: lambda x:value})
-        # else it is a constant or array
-        else:
-            kwargs.update({name: var})
-    print(kwargs)
-    obj.eval_value = self.fn(**kwargs)
-    return obj.eval_value
-
-_cond = Op(jla.cond, name='cond')
-def cond(predicate, true_predicate, true_fun, false_predicate, false_fun):
-    """ predicate should be a boolean tensor with shape ()
-    true_input is the input passed to true_fn that will give the output
-    if the predicate evaluates to True, and conversely for False..."""
-    out1 = true_fun
-    out2 = false_fun
-#    assert out1.shape == out2.shape
-#    print(out1)
-    if numpy.isscalar(out1):
-        shape = ()
-        dtype = type(out1)
-    else:
-        shape = out1.shape
-        dtype = out1.dtype
-    op = _cond(predicate, true_predicate, true_fun, false_predicate,
-                 false_fun, _shape=shape, _dtype=dtype)
-    return op
-
-
-_cast = Op(jla.convert_element_type, 'cast')
-def cast(element, dtype):
-    return _cast(operand=element, new_dtype=dtype, _shape=element.shape, _dtype=dtype)
 
 # conv
 conv_general_dilated_op = Op(jla.conv_general_dilated,
@@ -153,7 +9,7 @@ conv_general_dilated_op = Op(jla.conv_general_dilated,
 
 def convNd(input, filter, strides=1, padding='VALID', input_format=None,
            filter_format=None, output_format=None, input_dilation=None,
-           filter_dilation=None):
+           filter_dilation=None)
     """General n-dimensional convolution operator, with optional dilation.
 
     Wraps Jax's conv_general_dilated functin, and thus also the XLA's `Conv
@@ -177,7 +33,7 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
              and `'NDCHW'` for 3d conv.
         input_dilation (`None`, int or sequence of int, optional): giving the
             dilation factor to apply in each spatial dimension of `input`.
-            Inumpy.t dilation is also known as transposed convolution as it allows
+            Input dilation is also known as transposed convolution as it allows
             to increase the output spatial dimension by inserting in the input
             any number of `0`s between each spatial value.
         filter_dilation (`None`, int or sequence of int): giving the dilation
@@ -202,7 +58,7 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
     appearing in rhs_spec that is not `'I'` or `'O'`.
     """
     # setting up the strides
-    if numpy.isscalar(strides):
+    if np.isscalar(strides):
         strides = (strides,) * (input.ndim-2)
     elif len(strides) != (input.ndim - 2):
         msg = 'given strides: {} should match the number'.format(strides) +\
@@ -220,12 +76,11 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
 
     # setting up the filter_format
     if filter_format is None:
-        print(filter.ndim)
-        if filter.ndim == 3:
+        if len(filter.shape) == 3:
             filter_format = 'OIW'
-        elif filter.ndim == 4:
+        if len(filter.shape) == 4:
             filter_format = 'OIHW'
-        elif filter.ndim == 5:
+        if len(filter.shape) == 5:
             filter_format = 'OIDHW'
         else:
             msg = 'filter_format should be given for >5 dimensions.'
@@ -239,9 +94,9 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
     if input_format is None:
         if len(filter.shape) == 3:
             input_format = 'NCW'
-        elif len(filter.shape) == 4:
+        if len(filter.shape) == 4:
             input_format = 'NCHW'
-        elif len(filter.shape) == 5:
+        if len(filter.shape) == 5:
             input_format = 'NCDHW'
         else:
             msg = 'input_format should be given for >5 dimensions.'
@@ -256,9 +111,9 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
     if output_format is None:
         if len(filter.shape) == 3:
             output_format = 'NCW'
-        elif len(filter.shape) == 4:
+        if len(filter.shape) == 4:
             output_format = 'NCHW'
-        elif len(filter.shape) == 5:
+        if len(filter.shape) == 5:
             output_format = 'NCDHW'
         else:
             msg = 'output_format should be given for >5 dimensions.'
@@ -277,7 +132,7 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
                                                 dimension_numbers=specs)
     output_dtype = 'float32'
     return conv_general_dilated_op(lhs=input, rhs=filter, window_strides=strides,
-                                 padding=padding, lhs_dilation=input_dilation,
+                                 padding, lhs_dilation=input_dilation,
                                  rhs_dilation=filter_dilation,
                                  dimension_numbers=specs, precision=None,
                                  _shape=output_shape, _dtype=output_dtype)
@@ -287,22 +142,21 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
 #                             dimension_numbers)
 
 # pooling
-pool_op = Op(jla.reduce_window)
 
-def pool(input, window_shape, reducer='MAX', strides=None, padding='VALID',
-          init_val=None, rescalor=None):
+def _pool(input, window_shape, reducer='MAX', strides=None, padding='VALID',
+            init_val=None, rescalor=None):
+    """Layer construction function for a pooling layer."""
+
 
     # set up the init_val if not given
     if reducer == 'MAX' and init_val is None:
-        init_val = -numpy.inf
+        init_val = -np.inf
     elif (reducer == 'SUM' or reducer=='AVG') and init_val is None:
         init_val = 0.
 
     # set up rescalor
-    if reducer == 'AVG':
-        rescalor = numpy.float32(1./numpy.prod(window_shape))
-    else:
-        rescalor = numpy.float32(1.)
+    elif reducer == 'AVG':
+        rescalor = lambda x: lax.div(x, np.prod(window_shape))
 
     # set up the reducer
     if reducer == 'MAX':
@@ -311,7 +165,7 @@ def pool(input, window_shape, reducer='MAX', strides=None, padding='VALID',
         reducer = jla.add
 
     # set up the window_shape
-    if numpy.isscalar(window_shape):
+    if np.isscalar(window_shape):
         window_shape = (window_shape,) * input.ndim
     elif len(window_shape) != input.ndim:
         msg = 'Given window_shape {} not the same length '.format(strides) +\
@@ -320,22 +174,27 @@ def pool(input, window_shape, reducer='MAX', strides=None, padding='VALID',
 
     # set up the strides
     if strides is None:
-        strides = window_shape
-    elif numpy.isscalar(strides):
+        strides = (1,) * len(window_shape)
+    elif np.isscalar(strides):
         strides = (strides,) * len(window_shape)
     elif len(strides) != len(window_shape):
         msg = 'Given strides {} not the same length '.format(strides) +\
               'as window_shape {}'.format(window_shape)
         raise ValueError(msg)
 
-    out_shape = jla.reduce_window_shape_tuple(input.shape, window_shape,
+    out_shape = lax.reduce_window_shape_tuple(input_shape, window_shape,
+                                              strides, padding)
+    out = lax.reduce_window(inputs, init_val, reducer, dims, strides, padding)
+    return rescalor(out) if rescalor is not None else out
+
+pool_op = Op(_pool)
+
+def pool(input, window_shape, reducer='MAX', strides=None, padding='VALID',
+          init_val=None, rescalor=None):
+    out_shape = lax.reduce_window_shape_tuple(input_shape, window_shape,
                                               strides, padding)
     out_dtype = input.dtype
-
-    out = pool_op(operand=input*rescalor, init_value=init_val,
-                  computation=reducer, window_dimensions=window_shape,
-                  window_strides=strides, padding=padding,
-                  _shape=out_shape, _dtype=out_dtype)
-    return out
+    return pool_op(input, window_shape, reducer='MAX', strides=None, padding='VALID',
+                   init_val=None, rescalor=None, _shape=out_shape, _dtype=out_dtype)
 
 

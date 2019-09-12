@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import tensorflow as tf
+import numpy
+from .. import tensor
+from ..tensor import Tensor, Op
 
-from .. import Tensor
-from ..utils import flatten
-
-class Op(Tensor):
+class Layer(Tensor):
     """Op class used as parent of any implemented layer.
 
     :py:class:`sknet` relies extremely heavily on the :py:class:`sknet.layer`
@@ -124,88 +123,78 @@ class Op(Tensor):
         this allows the user to feed directly a tensorflow variable as input
 
     """
-    def __new__(cls, *args, **kwargs):
-        obj = super().__new__(cls)
-        obj._updates = list()
-        obj.mask = None
-        return obj
 
-    def __init__(self, input, deterministic=None):
-
-        self._input = input
-        self._extra_variables = list()
+    def __init__(self, fn, args, variables, deterministic=None):
 
         if type(self).deterministic_behavior and deterministic is None:
-            self._deterministic = tf.placeholder(tf.bool, shape=(),
-                                                 name='deterministic')
+            self.deterministic = T.Placeholder(shape=(),dtype='bool',
+                                               name='deterministic')
         elif type(self).deterministic_behavior:
-            self._deterministic = deterministic
+            self.deterministic = deterministic
         else:
-            self._deterministic = None
-
-        output = self.forward(input, self._deterministic)
+            self.deterministic = None
+        self._variables = variables
+        self._extra_variables = list()
+        output = fn(*args)
         super().__init__(output)
 
-    def deter_dict(self, value):
+    def dict(self, key, value):
         """gather the deterministic variable and
         create a dictionary mapping this variable to value"""
-        if self.deterministic is not None:
-            return {self.deterministic: value}
+        if key in self.__dict__:
+            return {self.__dict__[key]: value}
         return dict()
 
     @property
-    def deterministic(self):
-        return self._deterministic
-
-    @property
-    def VQ(self):
-        return flatten(self.mask) if self.mask is not None else None
-
-    @property
     def reset_variables_op(self):
-        return tf.initializers.variables(self.variables(None))
+        # TO DO
+        return
 
-    def backward(self,input):
-        return tf.gradients(self,self.input,input)[0]
-
-    @property
-    def input(self):
-        return self._input
+    def backward(self, input):
+        # TO DO
+        return
 
     def add_variable(self, var):
+        assert var not in self.variables()
         self._extra_variables.append(var)
 
     def variables(self, trainable=None):
         if trainable is None:
-            variables = tf.global_variables(scope=self.name)
-            variables += self._extra_variables
+            return self._variables + self._extra_variables
         elif trainable:
-            variables = tf.trainable_variables(scope=self.name)
-            variables += [var for var in self._extra_variables
-                          if var in tf.trainable_variables()]
+            variables = [v for v in self._variables if v.trainable]
+            variables += [v for v in self._extra_variables if v.trainable]
         else:
-            all_vars = tf.global_variables(scope=self.name)
-            train_vars = tf.trainable_variables(scope=self.name)
-            variables = [var for var in all_vars if var not in train_vars]
-            variables += [var for var in self._extra_variables
-                          if var not in tf.trainable_variables()]
+            variables = [v for v in self._variables if not v.trainable]
+            variables += [v for v in self._extra_variables if not v.trainable]
         return variables
 
-    @property
-    def updates(self):
-        return self._updates
 
-    @property
-    def name(self):
-        return self._name
 
-class Identity(Op):
-    _name_ = 'IdentityOp'
-    deterministic_behavior = False
-    def __init__(self, input):
-        with tf.variable_scope(self._name_) as scope:
-            self._name = scope.original_name_scope
-            super().__init__(input)
+def ExponentialMovingAverage(value, alpha, step=None):
+    if step is None:
+        _step = tensor.Variable(0, trainable=False, name='step')
+    else:
+        _step = step
+    var = tensor.Variable(numpy.zeros(value.shape), trainable=False,
+                            name='EMA'+value.name)
+    false_fn =  var * alpha + (1 - alpha) * value
 
-    def forward(self,input,*args,**kwargs):
-        return input
+    new_value = tensor.cond(_step < 5, 0, lambda x:1, 0,
+                            lambda x: 0)
+    if step is None:
+        updates = {var: new_value, _step: _step + 1}
+    else:
+        updates = {var: new_value}
+    return var, updates, _step
+
+#class Identity(Op):
+#    _name_ = 'IdentityOp'
+#    deterministic_behavior = False
+#    def __init__(self, input):
+#        with tf.variable_scope(self._name_) as scope:
+#            self._name = scope.original_name_scope
+#            super().__init__(input)
+#
+#    def forward(self,input,*args,**kwargs):
+#        return input
