@@ -1,6 +1,6 @@
 import jax.numpy as jnp
 import jax.lax as jla
-from .base import Op
+from .base import Op, Tensor, theanofn_to_jaxfn
 from .base import Tensor
 import numpy
 
@@ -74,6 +74,11 @@ Tensor.__rne__ = Tensor.__ne__
 
 #
 
+zeros = Op(jnp.zeros, name='zeros')
+ones = Op(jnp.zeros, name='ones')
+full = Op(jla.full, name='full')
+
+
 # other
 cos = Op(jnp.cos, name='cos')
 sum = Op(jnp.sum, name='sum')
@@ -82,64 +87,31 @@ matmul = Op(jnp.matmul, name='matmul')
 reshape = Op(jnp.reshape, name='reshape')
 square =  Op(jnp.square, name='square')
 sqrt =  Op(jnp.sqrt, name='sqrt')
-
+arange = Op(jnp.arange, name='range')
+pow =  Op(jla.pow, name='pow')
 flatten = lambda input: reshape(input, (-1,))
 flatten2d = lambda input: reshape(input, (input.shape[0], -1))
 
-def get_cond(obj, ins=dict()):
-    # argument list
-    print(obj)
-    if obj.eval_value is not None:
-        return obj.eval_value
+_map = Op(jla.map, name='map')
+def map(fn, xs):
+    newfn = lambda x, _fn=fn: theanofn_to_jaxfn(*x, _fn=_fn)
+    return _map(newfn, xs)
 
-    # if the value given is already a tensor, delegates the
-    # computation to its own method
-    if not obj.is_fn:
-        return obj.fn.get(ins)
-
-    # evaluate the function kwargs as explicit jax arrays
-    kwargs = dict()
-    for name, var in obj.kwargs.items():
-        # if it is a Tensor
-        if hasattr(var, 'get'):
-            kwargs.update({name: var.get(ins)})
-        # if it is a function as in cond
-        elif name=='true_fn':
-            value = var(0)
-            if hasattr(value, 'get'):
-                kwargs.update({name: lambda x:value.get(ins)})
-            else:
-                kwargs.update({name: lambda x:value})
-        elif name=='false_fn':
-            value = var(0)
-            if hasattr(value, 'get'):
-                kwargs.update({name: lambda x:value.get(ins)})
-            else:
-                kwargs.update({name: lambda x:value})
-        # else it is a constant or array
-        else:
-            kwargs.update({name: var})
-    print(kwargs)
-    obj.eval_value = self.fn(**kwargs)
-    return obj.eval_value
+_scan = Op(jla.scan, name='scan')
+def scan(fn, init, xs):
+    newfn = lambda _init, _x, _fn=fn: theanofn_to_jaxfn(_init, *_x, _fn=_fn)
+    return _scan(newfn, init, xs)
 
 _cond = Op(jla.cond, name='cond')
 def cond(predicate, true_predicate, true_fun, false_predicate, false_fun):
     """ predicate should be a boolean tensor with shape ()
     true_input is the input passed to true_fn that will give the output
     if the predicate evaluates to True, and conversely for False..."""
-    out1 = true_fun
-    out2 = false_fun
-#    assert out1.shape == out2.shape
-#    print(out1)
-    if numpy.isscalar(out1):
-        shape = ()
-        dtype = type(out1)
-    else:
-        shape = out1.shape
-        dtype = out1.dtype
-    op = _cond(predicate, true_predicate, true_fun, false_predicate,
-                 false_fun, _shape=shape, _dtype=dtype)
+    newtruefn = lambda x, _fn=true_fun: theanofn_to_jaxfn(*x, _fn=_fn)
+    newfalsefn = lambda x, _fn=false_fun: theanofn_to_jaxfn(*x, _fn=_fn)
+
+    op = _cond(predicate, true_predicate, newtruefn, false_predicate,
+               newfalsefn)
     return op
 
 
@@ -220,7 +192,6 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
 
     # setting up the filter_format
     if filter_format is None:
-        print(filter.ndim)
         if filter.ndim == 3:
             filter_format = 'OIW'
         elif filter.ndim == 4:

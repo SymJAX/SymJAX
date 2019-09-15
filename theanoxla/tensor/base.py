@@ -75,7 +75,7 @@ def isvar(item):
         cond1 = isinstance(item, Tensor)
         cond2 = type(item) == jax.interpreters.partial_eval.JaxprTracer
         cond3 = not callable(item)
-        return cond1 or cond2 or cond3
+        return (cond1 or cond2) and cond3
 
 
 class Op:
@@ -111,12 +111,6 @@ class Op:
         """function that produces a new Op based on a given function"""
         self.fn = fn
         self.name = name
-#        # set up the correct docstring
-#        if docstring is not None:
-#            self.__docstring__ = docstring
-#        else:
-#            if hasattr(fn, '__docstring__'):
-#                self.__docstring__ = fn.__docstring__
 
     def __call__(self, *args, _shape=None, _dtype=None, **kwargs):
         return Tensor(self.fn, args=args, kwargs=kwargs,
@@ -177,7 +171,6 @@ class Tensor:
 
     def __init__(self, fn_or_tensor, args=[], kwargs={}, shape=None,
                  dtype=None, name='', all_dependencies=[]):
-
         self.kwargs = kwargs
         self.is_fn = callable(fn_or_tensor)
         self.name = name
@@ -254,22 +247,7 @@ class Tensor:
         # evaluate the function kwargs as explicit jax arrays
         kwargs = dict()
         for name, var in list(self.kwargs.items()):
-            if name == 'true_fun' or name == 'false_fun':
-                arg = self.kwargs[name[:-3]+'operand']
-#                argv = get(arg, ins)
-#                feed_dict = dict(zip(arg, argv))
-                if hasattr(var, 'get'):
-                    kwargs.update({name: lambda args, yy=arg, vv=var: vv.get(dict(zip(yy, args)))})
-                else:
-                    kwargs.update({name: lambda args, vv=var: vv})
-                print('HEEEEEEEEERE', name, 'output', arg)
-#                arg = self.kwargs['true_operand']
-#                argv = get(arg, ins)
-#                print('TRUE output', kwargs['true_fun'](0), kwargs['true_fun'])
-            else:
-                kwargs.update({name: get(var, tracker)})
-#        print(name, var)
-        print('function and kwargs', self.fn, kwargs)
+            kwargs.update({name: get(var, tracker)})
         tracker[self] = self.fn(**kwargs)
         return tracker[self]
 
@@ -334,13 +312,10 @@ class RandomTensor(Tensor):
 
         # kwarg dictionnary
         kwargs = dict()
-        print(self.kwargs)
         for name, var in self.kwargs.items():
-            print('var',var)
             if name == 'key':
                 continue
             kwargs.update({name: get(var, tracker)})
-#        print('function and kwargs', self.fn, kwargs)
         tracker[self] = self.fn(key, **kwargs)
         return tracker[self]
 
@@ -480,3 +455,21 @@ class Placeholder(Tensor):
         if self not in tracker:
             raise ValueError(' no value given for placeholder {}'.format(self))
         return tracker[self]
+
+def placeholder_like(item, name=''):
+    return Placeholder(item.shape, item.dtype, name=name)
+
+# we transform into
+def theanofn_to_jaxfn(*args, _fn, **kwargs):
+    # treat the args
+    pargs = list()
+    for arg in args:
+        pargs.append(placeholder_like(arg))
+    # treat the kwargs
+    pkwargs = dict()
+    for name, var in kwargs.items():
+        pkwargs[name] = placeholder_like(var)
+    output = _fn(*pargs, **pkwargs)
+    feed_dict = list(zip(pargs, args)) + list(zip(pkwargs.values(), kwargs.values()))
+    return output.get(dict(feed_dict))
+
