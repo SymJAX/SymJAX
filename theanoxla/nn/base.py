@@ -180,9 +180,9 @@ def ExponentialMovingAverage(value, alpha, step=None):
                             name='EMA'+value.name)
 #    false_fn =  var * alpha + (1 - alpha) * value
 
-    new_value = tensor.cond(_step == 1, tensor.List([value]), value,
-                            tensor.List([var, alpha, value]),
-                            var * alpha + (1 - alpha) * value)
+    new_value = tensor.cond(_step == 1, value, lambda x: x,
+                            (var, alpha, value), lambda a, b, c:
+                            a * b + (1 - b) * c)
     if step is None:
         updates = {var: new_value, _step: _step + 1}
     else:

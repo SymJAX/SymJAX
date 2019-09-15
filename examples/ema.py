@@ -8,19 +8,6 @@ import theanoxla.tensor as T
 import theanoxla.nn as nn
 
 w = T.Placeholder((3,), 'float32', name='w')
-t = T.Placeholder((), 'float32', name='t')
-update = T.cond(t==0, T.List([w]), T.sum(w), T.List([t]), t*4)
-fn = theanoxla.function(t, w, outputs=[update])
-
-print(fn(3.,jax.numpy.ones(3)))
-print(fn(2.,jax.numpy.ones(3)))
-print(fn(3.,jax.numpy.ones(3)))
-
-print('OUTOUT', update.get({t:jax.numpy.array(3.), w:jax.numpy.ones(3)}))
-print('OUTOUT', update.get({t:jax.numpy.array(2.), w:jax.numpy.ones(3)}))
-print('OUTOUT', update.get({t:jax.numpy.array(3.), w:jax.numpy.ones(3)}))
-#exit()
-#################
 alpha = 0.5
 var, updates, step = nn.ExponentialMovingAverage(w, alpha)
 train = theanoxla.function(w, outputs=[updates[var]], updates=updates)
@@ -33,10 +20,9 @@ aa= 0.5
 for j, i in enumerate(data):
     cost.append(train(i)[0])
     true_ema.append(aa*true_ema[-1]+(1-aa)*i)
-    print(cost[-1])
 cost = np.asarray(cost)
 true = np.asarray(true_ema)[1:]
-print(np.mean(np.isclose(cost, true)))
+print('% close values:', 100*np.mean(np.isclose(cost, true)))
 
 plt.subplot(131)
 plt.plot(data[:, 0])

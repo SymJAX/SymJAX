@@ -112,7 +112,9 @@ class Op:
         self.fn = fn
         self.name = name
 
-    def __call__(self, *args, _shape=None, _dtype=None, **kwargs):
+    def __call__(self, *args, _shape=None, _dtype=None, name='', **kwargs):
+        name = 'Op(' + self.name + ')' if name == '' else\
+                    'Op(' + self.name + ', ' + name + ')'
         return Tensor(self.fn, args=args, kwargs=kwargs,
                       name='Op(' + self.name + ')', shape=_shape, dtype=_dtype)
 
@@ -413,7 +415,7 @@ class Variable(Tensor):
     def __init__(self, value, name='', trainable=True):
         self.trainable = trainable
         if not isinstance(value, jax.interpreters.xla.DeviceArray):
-            self.value = np.array(value)
+            self.value = np.asarray(value)
             if numpy.isscalar(value):
                 shape = ()
                 dtype = type(value)

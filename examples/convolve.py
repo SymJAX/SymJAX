@@ -20,11 +20,10 @@ output = T.convNd(w, filter)
 
 f = theanoxla.function(w, filter, outputs=[output])
 
-for i in range(10):
-    data = np.random.randn(*SHAPE).astype('float32')
-    filter = np.random.randn(*SHAPE2).astype('float32')
-    output = f(data, filter)[0][0, 0]
-    target = conv(data,filter)
-    print('% close values:', 100*np.mean(np.isclose(target,
+data = np.random.randn(*SHAPE).astype('float32')
+filter = np.random.randn(*SHAPE2).astype('float32')
+output = f(data, filter)[0][0, 0]
+target = conv(data,filter)
+print('% close values:', 100*np.mean(np.isclose(target,
                                                     output).astype('float32')))
 

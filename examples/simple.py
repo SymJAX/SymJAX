@@ -7,24 +7,12 @@ import theanoxla
 import theanoxla.tensor as T
 
 SHAPE = (4, 4)
-z = T.Variable(np.random.randn(*SHAPE).astype('float32'), name='z')
-w = T.Placeholder(SHAPE, 'float32', name='w')
-y = T.cos(theanoxla.nn.activations.leaky_relu(z,0.3) + w)
-cost = T.pool(y, (2, 2))
-cost = T.sum(cost)
-
-np.random.seed(10)
-print(cost.get({w: np.random.randn(*SHAPE), z: z.value}))
-np.random.seed(10)
-print(cost.get({w: np.random.randn(*SHAPE)}))
-
-
-fn = jax.jit(lambda x, y: cost.get({w: x, z:y}))
-np.random.seed(10)
-print(fn(np.random.randn(*SHAPE), z.value))
-print(fn(np.random.randn(*SHAPE), z.value*1110))
-
-fn1 = theanoxla.function(w, z, outputs=[cost])
-np.random.seed(10)
-print(fn1(np.random.randn(*SHAPE), z.value))
-print(fn1(np.random.randn(*SHAPE), z.value*1110))
+a = T.Variable(np.random.randn(4, 4).astype('float32'))
+q = a*2
+#a = T.Variable(np.random.randn(4, 4).astype('float32'), name='a')
+#b = T.Placeholder((4, 4), 'float32')
+#b = T.Placeholder((4, 4), 'float32', name='b')
+#c = T.ones((4, 4))
+#print(c)
+#c = T.ones((4, 4), name='c')
+#print(c)
