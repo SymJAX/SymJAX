@@ -171,23 +171,6 @@ class Layer(Tensor):
 
 
 
-def ExponentialMovingAverage(value, alpha, step=None):
-    if step is None:
-        _step = tensor.Variable(1, trainable=False, name='step')
-    else:
-        _step = step
-    var = tensor.Variable(numpy.zeros(value.shape), trainable=False,
-                            name='EMA'+value.name)
-#    false_fn =  var * alpha + (1 - alpha) * value
-
-    new_value = tensor.cond(_step == 1, value, lambda x: x,
-                            (var, alpha, value), lambda a, b, c:
-                            a * b + (1 - b) * c)
-    if step is None:
-        updates = {var: new_value, _step: _step + 1}
-    else:
-        updates = {var: new_value}
-    return var, updates, _step
 
 #class Identity(Op):
 #    _name_ = 'IdentityOp'

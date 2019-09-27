@@ -416,6 +416,7 @@ class Variable(Tensor):
         self.trainable = trainable
         if not isinstance(value, jax.interpreters.xla.DeviceArray):
             self.value = np.asarray(value)
+            self.init_value = self.value + 0
             if numpy.isscalar(value):
                 shape = ()
                 dtype = type(value)
@@ -429,6 +430,9 @@ class Variable(Tensor):
         super().__init__(None, shape=shape, dtype=dtype, name=name,
                          all_dependencies=[self])
 
+    def reset(self):
+        self.value = self.init_value
+    
     def __repr__(self):
         return '(Variable: ' + self.print_name + 'dtype=' + str(self.dtype) + \
                ', shape='+str(self.shape) + ', trainable='+str(self.trainable) + ')'

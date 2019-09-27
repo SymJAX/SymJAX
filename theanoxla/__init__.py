@@ -5,9 +5,9 @@
 __all__ = [
 #        "datasets",
         "nn",
-        "tensor"]
+        "tensor",
 #        "schedules",
-#        "optimizers"]
+        "optimizers"]
 
 __version__ = 'alpha.1'
 

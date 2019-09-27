@@ -3,7 +3,6 @@
 
 
 __all__ = [
-        "optimizers",
         "activations"]
 #        "models"]
 

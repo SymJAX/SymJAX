@@ -1,7 +1,8 @@
 import jax.numpy as jnp
 import jax.lax as jla
 from .base import Op, Tensor, theanofn_to_jaxfn
-from .base import Tensor
+from .base import Tensor, Variable
+from .control_flow import cond
 import numpy
 
 # basic arithmetic operators
@@ -91,42 +92,6 @@ arange = Op(jnp.arange, name='range')
 pow =  Op(jla.pow, name='pow')
 flatten = lambda input: reshape(input, (-1,))
 flatten2d = lambda input: reshape(input, (input.shape[0], -1))
-
-_map = Op(jla.map, name='map')
-def map(fn, xs):
-    newfn = lambda x, _fn=fn: theanofn_to_jaxfn(*x, _fn=_fn)
-    return _map(newfn, xs)
-
-_scan = Op(jla.scan, name='scan')
-def scan(fn, init, xs):
-    newfn = lambda _init, _x, _fn=fn: theanofn_to_jaxfn(_init, *_x, _fn=_fn)
-    return _scan(newfn, init, xs)
-
-_cond = Op(jla.cond, name='cond')
-def cond(predicate, true_predicate, true_fun, false_predicate, false_fun):
-    """ predicate should be a boolean tensor with shape ()
-    true_input is the input passed to true_fn that will give the output
-    if the predicate evaluates to True, and conversely for False..."""
-
-    # in case the given predicates are not tuples, set them
-    if type(true_predicate) != tuple:
-        if type(true_predicate) == list:
-            true_predicate = tuple(true_predicate)
-        else:
-            true_predicate = (true_predicate, )
-    if type(false_predicate) != tuple:
-        if type(false_predicate) == list:
-            false_predicate = tuple(false_predicate)
-        else:
-            false_predicate = (false_predicate, )
-
-
-    newtruefn = lambda x, _fn=true_fun: theanofn_to_jaxfn(*x, _fn=_fn)
-    newfalsefn = lambda x, _fn=false_fun: theanofn_to_jaxfn(*x, _fn=_fn)
-
-    op = _cond(predicate, true_predicate, newtruefn, false_predicate,
-               newfalsefn)
-    return op
 
 
 _cast = Op(jla.convert_element_type, 'cast')
@@ -323,4 +288,24 @@ def pool(input, window_shape, reducer='MAX', strides=None, padding='VALID',
                   _shape=out_shape, _dtype=out_dtype)
     return out
 
+def ExponentialMovingAverage(value, alpha, step=None, init=None):
+    if step is None:
+        _step = Variable(0, trainable=False, name='step')
+    else:
+        _step = step
+    if init is None:
+        var = Variable(numpy.zeros(value.shape), trainable=False,
+                              name='EMA'+value.name)
+    else:
+        var = Variable(init, trainable=False,
+                              name='EMA'+value.name)
+
+    new_value = cond(_step == 0, value, lambda x: x,
+                     (var, alpha, value), lambda a, b, c:                                                                                              
+                     a * b + (1 - b) * c)
+    if step is None:
+        updates = {var: new_value, _step: _step + 1}
+    else:
+        updates = {var: new_value}
+    return var, updates, _step
 
