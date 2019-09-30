@@ -1,5 +1,6 @@
 import jax
 import jax.numpy as np
+from jax.random import _is_prng_key
 import numpy
 import inspect
 
@@ -107,7 +108,7 @@ class Op:
         (Tensor, dtype=float32, shape=())
     """
 
-    def __init__(self, fn, name='', docstring=None):
+    def __init__(self, fn, name='', docstring=None, is_root=False):
         """function that produces a new Op based on a given function"""
         self.fn = fn
         self.name = name
@@ -116,7 +117,7 @@ class Op:
         name = 'Op(' + self.name + ')' if name == '' else\
                     'Op(' + self.name + ', ' + name + ')'
         return Tensor(self.fn, args=args, kwargs=kwargs,
-                      name='Op(' + self.name + ')', shape=_shape, dtype=_dtype)
+                      name='Op(' + self.name + ')')
 
 
 class RandomOp(Op):
@@ -171,24 +172,30 @@ class RandomOp(Op):
 
 class Tensor:
 
-    def __init__(self, fn_or_tensor, args=[], kwargs={}, shape=None,
-                 dtype=None, name='', all_dependencies=[]):
+    def __init__(self, fn_or_tensor, args=[], kwargs={}, name='', roots=[],
+                 is_root=False):
         self.kwargs = kwargs
+        self.fn = fn_or_tensor
         self.is_fn = callable(fn_or_tensor)
         self.name = name
         self.print_name = 'name=' + name + ', ' if name != '' else ''
 
         if self.is_fn:
             # for convenience we only deal with kwargs, and thus transform
-            # any given are into a kwarg based on the function signature
+            # any given arg into a kwarg based on the function signature
             signature = list(inspect.signature(fn_or_tensor).parameters.keys())
             for arg, name in zip(args, signature[:len(args)]):
                 self.kwargs.update({name: arg})
             kwargs = self.kwargs.copy()
-        self.fn = fn_or_tensor
 
-        # set shape and dtype
-        if (shape is None or dtype is None) and not isinstance(fn_or_tensor, Tensor):
+            # set roots
+            self.roots = list() if not is_root else [self]
+            for value in kwargs.values():
+                if hasattr(value, 'roots'):
+                    self.roots += value.roots
+            self.roots = list(set(self.roots))
+
+            # set shape and dtype
             # if we have to use the automatic shape evaluation then we have to
             # take care of some problematic cases happening when a parameter
             # such as the shape in the reshape function is given. In fact, when
@@ -200,26 +207,31 @@ class Tensor:
             # get the function signature (inputs and keywords)
             signature = list(inspect.signature(self.fn).parameters.keys())
 
-            # to keep track of the removed arguments that won't be part of the
-            # inputs of the tweaked function
-            # then take care of the kwargs
+            # the kwargs that are constant are removed and put into
+            # extra_kwargs as they should not be probed to infer shape and
+            #dtype
             extra_kwargs = {}
             for name, arg in list(kwargs.items()):
-                if not isvar(arg):
+                if name == 'key' or not isvar(arg):
                     extra_kwargs.update({name: arg})
                     del kwargs[name]
+            # now use the builin function to infer shape and dtype given a
+            # lambda jax function
             tree = jax.eval_shape(lambda **b: self.fn(**b, **extra_kwargs),
                                   **kwargs)
             self.shape, self.dtype = tree.shape, tree.dtype
-
-        elif shape is not None and dtype is not None:
-            self.shape = shape
-            self.dtype = dtype
-
         else:
-            assert not self.is_fn
-            self.shape = fn_or_tensor.shape
-            self.dtype = fn_or_tensor.dtype
+            # set up the roots
+            self.roots = roots
+
+            # set shape and dtype
+            if type(self.fn) is tuple:
+                self.shape = self.fn[0]
+                self.dtype = self.fn[1]
+            else:
+                self.shape = self.fn.shape
+                self.dtype = self.fn.dtype
+
 
 
     def __repr__(self):
@@ -289,15 +301,8 @@ class RandomTensor(Tensor):
         self.seed = seed
         self.descr = descr
         key = jax.random.PRNGKey(seed)
-        if type(args) == list:
-            args = tuple(args)
-        # the shape and dtype argument must be given as they are not traceable
-        # we thus do a dummy evaluation a priori to get htem if not given
-        if shape is None or dtype is None:
-            dummy = _eval(*((key,)+args), **kwargs)
-            shape, dtype = dummy.shape, dummy.dtype
-        super().__init__(_eval, args=(key,)+args, kwargs=kwargs,
-                         shape=shape, dtype=dtype, name=name)
+        super().__init__(_eval, args=(key,)+args, kwargs=kwargs, name=name,
+                         is_root=True)
 
     def __repr__(self):
         return '(RandomTensor: ' + self.descr + self.print_name + 'dtype=' + str(self.dtype) + \
@@ -323,17 +328,12 @@ class RandomTensor(Tensor):
 
 
 
+class SubTensor(Tensor):
 
-
-
-class SubTuple(Tensor):
-
-    def __init__(self, shape, dtype, index, parent):
+    def __init__(self, tensor, index, parent, roots, name=''):
         self.parent = parent
         self.index = index
-        if not hasattr(self, 'name'):
-            self.name = ''
-        super().__init__(None, shape=shape, dtype=dtype)
+        super().__init__(tensor, roots=roots, name=name)
 
     def get(self, tracker=dict()):
         return self.parent.get(tracker)[self.index]
@@ -344,24 +344,23 @@ class List:
 
     def __init__(self, fn_or_list, shapes=None, dtypes=None, args=[], kwargs={}):
 
-        # for convenience we only deal with kwargs, and thus transform
-        # any given are into a kwarg based on the function signature
-#        signature = list(inspect.signature(fn).parameters.keys())
-#        for arg, name in zip(args, signature[:len(args)]):
-#            kwargs.update({name: arg})
         self.args = args
         self.kwargs = kwargs
-        self.is_fn = callable(fn_or_list)
         self.fn = fn_or_list
-        self.shapes = shapes
-        self.dtypes = dtypes
         self.name = ''
-        if self.is_fn:
-            self.items = [SubTuple(shape, dtype, i, self)
-                          for (i, shape), dtype in zip(enumerate(self.shapes),
-                                                       self.dtypes)]
-        else:
-            self.items = fn_or_list
+        # set roots
+        roots = list()
+        for value in kwargs.values():
+            if hasattr(value, 'roots'):
+                roots += value.roots
+        for value in args:
+            if hasattr(value, 'roots'):
+                roots += value.roots
+
+        roots = list(set(roots))
+
+        self.items = [SubTensor((shape, dtype), i, self, roots=[])
+                 for (i, shape), dtype in zip(enumerate(shapes), dtypes)]
     def __iter__(self):
         self.current_i = 0
         return self
@@ -383,12 +382,12 @@ class List:
             return tracker[self]
 
         # if it was just a list of Tensor then evaluate them
-        if not self.is_fn:
-            values = list()
-            for var in self.items:
-                values.append(get(var, tracker))
-            tracker[self] = values
-            return values
+#        if not self.is_fn:
+#            values = list()
+#            for var in self.items:
+#                values.append(get(var, tracker))
+#            tracker[self] = values
+#            return values
 
         # kwarg dictionnary
         args = list()
@@ -427,12 +426,11 @@ class Variable(Tensor):
             self.value = value
             shape = value.shape
             dtype = value.dtype
-        super().__init__(None, shape=shape, dtype=dtype, name=name,
-                         all_dependencies=[self])
+        super().__init__(self.value, name=name, roots=[self])
 
     def reset(self):
         self.value = self.init_value
-    
+
     def __repr__(self):
         return '(Variable: ' + self.print_name + 'dtype=' + str(self.dtype) + \
                ', shape='+str(self.shape) + ', trainable='+str(self.trainable) + ')'
@@ -450,8 +448,7 @@ class Placeholder(Tensor):
 
     def __init__(self, shape, dtype, name=''):
         name = name
-        super().__init__(None, shape=shape, dtype=dtype, name=name,
-                         all_dependencies=[self])
+        super().__init__((shape, dtype), name=name, roots=[self])
 
     def __repr__(self):
         return '(Placeholder: ' + self.print_name + 'dtype=' + str(self.dtype) + \

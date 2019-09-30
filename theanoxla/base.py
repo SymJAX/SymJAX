@@ -3,16 +3,44 @@ import jax.numpy as np
 import numpy as NP
 from . import tensor
 
-def gradients(scalar, deps, argnums):
+def gradients(scalar, deps):
     assert scalar.shape == ()
-#    argnums = [i for i, dep in enumerate(deps) if dep in params]
+
+    # get all the roots, this is needed as otherwise they are not
+    # as the input of the gradient function and thus a change of
+    # their value will not change the gradient computation
+    all_roots = scalar.roots
+
+    print(deps)
+    print(all_roots)
+
+    # now we check if we have to differentiate w.r.t a non root variable
+    to_add = list()
+    for i, dep in enumerate(deps):
+        if dep not in all_roots:
+            to_add.append(i)
+    all_roots += [deps[i] for i in to_add]
+
+    # get the argnum (index of the function input that will have to be
+    # differentiated
+    argnums = list()
+    for dep in deps:
+        for i, arg in enumerate(all_roots):
+            print(dep, arg)
+            if dep is arg:
+                argnums.append(i)
+
+    other = []
+
+    # create a dummy function that is needed for jax to compute a gradient func
     def fn(*args):
-        return scalar.get(dict(zip(deps, list(args))))
-    params = [deps[i] for i in argnums]
-    shapes = [param.shape for param in params]
-    dtypes = [param.dtype for param in params]
+        return scalar.get(dict(zip(all_roots, list(args))))
     grad_fn = jax.grad(fn, argnums)
-    return tensor.List(grad_fn, shapes, dtypes, args=deps)
+
+    # compute the shape and type of the gradients to create the List
+    shapes = [all_roots[i].shape for i in argnums]
+    dtypes = [all_roots[i].dtype for i in argnums]
+    return tensor.List(grad_fn, shapes, dtypes, args=all_roots)
 
 
 class function:
