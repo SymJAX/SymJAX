@@ -51,11 +51,17 @@ def reset(item):
 
 
 def get(item, tracker):
-    if item in tracker:
-        return tracker[item]
-    elif type(item) == list or type(item) == tuple:
+    # we need to take care of slices first as they are
+    # not hashable
+#    if type(item) == slice:
+#        return item
+    # important to do this case first to deal with a list of
+    # unashable variables
+    if type(item) == list or type(item) == tuple:
         current = [get(i, tracker) for i in item]
         return current
+    elif item in tracker:
+        return tracker[item]
     elif hasattr(item, 'get'):
         item.get(tracker)
         return tracker[item]
@@ -76,6 +82,7 @@ def isvar(item):
         cond1 = isinstance(item, Tensor)
         cond2 = type(item) == jax.interpreters.partial_eval.JaxprTracer
         cond3 = not callable(item)
+#        print(item, (cond1 or cond2) and cond3)
         return (cond1 or cond2) and cond3
 
 
@@ -174,6 +181,7 @@ class Tensor:
 
     def __init__(self, fn_or_tensor, args=[], kwargs={}, name='', roots=[],
                  is_root=False):
+        print(args, kwargs)
         self.kwargs = kwargs
         self.fn = fn_or_tensor
         self.is_fn = callable(fn_or_tensor)
@@ -408,6 +416,33 @@ class List:
         return tracker[self]
 
 
+class Slice(Tensor):
+    def __init__(self, islice):
+        self.islice = islice
+        self.print_name = 'Slice'
+
+    def __repr__(self):
+        return 'SLICE TO CHANGE'
+
+    def get(self, tracker={}):
+        if self in tracker:
+            return tracker[self]
+        if type(islice.start) != int:
+            start = islice.start.get(tracker)
+        else:
+            start = islice.start
+        #
+        if type(islice.stop) != int:
+            end = islice.stop.get(tracker)
+        else:
+            end = islice.stop
+        #
+        if type(islice.step) != int:
+            step = islice.step.get(tracker)
+        else:
+            step = islice.step
+        tracker[self] = slice(start, end, step)
+        return tracker[self]
 
 class Variable(Tensor):
 
@@ -473,6 +508,8 @@ def theanofn_to_jaxfn(*args, _fn, **kwargs):
     for name, var in kwargs.items():
         pkwargs[name] = placeholder_like(var)
     output = _fn(*pargs, **pkwargs)
-    feed_dict = list(zip(pargs, args)) + list(zip(pkwargs.values(), kwargs.values()))
+    feed_dict = list(zip(pargs, args)) + list(zip(pkwargs.values(),
+                                                  kwargs.values()))
+    print(feed_dict)
     return output.get(dict(feed_dict))
 

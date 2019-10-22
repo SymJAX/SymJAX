@@ -15,15 +15,15 @@ grads = theanoxla.gradients(cost, [z])
 
 sgd = theanoxla.optimizers.SGD([z], grads, 0.001)
 adam = theanoxla.optimizers.Adam([z], grads, 0.001)
-getgrad = theanoxla.function(outputs=[grads[0]], updates={z2:z2+1})
 
+#getgrad = theanoxla.function(outputs=[grads[0]], updates={z2:z2+1})
 trainsgd = theanoxla.function(outputs=[cost], updates=sgd)
 trainadam = theanoxla.function(outputs=[cost], updates=adam)
 
 
-for i in range(10):
-    print(getgrad())
-exit()
+#for i in range(10):
+#    print(getgrad())
+#exit()
 
 cost = list()
 for i in range(1000):

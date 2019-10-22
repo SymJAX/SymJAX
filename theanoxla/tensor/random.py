@@ -1,6 +1,6 @@
 import jax.random as jnp
 from .base import RandomOp
-from .ops import cast
+from .ops_base import cast
 
 _normal = RandomOp(jnp.normal)
 _uniform = RandomOp(jnp.uniform)
