@@ -209,7 +209,7 @@ def ExponentialMovingAverage(value, alpha, step=None, init=None):
                               name='EMA'+value.name)
 
     new_value = cond(_step == 0, value, lambda x: x,
-                     (var, alpha, value), lambda a, b, c:                                                                                              
+                     (var, alpha, value), lambda a, b, c:
                      a * b + (1 - b) * c)
     if step is None:
         updates = {var: new_value, _step: _step + 1}

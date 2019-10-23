@@ -225,6 +225,7 @@ class Tensor:
                     del kwargs[name]
             # now use the builin function to infer shape and dtype given a
             # lambda jax function
+            self.kwargs, self.extra_kwargs = kwargs, extra_kwargs
             tree = jax.eval_shape(lambda **b: self.fn(**b, **extra_kwargs),
                                   **kwargs)
             self.shape, self.dtype = tree.shape, tree.dtype
@@ -270,7 +271,7 @@ class Tensor:
         kwargs = dict()
         for name, var in list(self.kwargs.items()):
             kwargs.update({name: get(var, tracker)})
-        tracker[self] = self.fn(**kwargs)
+        tracker[self] = self.fn(**kwargs, **self.extra_kwargs)
         return tracker[self]
 
 

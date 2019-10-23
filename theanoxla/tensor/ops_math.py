@@ -6,6 +6,8 @@ from .control_flow import cond
 # other
 cos = Op(jnp.cos, name='cos')
 sum = Op(jnp.sum, name='sum')
+prod = Op(jnp.prod, name='prod')
+
 identity = lambda x:x
 matmul = Op(jnp.matmul, name='matmul')
 reshape = Op(jnp.reshape, name='reshape')
