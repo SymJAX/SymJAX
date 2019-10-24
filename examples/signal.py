@@ -58,29 +58,22 @@ SIGNAL = SIGNAL / SIGNAL.max()
 SS = 2**13
 signal = T.Placeholder((SS,), 'float32')
 
-def patchesop(signal, h, hop=1):
-    N = (signal.shape[0] - h ) // hop +1
-    indices = jax.numpy.repeat(jax.numpy.reshape(jax.numpy.arange(h), (1, h)), N, 0)
-    indices = indices + jax.numpy.reshape(jax.numpy.arange(0, N), (N, 1)) * hop
-    return jax.numpy.reshape(signal[jax.numpy.reshape(indices, [N * h])], (N, h))
-
-patches = T.Op(patchesop, name='wvd')
 mini_signal = T.Placeholder((16,), 'int32')
-pp = patches(mini_signal, 5)
-qq = T.fliplr(patches(mini_signal, 5))
+pp = T.extract_signal_patches(mini_signal, 5)
+qq = T.fliplr(T.extract_signal_patches(mini_signal, 5))
 
 get_patch = theanoxla.function(mini_signal, outputs=[T.concatenate([pp, qq], 1)])
 print(get_patch(np.arange(16, dtype='int32'))[0])
 
 
 def wvd(signal, h):
-    p = patches(signal, h)
+    p = T.extract_signal_patches(signal, h)
     pr = p * T.fliplr(p)
     qr = T.real(T.fft(T.cast(p,'complex64'), xla_client.FftType.FFT, (h,)))
     return qr
 
 def spec(signal, h):
-    p = patches(signal, h)
+    p = T.extract_signal_patches(signal, h)
     qr = T.fft(T.cast(p,'complex64'), xla_client.FftType.FFT, (h,))
     return qr
 
@@ -88,13 +81,23 @@ def spec(signal, h):
 
 
 output1 = wvd(signal, 4096)
+
+X, Y = T.meshgrid(T.linspace(-5, 5, 8), T.linspace(-5, 5, 8))
+Z = T.stack([X.flatten(), Y.flatten()], 1)
+COV = T.Variable(np.random.rand(2,2), name='cov')
+gaussian = T.exp(-(Z.dot(T.abs(COV))*Z).sum(1)).reshape((8, 8))
+output1c = T.convNd(T.expand_dims(T.expand_dims(output1,0), 0),
+                    T.expand_dims(T.expand_dims(gaussian, 0), 0) / gaussian.sum())
+
 output2 = spec(signal, 4096)
 
 f = theanoxla.function(signal, outputs = [output1])
 g = theanoxla.function(signal, outputs = [output2])
+h = theanoxla.function(signal, outputs = [output1c[0, 0]])
+
 
 alls = list()
-WW = 50
+WW = 5
 f(SIGNAL[: SS].astype('float32'))[0][:, 2048:]
 g(SIGNAL[: SS].astype('float32'))[0][:, 2048:]
 
@@ -109,13 +112,23 @@ for W in range(WW):
     alls.append(f(SIGNAL[W*SS:(W+1)*SS].astype('float32'))[0][:, 2048:])
 print(time.time() - t)
 
+
+allsc = list()
+t = time.time()
+for W in range(WW):
+    allsc.append(h(SIGNAL[W*SS:(W+1)*SS].astype('float32'))[0][:, 2048:])
+print(time.time() - t)
+
+
 plt.figure(figsize=(18, 5))
 #print(u.shape)
-plt.subplot(311)
+plt.subplot(411)
 plt.plot(SIGNAL[:WW*SS])
-plt.subplot(312)
+plt.subplot(412)
 plt.imshow(np.log(np.abs(np.concatenate(alls, 0).T) + 0.000001), aspect='auto')
-plt.subplot(313)
+plt.subplot(413)
+plt.imshow(np.log(np.abs(np.concatenate(allsc, 0).T) + 0.000001), aspect='auto')
+plt.subplot(414)
 t = time.time()
 plt.specgram(SIGNAL[:WW*SS], noverlap=4095, NFFT=4096, Fs = 1)
 print(time.time()-t)

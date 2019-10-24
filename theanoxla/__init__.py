@@ -3,9 +3,10 @@
 
 
 __all__ = [
-#        "datasets",
+        "datasets",
         "nn",
         "tensor",
+        "losses",
 #        "schedules",
         "optimizers"]
 

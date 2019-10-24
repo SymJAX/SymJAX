@@ -1,40 +1,48 @@
 import jax.numpy as jnp
 import jax.lax as jla
-from .base import Tensor
+from .base import Tensor, Op
 
-import .ops_base
-import .ops_math
-
+from . import ops_base, ops_math
 
 
-Tensor.__getitem__ = getitemop
+getitemop = Op(jnp.lax_numpy._rewriting_take, name='getitem')
+Tensor.__getitem__ = lambda obj, idx: getitemop(obj, idx)
 
 # overloading the basic arithmetic operators
-Tensor.__add__ = ops_base.add
+Tensor.__add__ = lambda obj, other: ops_base.add(obj, other)
 Tensor.__radd__ = Tensor.__add__
-Tensor.__sub__ = ops_base.sub
+Tensor.__sub__ = lambda obj, other: ops_base.sub(obj, other)
 Tensor.__rsub__ = lambda obj, other: ops_base.sub(other, obj)
-Tensor.__mul__ = ops_base.mul
+Tensor.__mul__ = lambda obj, other: ops_base.mul(obj, other)
 Tensor.__rmul__ = Tensor.__mul__
-Tensor.__truediv__ = ops_base.div
+Tensor.__truediv__ = lambda obj, other: ops_base.div(obj, other)
 Tensor.__rtruediv__ = lambda obj, other: ops_base.div(other, obj)
+Tensor.__neg__ = lambda obj: ops_base.sub(0, obj)
 
 # overloading comparison operators
-Tensor.__eq__ = ops_base.eq
-Tensor.__req__ = Tensor.__eq__
-Tensor.__lt__ = ops_base.le
-Tensor.__rlt__ = Tensor.__gt__
-Tensor.__gt__ = ops_base.gr
+#Tensor.__eq__ = lambda obj, other: ops_base.eq(obj, other)
+#Tensor.__req__ = Tensor.__eq__
+Tensor.__lt__ = lambda obj, other: ops_base.le(obj, other)
+Tensor.__rlt__ = lambda obj, other: Tensor.__gt__(obj, other)
+Tensor.__gt__ = lambda obj, other: ops_base.gr(obj, other)
 Tensor.__rgt__ = Tensor.__lt__
-Tensor.__ge__ = ops_base.geq
-Tensor.__rge__ = Tensor.__le__
-Tensor.__le__ = ops_base.leq
-Tensor.__rle__ = Tensor.__ge__
-Tensor.__ne__ = ops_base.neq
-Tensor.__rne__ = Tensor.__ne__
+Tensor.__ge__ = lambda obj, other: ops_base.geq(obj, other)
+Tensor.__rge__ = lambda obj, other: Tensor.__le__(obj, other)
+Tensor.__le__ = lambda obj, other: ops_base.leq(obj, other)
+Tensor.__rle__ = lambda obj, other: Tensor.__ge__(obj, other)
+#Tensor.__ne__ = lambda obj, other: ops_base.neq(obj, other)
+#Tensor.__rne__ = lambda obj, other: Tensor.__ne__(obj, other)
 
 # additional operators
-Tensor.sum = ops_math.sum
-Tensor.prod = ops_math.prod
+Tensor.sum = lambda obj, *args, **kwargs: ops_math.sum(obj, *args, **kwargs)
+Tensor.mean = lambda obj, *args, **kwargs: ops_math.mean(obj, *args, **kwargs)
+Tensor.max = lambda obj, *args, **kwargs: ops_math.max(obj, *args, **kwargs)
+Tensor.argmax = lambda obj, *args, **kwargs: ops_math.argmax(obj, *args, **kwargs)
 
+Tensor.prod = lambda obj, *args, **kwargs: ops_math.prod(obj, *args, **kwargs)
+
+Tensor.flatten = lambda obj: ops_math.flatten(obj)
+Tensor.reshape = lambda obj, new_shape: ops_math.reshape(obj, new_shape)
+Tensor.T = lambda obj: ops_math.transpose(obj)
+Tensor.dot = lambda obj, other: ops_math.dot(obj, other)
 

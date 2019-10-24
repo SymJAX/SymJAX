@@ -1,3 +1,6 @@
+from . import tensor as T
+
+
 def sparse_crossentropy_logits(p, q, weights=None):
     """Cross entropy loss given that :math:`p` is sparse and
     :math:`q` is the log-probability.
@@ -32,7 +35,7 @@ def sparse_crossentropy_logits(p, q, weights=None):
     linear = T.take(q, p, 1)
     # LogSumExp with max removal
     q_max = T.stop_gradient(q.max(1, keepdims=True))
-    logsumexp = T.log(tf.exp(q-q_max).sum(1))+q_max[:,0]
+    logsumexp = T.log(T.exp(q-q_max).sum(1))+q_max[:,0]
     if weights is not None:
         return T.mean(weights*(-linear + logsumexp))
     else:
@@ -44,7 +47,7 @@ def crossentropy_logits(p, q, weights=None, p_sparse=True):
     linear = (p*q).sum(1)
     # LogSumExp with max removal
     q_max = T.stop_gradient(q.max(1, keepdims=True))
-    logsumexp = T.log(tf.exp(q-q_max).sum(1))+q_max[:,0]
+    logsumexp = T.log(T.exp(q-q_max).sum(1))+q_max[:,0]
     if weights is not None:
         return T.mean(weights*(-linear + logsumexp))
     else:
@@ -55,11 +58,7 @@ def crossentropy_logits(p, q, weights=None, p_sparse=True):
 def accuracy(targets, predictions):
     if predictions.ndim == 2:
         predictions = predictions.argmax(1)
-    if targets.dtype == 'int32' and predictions.dtype == 'int64':
-        predictions = T.cast(predictions, 'int32')
-    elif targets.dtype == 'int64' and predictions.dtype == 'int32':
-        targets = tf.cast(targets, 'int32')
-    accu = tf.cast(targets == predictions, tf.float32).mean()
+    accu = T.cast(T.equal(targets, predictions), 'float32').mean()
     return accu
 
 

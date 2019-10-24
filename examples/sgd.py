@@ -6,13 +6,13 @@ import theanoxla.tensor as T
 import numpy as np
 
 
-SHAPE = (4, 4)
+SHAPE = (1, 1)
 z = T.Variable(np.random.randn(*SHAPE).astype('float32'), name='z')
 z2 = T.Variable(np.ones(SHAPE).astype('float32'), name='z2')
 
-cost = T.sum(T.pool(T.cos(z + z2), (2, 2)))
+cost = T.sum(T.poolNd(T.cos(z + z2), (1, 1)))
 grads = theanoxla.gradients(cost, [z])
-
+print('gradients', grads)
 sgd = theanoxla.optimizers.SGD([z], grads, 0.001)
 adam = theanoxla.optimizers.Adam([z], grads, 0.001)
 
@@ -26,12 +26,13 @@ trainadam = theanoxla.function(outputs=[cost], updates=adam)
 #exit()
 
 cost = list()
-for i in range(1000):
+for i in range(10):
     cost.append(trainsgd()[0])
+    print(z.get({}))
 
 z.reset()
 
-for i in range(1000):
+for i in range(10):
     cost.append(trainadam()[0])
 
 
@@ -39,4 +40,4 @@ for i in range(1000):
 import matplotlib.pyplot as plt
 plt.plot(cost)
 plt.title('cost')
-plt.show()
+plt.show(block=True)

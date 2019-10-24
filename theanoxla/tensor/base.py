@@ -226,8 +226,9 @@ class Tensor:
             # now use the builin function to infer shape and dtype given a
             # lambda jax function
             self.kwargs, self.extra_kwargs = kwargs, extra_kwargs
-            tree = jax.eval_shape(lambda **b: self.fn(**b, **extra_kwargs),
-                                  **kwargs)
+            print(self.kwargs, self.extra_kwargs)
+            tree = jax.eval_shape(lambda **b: self.fn(**b, **self.extra_kwargs),
+                                  **self.kwargs)
             self.shape, self.dtype = tree.shape, tree.dtype
         else:
             # set up the roots
@@ -258,7 +259,9 @@ class Tensor:
         return len(self.shape)
 
 
-    def get(self, tracker=dict()):
+    def get(self, tracker=None):
+        if tracker is None:
+            tracker = dict()
         if self in tracker:
             return tracker[self]
 
@@ -317,7 +320,9 @@ class RandomTensor(Tensor):
         return '(RandomTensor: ' + self.descr + self.print_name + 'dtype=' + str(self.dtype) + \
                ', shape='+str(self.shape) + ')'
 
-    def get(self, tracker=dict()):
+    def get(self, tracker=None):
+        if tracker is None:
+            tracker = dict()
         if self in tracker:
             return tracker[self]
         # argument list
@@ -344,12 +349,20 @@ class SubTensor(Tensor):
         self.index = index
         super().__init__(tensor, roots=roots, name=name)
 
-    def get(self, tracker=dict()):
+    def get(self, tracker=None):
         return self.parent.get(tracker)[self.index]
 
 
 
-class List:
+class List(tuple):
+
+    def __new__ (cls, fn, shapes=None, dtypes=None, args=[], kwargs={}):
+        trees = jax.eval_shape(lambda *a, **b: fn(*a, **b), *args,
+                              **kwargs)
+        items = [SubTensor((t.shape, t.dtype), i, None, roots=[])
+                      for i, t in enumerate(trees)]
+
+        return super(List, cls).__new__(cls, tuple(items))
 
     def __init__(self, fn_or_list, shapes=None, dtypes=None, args=[], kwargs={}):
 
@@ -367,36 +380,38 @@ class List:
                 roots += value.roots
 
         roots = list(set(roots))
+        for item in self:
+            item.parent = self
 
-        self.items = [SubTensor((shape, dtype), i, self, roots=[])
-                 for (i, shape), dtype in zip(enumerate(shapes), dtypes)]
-    def __iter__(self):
-        self.current_i = 0
-        return self
+        # now use the built-in function to infer shape and dtype given a
+        # lambda jax function
+        self.args, self.kwargs = args, kwargs
+#        trees = jax.eval_shape(lambda *a, **b: self.fn(*a, **b), *args,
+#                              **self.kwargs)
 
-    def __next__(self):
-        self.current_i += 1
-        if self.current_i > len(self):
-            return StopIteration
-        return self[self.current_i-1]
+#        super().__init__([SubTensor((t.shape, t.dtype), i, self, roots=[])
+#                      for i, t in enumerate(trees)])
+#    def __iter__(self):
+#        self.current_i = 0
+#        return self
+#
+#    def __next__(self):
+#        self.current_i += 1
+#        if self.current_i > len(self):
+#            return StopIteration
+#        return self[self.current_i-1]
+#
+#    def __getitem__(self, key):
+#            return self.items[key]
+#
+#    def __len__(self):
+#            return len(self.items)
 
-    def __getitem__(self, key):
-            return self.items[key]
-
-    def __len__(self):
-            return len(self.items)
-
-    def get(self, tracker=dict()):
+    def get(self, tracker=None):
+        if tracker is None:
+            tracker = dict()
         if self in tracker:
             return tracker[self]
-
-        # if it was just a list of Tensor then evaluate them
-#        if not self.is_fn:
-#            values = list()
-#            for var in self.items:
-#                values.append(get(var, tracker))
-#            tracker[self] = values
-#            return values
 
         # kwarg dictionnary
         args = list()
@@ -408,7 +423,7 @@ class List:
             kwargs.update({name: get(var, tracker)})
 
         # we add the list object itself into the dictionnary first
-        tracker[self] = self.fn(*args, **kwargs)
+        tracker[self] = tuple(self.fn(*args, **kwargs))
 
         # then we add each element of the list into the dictionnary
         for i in range(len(self)):
@@ -472,12 +487,10 @@ class Variable(Tensor):
                ', shape='+str(self.shape) + ', trainable='+str(self.trainable) + ')'
 
 
-    def get(self, tracker={}):
-        if self in tracker:
-            return tracker[self]
-        else:
+    def get(self, tracker):
+        if self not in tracker:
             tracker[self] = self.value
-            return tracker[self]
+        return self.value
 
 
 class Placeholder(Tensor):
@@ -494,6 +507,7 @@ class Placeholder(Tensor):
         if self not in tracker:
             raise ValueError(' no value given for placeholder {}'.format(self))
         return tracker[self]
+
 
 def placeholder_like(item, name=''):
     return Placeholder(item.shape, item.dtype, name=name)

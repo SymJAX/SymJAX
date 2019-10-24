@@ -1,9 +1,10 @@
 import jax.numpy as jnp
 import jax.lax as jla
 
-from .base import Op
-from .base import Tensor
+from .base import Op, Tensor, Variable
+from .control_flow import cond
 
+import numpy
 
 
 # conv
@@ -147,7 +148,7 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
 # pooling
 pool_op = Op(jla.reduce_window)
 
-def pool(input, window_shape, reducer='MAX', strides=None, padding='VALID',
+def poolNd(input, window_shape, reducer='MAX', strides=None, padding='VALID',
           init_val=None, rescalor=None):
 
     # set up the init_val if not given

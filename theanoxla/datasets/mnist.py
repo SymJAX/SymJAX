@@ -3,7 +3,6 @@ import pickle,gzip
 import urllib.request
 import numpy as np
 import time
-from . import Dataset
 
 from ..utils import to_one_hot, DownloadProgressBar
 
@@ -30,10 +29,9 @@ def load(PATH=None, classes=range(10)):
     if PATH is None:
         PATH = os.environ['DATASET_PATH']
     datum_shape = (1,28,28)
-    dict_init = [("n_classes", len(classes)),("name", "mnist"),
-                    ('classes', [str(u) for u in range(10)])]
+    infos = [("n_classes", len(classes)),("name", "mnist"),
+             ('classes', [str(u) for u in range(10)])]
 
-    dataset = Dataset(**dict(dict_init))
     print('Loading mnist')
 
     t0 = time.time()

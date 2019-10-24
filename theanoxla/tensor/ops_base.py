@@ -2,8 +2,6 @@ import jax.numpy as jnp
 import jax.lax as jla
 from .base import Op
 
-# access operator
-getitemop = Op(jnp.lax_numpy._rewriting_take, name='getitem')
 
 
 gather = Op(jla.gather, name='gather')
