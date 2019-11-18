@@ -18,7 +18,7 @@ Tensor.__rmul__ = Tensor.__mul__
 Tensor.__truediv__ = lambda obj, other: ops_base.div(obj, other)
 Tensor.__rtruediv__ = lambda obj, other: ops_base.div(other, obj)
 Tensor.__neg__ = lambda obj: ops_base.sub(0, obj)
-
+Tensor.__pow__ = lambda obj, other: ops_math.pow(obj, other)
 # overloading comparison operators
 #Tensor.__eq__ = lambda obj, other: ops_base.eq(obj, other)
 #Tensor.__req__ = Tensor.__eq__
@@ -38,11 +38,15 @@ Tensor.sum = lambda obj, *args, **kwargs: ops_math.sum(obj, *args, **kwargs)
 Tensor.mean = lambda obj, *args, **kwargs: ops_math.mean(obj, *args, **kwargs)
 Tensor.max = lambda obj, *args, **kwargs: ops_math.max(obj, *args, **kwargs)
 Tensor.argmax = lambda obj, *args, **kwargs: ops_math.argmax(obj, *args, **kwargs)
+Tensor.std = lambda obj, *args, **kwargs: ops_math.std(obj, *args, **kwargs)
+Tensor.var = lambda obj, *args, **kwargs: ops_math.var(obj, *args, **kwargs)
 
+
+Tensor.astype = lambda obj, dtype: ops_base.cast(obj, dtype)
 Tensor.prod = lambda obj, *args, **kwargs: ops_math.prod(obj, *args, **kwargs)
-
+Tensor.squeeze = lambda obj: ops_math.squeeze(obj)
 Tensor.flatten = lambda obj: ops_math.flatten(obj)
 Tensor.reshape = lambda obj, new_shape: ops_math.reshape(obj, new_shape)
 Tensor.T = lambda obj: ops_math.transpose(obj)
 Tensor.dot = lambda obj, other: ops_math.dot(obj, other)
-
+Tensor.transpose = lambda  obj, *args, **kwargs: ops_math.transpose(obj, *args, **kwargs)

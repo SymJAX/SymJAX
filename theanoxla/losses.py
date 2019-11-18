@@ -32,22 +32,18 @@ def sparse_crossentropy_logits(p, q, weights=None):
     vectors which should be nonnegative and sum to one.
     """
     # the linear part of the loss
-    linear = T.take(q, p, 1)
-    # LogSumExp with max removal
-    q_max = T.stop_gradient(q.max(1, keepdims=True))
-    logsumexp = T.log(T.exp(q-q_max).sum(1))+q_max[:,0]
+    linear = T.take_along_axis(q, p[:, None], 1).squeeze()
+    logsumexp = T.logsumexp(q, 1)
     if weights is not None:
         return T.mean(weights*(-linear + logsumexp))
     else:
-        return T.mean(-linear + logsumexp)
+        return T.mean(logsumexp - linear)
 
 
 def crossentropy_logits(p, q, weights=None, p_sparse=True):
     """see sparse cross entropy"""
     linear = (p*q).sum(1)
-    # LogSumExp with max removal
-    q_max = T.stop_gradient(q.max(1, keepdims=True))
-    logsumexp = T.log(T.exp(q-q_max).sum(1))+q_max[:,0]
+    logsumexp = T.logsumexp(q, 1)
     if weights is not None:
         return T.mean(weights*(-linear + logsumexp))
     else:
@@ -55,10 +51,52 @@ def crossentropy_logits(p, q, weights=None, p_sparse=True):
 
 
 
+def multiclass_hinge_loss(predictions, targets, delta=1):
+    """Computes the multi-class hinge loss between predictions and targets.
+    .. math:: L_i = \\max_{j \\not = t_i} (0, p_j - p_{t_i} + \\delta)
+    Parameters
+    ----------
+    predictions : Theano 2D tensor
+        Predictions in (0, 1), such as softmax output of a neural network,
+        with data points in rows and class probabilities in columns.
+    targets : Theano 2D tensor or 1D tensor
+        Either a vector of int giving the correct class index per data point
+        or a 2D tensor of one-hot encoding of the correct class in the same
+        layout as predictions (non-binary targets in [0, 1] do not work!)
+    delta : scalar, default 1
+        The hinge loss margin
+    Returns
+    -------
+    Theano 1D tensor
+        An expression for the item-wise multi-class hinge loss
+    Notes
+    -----
+    This is an alternative to the categorical cross-entropy loss for
+    multi-class classification problems
+    """
+    num_cls = predictions.shape[1]
+    if targets.ndim == predictions.ndim - 1:
+        targets = T.to_one_hot(targets, num_cls)
+    elif targets.ndim != predictions.ndim:
+        raise TypeError('rank mismatch between targets and predictions')
+    corrects = predictions[targets.nonzero()]
+    rest = predictions[(1-targets).nonzero()].reshape((-1, num_cls-1))
+    rest = rest.max(axis=1)
+    return T.activations.relu(rest - corrects + delta)
+
+
+
+def SSE(targets, predictions):
+    accu = ((targets - predictions)**2.).sum()
+    return accu
+
+
+
 def accuracy(targets, predictions):
     if predictions.ndim == 2:
-        predictions = predictions.argmax(1)
-    accu = T.cast(T.equal(targets, predictions), 'float32').mean()
-    return accu
+        accu = T.cast(T.equal(targets, predictions.argmax(1)), 'float32')
+    else:
+        accu = T.cast(T.equal(targets, predictions), 'float32')
+    return accu.mean()
 
 

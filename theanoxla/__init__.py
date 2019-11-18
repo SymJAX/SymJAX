@@ -4,9 +4,11 @@
 
 __all__ = [
         "datasets",
-        "nn",
         "tensor",
         "losses",
+        "utils",
+        "initializers",
+        "layers",
 #        "schedules",
         "optimizers"]
 

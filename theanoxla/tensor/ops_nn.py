@@ -3,7 +3,7 @@ import jax.lax as jla
 
 from .base import Op, Tensor, Variable
 from .control_flow import cond
-
+from .ops_base import dynamic_slice_in_dim
 import numpy
 
 
@@ -204,10 +204,9 @@ def ExponentialMovingAverage(value, alpha, step=None, init=None):
         _step = step
     if init is None:
         var = Variable(numpy.zeros(value.shape), trainable=False,
-                              name='EMA'+value.name)
+                              name='EMA')
     else:
-        var = Variable(init, trainable=False,
-                              name='EMA'+value.name)
+        var = Variable(init, trainable=False, name='EMA')
 
     new_value = cond(_step == 0, value, lambda x: x,
                      (var, alpha, value), lambda a, b, c:
@@ -219,3 +218,25 @@ def ExponentialMovingAverage(value, alpha, step=None, init=None):
     return var, updates, _step
 
 # con
+
+def PiecewiseConstant(init, values, step=None):
+    """
+    init it the initial value
+    values is a dictionnary mapping the knots and the new value
+    step count the number of steps
+    """
+    if step is None:
+        step = Variable(0, trainable=False, name='PiecewiseConstant_step')
+    keys, values = list(values.keys()), list(values.values())
+    keys.insert(0, 0)
+    values.insert(0, init)
+    keys, values = numpy.array(keys), numpy.array(values)
+    assert numpy.prod(keys >= 0)
+    arg = numpy.argsort(keys)
+    keys, values = keys[arg], values[arg]
+    print(keys, values)
+#    keys = numpy.concatenate([[-1], keys])
+    index = (step < keys).argmax()
+    v = Variable(values, trainable=False, name='PiecewiseConstant_values')
+    return dynamic_slice_in_dim(v, index-1, 1, 0), step
+

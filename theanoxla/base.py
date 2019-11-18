@@ -11,9 +11,6 @@ def gradients(scalar, deps):
     # their value will not change the gradient computation
     all_roots = scalar.roots
 
-    print(deps)
-    print(all_roots)
-
     # now we check if we have to differentiate w.r.t a non root variable
     to_add = list()
     for i, dep in enumerate(deps):
@@ -26,7 +23,6 @@ def gradients(scalar, deps):
     argnums = list()
     for dep in deps:
         for i, arg in enumerate(all_roots):
-            print(dep, arg)
             if dep is arg:
                 argnums.append(i)
 
@@ -44,21 +40,42 @@ def gradients(scalar, deps):
 
 
 class function:
-    def __init__(self, *classargs, outputs=[], updates={}, device=None):
+    def __init__(self, *classargs, outputs=[], updates=None, device=None):
 
-        # ensure that we only aim at updating variables
-        for update in updates.keys():
-            assert isinstance(update, tensor.Variable)
+        # check the updates
+        if updates is None:
+            updates = {}
+        else:
+            for update in updates.keys():
+                if not isinstance(update, tensor.Variable):
+                    raise RuntimeError(
+                  "{} is not a Variable, it can not be updated".format(update))
 
-        # now create the function that will take the inputs and return
-        # the update values (if any) and the outputs, this function is the one that
-        # will be jit compiled for performances
+        # check the inputs
+        placeholders = []
+        for output in outputs:
+            placeholders += filter(lambda x: isinstance(x, tensor.Placeholder),
+                                   output.roots)
+        placeholders = list(set(placeholders))
+        for placeholder in placeholders:
+            if placeholder not in classargs:
+                raise RuntimeError(
+                    "Placeholder {} was not given as function input".format(placeholder))
+        print("PLACEHOLDERS", placeholders)
+
+        # create the function that will take the inputs and return the update
+        # values (if any) and the outputs, this function is jit compiled for
+        # performances, we also add the roots/updates as hidden inputs
+        update_inputs = list(updates.keys())
+        hidden_inputs = list()
+        for output in outputs:
+            only_vars = filter(lambda x:isinstance(x, tensor.Variable), output.roots)
+            for variable in only_vars:
+                if variable not in hidden_inputs:
+                    hidden_inputs.append(variable)
         def jitfn(*jitargs, rng):
 
-            # the args are made of the actual inputs of the final function as
-            # well as the values to be updated, we thus concatenate the latter to
-            # the former and then convert to a dict
-            allargs = list(classargs) + list(updates.keys())
+            allargs = list(classargs) + update_inputs + hidden_inputs
             kwargs = dict(zip(allargs, jitargs))
             kwargs.update({'rng': rng})
 
@@ -73,21 +90,19 @@ class function:
         jitfn = jax.jit(jitfn, device_assignment=device)
         self.jitfn = jitfn
 
-        # now define the actual user-function that will only take as input the
-        # inputs variables and internally also compute and update the variables
-        # if any, that are in updates
+        # define the frontend function that takes as input the inputs variables
+        # and internally compute and update the variables if any
         def meta(*fnargs, rng):
 
             # ensure that the number of arguments is correct
             assert len(fnargs) == len(classargs)
 
             # get the addition inputs to the function (the values to be updated)
-            variables = list(updates.keys())
-            update_args = [var.value for var in variables]
+            hidden_values = [var.value for var in update_inputs + hidden_inputs]
 
             # retreive the function outputs and updated values and apply them
-            fn_outputs, fn_updates = self.jitfn(*fnargs, *update_args, rng=rng)
-            for key, update in zip(variables, fn_updates):
+            fn_outputs, fn_updates = self.jitfn(*fnargs, *hidden_values, rng=rng)
+            for key, update in zip(update_inputs, fn_updates):
                 key.value = update
             return fn_outputs
 

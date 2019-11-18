@@ -6,6 +6,8 @@ from .base import Op
 
 gather = Op(jla.gather, name='gather')
 take = Op(jnp.take, name='take')
+take_along_axis = Op(jnp.take_along_axis, name='take_along_axis')
+index_take = Op(jla.index_take, name='index_take')
 
 slice = Op(jla.slice, name='slice')
 dynamic_slice = Op(jla.dynamic_slice, name='dynamic_slice')

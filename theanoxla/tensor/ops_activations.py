@@ -1,6 +1,6 @@
 from ..tensor.base import Op
 import jax.numpy as np
-
+import jax.lax as jla
 
 def _sigmoid(x):
     return 1./(1.+np.exp(x))
@@ -9,15 +9,15 @@ def _silu(x):
     return x * _sigmoid(x)
 
 def _hard_tanh(x):
-  return np.where(x > 1, 1, np.where(x < -1, -1, x))
+    return np.where(x > 1, 1, np.where(x < -1, -1, x))
 
 def _log_softmax(x, axis=-1):
-  shifted = x - x.max(axis, keepdims=True)
-  return shifted - np.log(np.sum(np.exp(shifted), axis, keepdims=True))
+    shifted = x - jla.stop_gradient(x.max(axis, keepdims=True))
+    return shifted - np.log(np.sum(np.exp(shifted), axis, keepdims=True))
 
 def _softmax(x, axis=-1):
-  unnormalized = np.exp(x - x.max(axis, keepdims=True))
-  return unnormalized / unnormalized.sum(axis, keepdims=True)
+    unnormalized = np.exp(x - jla.stop_gradient(x.max(axis, keepdims=True)))
+    return unnormalized / unnormalized.sum(axis, keepdims=True)
 
 def _relu(x):
     return np.maximum(x, 0.)
@@ -43,3 +43,5 @@ silu = Op(_silu, name='silu',
 
 softmax = Op(_softmax, name='softmax',
              docstring="softmax activation function")
+
+

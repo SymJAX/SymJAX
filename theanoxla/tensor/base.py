@@ -7,38 +7,6 @@ import inspect
 
 
 
-def get_output_for(values, feed_dict, reset=True):
-    print('in getoutputfor with', values, feed_dict)
-
-    if type(values) != list and type(values) != tuple:
-        no_list = True
-        values = [values]
-    else:
-        no_list = False
-    # reset the values. This is needed as we do not force the value
-    # computation below, and values might already have been computed with
-    # some tracer to evaluate shape etc ... hence we force a full
-    # graph evaluation again
-    if reset:
-        print('resetting')
-        for value in values:
-            print(value.eval_value)
-            if hasattr(value, 'reset_value'):
-                value.reset_value(True)
-        for value in values:
-            print(value.eval_value)
-
-    if 'rng' not in feed_dict:
-        if '_rng' not in globals():
-            globals()['_rng'] = 0
-        if reset:
-            globals()['_rng'] += 1
-        feed_dict['rng'] = globals()['_rng']
-
-    outputs = list()
-    for value in values:
-        outputs.append(get(value, feed_dict))
-    return outputs if not no_list else outputs[0]
 
 def reset(item):
     if type(item) == list or type(item) == tuple:
@@ -50,13 +18,18 @@ def reset(item):
             reset(i)
 
 
+
+
+def getroots(item, roots = []):
+    if type(item) == list or type(item) == tuple:
+        return roots + sum([getroots(i, roots) for i in item], [])
+    elif hasattr(item, 'roots'):
+        return roots + item.roots
+    else:
+        return []
+
+
 def get(item, tracker):
-    # we need to take care of slices first as they are
-    # not hashable
-#    if type(item) == slice:
-#        return item
-    # important to do this case first to deal with a list of
-    # unashable variables
     if type(item) == list or type(item) == tuple:
         current = [get(i, tracker) for i in item]
         return current
@@ -67,6 +40,27 @@ def get(item, tracker):
         return tracker[item]
     else:
         return item
+
+def extract_variables(items, acc = []):
+    if not isinstance(items, Tensor) and hasattr(items, '__len__'):
+        for item in items:
+            acc += getdepts(item, acc)
+    elif isinstance(items, Variable):
+        return [item]
+    else:
+        return []
+    return acc
+
+def extract_variables_placeholders(items, acc = []):
+    if not isinstance(items, Tensor) and hasattr(items, '__len__'):
+        for item in items:
+            acc += getdepts(item, acc)
+    elif isinstance(items, Variable) or isinstance(items, Placeholder):
+        return [item]
+    else:
+        return []
+    return acc
+
 
 
 def isdep(item):
@@ -82,7 +76,6 @@ def isvar(item):
         cond1 = isinstance(item, Tensor)
         cond2 = type(item) == jax.interpreters.partial_eval.JaxprTracer
         cond3 = not callable(item)
-#        print(item, (cond1 or cond2) and cond3)
         return (cond1 or cond2) and cond3
 
 
@@ -154,7 +147,7 @@ class RandomOp(Op):
         (RandomTensor : dtype=float32, shape=(3, 3))
     """
 
-    def __call__(self, *args, _shape=None, _dtype=None, seed=None, name='',
+    def __call__(self, *args, seed=None, name='',
                  descr='', **kwargs):
         # the seed determines the value of the realisation, if not given, one
         # is assigned based on a cumulative seed tracking. That is, each new
@@ -169,8 +162,7 @@ class RandomOp(Op):
                 globals()['seed_acc'] += 1
             seed = globals()['seed_acc']
         tensor =  RandomTensor(_eval=self.fn, args=args, kwargs=kwargs,
-                               shape=_shape, dtype=_dtype, seed=seed,
-                               name=name, descr=descr)
+                               seed=seed, name=name, descr=descr)
         return tensor
 
 
@@ -181,7 +173,6 @@ class Tensor:
 
     def __init__(self, fn_or_tensor, args=[], kwargs={}, name='', roots=[],
                  is_root=False):
-        print(args, kwargs)
         self.kwargs = kwargs
         self.fn = fn_or_tensor
         self.is_fn = callable(fn_or_tensor)
@@ -197,47 +188,52 @@ class Tensor:
             kwargs = self.kwargs.copy()
 
             # set roots
-            self.roots = list() if not is_root else [self]
-            for value in kwargs.values():
-                if hasattr(value, 'roots'):
-                    self.roots += value.roots
-            self.roots = list(set(self.roots))
+            if is_root:
+                self.roots = [self]
+            else:
+                roots = getroots([i for i in kwargs.values()])#[]
+#                for value in kwargs.values():
+#                    if hasattr(value, 'roots'):
+#                        roots += value.roots
+                self.roots = list(set(roots))
 
-            # set shape and dtype
-            # if we have to use the automatic shape evaluation then we have to
-            # take care of some problematic cases happening when a parameter
-            # such as the shape in the reshape function is given. In fact, when
-            # trying to infer the shape, each input ( arg or kwarg) is given as
-            # a tracer to monitor internal computations. But those parameters
-            # are not the ones that support such assignments and we thus have
-            # to infer the shape using a slightly tweaked function
+            # set shape and dtype:  we to use the automatic shape evaluation.
+            # We take care of some problematic cases happening when a parameter
+            # such as the shape in the reshape function is given. 
+            # When trying to infer the shape, each function input is given as
+            # a tracer to monitor internal computations. But those constant
+            # parameters do not that support tracing, we thus have to infer
+            # the shape using a tweaked function with them not as args/kwargs
 
             # get the function signature (inputs and keywords)
             signature = list(inspect.signature(self.fn).parameters.keys())
 
-            # the kwargs that are constant are removed and put into
-            # extra_kwargs as they should not be probed to infer shape and
-            #dtype
+            # the kwargs that are constant are moved into extra_kwargs
             extra_kwargs = {}
             for name, arg in list(kwargs.items()):
                 if name == 'key' or not isvar(arg):
                     extra_kwargs.update({name: arg})
                     del kwargs[name]
+
             # now use the builin function to infer shape and dtype given a
             # lambda jax function
             self.kwargs, self.extra_kwargs = kwargs, extra_kwargs
-            print(self.kwargs, self.extra_kwargs)
             tree = jax.eval_shape(lambda **b: self.fn(**b, **self.extra_kwargs),
                                   **self.kwargs)
             self.shape, self.dtype = tree.shape, tree.dtype
         else:
             # set up the roots
-            self.roots = roots
+            if is_root:
+                self.roots = [self]
+            else:
+                self.roots = []#roots
 
             # set shape and dtype
             if type(self.fn) is tuple:
                 self.shape = self.fn[0]
                 self.dtype = self.fn[1]
+            elif isinstance(self.fn, Tensor):
+                self.__dict__.update(self.fn.__dict__)
             else:
                 self.shape = self.fn.shape
                 self.dtype = self.fn.dtype
@@ -250,9 +246,6 @@ class Tensor:
 
     def __str__(self):
         return self.__repr__()
-
-    def __len__(self):
-        return self.shape[0] if self.ndim > 0 else 0
 
     @property
     def ndim(self):
@@ -308,8 +301,8 @@ class RandomTensor(Tensor):
         >>> node + 2
         (Tensor, dtype=int32, shape=(3, 3))
     """
-    def __init__(self, _eval, seed, shape=None, dtype=None, args=(), kwargs={},
-                 name='', descr=''):
+
+    def __init__(self, _eval, seed, args=(), kwargs={}, name='', descr=''):
         self.seed = seed
         self.descr = descr
         key = jax.random.PRNGKey(seed)
@@ -323,8 +316,9 @@ class RandomTensor(Tensor):
     def get(self, tracker=None):
         if tracker is None:
             tracker = dict()
-        if self in tracker:
+        elif self in tracker:
             return tracker[self]
+
         # argument list
         if 'rng' in tracker:
             key = jax.random.PRNGKey(self.seed+tracker['rng'])
@@ -334,10 +328,10 @@ class RandomTensor(Tensor):
         # kwarg dictionnary
         kwargs = dict()
         for name, var in self.kwargs.items():
-            if name == 'key':
-                continue
             kwargs.update({name: get(var, tracker)})
-        tracker[self] = self.fn(key, **kwargs)
+        if 'key' in self.extra_kwargs:
+            del self.extra_kwargs['key']
+        tracker[self] = self.fn(key, **kwargs, **self.extra_kwargs)
         return tracker[self]
 
 
@@ -386,26 +380,6 @@ class List(tuple):
         # now use the built-in function to infer shape and dtype given a
         # lambda jax function
         self.args, self.kwargs = args, kwargs
-#        trees = jax.eval_shape(lambda *a, **b: self.fn(*a, **b), *args,
-#                              **self.kwargs)
-
-#        super().__init__([SubTensor((t.shape, t.dtype), i, self, roots=[])
-#                      for i, t in enumerate(trees)])
-#    def __iter__(self):
-#        self.current_i = 0
-#        return self
-#
-#    def __next__(self):
-#        self.current_i += 1
-#        if self.current_i > len(self):
-#            return StopIteration
-#        return self[self.current_i-1]
-#
-#    def __getitem__(self, key):
-#            return self.items[key]
-#
-#    def __len__(self):
-#            return len(self.items)
 
     def get(self, tracker=None):
         if tracker is None:
@@ -432,33 +406,6 @@ class List(tuple):
         return tracker[self]
 
 
-class Slice(Tensor):
-    def __init__(self, islice):
-        self.islice = islice
-        self.print_name = 'Slice'
-
-    def __repr__(self):
-        return 'SLICE TO CHANGE'
-
-    def get(self, tracker={}):
-        if self in tracker:
-            return tracker[self]
-        if type(islice.start) != int:
-            start = islice.start.get(tracker)
-        else:
-            start = islice.start
-        #
-        if type(islice.stop) != int:
-            end = islice.stop.get(tracker)
-        else:
-            end = islice.stop
-        #
-        if type(islice.step) != int:
-            step = islice.step.get(tracker)
-        else:
-            step = islice.step
-        tracker[self] = slice(start, end, step)
-        return tracker[self]
 
 class Variable(Tensor):
 
@@ -477,7 +424,7 @@ class Variable(Tensor):
             self.value = value
             shape = value.shape
             dtype = value.dtype
-        super().__init__(self.value, name=name, roots=[self])
+        super().__init__(self.value, name=name, is_root=True)
 
     def reset(self):
         self.value = self.init_value
@@ -497,7 +444,7 @@ class Placeholder(Tensor):
 
     def __init__(self, shape, dtype, name=''):
         name = name
-        super().__init__((shape, dtype), name=name, roots=[self])
+        super().__init__((shape, dtype), name=name, is_root = True)
 
     def __repr__(self):
         return '(Placeholder: ' + self.print_name + 'dtype=' + str(self.dtype) + \
@@ -506,6 +453,8 @@ class Placeholder(Tensor):
     def get(self, tracker):
         if self not in tracker:
             raise ValueError(' no value given for placeholder {}'.format(self))
+#            tracker[self] = np.zeros(self.shape, dtype=self.dtype)
+#            return np.zeros(self.shape, dtype=self.dtype)
         return tracker[self]
 
 
@@ -525,6 +474,5 @@ def theanofn_to_jaxfn(*args, _fn, **kwargs):
     output = _fn(*pargs, **pkwargs)
     feed_dict = list(zip(pargs, args)) + list(zip(pkwargs.values(),
                                                   kwargs.values()))
-    print(feed_dict)
     return output.get(dict(feed_dict))
 

@@ -56,6 +56,7 @@ def uniform(shape=(), lower=0, upper=1, dtype='float32'):
     """
     return _uniform(shape=shape, minval=lower, maxval=upper, dtype=dtype, _dtype=dtype, _shape=shape)
 
+
 def bernoulli(shape=(), p=0.5, dtype='bool', name=''):
     """
     Generate a Bernoulli random tensor with i.i.d. elements with
@@ -75,7 +76,7 @@ def bernoulli(shape=(), p=0.5, dtype='bool', name=''):
         >>> print(bernoulli((3, 3), 0.5))
         (RandomTensor Bernoulli(0.2): dtype=bool, shape=(3, 3))
     """
-    rv = _bernoulli(shape=shape, p=p, _shape=shape, _dtype='bool', name=name,
+    rv = _bernoulli(shape=shape, p=p, name=name,
                     descr='Bernoulli(' + str(p) + ')')
     if dtype == 'bool':
         return rv
