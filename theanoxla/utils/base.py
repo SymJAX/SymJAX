@@ -34,7 +34,10 @@ class batchify:
         else:
             perm = self.permutation[self.indices[0]: self.indices[1]]
             batch = [arg[perm] for arg in self.args]
-        return tuple(batch)
+        if len(self.args) == 1:
+            return batch[0]
+        else:
+            return tuple(batch)
 
 
 

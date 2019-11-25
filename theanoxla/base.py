@@ -40,7 +40,8 @@ def gradients(scalar, deps):
 
 
 class function:
-    def __init__(self, *classargs, outputs=[], updates=None, device=None):
+    def __init__(self, *classargs, outputs=[], updates=None, device=None,
+                 backend=None):
 
         # check the updates
         if updates is None:
@@ -87,7 +88,7 @@ class function:
             return jit_outputs, jit_updates
 
         # we compile our underlying function
-        jitfn = jax.jit(jitfn, device_assignment=device)
+        jitfn = jax.jit(jitfn, device=device, backend=backend)
         self.jitfn = jitfn
 
         # define the frontend function that takes as input the inputs variables

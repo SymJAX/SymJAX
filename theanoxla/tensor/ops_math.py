@@ -3,9 +3,48 @@ import numpy
 import jax.lax as jla
 from .base import Op, List
 from .control_flow import cond
-
+from .ops_activations import relu
 
 #
+
+
+def hat_1D(x, t_left, t_center, t_right):
+    """
+    Hat function, continuous piecewise linear, such that::
+        f(x) = \begin{cases}
+                    0 \iff x \not \in (t_left,t_right)\\
+                    1 \iff x = t_center\\
+                    \frac{x - t_left}{t_center - t_left} \iff x \in (t_left, t]\\
+                    \frac{x - t_center}{t_center - t_right} \iff x \in (t_left, t]
+                \end{cases}
+    Parameters
+    ----------
+
+    x :: array-like
+        the sampled input space
+    t_left :: scalar
+        the position of the left knot
+   t_center :: scalar
+        the position of the center knot
+    t_right :: scalar
+        the position of the right knot
+
+    Returns
+    -------
+    output :: array
+        same shape as x with applied hat function
+    """
+
+#    if t_left > t_center or t_right < t_center:
+#        print('wrong order for the knots')
+    slope_left = 1 / (t_center - t_left)
+    slope_right = 1 / (t_right - t_center)
+    output = (relu(x - t_left)) * slope_left\
+            - relu(x - t_center) * (slope_left + slope_right)\
+            + relu(x - t_right) * slope_right
+    return output
+
+
 def patchesop(signal, window_length, hop=1, data_format='NCW'):
     assert not hasattr(window_length, '__len__')
     if data_format == 'NCW':
@@ -92,6 +131,7 @@ prod = Op(jnp.prod, name='prod')
 linspace = Op(jnp.linspace, name='linspace')
 exp = Op(jnp.exp, name='exp')
 log = Op(jnp.log, name='log')
+log10 = Op(jnp.log10, name='log10')
 abs = Op(jnp.abs, name='abs')
 dot = Op(jnp.dot, name='dot')
 equal = Op(jnp.equal, name='equal')

@@ -126,12 +126,18 @@ class Conv2D(Layer):
         if callable(b):
             b = T.Variable(b((n_filters,)))
             self.add_variable(b, 'b')
+        elif b is None:
+            self.b = None
         else:
             assert b.shape == (n_filters,)
             self.b = b
 
     def forward(self, input, **kwargs):
-        output = T.convNd(input, self.W, strides=kwargs['strides']) + T.expand_dims(T.expand_dims(self.b, 1), 1)
+        if self.b is None:
+            b = 0
+        else:
+            b = T.expand_dims(T.expand_dims(self.b, 1), 1)
+        output = T.convNd(input, self.W, strides=kwargs['strides']) + b
         return output
 
 class Pool2D(Layer):

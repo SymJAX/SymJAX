@@ -251,6 +251,9 @@ class Tensor:
     def ndim(self):
         return len(self.shape)
 
+    @property
+    def T(self):
+        pass
 
     def get(self, tracker=None):
         if tracker is None:
