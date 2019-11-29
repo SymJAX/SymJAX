@@ -9,7 +9,39 @@ import theanoxla.tensor as T
 
 
 image = T.range(64).reshape((1, 1, 8, 8))
-patches = T.extract_image_patches(image, (2, 1))
+output = theanoxla.layers.RandomCrop(image, (4, 4), (0, 0), 0)
+rand = T.random.randint(0, 10, (10,))
+print(image.get({}))
+print(output.get({}))
+print(rand.get({}))
+print(rand.get({}))
+f = theanoxla.function(outputs=[output])
+print(f())
+print(f())
+print(f())
+print(f())
+print(f())
+print(f())
+print(f())
+print(f())
+
+sdf
+
+image = T.transpose(T.range(64).reshape((1, 1, 8, 8))) + T.random.normal((1, 1, 8, 8))
+q = T.Tensor(image,0)
+print(isinstance(image, T.Tensor))
+print(image)
+print(image)
+print(q)
+asdf
+T.signal.fft(image, axes=(-1,))
+print(image)
+print(image.get({}))
+
+#print(T.gather(image, [0, 1]))
+#print(T.gather(image, [0, 1]).get({}))
+
+#patches = T.extract_image_patches(image, (2, 1))
 print(patches.shape)
 print(patches.get({})[0,0,0,0])
 sdf

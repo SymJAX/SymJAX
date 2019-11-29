@@ -1,15 +1,16 @@
 import jax.numpy as jnp
 import jax.lax as jla
 
-from .base import Op, Tensor, Variable
+from .base import Op, Tensor, Variable, add_fn
 from .control_flow import cond
-from .ops_base import dynamic_slice_in_dim
+#from .ops_base import dynamic_slice_in_dim
 import numpy
 
 
 # conv
-conv_general_dilated_op = Op(jla.conv_general_dilated,
-                           name='conv_general_dilated')
+class conv_general_dilated_op(Op):
+    pass
+add_fn(conv_general_dilated_op)(jla.conv_general_dilated)
 
 def convNd(input, filter, strides=1, padding='VALID', input_format=None,
            filter_format=None, output_format=None, input_dilation=None,
@@ -129,24 +130,26 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
 
 
     specs = (input_format, filter_format, output_format)
-    output_shape = jla.conv_general_shape_tuple(lhs_shape=input.shape,
-                                                rhs_shape=filter.shape,
-                                                window_strides=strides,
-                                                padding=padding,
-                                                dimension_numbers=specs)
-    output_dtype = 'float32'
+#    output_shape = jla.conv_general_shape_tuple(lhs_shape=input.shape,
+#                                                rhs_shape=filter.shape,
+#                                                window_strides=strides,
+#                                                padding=padding,
+#                                                dimension_numbers=specs)
+#    output_dtype = 'float32'
     return conv_general_dilated_op(lhs=input, rhs=filter, window_strides=strides,
                                  padding=padding, lhs_dilation=input_dilation,
                                  rhs_dilation=filter_dilation,
-                                 dimension_numbers=specs, precision=None,
-                                 _shape=output_shape, _dtype=output_dtype)
+                                 dimension_numbers=specs, precision=None)
+#                                 _shape=output_shape, _dtype=output_dtype)
 
 
 #conv_transpose_shape_tuple(lhs_shape, rhs_shape, window_strides, padding,
 #                             dimension_numbers)
 
 # pooling
-pool_op = Op(jla.reduce_window)
+class reduce_window(Op):
+    pass
+add_fn(reduce_window)(jla.reduce_window)
 
 def poolNd(input, window_shape, reducer='MAX', strides=None, padding='VALID',
           init_val=None, rescalor=None):
@@ -187,14 +190,13 @@ def poolNd(input, window_shape, reducer='MAX', strides=None, padding='VALID',
               'as window_shape {}'.format(window_shape)
         raise ValueError(msg)
 
-    out_shape = jla.reduce_window_shape_tuple(input.shape, window_shape,
-                                              strides, padding)
-    out_dtype = input.dtype
+#    out_shape = jla.reduce_window_shape_tuple(input.shape, window_shape,
+#                                              strides, padding)
+#    out_dtype = input.dtype
 
-    out = pool_op(operand=input*rescalor, init_value=init_val,
+    out = reduce_window(operand=input*rescalor, init_value=init_val,
                   computation=reducer, window_dimensions=window_shape,
-                  window_strides=strides, padding=padding,
-                  _shape=out_shape, _dtype=out_dtype)
+                  window_strides=strides, padding=padding)
     return out
 
 def ExponentialMovingAverage(value, alpha, step=None, init=None):

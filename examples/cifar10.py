@@ -30,23 +30,40 @@ inputs = T.Placeholder((BS,) + images_train.shape[1:], 'float32')
 outputs = T.Placeholder((BS,), 'int32')
 deterministic = T.Placeholder((1,), 'bool')
 
-layer = [layers.Conv2D(inputs, 32, (3, 3))]
+layer = [layers.RandomCrop(inputs, crop_shape = (32, 32),
+                      pad_shape=[(4, 4), (4, 4)], deterministic=deterministic)]
+layer.append(layers.Conv2D(layer[-1], 32, (3, 3)))
 for i in range(3):
     layer.append(layers.BatchNormalization(layer[-1], [0, 2, 3], deterministic))
-    layer.append(layers.Conv2D(T.relu(layer[-1]), 32, (3, 3)))
+    layer.append(layers.Conv2D(T.relu(layer[-1]), 64, (3, 3), mode='same'))
+
+layer.append(layers.Pool2D(layer[-1], (2, 2)))
+
 for i in range(3):
     layer.append(layers.BatchNormalization(layer[-1], [0, 2, 3], deterministic))
-    layer.append(layers.Conv2D(T.relu(layer[-1]), 64, (3, 3)))
+    layer.append(layers.Conv2D(T.relu(layer[-1]), 128, (3, 3), mode='same'))
+
+layer.append(layers.Pool2D(layer[-1], (2, 2)))
+
+for i in range(3):
+    layer.append(layers.BatchNormalization(layer[-1], [0, 2, 3], deterministic))
+    layer.append(layers.Conv2D(T.relu(layer[-1]), 192, (3, 3), mode='same'))
+
+layer.append(layers.Pool2D(layer[-1], (3, 3)))
 
 layer.append(layers.BatchNormalization(layer[-1], [0, 2, 3], deterministic))
 layer.append(layers.Dense(layer[-1], 10))
+
+for l in layer:
+    print(l.shape)
+
 #layer.append(layers.Dense(T.relu(layer[-1]), 10))
 
 #layer = [layers.Dense(inputs, 10)]
 loss = theanoxla.losses.sparse_crossentropy_logits(outputs, layer[-1])
 accuracy = theanoxla.losses.accuracy(outputs, layer[-1])
 
-params = sum([[lay.W, lay.b] for lay in layer], [])
+params = sum([lay.variables() for lay in layer], [])
 
 updates = theanoxla.optimizers.Adam(loss, params, 0.001)
 
@@ -59,14 +76,12 @@ g = theanoxla.function(inputs, outputs, deterministic, outputs = [loss, accuracy
 f = theanoxla.function(inputs, outputs, deterministic, outputs = [loss, accuracy],
                        updates=updates)
 
-print(updates)
 for epoch in range(100):
     L = list()
     for x, y in theanoxla.utils.batchify(images_test, labels_test, batch_size=BS,
                                          option='continuous'):
         L.append(g(x, y, 1)[1])
-    print(np.mean(L))
-#        print(layer[0].W.get({}))
+    print('FINAL', np.mean(L))
     L = list()
     for x, y in theanoxla.utils.batchify(images_train, labels_train, batch_size=BS,
                                          option='random_see_all'):

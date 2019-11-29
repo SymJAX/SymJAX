@@ -1,6 +1,5 @@
 import jax
 import jax.numpy as np
-import numpy as NP
 from . import tensor
 
 def gradients(scalar, deps):
@@ -36,10 +35,11 @@ def gradients(scalar, deps):
     # compute the shape and type of the gradients to create the List
     shapes = [all_roots[i].shape for i in argnums]
     dtypes = [all_roots[i].dtype for i in argnums]
-    return tensor.List(grad_fn, shapes, dtypes, args=all_roots)
+    return tensor.Tuple(grad_fn, shapes, dtypes, args=all_roots)
 
 
 class function:
+
     def __init__(self, *classargs, outputs=[], updates=None, device=None,
                  backend=None):
 
@@ -62,7 +62,6 @@ class function:
             if placeholder not in classargs:
                 raise RuntimeError(
                     "Placeholder {} was not given as function input".format(placeholder))
-        print("PLACEHOLDERS", placeholders)
 
         # create the function that will take the inputs and return the update
         # values (if any) and the outputs, this function is jit compiled for

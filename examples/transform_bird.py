@@ -41,16 +41,10 @@ else:
 tf_func = theanoxla.function(signal, outputs=[WVD], backend='cpu')
 
 # transform the data
-tf_train = list()
-print('start')
 
-for x in theanoxla.utils.batchify(wavs, batch_size=BS,
-                                  option='continuous'):
+for i, x in enumerate(theanoxla.utils.batchify(wavs, batch_size=BS,
+                                  option='continuous')):
     print('before')
-    tf_train.append(tf_func(x)[0])
-    print('sdf')
+    np.savez_compressed('/mnt/storage/rb42Data/SAVE/train_{}_{}.npz'.format(L, i), tf_func(x)[0])
 
-tf_train = np.concatenate(tf_train, 0)
-print('save')
-np.savez_compressed('new_bird_{}.npz'.format(L), tfs=tf_train, labels=labels)
 

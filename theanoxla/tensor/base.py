@@ -1,11 +1,34 @@
 import jax
-import jax.numpy as np
+import jax.numpy as jnp
 from jax.random import _is_prng_key
 import numpy
 import inspect
+import copy
+from functools import wraps
 
 
+def add_fn(cls):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+        setattr(cls, 'fn', staticmethod(wrapper))
+        return func # returning func means func can still be used normally
+    return decorator
 
+
+def add_method(cls):
+    # important we keep the self inside the function call !
+    def decorator(func, name=''):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            return func(self, *args, **kwargs)
+        if name == '':
+            setattr(cls, func.__name__, wrapper)
+        else:
+            setattr(cls, name, wrapper)
+        return func # returning func means func can still be used normally
+    return decorator
 
 
 def reset(item):
@@ -79,173 +102,21 @@ def isvar(item):
         return (cond1 or cond2) and cond3
 
 
-class Op:
-    """
-    This class creates an Op object. An Op is a callable that encodes some
-    internal computation in term of an evaluation function and its arguments.
-    When an Op object is called with some arguments, it returns an actual node
-    (Tensor) that represents the output value of the internal evaluation
-    function computation given the arguments. Hence, its role is to provide a
-    callable that will generate (at each call) a novel node (Tensor).
-
-    Notes:
-        This class is used to transform any function containing operations in
-        jax.numpy into TheanoXLA nodes.
-
-    Args:
-        fn (callable): the function representing the computation to be
-            performed on the given input arguments
-
-    Attributes:
-        fn (callable): the given internal evaluation function
-
-    Examples:
-        >>> def norm2py(x):
-                return jax.numpy.sum(jax.numpy.square(x))
-        >>> norm2 = Op(norm2py)
-        >>> tensor = T.zeros((10, 10))
-        >>> norm2(tensor)
-        (Tensor, dtype=float32, shape=())
-    """
-
-    def __init__(self, fn, name='', docstring=None, is_root=False):
-        """function that produces a new Op based on a given function"""
-        self.fn = fn
-        self.name = name
-
-    def __call__(self, *args, _shape=None, _dtype=None, name='', **kwargs):
-        name = 'Op(' + self.name + ')' if name == '' else\
-                    'Op(' + self.name + ', ' + name + ')'
-        return Tensor(self.fn, args=args, kwargs=kwargs,
-                      name='Op(' + self.name + ')')
-
-
-class RandomOp(Op):
-    """
-    This class inherits form the :obj:`Op` object. Its role is to provide a
-    callable that will generate (at each call) a novel node (RandomTensor)
-    that can then be part of some computation graph.
-    In particular this op is used instead of the :obj:`Op` when dealing with
-    random functions taking :obj:`jax.random.PRNGKey` object as first argument.
-    The callable will return a :obj:`RandomTensor` node.
-
-    Notes:
-        This class is used to transform the :mod:`jax.random` functions into
-        TheanoXLA nodes.
-
-    Args:
-        msg (str): Human readable string describing the exception.
-        code (:obj:`int`, optional): Error code.
-
-    Attributes:
-        msg (str): Human readable string describing the exception.
-        code (int): Exception error code.
-
-    Examples:
-        >>> normal = RandomOp(jax.random.normal)
-        >>> normal((3, 3))
-        (RandomTensor : dtype=float32, shape=(3, 3))
-    """
-
-    def __call__(self, *args, seed=None, name='',
-                 descr='', **kwargs):
-        # the seed determines the value of the realisation, if not given, one
-        # is assigned based on a cumulative seed tracking. That is, each new
-        # random variable instanciated without a seed with get the current
-        # seed number which is then incremented
-        if seed is None:
-            # if first time, the accumulator is created
-            # else, we increment it and use it as current seed
-            if 'seed_acc' not in globals():
-                globals()['seed_acc'] = 0
-            else:
-                globals()['seed_acc'] += 1
-            seed = globals()['seed_acc']
-        tensor =  RandomTensor(_eval=self.fn, args=args, kwargs=kwargs,
-                               seed=seed, name=name, descr=descr)
-        return tensor
-
-
-
-
-
 class Tensor:
 
-    def __init__(self, fn_or_tensor, args=[], kwargs={}, name='', roots=[],
-                 is_root=False):
-        self.kwargs = kwargs
-        self.fn = fn_or_tensor
-        self.is_fn = callable(fn_or_tensor)
-        self.name = name
-        self.print_name = 'name=' + name + ', ' if name != '' else ''
+    def __init__(self, shape, dtype, roots=[], copyof=None):
+        self.copyof = copyof
+        self.roots = roots
+        self._shape = shape
+        self._dtype = dtype
 
-        if self.is_fn:
-            # for convenience we only deal with kwargs, and thus transform
-            # any given arg into a kwarg based on the function signature
-            signature = list(inspect.signature(fn_or_tensor).parameters.keys())
-            for arg, name in zip(args, signature[:len(args)]):
-                self.kwargs.update({name: arg})
-            kwargs = self.kwargs.copy()
+    @property
+    def shape(self):
+        return self._shape
 
-            # set roots
-            if is_root:
-                self.roots = [self]
-            else:
-                roots = getroots([i for i in kwargs.values()])#[]
-#                for value in kwargs.values():
-#                    if hasattr(value, 'roots'):
-#                        roots += value.roots
-                self.roots = list(set(roots))
-
-            # set shape and dtype:  we to use the automatic shape evaluation.
-            # We take care of some problematic cases happening when a parameter
-            # such as the shape in the reshape function is given. 
-            # When trying to infer the shape, each function input is given as
-            # a tracer to monitor internal computations. But those constant
-            # parameters do not that support tracing, we thus have to infer
-            # the shape using a tweaked function with them not as args/kwargs
-
-            # get the function signature (inputs and keywords)
-            signature = list(inspect.signature(self.fn).parameters.keys())
-
-            # the kwargs that are constant are moved into extra_kwargs
-            extra_kwargs = {}
-            for name, arg in list(kwargs.items()):
-                if name == 'key' or not isvar(arg):
-                    extra_kwargs.update({name: arg})
-                    del kwargs[name]
-
-            # now use the builin function to infer shape and dtype given a
-            # lambda jax function
-            self.kwargs, self.extra_kwargs = kwargs, extra_kwargs
-            tree = jax.eval_shape(lambda **b: self.fn(**b, **self.extra_kwargs),
-                                  **self.kwargs)
-            self.shape, self.dtype = tree.shape, tree.dtype
-        else:
-            # set up the roots
-            if is_root:
-                self.roots = [self]
-            else:
-                self.roots = []#roots
-
-            # set shape and dtype
-            if type(self.fn) is tuple:
-                self.shape = self.fn[0]
-                self.dtype = self.fn[1]
-            elif isinstance(self.fn, Tensor):
-                self.__dict__.update(self.fn.__dict__)
-            else:
-                self.shape = self.fn.shape
-                self.dtype = self.fn.dtype
-
-
-
-    def __repr__(self):
-        return '(Tensor: ' + self.print_name + 'dtype=' + str(self.dtype) + \
-               ', shape='+str(self.shape) + ')'
-
-    def __str__(self):
-        return self.__repr__()
+    @property
+    def dtype(self):
+        return self._dtype
 
     @property
     def ndim(self):
@@ -256,15 +127,71 @@ class Tensor:
         pass
 
     def get(self, tracker=None):
+        if self.copyof is not None:
+            output = self.copyof.get(tracker)
+            tracker[self] = output
+            return output
+
+
+
+
+class Op(Tensor):
+    """an Op generates a Tensor object obtained from a function"""
+
+    name = ''
+
+    def __init__(self, *args, roots=[], **kwargs):
+        self.kwargs = kwargs
+        self.print_name = 'name=' + self.name
+
+        # for convenience we only deal with kwargs, and thus transform
+        # any given arg into a kwarg based on the function signature
+        signature = list(inspect.signature(self.fn).parameters.keys())
+        for arg, name in zip(args, signature[:len(args)]):
+            self.kwargs.update({name: arg})
+        kwargs = self.kwargs.copy()
+
+        # set roots
+        roots = getroots([i for i in kwargs.values()]) + roots
+        roots = list(set(roots))
+
+        # set shape and dtype:  we to use the automatic shape evaluation.
+        # We take care of some problematic cases happening when a parameter
+        # such as the shape in the reshape function is given. 
+        # When trying to infer the shape, each function input is given as
+        # a tracer to monitor internal computations. But those constant
+        # parameters do not that support tracing, we thus have to infer
+        # the shape using a tweaked function with them not as args/kwargs
+        # the kwargs that are constant are moved into extra_kwargs
+        extra_kwargs = {}
+        for name, arg in list(kwargs.items()):
+            if name == 'key' or not isvar(arg):
+                extra_kwargs.update({name: arg})
+                del kwargs[name]
+
+        # now use the builin function to infer shape and dtype given a
+        # lambda jax function
+        self.kwargs, self.extra_kwargs = kwargs, extra_kwargs
+        tree = jax.eval_shape(lambda **b: self.fn(**b, **self.extra_kwargs),
+                              **self.kwargs)
+        shape, dtype = tree.shape, tree.dtype
+
+        super().__init__(shape, dtype, roots)
+
+
+    def __repr__(self):
+        return '(Op: ' + self.print_name + 'dtype=' + str(self.dtype) + \
+               ', shape='+str(self.shape) + ')'
+
+    def __str__(self):
+        return self.__repr__()
+
+
+    def get(self, tracker=None):
         if tracker is None:
             tracker = dict()
         if self in tracker:
             return tracker[self]
-
-        # if the value given is already a tensor, delegates the
-        # computation to its own method
-        if not self.is_fn:
-            return self.fn.get(tracker)
 
         # evaluate the function kwargs as explicit jax arrays
         kwargs = dict()
@@ -277,8 +204,7 @@ class Tensor:
 
 
 
-
-class RandomTensor(Tensor):
+class RandomOp(Op):
     """
     This class creates a :obj:`Tensor` object that given a function (see below)
     and its inputs can be used as a Node in the graph construction. This class
@@ -305,16 +231,16 @@ class RandomTensor(Tensor):
         (Tensor, dtype=int32, shape=(3, 3))
     """
 
-    def __init__(self, _eval, seed, args=(), kwargs={}, name='', descr=''):
+    def __init__(self, *args, seed=None, **kwargs):
+        if seed is None:
+            seed = 0
         self.seed = seed
-        self.descr = descr
         key = jax.random.PRNGKey(seed)
-        super().__init__(_eval, args=(key,)+args, kwargs=kwargs, name=name,
-                         is_root=True)
+        super().__init__(key, *args, **kwargs, roots=[self])
 
     def __repr__(self):
-        return '(RandomTensor: ' + self.descr + self.print_name + 'dtype=' + str(self.dtype) + \
-               ', shape='+str(self.shape) + ')'
+        return '(RandomTensor: ' + self.descr + self.print_name + 'dtype='\
+                +  str(self.dtype) + ', shape='+str(self.shape) + ')'
 
     def get(self, tracker=None):
         if tracker is None:
@@ -339,27 +265,30 @@ class RandomTensor(Tensor):
 
 
 
+
+
+
 class SubTensor(Tensor):
 
-    def __init__(self, tensor, index, parent, roots, name=''):
+    def __init__(self, shape, dtype, index, parent, roots, name=''):
         self.parent = parent
         self.index = index
-        super().__init__(tensor, roots=roots, name=name)
+        super().__init__(shape, dtype, roots=roots)
 
     def get(self, tracker=None):
         return self.parent.get(tracker)[self.index]
 
 
 
-class List(tuple):
+class Tuple(tuple):
 
     def __new__ (cls, fn, shapes=None, dtypes=None, args=[], kwargs={}):
         trees = jax.eval_shape(lambda *a, **b: fn(*a, **b), *args,
                               **kwargs)
-        items = [SubTensor((t.shape, t.dtype), i, None, roots=[])
+        items = [SubTensor(t.shape, t.dtype, i, None, roots=[])
                       for i, t in enumerate(trees)]
 
-        return super(List, cls).__new__(cls, tuple(items))
+        return super(Tuple, cls).__new__(cls, tuple(items))
 
     def __init__(self, fn_or_list, shapes=None, dtypes=None, args=[], kwargs={}):
 
@@ -414,57 +343,54 @@ class Variable(Tensor):
 
     def __init__(self, value, name='', trainable=True):
         self.trainable = trainable
-        if not isinstance(value, jax.interpreters.xla.DeviceArray):
-            self.value = np.asarray(value)
-            self.init_value = self.value + 0
+        self.name = name
+        if 1:#not isinstance(value, jax.interpreters.xla.DeviceArray):
+            self.value = value
+            self.init_value = copy.deepcopy(self.value)
             if numpy.isscalar(value):
                 shape = ()
                 dtype = type(value)
             else:
                 shape = self.value.shape
                 dtype = self.value.dtype
-        else:
-            self.value = value
-            shape = value.shape
-            dtype = value.dtype
-        super().__init__(self.value, name=name, is_root=True)
+#        else:
+#            self.value = value
+#            shape = value.shape
+#            dtype = value.dtype
+        super().__init__(shape, dtype, roots=[self])
 
     def reset(self):
         self.value = self.init_value
 
     def __repr__(self):
-        return '(Variable: ' + self.print_name + 'dtype=' + str(self.dtype) + \
+        return '(Variable: ' + self.name + 'dtype=' + str(self.dtype) + \
                ', shape='+str(self.shape) + ', trainable='+str(self.trainable) + ')'
-
 
     def get(self, tracker):
         if self not in tracker:
             tracker[self] = self.value
-        return self.value
+        return tracker[self]
 
 
 class Placeholder(Tensor):
 
     def __init__(self, shape, dtype, name=''):
-        name = name
-        super().__init__((shape, dtype), name=name, is_root = True)
+        self.name = name
+        super().__init__(shape, dtype, roots=[self])
 
     def __repr__(self):
-        return '(Placeholder: ' + self.print_name + 'dtype=' + str(self.dtype) + \
+        return '(Placeholder: ' + self.name + 'dtype=' + str(self.dtype) + \
                ', shape='+str(self.shape) + ')'
 
     def get(self, tracker):
         if self not in tracker:
             raise ValueError(' no value given for placeholder {}'.format(self))
-#            tracker[self] = np.zeros(self.shape, dtype=self.dtype)
-#            return np.zeros(self.shape, dtype=self.dtype)
         return tracker[self]
-
 
 def placeholder_like(item, name=''):
     return Placeholder(item.shape, item.dtype, name=name)
 
-# we transform into
+
 def theanofn_to_jaxfn(*args, _fn, **kwargs):
     # treat the args
     pargs = list()
