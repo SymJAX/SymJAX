@@ -54,6 +54,7 @@ add_method(Tensor)(ops_math.argmin)
 
 ## additional operators
 add_method(Tensor)(ops_math.cast)
+add_method(Tensor)(ops_math.cast, 'astype')
 add_method(Tensor)(ops_math.prod)
 add_method(Tensor)(ops_math.squeeze)
 add_method(Tensor)(ops_math.flatten)
@@ -61,3 +62,5 @@ add_method(Tensor)(ops_math.reshape)
 add_method(Tensor)(ops_math.T)
 add_method(Tensor)(ops_math.dot)
 add_method(Tensor)(ops_math.repeat)
+add_method(Tensor)(ops_math.expand_dims)
+

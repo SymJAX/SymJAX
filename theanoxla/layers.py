@@ -5,15 +5,13 @@ import inspect
 
 
 def is_shape(x):
+    """utility function that checks if the input is a shape or not"""
     if not hasattr(x, '__len__'):
         return False
     if type(x[0]) == int:
         return True
     elif type(x[0]) == float:
         raise RuntimeError("invalid float value in shape")
-
-
-
 
 
 class Layer(T.Tensor):
@@ -55,22 +53,23 @@ class Layer(T.Tensor):
         pass
 
 
-#class Identity(Layer):
-#    def __init__(self, input_or_shape):
-#        super().__init__(input_or_shape)
-#
-#    def forward(self, input, **kwargs):
-#        return input
+class Identity(Layer):
+    def __init__(self, input_or_shape):
+        super().__init__(input_or_shape)
+
+    def forward(self, input):
+        return input
 
 
 
 
 class Activation(Layer):
     def __init__(self, input_or_shape, activation):
-        super().__init__(input_or_shape, activation=activation)
+        self.activation = activation
+        super().__init__(input_or_shape)
 
-    def forward(self, input, **kwargs):
-        return kwargs['activation'](input)
+    def forward(self, input):
+        return self.activation(input)
 
 
 
@@ -140,13 +139,14 @@ class Conv1D(Layer):
 class Conv2D(Layer):
     def __init__(self, input_or_shape, n_filters, filter_shape, strides=1,
                  W=initializers.he, b=numpy.zeros, mode='valid'):
+        self.strides = strides
+        self.mode = mode
         super().__init__(input_or_shape, n_filters=n_filters,
                          filter_shape=filter_shape, strides=strides,
                          W=W, b=b, mode=mode)
 
-    def init_variables(self, n_filters, filter_shape, W, b, strides, mode,**kwargs):
-        self.strides = strides
-        self.mode = mode
+    def init_variables(self, n_filters, filter_shape, W, b, **kwargs):
+
         if callable(W):
             self.W = T.Variable(W((n_filters, self.input_shape[1], filter_shape[0],
                                 filter_shape[1])))
@@ -157,6 +157,7 @@ class Conv2D(Layer):
             assert W.shape == (n_filters, self.input_shape[1], filter_shape[0],
                               filter_shape[1])
             self.W = W
+
         if callable(b):
             self.b = T.Variable(b((n_filters,)))
             self.add_variable(self.b)
@@ -165,7 +166,6 @@ class Conv2D(Layer):
         else:
             assert b.shape == (n_filters,)
             self.b = b
-
 
     @staticmethod
     def forward(input, W, b, strides, mode):
@@ -219,13 +219,11 @@ class Pool2D(Layer):
 class Dropout(Layer):
 
     def __init__(self, input_or_shape, p, deterministic, seed=None):
-        super().__init__(input_or_shape, p=p, deterministic=deterministic,
-                         seed=seed)
-
-    def init_variables(self, p, deterministic, seed):
         self.deterministic = deterministic
         self.p = p
         self.seed = seed
+        super().__init__(input_or_shape, p=p, deterministic=deterministic,
+                         seed=seed)
 
     def forward(self, input, p, deterministic, seed):
         dirac = T.cast(deterministic, 'float32')
@@ -236,19 +234,44 @@ class Dropout(Layer):
         return  input * self.mask * (1 - dirac) + input * dirac
 
 
+class RandomFlip(Layer):
+
+    def __init__(self, input_or_shape, p, axis, deterministic, seed=None):
+        self.deterministic = deterministic
+        self.p = p
+        self.axis = axis
+        self.seed = seed
+        super().__init__(input_or_shape, p=p, deterministic=deterministic,
+                         seed=seed, axis=axis)
+
+    def forward(self, input, p, deterministic, axis, seed):
+        dirac = T.cast(deterministic, 'float32')
+
+        if seed is None:
+            seed = numpy.random.randint(0, 100000)
+
+        if not hasattr(self, 'mask'):
+            self.flip = T.random.bernoulli(shape=(input.shape[0]), p=p,
+                                           seed=seed)
+        flipped_input = self.flip * T.flip(input, self.axis)\
+                        + (1 - self.flip) * input
+
+        return  input * dirac + flipped_input * (1 - dirac)
+
+
+
 
 class RandomCrop(Layer):
 
     def __init__(self, input_or_shape, crop_shape, pad_shape, deterministic,
                  seed=None):
-        super().__init__(input_or_shape, crop_shape=crop_shape, pad_shape=pad_shape,
-                         deterministic=deterministic, seed=seed)
-
-    def init_variables(self, crop_shape, pad_shape, deterministic, seed):
         self.crop_shape = crop_shape
         self.pad_shape = pad_shape
         self.deterministic = deterministic
         self.seed = seed
+        super().__init__(input_or_shape, crop_shape=crop_shape,
+                         pad_shape=pad_shape, deterministic=deterministic,
+                         seed=seed)
 
     def forward(self, input, crop_shape, pad_shape, deterministic, seed):
         dirac = T.cast(deterministic, 'float32')
@@ -313,17 +336,17 @@ class RandomCrop(Layer):
 class BatchNormalization(Layer):
     def __init__(self, input_or_shape, axis, deterministic, const=0.001,
                  beta1=0.99, beta2=0.99, W=numpy.ones, b=numpy.zeros):
-        super().__init__(input_or_shape, axis=axis,
-                         deterministic=deterministic, const=const,
-                         beta1=beta1, beta2=beta2, W=W, b=b)
-
-    def init_variables(self, axis, W, b, beta1, beta2, const, deterministic, 
-                       **kwargs):
         self.beta1 = beta1
         self.beta2 = beta2
         self.const = const
         self.axis = axis
         self.deterministic = deterministic
+        super().__init__(input_or_shape, axis=axis,
+                         deterministic=deterministic, const=const,
+                         beta1=beta1, beta2=beta2, W=W, b=b)
+
+    def init_variables(self, axis, W, b, **kwargs):
+
         parameter_shape = [self.input_shape[i] if i not in axis else 1
                            for i in range(len(self.input_shape))]
         if callable(W):
@@ -334,6 +357,7 @@ class BatchNormalization(Layer):
         else:
             assert W.shape == parameter_shape
             self.W = W
+
         if callable(b):
             self.b = T.Variable(b(parameter_shape))
             self.add_variable(self.b)
@@ -347,15 +371,11 @@ class BatchNormalization(Layer):
         mean = T.mean(input, axis, keepdims=True)
         var = T.var(input, axis, keepdims=True)
         if len(self.updates.keys()) == 0:
-#            self.beta1, self.beta2 = beta1, beta2
             self.avgmean, upm, step = T.ExponentialMovingAverage(mean, beta1)
             self.avgvar, upv, step = T.ExponentialMovingAverage(var, beta2, step=step, init=numpy.ones(var.shape))
             self.add_variable(self.avgmean)
             self.add_variable(self.avgvar)
             self.updates.update({**upm, **upv})
-        else:
-            assert beta1 == self.beta1
-            assert beta2 == self.beta2
         dirac = T.cast(deterministic, 'float32')
         usemean = mean * (1 - dirac) + self.avgmean * dirac
         usevar = var * (1 - dirac) + self.avgvar * dirac

@@ -3,7 +3,7 @@ import jax.lax as jla
 
 from .base import Op, Tensor, Variable, add_fn
 from .control_flow import cond
-#from .ops_base import dynamic_slice_in_dim
+from .ops_math import dynamic_slice_in_dim
 import numpy
 
 
@@ -236,8 +236,6 @@ def PiecewiseConstant(init, values, step=None):
     assert numpy.prod(keys >= 0)
     arg = numpy.argsort(keys)
     keys, values = keys[arg], values[arg]
-    print(keys, values)
-#    keys = numpy.concatenate([[-1], keys])
     index = (step < keys).argmax()
     v = Variable(values, trainable=False, name='PiecewiseConstant_values')
     return dynamic_slice_in_dim(v, index-1, 1, 0), step

@@ -201,9 +201,6 @@ class Op(Tensor):
         return tracker[self]
 
 
-
-
-
 class RandomOp(Op):
     """
     This class creates a :obj:`Tensor` object that given a function (see below)

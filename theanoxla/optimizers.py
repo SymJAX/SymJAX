@@ -1,14 +1,25 @@
 import numpy
 from . import tensor
-from .base import gradients
+from .base import gradients, function
 
 
 class PiecewiseConstantSchedule:
+
     def __init__(self, init, values):
         self.init = init
         self.values = values
-    def __call__(self, step):
-        return tensor.PiecewiseConstant(self.init, self.values, step)[0]
+        self.step = tensor.Variable(0, trainable=False, name='step')
+        self.value = tensor.PiecewiseConstant(self.init, self.values,
+                                              self.step)[0]
+        self._update = function(updates={self.step: self.step + 1})
+
+    def update(self):
+        self._update()
+
+    def __call__(self):
+        return self.value
+
+
 
 def SGD(params, grads, learning_rate):
     updates = dict()
@@ -29,7 +40,7 @@ def Adam(grads_or_loss, params, learning_rate, beta1=0.9, beta2=0.999, epsilon=1
 
     # get the learning rate
     if not numpy.isscalar(learning_rate) and not isinstance(learning_rate, tensor.Placeholder):
-        learning_rate = learning_rate(step)
+        learning_rate = learning_rate()
 
     updates = dict()
     for param, grad in zip(params, grads):

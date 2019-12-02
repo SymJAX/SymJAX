@@ -201,6 +201,7 @@ TO_SKIP = [
 'mafromtxt',
 'maximum_sctype',
 'may_share_memory',
+'meshgrid',
 'mintypecode',
 'ndfromtxt',
 'negative',
@@ -285,6 +286,28 @@ add_fn(complex)(jla.complex)
 class stop_gradient(Op):
     pass
 add_fn(stop_gradient)(jla.stop_gradient)
+
+class dynamic_slice_in_dim(Op):
+    pass
+add_fn(dynamic_slice_in_dim)(jla.dynamic_slice_in_dim)
+
+def meshgrid(*args):
+    return Tuple(jnp.meshgrid, args=args)
+
+
+class cholesky(Op):
+    pass
+add_fn(cholesky)(jnp.linalg.cholesky)
+
+
+class inv(Op):
+    pass
+add_fn(inv)(jnp.linalg.inv)
+
+
+class det(Op):
+    pass
+add_fn(det)(jnp.linalg.det)
 
 
 
