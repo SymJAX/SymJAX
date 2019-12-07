@@ -6,11 +6,11 @@ import time
 import zipfile
 import io
 from scipy.io.wavfile import read as wav_read
-#import tqdm
+from tqdm import tqdm
 
 
 
-def load_freefield1010(subsample=1,n_samples=-1,PATH=None):
+def load_freefield1010(subsample=1, PATH=None):
     """Audio binary classification, presence or absence of bird songs.
     `freefield1010 <http://machine-listening.eecs.qmul.ac.uk/bird-audio-detection-challenge/#downloads>`_. 
     is a collection of over 7,000 excerpts from field recordings 
@@ -36,50 +36,42 @@ def load_freefield1010(subsample=1,n_samples=-1,PATH=None):
     """
     if PATH is None:
         PATH = os.environ['DATASET_PATH']
-    infos = [('sampling_rate',44100),("n_classes",2),("path",PATH),
-             ("name","freefield1010"),('classes',["no bird","bird"])]
 
     # Load the dataset (download if necessary) and set
     # the class attributes.
-        
+
     print("Loading freefield1010")
     t = time.time()
-        
+
     if not os.path.isdir(PATH+'freefield1010'):
         print('\tCreating Directory')
         os.mkdir(PATH+'freefield1010')
 
     if not os.path.exists(PATH+'freefield1010/ff1010bird_wav.zip'):
         url = 'https://archive.org/download/ff1010bird/ff1010bird_wav.zip'
-#        with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, 
-#                                                    desc='Wav files') as t:
         urllib.request.urlretrieve(url,PATH+
                     'freefield1010/ff1010bird_wav.zip')  
 
     if not os.path.exists(PATH+'freefield1010/ff1010bird_metadata.csv'):
         url = 'https://ndownloader.figshare.com/files/6035814'
-#        with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, 
-#                                        desc='Metadata') as t:
         urllib.request.urlretrieve(url,PATH+
                             'freefield1010/ff1010bird_metadata.csv')  
 
-    #Loading Labels
+    # load labels
     labels = np.loadtxt(PATH+'freefield1010/ff1010bird_metadata.csv',
             delimiter=',',skiprows=1,dtype='int32')
-    if n_samples<len(labels):
-        labels = labels[np.random.permutation(len(labels))[:n_samples]]
-    # Loading the files
+    # load wavs
     f       = zipfile.ZipFile(PATH+'freefield1010/ff1010bird_wav.zip')
-    # Init. the wavs matrix
+    # init. the data array
     N       = labels.shape[0]
     wavs    = np.empty((N,441000//subsample),dtype='float32')
-    for i,files_ in enumerate(labels[:,0]):#tqdm(enumerate(labels[:,0]),ascii=True):
+    for i, files_ in tqdm(enumerate(labels[:,0]),ascii=True, total=N):
         wavfile   = f.read('wav/'+str(files_)+'.wav')
         byt       = io.BytesIO(wavfile)
         wavs[i]   = wav_read(byt)[1].astype('float32')[::subsample]
 
     labels = labels[:,1]
 
-    return wavs, labels, infos
+    return wavs, labels
 
 

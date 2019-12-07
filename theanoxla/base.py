@@ -2,8 +2,10 @@ import jax
 import jax.numpy as np
 from . import tensor
 
-def gradients(scalar, deps):
-    assert scalar.shape == ()
+def gradients(scalar, deps, aggregation=tensor.sum):
+
+    if scalar.shape != ():
+        scalar = aggregation(scalar)
 
     # get all the roots, this is needed as otherwise they are not
     # as the input of the gradient function and thus a change of

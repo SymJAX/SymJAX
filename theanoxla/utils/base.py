@@ -1,5 +1,5 @@
 import numpy as np
-from multiprocessing import Pool, Queue
+from multiprocessing import Pool, Queue, Lock, Process
 
 
 def train_test_split(X, y, proportion=0.2):
@@ -51,19 +51,21 @@ class batchify:
                     self.load_func.append(None)
                 elif extra_process == 0:
                     def fn(args, queue, f=load_func[i]):
-                        print('fn', args,queue)
                         result = np.asarray([f(arg) for arg in args])
                         queue.put(result)
                     self.load_func.append(fn)
                 else:
-                    def fn(data,queue,f=load_func[i]):
-                        with Pool(processes=extra_processes) as pool:
+                    def fn(lock, data, queue, f=load_func[i]):
+                        lock.acquire()
+                        with Pool(processes=extra_process) as pool:
                             result = pool.map(f, data)
-                        queue.put(result)
+                        queue.put(np.asarray(result))
+                        lock.release()
                     self.load_func.append(fn)
         assert np.prod([args[0].shape[0] == arg.shape[0] for arg in args[1:]])
 
         self.queues = [Queue() for f in self.load_func]
+        self.locks = [Lock() for f in self.load_func]
 
         # launch the first batch straight away
         batch = self.get_batch()
@@ -74,16 +76,17 @@ class batchify:
             yield items[i:i + n]
 
     def launch_process(self, batch):
-        for i, (load_func, queue) in enumerate(zip(self.load_func, self.queues)):
+
+        for b, lock, load_func, queue in zip(batch, self.locks,
+                                             self.load_func, self.queues):
             if load_func is None:
-                queue.put(batch[i])
+                queue.put(b)
             elif load_func is not None and self.extra_process == 0:
-                load_func(batch[i], queue)
+                load_func(b, queue)
             elif load_func is not None and self.extra_process > 0:
                 # first chunk for each process and launch a process
-                p = Process(target=load_func, args=(batch[i], queue))
+                p = Process(target=load_func, args=(lock, b, queue))
                 p.start()
-                processes.append(p)
 
 
     def __iter__(self):
