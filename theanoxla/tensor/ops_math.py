@@ -310,7 +310,3 @@ class det(Op):
 add_fn(det)(jnp.linalg.det)
 
 
-
-
-
-

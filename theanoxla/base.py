@@ -2,6 +2,9 @@ import jax
 import jax.numpy as np
 from . import tensor
 
+from jax import jacfwd, jacrev
+
+
 def gradients(scalar, deps, aggregation=tensor.sum):
 
     if scalar.shape != ():
@@ -38,6 +41,15 @@ def gradients(scalar, deps, aggregation=tensor.sum):
     shapes = [all_roots[i].shape for i in argnums]
     dtypes = [all_roots[i].dtype for i in argnums]
     return tensor.Tuple(grad_fn, shapes, dtypes, args=all_roots)
+
+
+def jacobians(vector, deps, mode='forward', vectorize=True):
+    J = list()
+    for i in range(vector.shape[1]):
+        J.append(gradients(vector[:, i], deps))
+    return tuple([tensor.stack([J[i][j] for i in range(vector.shape[1])], 1) for j in range(len(deps))])
+
+
 
 
 class function:

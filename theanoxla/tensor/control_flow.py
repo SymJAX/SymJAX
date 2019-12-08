@@ -5,11 +5,6 @@ from .base import Tensor
 import numpy
 
 
-#_map = Op(jla.map, name='map')
-def map(fn, *xs):
-    newfn = lambda x, _fn=fn: theanofn_to_jaxfn(*x, _fn=_fn)
-    return _map(newfn, xs)
-
 
 #_scan = Op(jla.scan, name='scan')
 def scan(fn, init, *xs):
