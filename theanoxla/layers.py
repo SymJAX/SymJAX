@@ -115,6 +115,7 @@ class Conv1D(Layer):
 
     def __init__(self, input_or_shape, n_filters, filter_length, strides=1,
                  W=initializers.he, b=numpy.zeros):
+        self.strides = strides
         super().__init__(input_or_shape, n_filters=n_filters,
                          filter_length=filter_length, strides=strides,
                          W=W, b=b)
@@ -122,19 +123,24 @@ class Conv1D(Layer):
     def init_variables(self, n_filters, filter_length, W, b, **kwargs):
         if callable(W):
             W = T.Variable(W((n_filters, self.input_shape[1], filter_length)))
-            self.add_variable(W, 'W')
+            self.add_variable(W)
         else:
             assert W.shape == (n_filters, self.input_shape[1], filter_length)
             self.W = W
         if callable(b):
-            b = T.Variable(b((n_filters,)))
-            self.add_variable(b, 'b')
+            self.b = T.Variable(b((n_filters,)))
+            self.add_variable(self.b)
+        elif b is None:
+            self.b = 0
         else:
             assert b.shape == (n_filters,)
             self.b = b
 
-    def forward(self, input, **kwargs):
-        return T.convNd(input, self.W, strides=kwargs['strides']) + T.expand_dims(self.b, 1)
+    @staticmethod
+    def forward(input, W, b, strides):
+        if not numpy.isscalar(b):
+            b = T.expand_dims(b, 1)
+        return T.convNd(input, W, strides=strides) + b
 
 class Conv2D(Layer):
     def __init__(self, input_or_shape, n_filters, filter_shape, strides=1,

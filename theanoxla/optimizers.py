@@ -37,7 +37,7 @@ def Adam(grads_or_loss, params, learning_rate, beta1=0.9, beta2=0.999, epsilon=1
         grads = grads_or_loss
 
     step = tensor.Variable(0., trainable=False, name='step')
-
+    internal_variables = [step]
     # get the learning rate
     if not numpy.isscalar(learning_rate) and not isinstance(learning_rate, tensor.Placeholder):
         learning_rate = learning_rate()
@@ -47,9 +47,10 @@ def Adam(grads_or_loss, params, learning_rate, beta1=0.9, beta2=0.999, epsilon=1
         m, update_m, _ = tensor.ExponentialMovingAverage(grad, beta1, step=step)
         v, update_v, _ = tensor.ExponentialMovingAverage(tensor.square(grad), beta2, step,
                                          init=numpy.ones(grad.shape))
+        internal_variables += [m, v]
         updates.update(update_m)
         updates.update(update_v)
         update = updates[m]/(tensor.sqrt(updates[v])+epsilon)
         updates[param] = param - learning_rate * update
     updates[step] = step + 1
-    return updates
+    return updates, internal_variables

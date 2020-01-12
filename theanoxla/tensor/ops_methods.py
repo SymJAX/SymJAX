@@ -63,4 +63,4 @@ add_method(Tensor)(ops_math.T)
 add_method(Tensor)(ops_math.dot)
 add_method(Tensor)(ops_math.repeat)
 add_method(Tensor)(ops_math.expand_dims)
-
+add_method(Tensor)(ops_math.matmul)

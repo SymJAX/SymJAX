@@ -60,7 +60,7 @@ g = function(Z, outputs=[G_sample[-1]])
 
 h = function(Z, outputs=[masks, det])
 
-for epoch in range(3000):
+for epoch in range(300):
     for x in batchify(DATA, batch_size=BS, option='random_see_all'):
         z = np.random.rand(BS, 2) * 2 -1
         f(z, x)

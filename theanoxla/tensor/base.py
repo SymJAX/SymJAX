@@ -30,6 +30,17 @@ def add_method(cls):
         return func # returning func means func can still be used normally
     return decorator
 
+def args_formatting(args, extra_args, indices):
+    output = ()
+    arg_iterator = iter(args)
+    extra_arg_iterator = iter(extra_args)
+    for i in indices:
+#        print(i, args, extra_args)
+        if i:
+            output += (next(extra_arg_iterator),)
+        else:
+            output += (next(arg_iterator),)
+    return output
 
 def reset(item):
     if type(item) == list or type(item) == tuple:
@@ -142,17 +153,18 @@ class Op(Tensor):
 
     def __init__(self, *args, roots=[], **kwargs):
         self.kwargs = kwargs
+        self.args = args
         self.print_name = 'name=' + self.name
 
         # for convenience we only deal with kwargs, and thus transform
         # any given arg into a kwarg based on the function signature
-        signature = list(inspect.signature(self.fn).parameters.keys())
-        for arg, name in zip(args, signature[:len(args)]):
-            self.kwargs.update({name: arg})
-        kwargs = self.kwargs.copy()
+#        signature = list(inspect.signature(self.fn).parameters.keys())
+#        for arg, name in zip(args, signature[:len(args)]):
+#            self.kwargs.update({name: arg})
+#        kwargs = self.kwargs.copy()
 
         # set roots
-        roots = getroots([i for i in kwargs.values()]) + roots
+        roots = getroots([i for i in kwargs.values()] + list(args)) + roots
         roots = list(set(roots))
 
         # set shape and dtype:  we to use the automatic shape evaluation.
@@ -163,17 +175,40 @@ class Op(Tensor):
         # parameters do not that support tracing, we thus have to infer
         # the shape using a tweaked function with them not as args/kwargs
         # the kwargs that are constant are moved into extra_kwargs
-        extra_kwargs = {}
-        for name, arg in list(kwargs.items()):
-            if name == 'key' or not isvar(arg):
-                extra_kwargs.update({name: arg})
-                del kwargs[name]
+#        extra_kwargs = {}
+#        for name, arg in list(kwargs.items()):
+#            if name == 'key' or not isvar(arg):
+#                extra_kwargs.update({name: arg})
+#                del kwargs[name]
 
         # now use the builin function to infer shape and dtype given a
-        # lambda jax function
-        self.kwargs, self.extra_kwargs = kwargs, extra_kwargs
-        tree = jax.eval_shape(lambda **b: self.fn(**b, **self.extra_kwargs),
-                              **self.kwargs)
+        # lambda jax function, we need to remove the static arguments first
+        self.extra_kwargs = {}
+        for name, arg in list(self.kwargs.items()):
+            if name == 'key' or not isvar(arg):
+                self.extra_kwargs.update({name: arg})
+                del self.kwargs[name]
+
+        indices = list()
+#        self.extra_args = ()
+        for i, arg in enumerate(self.args):
+            if not isvar(arg):
+                indices.append(1)
+            else:
+                indices.append(0)
+#                self.extra_args += (arg,)
+#                to_remove.append(i)
+#        self.args = [self.args[i] for i in range(len(self.args))
+#                     if i not in to_remove]
+        self.extra_args = [arg for i, arg in enumerate(self.args) if indices[i]]
+        self.args = [arg for i, arg in enumerate(self.args) if indices[i] == 0]
+        self.indices = indices
+#        print(self.args, self.extra_args, self.indices)
+#        self.kwargs, self.extra_kwargs = kwargs, extra_kwargs
+#        tree = jax.eval_shape(lambda **b: self.fn(**b, **self.extra_kwargs),
+#                              **self.kwargs)
+#        print(self.args, self.kwargs, self.fn)
+        tree = jax.eval_shape(lambda *args, **kwargs: self.fn(*args_formatting(args, self.extra_args, self.indices) , **kwargs, **self.extra_kwargs), *self.args, **self.kwargs)
         shape, dtype = tree.shape, tree.dtype
 
         super().__init__(shape, dtype, roots)
@@ -197,7 +232,8 @@ class Op(Tensor):
         kwargs = dict()
         for name, var in list(self.kwargs.items()):
             kwargs.update({name: get(var, tracker)})
-        tracker[self] = self.fn(**kwargs, **self.extra_kwargs)
+        args = [get(var, tracker) for var in self.args]
+        tracker[self] = self.fn(*args_formatting(args, self.extra_args, self.indices), **kwargs, **self.extra_kwargs)
         return tracker[self]
 
 
@@ -236,7 +272,7 @@ class RandomOp(Op):
         super().__init__(key, *args, **kwargs, roots=[self])
 
     def __repr__(self):
-        return '(RandomTensor: ' + self.descr + self.print_name + 'dtype='\
+        return '(RandomTensor: ' + self.print_name + 'dtype='\
                 +  str(self.dtype) + ', shape='+str(self.shape) + ')'
 
     def get(self, tracker=None):
@@ -338,26 +374,33 @@ class Tuple(tuple):
 
 class Variable(Tensor):
 
-    def __init__(self, value, name='', trainable=True):
+    def __init__(self, value_or_fn, shape=None, dtype=None,
+                 name='', trainable=True):
         self.trainable = trainable
         self.name = name
-        if 1:#not isinstance(value, jax.interpreters.xla.DeviceArray):
-            self.value = value
+        if callable(value_or_fn):
+            value = value_or_fn(shape).astype(dtype)
+            self.value = jnp.asarray(value)
+            self.init_value = (value_or_fn, shape, dtype)
+        else:
+            self.value = jnp.asarray(value_or_fn)
             self.init_value = copy.deepcopy(self.value)
-            if numpy.isscalar(value):
-                shape = ()
-                dtype = type(value)
-            else:
-                shape = self.value.shape
-                dtype = self.value.dtype
-#        else:
-#            self.value = value
-#            shape = value.shape
-#            dtype = value.dtype
+        try:
+            shape = self.value.shape
+            dtype = self.value.dtype
+        except:
+            shape = ()
+            dtype = type(value)
+
         super().__init__(shape, dtype, roots=[self])
 
     def reset(self):
-        self.value = self.init_value
+        if type(self.value)==tuple:
+            value = self.init_value[0](self.init_value[1])
+            value = self.value.astype(self.init_value[2])
+        else:
+            value = self.init_value
+        self.value = jnp.asarray(value)
 
     def __repr__(self):
         return '(Variable: ' + self.name + 'dtype=' + str(self.dtype) + \
