@@ -16,31 +16,19 @@ def gradients(scalar, deps, aggregation=tensor.sum):
     all_roots = scalar.roots
 
     # now we check if we have to differentiate w.r.t a non root variable
-    to_add = list()
-    for i, dep in enumerate(deps):
-        if dep not in all_roots:
-            to_add.append(i)
-    all_roots += [deps[i] for i in to_add]
+    to_add = [dep for dep in deps if dep not in all_roots]
+    all_roots += to_add
 
     # get the argnum (index of the function input that will have to be
     # differentiated
-    argnums = list()
-    for dep in deps:
-        for i, arg in enumerate(all_roots):
-            if dep is arg:
-                argnums.append(i)
-
-    other = []
+    argnums = [i for i, arg in enumerate(all_roots) if arg in deps]
 
     # create a dummy function that is needed for jax to compute a gradient func
     def fn(*args):
         return scalar.get(dict(zip(all_roots, list(args))))
-    grad_fn = jax.grad(fn, argnums)
 
-    # compute the shape and type of the gradients to create the List
-    shapes = [all_roots[i].shape for i in argnums]
-    dtypes = [all_roots[i].dtype for i in argnums]
-    return tensor.Tuple(grad_fn, shapes, dtypes, args=all_roots)
+    grad_fn = jax.grad(fn, argnums)
+    return tensor.Tuple(grad_fn, args=all_roots)
 
 
 def jacobians(vector, deps, mode='forward', vectorize=True):
@@ -87,6 +75,7 @@ class function:
             for variable in only_vars:
                 if variable not in hidden_inputs:
                     hidden_inputs.append(variable)
+
         def jitfn(*jitargs, rng):
 
             allargs = list(classargs) + update_inputs + hidden_inputs

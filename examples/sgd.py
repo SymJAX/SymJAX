@@ -13,12 +13,12 @@ z2 = T.Variable(np.ones(SHAPE).astype('float32'), name='z2')
 cost = T.sum(T.poolNd(T.cos(z + z2), (1, 1)))
 grads = theanoxla.gradients(cost, [z])
 print('gradients', grads)
-sgd = theanoxla.optimizers.SGD([z], grads, 0.001)
-adam = theanoxla.optimizers.Adam([z], grads, 0.001)
-
+sgd = theanoxla.optimizers.SGD(grads, [z], 0.001)
+adam = theanoxla.optimizers.Adam(grads, [z], 0.001)
+print(sgd.updates)
 #getgrad = theanoxla.function(outputs=[grads[0]], updates={z2:z2+1})
-trainsgd = theanoxla.function(outputs=[cost], updates=sgd)
-trainadam = theanoxla.function(outputs=[cost], updates=adam)
+trainsgd = theanoxla.function(outputs=[cost], updates=sgd.updates)
+trainadam = theanoxla.function(outputs=[cost], updates=adam.updates)
 
 
 #for i in range(10):

@@ -20,37 +20,53 @@ class PiecewiseConstantSchedule:
         return self.value
 
 
-
-def SGD(params, grads, learning_rate):
-    updates = dict()
-    for param, grad in zip(params, grads):
-        updates[param] = param - learning_rate * grad
-    return updates
+class Optimizer:
+    def reset(self):
+        for var in self.variables:
+            var.reset()
 
 
-def Adam(grads_or_loss, params, learning_rate, beta1=0.9, beta2=0.999, epsilon=1e-6):
+class SGD(Optimizer):
+    def __init__(self, grads_or_loss, params, learning_rate):
+        # get grads if given is loss
+        if isinstance(grads_or_loss, tensor.Tensor):
+            grads = gradients(grads_or_loss, params)
+        else:
+            grads = grads_or_loss
 
-    # get grads if given is loss
-    if isinstance(grads_or_loss, tensor.Tensor):
-        grads = gradients(grads_or_loss, params)
-    else:
-        grads = grads_or_loss
+        updates = dict()
+        for param, grad in zip(params, grads):
+            updates[param] = param - learning_rate * grad
+        self.updates = updates
+        self.variables = []
 
-    step = tensor.Variable(0., trainable=False, name='step')
-    internal_variables = [step]
-    # get the learning rate
-    if not numpy.isscalar(learning_rate) and not isinstance(learning_rate, tensor.Placeholder):
-        learning_rate = learning_rate()
 
-    updates = dict()
-    for param, grad in zip(params, grads):
-        m, update_m, _ = tensor.ExponentialMovingAverage(grad, beta1, step=step)
-        v, update_v, _ = tensor.ExponentialMovingAverage(tensor.square(grad), beta2, step,
-                                         init=numpy.ones(grad.shape))
-        internal_variables += [m, v]
-        updates.update(update_m)
-        updates.update(update_v)
-        update = updates[m]/(tensor.sqrt(updates[v])+epsilon)
-        updates[param] = param - learning_rate * update
-    updates[step] = step + 1
-    return updates, internal_variables
+class Adam(Optimizer):
+    def __init__(self, grads_or_loss, params, learning_rate, beta1=0.9,
+                 beta2=0.999, epsilon=1e-6):
+
+        # get grads if given is loss
+        if isinstance(grads_or_loss, tensor.Tensor):
+            grads = gradients(grads_or_loss, params)
+        else:
+            grads = grads_or_loss
+
+        step = tensor.Variable(0., trainable=False, name='step')
+        variables = [step]
+        # get the learning rate
+        if not numpy.isscalar(learning_rate) and not isinstance(learning_rate, tensor.Placeholder):
+            learning_rate = learning_rate()
+
+        updates = dict()
+        for param, grad in zip(params, grads):
+            m, update_m, _ = tensor.ExponentialMovingAverage(grad, beta1, step=step)
+            v, update_v, _ = tensor.ExponentialMovingAverage(tensor.square(grad), beta2, step,
+                                             init=numpy.ones(grad.shape))
+            variables += [m, v]
+            updates.update(update_m)
+            updates.update(update_v)
+            update = updates[m]/(tensor.sqrt(updates[v])+epsilon)
+            updates[param] = param - learning_rate * update
+        updates[step] = step + 1
+        self.updates = updates
+        self.variables = variables

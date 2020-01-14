@@ -156,13 +156,6 @@ class Op(Tensor):
         self.args = args
         self.print_name = 'name=' + self.name
 
-        # for convenience we only deal with kwargs, and thus transform
-        # any given arg into a kwarg based on the function signature
-#        signature = list(inspect.signature(self.fn).parameters.keys())
-#        for arg, name in zip(args, signature[:len(args)]):
-#            self.kwargs.update({name: arg})
-#        kwargs = self.kwargs.copy()
-
         # set roots
         roots = getroots([i for i in kwargs.values()] + list(args)) + roots
         roots = list(set(roots))
@@ -175,11 +168,6 @@ class Op(Tensor):
         # parameters do not that support tracing, we thus have to infer
         # the shape using a tweaked function with them not as args/kwargs
         # the kwargs that are constant are moved into extra_kwargs
-#        extra_kwargs = {}
-#        for name, arg in list(kwargs.items()):
-#            if name == 'key' or not isvar(arg):
-#                extra_kwargs.update({name: arg})
-#                del kwargs[name]
 
         # now use the builin function to infer shape and dtype given a
         # lambda jax function, we need to remove the static arguments first
@@ -190,24 +178,16 @@ class Op(Tensor):
                 del self.kwargs[name]
 
         indices = list()
-#        self.extra_args = ()
         for i, arg in enumerate(self.args):
             if not isvar(arg):
                 indices.append(1)
             else:
                 indices.append(0)
-#                self.extra_args += (arg,)
-#                to_remove.append(i)
-#        self.args = [self.args[i] for i in range(len(self.args))
-#                     if i not in to_remove]
+
         self.extra_args = [arg for i, arg in enumerate(self.args) if indices[i]]
         self.args = [arg for i, arg in enumerate(self.args) if indices[i] == 0]
         self.indices = indices
-#        print(self.args, self.extra_args, self.indices)
-#        self.kwargs, self.extra_kwargs = kwargs, extra_kwargs
-#        tree = jax.eval_shape(lambda **b: self.fn(**b, **self.extra_kwargs),
-#                              **self.kwargs)
-#        print(self.args, self.kwargs, self.fn)
+
         tree = jax.eval_shape(lambda *args, **kwargs: self.fn(*args_formatting(args, self.extra_args, self.indices) , **kwargs, **self.extra_kwargs), *self.args, **self.kwargs)
         shape, dtype = tree.shape, tree.dtype
 
@@ -315,7 +295,7 @@ class SubTensor(Tensor):
 
 class Tuple(tuple):
 
-    def __new__ (cls, fn, shapes=None, dtypes=None, args=[], kwargs={}):
+    def __new__ (cls, fn, args=[], kwargs={}):
         trees = jax.eval_shape(lambda *a, **b: fn(*a, **b), *args,
                               **kwargs)
         items = [SubTensor(t.shape, t.dtype, i, None, roots=[])
@@ -323,7 +303,7 @@ class Tuple(tuple):
 
         return super(Tuple, cls).__new__(cls, tuple(items))
 
-    def __init__(self, fn_or_list, shapes=None, dtypes=None, args=[], kwargs={}):
+    def __init__(self, fn_or_list, args=[], kwargs={}):
 
         self.args = args
         self.kwargs = kwargs
@@ -342,8 +322,6 @@ class Tuple(tuple):
         for item in self:
             item.parent = self
 
-        # now use the built-in function to infer shape and dtype given a
-        # lambda jax function
         self.args, self.kwargs = args, kwargs
 
     def get(self, tracker=None):
@@ -432,10 +410,12 @@ def placeholder_like(item, name=''):
 
 
 def theanofn_to_jaxfn(*args, _fn, **kwargs):
+
     # treat the args
     pargs = list()
     for arg in args:
         pargs.append(placeholder_like(arg))
+
     # treat the kwargs
     pkwargs = dict()
     for name, var in kwargs.items():
