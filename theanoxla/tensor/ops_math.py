@@ -1,5 +1,6 @@
 import jax.numpy as jnp
 import numpy
+import jax
 import jax.lax as jla
 from .base import Op, Tuple, add_fn
 from .control_flow import cond
@@ -7,6 +8,12 @@ import ast
 import inspect
 
 from .ops_activations import relu
+
+
+def create_generic_class(func):                                                              
+    name = func.split('.')[-1]
+    exec('global {}\nclass {}(Op):\n\tpass\nadd_fn({})({})'.format(name, name,               
+                                                                   name, func))
 
 
 
@@ -45,7 +52,7 @@ def hat_1D(x, t_left, t_center, t_right):
     return output
 
 class extract_signal_patches(Op):
-    @staticmethod                                                                                                                                                                             
+    @staticmethod
     def fn(signal, window_length, hop=1, data_format='NCW'):
         assert not hasattr(window_length, '__len__')
         if data_format == 'NCW':
@@ -110,19 +117,16 @@ class add_n(Op):
         return start
 
 
-def create_generic_class(func):
-    name = func.split('.')[-1]#eval('{}.__name__'.format(func))
-    exec('global {}\nclass {}(Op):\n\tpass\nadd_fn({})({})'.format(name, name,
-                                                                   name, func))
+
 
 JNP_NAMES = [c[0] for c in inspect.getmembers(jnp, inspect.isfunction)]
 TO_SKIP = [
 '<lambda>',
-#'blackman',
-#'bartlett',
-#'hamming',
-#'hanning',
-#'kaiser',
+'blackman',
+'bartlett',
+'hamming',
+'hanning',
+'kaiser',
 'add_docstring',
 'add_newdoc',
 'alen',
@@ -192,7 +196,6 @@ TO_SKIP = [
 'issubsctype',
 'iterable',
 'ix_',
-#'einsum',
 'jit',
 'load',
 'loads',
@@ -296,18 +299,20 @@ def meshgrid(*args):
     return Tuple(jnp.meshgrid, args=args)
 
 
-class cholesky(Op):
-    pass
-add_fn(cholesky)(jnp.linalg.cholesky)
+#class cholesky(Op):
+#    pass
+#add_fn(cholesky)(jnp.linalg.cholesky)
 
 
-class inv(Op):
-    pass
-add_fn(inv)(jnp.linalg.inv)
+#class inv(Op):
+#    pass
+#add_fn(inv)(jnp.linalg.inv)
 
 
-class det(Op):
-    pass
-add_fn(det)(jnp.linalg.det)
+#class det(Op):
+#    pass
+#add_fn(det)(jnp.linalg.det)
+
+
 
 

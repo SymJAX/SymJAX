@@ -7,6 +7,12 @@ import copy
 from functools import wraps
 
 
+def create_generic_class(func):
+    name = func.split('.')[-1]
+    exec('global {}\nclass {}(Op):\n\tpass\nadd_fn({})({})'.format(name, name,               
+                                                                   name, func))
+
+
 def add_fn(cls):
     def decorator(func):
         @wraps(func)
@@ -118,8 +124,15 @@ class Tensor:
     def __init__(self, shape, dtype, roots=[], copyof=None):
         self.copyof = copyof
         self.roots = roots
-        self._shape = shape
+        self._shape = tuple(shape)
         self._dtype = dtype
+
+    def __repr__(self):
+        return '(Tensor: shape={}, dtype={})'.format(self.shape, self.dtype)
+
+    def __str__(self):
+        return self.__repr__()
+
 
     @property
     def shape(self):

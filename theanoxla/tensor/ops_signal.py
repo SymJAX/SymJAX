@@ -4,6 +4,21 @@ import numpy
 from .. import tensor as T
 from .base import add_fn, Op
 
+def create_generic_class(func):                                                              
+    name = func.split('.')[-1]
+    exec('global {}\nclass {}(Op):\n\tpass\nadd_fn({})({})'.format(name, name,               
+                                                                   name, func))
+
+
+
+names = ['blackman',
+         'bartlett',
+         'hamming',
+         'hanning',
+         'kaiser']
+
+for name in names:
+    create_generic_class('jnp.' + name)
 
 def hanning(M):
     """

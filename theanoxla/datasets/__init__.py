@@ -4,6 +4,7 @@
 #from .preprocess import *
 #from .base import *
 
+from . import mnist
 #from .mnist import *
 #from .svhn import *
 from .cifar10 import *

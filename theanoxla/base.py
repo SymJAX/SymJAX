@@ -13,6 +13,27 @@ def gradients(scalar, deps, aggregation=tensor.sum):
     # get all the roots, this is needed as otherwise they are not
     # as the input of the gradient function and thus a change of
     # their value will not change the gradient computation
+    # now we check if we have to differentiate w.r.t a non root variable
+    to_add = list(set(scalar.roots) - set(deps))
+    #[dep for dep in deps if dep not in scalar.roots]
+    all_roots = scalar.roots + to_add
+
+    # get the argnum (index of the function input that will have to be
+    # differentiated
+    argnums = [all_roots.index(dep) for dep in deps]
+
+    # create a dummy function that is needed for jax to compute a gradient func
+    def fn(*args):
+        return scalar.get(dict(zip(all_roots, list(args))))
+
+    grad_fn = jax.grad(fn, argnums)
+    return tensor.Tuple(grad_fn, args=all_roots)
+
+def jacobian_forward(scalar, deps):
+    # good for tall J
+    # get all the roots, this is needed as otherwise they are not
+    # as the input of the gradient function and thus a change of
+    # their value will not change the gradient computation
     all_roots = scalar.roots
 
     # now we check if we have to differentiate w.r.t a non root variable
@@ -27,15 +48,35 @@ def gradients(scalar, deps, aggregation=tensor.sum):
     def fn(*args):
         return scalar.get(dict(zip(all_roots, list(args))))
 
-    grad_fn = jax.grad(fn, argnums)
+    grad_fn = jax.jacfwd(fn, argnums)
     return tensor.Tuple(grad_fn, args=all_roots)
 
 
-def jacobians(vector, deps, mode='forward', vectorize=True):
-    J = list()
-    for i in range(vector.shape[1]):
-        J.append(gradients(vector[:, i], deps))
-    return tuple([tensor.stack([J[i][j] for i in range(vector.shape[1])], 1) for j in range(len(deps))])
+
+
+
+def jacobian_backward(scalar, deps):
+    # good for wide J
+    # get all the roots, this is needed as otherwise they are not
+    # as the input of the gradient function and thus a change of
+    # their value will not change the gradient computation
+    all_roots = scalar.roots
+
+    # now we check if we have to differentiate w.r.t a non root variable
+    to_add = [dep for dep in deps if dep not in all_roots]
+    all_roots += to_add
+
+    # get the argnum (index of the function input that will have to be
+    # differentiated
+    argnums = [i for i, arg in enumerate(all_roots) if arg in deps]
+
+    # create a dummy function that is needed for jax to compute a gradient func
+    def fn(*args):
+        return scalar.get(dict(zip(all_roots, list(args))))
+
+    grad_fn = jax.jacrev(fn, argnums)
+    return tensor.Tuple(grad_fn, args=all_roots)
+
 
 
 
