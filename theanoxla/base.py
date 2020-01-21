@@ -84,7 +84,7 @@ def jacobian_backward(scalar, deps):
 class function:
 
     def __init__(self, *classargs, outputs=[], updates=None, device=None,
-                 backend=None):
+                 backend=None, default_value=None):
 
         # check the updates
         if updates is None:

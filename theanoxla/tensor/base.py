@@ -151,11 +151,14 @@ class Tensor:
         pass
 
     def get(self, tracker=None):
+        """ this method implements only the case where the tensor is a copy
+            of another one such as a variable etc. In this case we simply refer
+            to the original get method. Otherwise, there should never be a call
+            of get on a Tensor but always on an Op etc"""
         if self.copyof is not None:
             output = self.copyof.get(tracker)
             tracker[self] = output
             return output
-
 
 
 
@@ -172,15 +175,6 @@ class Op(Tensor):
         # set roots
         roots = getroots([i for i in kwargs.values()] + list(args)) + roots
         roots = list(set(roots))
-
-        # set shape and dtype:  we to use the automatic shape evaluation.
-        # We take care of some problematic cases happening when a parameter
-        # such as the shape in the reshape function is given. 
-        # When trying to infer the shape, each function input is given as
-        # a tracer to monitor internal computations. But those constant
-        # parameters do not that support tracing, we thus have to infer
-        # the shape using a tweaked function with them not as args/kwargs
-        # the kwargs that are constant are moved into extra_kwargs
 
         # now use the builin function to infer shape and dtype given a
         # lambda jax function, we need to remove the static arguments first
@@ -208,8 +202,8 @@ class Op(Tensor):
 
 
     def __repr__(self):
-        return '(Op: ' + self.print_name + 'dtype=' + str(self.dtype) + \
-               ', shape='+str(self.shape) + ')'
+        return '(Op: ' + self.fn.__name__ + ', shape='+str(self.shape) +\
+               ', dtype=' + str(self.dtype) + ')'
 
     def __str__(self):
         return self.__repr__()
@@ -370,16 +364,19 @@ class Variable(Tensor):
         self.trainable = trainable
         self.name = name
         if callable(value_or_fn):
-            value = value_or_fn(shape).astype(dtype)
+            if dtype is not None:
+                value = value_or_fn(shape).astype(dtype)
+            else:
+                value = value_or_fn(shape).astype(dtype)
             self.value = jnp.asarray(value)
-            self.init_value = (value_or_fn, shape, dtype)
+            self.init_value = (value_or_fn, shape)
         else:
             self.value = jnp.asarray(value_or_fn)
             self.init_value = copy.deepcopy(self.value)
-        try:
+        if hasattr(self.value, 'shape'):
             shape = self.value.shape
             dtype = self.value.dtype
-        except:
+        else:
             shape = ()
             dtype = type(value)
 
@@ -388,10 +385,9 @@ class Variable(Tensor):
     def reset(self):
         if type(self.value)==tuple:
             value = self.init_value[0](self.init_value[1])
-            value = self.value.astype(self.init_value[2])
         else:
             value = self.init_value
-        self.value = jnp.asarray(value)
+        self.value = jnp.asarray(value).astype(self.dtype)
 
     def __repr__(self):
         return '(Variable: ' + self.name + 'dtype=' + str(self.dtype) + \

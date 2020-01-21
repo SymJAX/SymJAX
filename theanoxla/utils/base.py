@@ -2,12 +2,13 @@ import numpy as np
 from multiprocessing import Pool, Queue, Lock, Process
 
 
-def train_test_split(X, y, proportion=0.2):
-    indices = np.random.permutation(X.shape[0])
-    N = int(X.shape[0] * (1 - proportion))
-    train_indices = indices[:N]
-    test_indices = indices[N:]
-    return X[train_indices], X[test_indices], y[train_indices], y[test_indices]
+def train_test_split(*args, train_size=0.2):
+    indices = np.random.permutation(args[0].shape[0])
+    N_TRAIN = train_size if train_size>1 else int(args[0].shape[0] * (1-train_size))
+    train_indices = indices[:N_TRAIN]
+    test_indices = indices[N_TRAIN:]
+    output = sum([[arg[train_indices], arg[test_indices]] for arg in args], [])
+    return output
 
 class batchify:
 

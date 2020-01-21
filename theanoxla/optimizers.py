@@ -19,7 +19,7 @@ class Optimizer:
             self._update()
 
 
-class PiecewiseConstantSchedule(Optimizer):
+class PiecewiseConstant(Optimizer):
 
     def __init__(self, init, values):
         self.init = init

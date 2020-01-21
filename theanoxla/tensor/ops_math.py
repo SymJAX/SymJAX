@@ -269,6 +269,9 @@ def flatten(input):
     return reshape(input, (-1,))
 
 def flatten2d(input):
+    assert input.ndim > 1
+    if input.ndim == 2:
+        return input
     return reshape(input, (input.shape[0], -1))
 
 def logsumexp(x, axis):
