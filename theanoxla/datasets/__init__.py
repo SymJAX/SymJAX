@@ -6,6 +6,7 @@
 
 from . import mnist
 from . import dsprites
+from . import gtzan
 #from .mnist import *
 #from .svhn import *
 from .cifar10 import *

@@ -40,9 +40,13 @@ class Layer(T.Tensor):
         else:
             self.input = input_or_shape
 
-    def add_update(self, udpate):
-        if not hasattr(self, 'updates'):
-            self.updates = dict()
+    @property
+    def updates(self):
+        if not hasattr(self, '_updates'):
+            self._updates = {}
+        return self._updates
+
+    def add_update(self, update):
         self.updates.update(update)
 
     def add_variable(self, variable):
@@ -109,9 +113,9 @@ class Dense(Layer):
 
 class Conv1D(Layer):
 
-    def __init__(self, input_or_shape, W_shape, b_shape, strides=1, pad='VALID',
+    def __init__(self, input_or_shape, W_shape, b_shape=None, strides=1, pad='VALID',
                  W=initializers.he, b=numpy.zeros, W_dtype='float32', b_dtype='float32',
-                 trainable_W=True, trainable_b=True, input_dilations=0, filter_dilations=0):
+                 trainable_W=True, trainable_b=True, input_dilations=None, filter_dilations=None):
 
         """ for standard conv1d the W_shape should be (#out_filters, #in_channels, time_bins)
             and for the bias it should be (#out_filters, 1) or to not share the bias across time put
@@ -120,8 +124,8 @@ class Conv1D(Layer):
         """
 
         self.init_input(input_or_shape)
-        self.input_dilation = input_dilation
-        self.filter_dilation = filter_dilation
+        self.input_dilation = input_dilations
+        self.filter_dilation = filter_dilations
         self.strides = strides
         self.pad = pad
 
@@ -129,6 +133,8 @@ class Conv1D(Layer):
                             trainable=trainable_W)
         self.add_variable(self.W)
 
+        if b_shape is None:
+            b_shape = (W_shape[0], 1)
         self.b = T.Variable(b, shape=b_shape, dtype=b_dtype,
                             trainable=trainable_b)
         self.add_variable(self.b)
@@ -143,14 +149,16 @@ class Conv1D(Layer):
                         filter_dilation=self.filter_dilation)
         return conv + self.b
 
+
+
 class Conv2D(Layer):
-    def __init__(self, input_or_shape, W_shape, b_shape, pad='VALID', strides=1,
+    def __init__(self, input_or_shape, W_shape, b_shape=None, pad='VALID', strides=1,
                  W=initializers.he, b=numpy.zeros,  W_dtype='float32', b_dtype='float32',
-                 trainable_W=True, trainable_b=True, input_dilations=0, filter_dilations=0):
+                 trainable_W=True, trainable_b=True, input_dilations=None, filter_dilations=None):
 
         self.init_input(input_or_shape)
-        self.input_dilation = input_dilation
-        self.filter_dilation = filter_dilation
+        self.input_dilation = input_dilations
+        self.filter_dilation = filter_dilations
         self.strides = strides
         self.pad = pad
 
@@ -158,6 +166,8 @@ class Conv2D(Layer):
                             trainable=trainable_W)
         self.add_variable(self.W)
 
+        if b_shape is None:
+            b_shape = (W_shape[0], 1, 1)
         self.b = T.Variable(b, shape=b_shape, dtype=b_dtype,
                             trainable=trainable_b)
         self.add_variable(self.b)
@@ -366,4 +376,4 @@ class BatchNormalization(Layer):
 
         usemean = mean * (1 - dirac) + self.avgmean * dirac
         usevar = var * (1 - dirac) + self.avgvar * dirac
-        return self.W * (input - usemean) / (T.sqrt(usevar) + const) + self.b
+        return self.W * (input - usemean) / (T.sqrt(usevar) + self.const) + self.b
