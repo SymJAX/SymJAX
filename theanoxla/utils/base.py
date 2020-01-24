@@ -4,7 +4,7 @@ from multiprocessing import Pool, Queue, Lock, Process
 
 def train_test_split(*args, train_size=0.2):
     indices = np.random.permutation(args[0].shape[0])
-    N_TRAIN = train_size if train_size>1 else int(args[0].shape[0] * (1-train_size))
+    N_TRAIN = train_size if train_size>1 else int(args[0].shape[0] * train_size)
     train_indices = indices[:N_TRAIN]
     test_indices = indices[N_TRAIN:]
     output = sum([[arg[train_indices], arg[test_indices]] for arg in args], [])

@@ -4,6 +4,7 @@ import urllib.request
 import numpy as np
 import tarfile
 import time
+from tqdm import tqdm
 from scipy.io.wavfile import read as wav_read
 
 
@@ -46,14 +47,13 @@ def load(subsample=1, PATH=None):
                   'disco': 3, 'hiphop': 4, 'jazz': 5, 'metal': 6,
                   'pop': 7, 'reggae': 8, 'rock': 9}
     names = tar.getmembers()
-    for name in names:
+    for name in tqdm(names, ascii=True, total=1000):
         if 'wav' not in name.name:
             continue
         f = tar.extractfile(name.name)#.read()
         train_songs.append(wav_read(f)[1][::subsample])
         t = name.name.split('/')[1]
         train_labels.append(name2class[t])
-        print(train_songs[-1].shape)
 
     N = np.min([len(w) for w in train_songs])
     train_songs = [w[:N] for w in train_songs]

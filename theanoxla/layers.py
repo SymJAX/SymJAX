@@ -129,9 +129,12 @@ class Conv1D(Layer):
         self.strides = strides
         self.pad = pad
 
-        self.W = T.Variable(W, shape=W_shape, dtype=W_dtype,
-                            trainable=trainable_W)
-        self.add_variable(self.W)
+        if not trainable_W:
+            self.W = W
+        else:
+            self.W = T.Variable(W, shape=W_shape, dtype=W_dtype,
+                                trainable=trainable_W)
+            self.add_variable(self.W)
 
         if b_shape is None:
             b_shape = (W_shape[0], 1)
