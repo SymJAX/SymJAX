@@ -43,7 +43,7 @@ def hat_1D(x, t_left, t_center, t_right):
     output :: array
         same shape as x with applied hat function
     """
-
+    eps = 1e-6
     slope_left = 1 / (t_center - t_left)
     slope_right = 1 / (t_right - t_center)
     output = (relu(x - t_left)) * slope_left\
@@ -118,6 +118,37 @@ class add_n(Op):
 
 
 
+class one_hot(Op):
+    @staticmethod
+    def fn(i, N, dtype='float32'):
+        """Create a one-hot encoding of x of size k."""
+        z = jnp.zeros((N,), dtype)
+        z = jax.ops.index_add(z, i, 1)
+        return z
+
+class to_one_hot(Op):
+    @staticmethod
+    def fn(x, k, dtype='float32'):
+        """Create a one-hot encoding of x of size k."""
+        return jnp.array(x[:, None] == jnp.arange(k), dtype)
+
+def upsample(x, factors, mode='zeros'):
+    if mode == 'repeat':
+        vs = [x]
+        for ax, f in enumerate(factors):
+            vs.append(repeat(vs[-1], f, ax))
+        return vs[-1]
+    elif mode == 'zeros':
+        masks = [1]
+        for ax, f in enumerate(factors):
+            v = tile(one_hot(0, f), x.shape[ax])
+            shape = (one_hot(ax, len(factors), 'int32') * (-2) + 1).get({})
+            print(shape)
+            masks.append(masks[-1] * v.reshape(shape))
+        x_repeat = upsample(x, factors, mode='repeat')
+        return x_repeat * masks[-1]
+    else:
+        raise ValueError('Not Implemented upsample')
 
 JNP_NAMES = [c[0] for c in inspect.getmembers(jnp, inspect.isfunction)]
 TO_SKIP = [

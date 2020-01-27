@@ -9,7 +9,7 @@ __all__ = [
         "utils",
         "initializers",
         "layers",
-#        "schedules",
+        "schedules",
         "optimizers"]
 
 __version__ = 'alpha.1'

@@ -8,9 +8,9 @@ def is_shape(x):
     """utility function that checks if the input is a shape or not"""
     if not hasattr(x, '__len__'):
         return False
-    if type(x[0]) == int:
+    if isinstance(x[0], int):
         return True
-    elif type(x[0]) == float:
+    elif isinstance(x[0], float):
         raise RuntimeError("invalid float value in shape")
 
 
@@ -30,7 +30,7 @@ class Layer(T.Tensor):
         if not hasattr(self, '_variables'):
             return []
         if trainable is not None:
-            return [v for v in self._variables if v.trainable==trainable]
+            return [v for v in self._variables if v.trainable == trainable]
         else:
             return self._variables
 
@@ -69,6 +69,29 @@ class Identity(Layer):
         return input
 
 
+class Reshape(Layer):
+
+    def __init__(self, input_or_shape, shape):
+
+        self.init_input(input_or_shape)
+        self.new_shape = shape
+        super().__init__(self.forward(self.input))
+
+    def forward(self, input):
+        return T.reshape(input, self.new_shape)
+
+
+class Upsample(Layer):
+
+    def __init__(self, input_or_shape, factors):
+
+        self.init_input(input_or_shape)
+        self.factors = factors
+        super().__init__(self.forward(self.input))
+
+    def forward(self, input):
+        upsample = T.upsample(input, self.factors)
+        return upsample
 
 
 class Activation(Layer):
@@ -81,8 +104,6 @@ class Activation(Layer):
 
     def forward(self, input):
         return self.activation(input)
-
-
 
 
 class Dense(Layer):
@@ -106,17 +127,18 @@ class Dense(Layer):
 
     def forward(self, input):
         if numpy.prod(input.shape[1:]) != self.W.shape[0]:
-            raise RuntimeError('input to Dense layer {} has different dim'.format(self))
+            raise RuntimeError(
+                'input to Dense layer {} has different dim'.format(self))
         return T.dot(T.flatten2d(input), self.W) + self.b
-
 
 
 class Conv1D(Layer):
 
-    def __init__(self, input_or_shape, W_shape, b_shape=None, strides=1, pad='VALID',
-                 W=initializers.he, b=numpy.zeros, W_dtype='float32', b_dtype='float32',
-                 trainable_W=True, trainable_b=True, input_dilations=None, filter_dilations=None):
-
+    def __init__(self, input_or_shape, W_shape, b_shape=None, strides=1,
+                 pad='VALID', W=initializers.he, b=numpy.zeros,
+                 W_dtype='float32', b_dtype='float32',
+                 trainable_W=True, trainable_b=True,
+                 input_dilations=None, filter_dilations=None):
         """ for standard conv1d the W_shape should be (#out_filters, #in_channels, time_bins)
             and for the bias it should be (#out_filters, 1) or to not share the bias across time put
             (#out_filters, time_bins) or to share all bias put (1,) be careful to have the correct
@@ -153,11 +175,12 @@ class Conv1D(Layer):
         return conv + self.b
 
 
-
 class Conv2D(Layer):
-    def __init__(self, input_or_shape, W_shape, b_shape=None, pad='VALID', strides=1,
-                 W=initializers.he, b=numpy.zeros,  W_dtype='float32', b_dtype='float32',
-                 trainable_W=True, trainable_b=True, input_dilations=None, filter_dilations=None):
+    def __init__(self, input_or_shape, W_shape, b_shape=None, pad='VALID',
+                 strides=1, W=initializers.he, b=numpy.zeros,
+                 W_dtype='float32', b_dtype='float32',
+                 trainable_W=True, trainable_b=True,
+                 input_dilations=None, filter_dilations=None):
 
         self.init_input(input_or_shape)
         self.input_dilation = input_dilations
@@ -176,7 +199,6 @@ class Conv2D(Layer):
         self.add_variable(self.b)
 
         super().__init__(self.forward(self.input))
-
 
     def forward(self, input):
         conv = T.convNd(input, self.W, strides=self.strides, padding=self.pad,
@@ -205,8 +227,7 @@ class Pool2D(Layer):
 
     def forward(self, input):
         return T.poolNd(input, self.pool_shape, strides=self.strides,
-                          reducer=self.pool_type)
-
+                        reducer=self.pool_type)
 
 
 class Dropout(Layer):
@@ -216,19 +237,14 @@ class Dropout(Layer):
         self.init_input(input_or_shape)
         self.deterministic = deterministic
         self.p = p
-        if seed is None:
-            self.seed = numpy.random.randint(0, 100000)
-        else:
-            self.seed = seed
-        self.mask = T.random.bernoulli(shape=self.input.shape, p=p,
-                                       seed=self.seed)
+        self.mask = T.random.bernoulli(shape=self.input.shape, p=p, seed=seed)
         super().__init__(self.forward(self.input))
 
     def forward(self, input, deterministic=None):
         if deterministic is None:
             deterministic = self.deterministic
         dirac = T.cast(deterministic, 'float32')
-        return  input * self.mask * (1 - dirac) + input * dirac
+        return input * self.mask * (1 - dirac) + input * dirac
 
 
 class RandomFlip(Layer):
@@ -239,12 +255,7 @@ class RandomFlip(Layer):
         self.deterministic = deterministic
         self.p = p
         self.axis = axis
-        if seed is None:
-            self.seed = numpy.random.randint(0, 100000)
-        else:
-            self.seed = seed
-        self.flip = T.random.bernoulli(shape=(input.shape[0]), p=p,
-                                       seed=self.seed)
+        self.flip = T.random.bernoulli(shape=(input.shape[0]), p=p, seed=seed)
         super().__init__(self.forward(self.input))
 
     def forward(self, input, deterministic=None):
@@ -254,11 +265,9 @@ class RandomFlip(Layer):
         dirac = T.cast(deterministic, 'float32')
 
         flipped_input = self.flip * T.flip(input, self.axis)\
-                        + (1 - self.flip) * input
+            + (1 - self.flip) * input
 
-        return  input * dirac + flipped_input * (1 - dirac)
-
-
+        return input * dirac + flipped_input * (1 - dirac)
 
 
 class RandomCrop(Layer):
@@ -272,22 +281,18 @@ class RandomCrop(Layer):
             self.pad_shape = [(pad_shape, pad_shape), (pad_shape, pad_shape)]
         elif not hasattr(pad_shape[0], '__len__'):
             self.pad_shape = [(pad_shape[0], pad_shape[0]), (pad_shape[1],
-                                                        pad_shape[1])]
+                                                             pad_shape[1])]
 
         self.deterministic = deterministic
-        if seed is None:
-            self.seed = numpy.random.randint(0, 100000)
-        else:
-            self.seed = seed
 
-            h = self.input.shape[2] + sum(self.pad_shape[0]) - crop_shape[0]
-            self.h_ind = T.random.randint(minval=0, maxval=h + 1,
-                                          shape=(input.shape[0],),
-                                          dtype='int32', seed=self.seed)
-            w = input.shape[3] + sum(self.pad_shape[0]) - crop_shape[1]
-            self.w_ind = T.random.randint(minval=0, maxval=w + 1,
-                                          shape=(input.shape[0],),
-                                          dtype='int32', seed=self.seed+1)
+        h = self.input.shape[2] + sum(self.pad_shape[0]) - crop_shape[0]
+        self.h_ind = T.random.randint(minval=0, maxval=h + 1,
+                                      shape=(input.shape[0],),
+                                      dtype='int32', seed=seed)
+        w = input.shape[3] + sum(self.pad_shape[0]) - crop_shape[1]
+        self.w_ind = T.random.randint(minval=0, maxval=w + 1,
+                                      shape=(input.shape[0],),
+                                      dtype='int32', seed=seed + 1 if seed is not None else seed)
 
         super().__init__(self.forward(self.input))
 
@@ -299,7 +304,7 @@ class RandomCrop(Layer):
 
         # pad the input as needed and flatten it
         if pad_shape[0][0] > 0 or pad_shape[0][1] > 0\
-            or pad_shape[1][0] > 0 or pad_shape[1][1] > 0:
+                or pad_shape[1][0] > 0 or pad_shape[1][1] > 0:
             input2 = T.pad(input, [(0, 0), (0, 0), pad_shape[0], pad_shape[1]])
         else:
             input2 = input
@@ -312,7 +317,7 @@ class RandomCrop(Layer):
         # flatten them
         flat_indices = patch_indices.reshape((1, 1, -1))
         # and repeat for the input channels
-        cflat_indices = flat_indices#.repeat(input.shape[1], 1)
+        cflat_indices = flat_indices  # .repeat(input.shape[1], 1)
 
         # create the random shifts and get the random patch indices
         random_offsets = self.h_ind * input2.shape[3] + self.w_ind
@@ -323,17 +328,14 @@ class RandomCrop(Layer):
 
         # create the deterministic version
         if crop_shape[0] != input.shape[2] or crop_shape[1] != input.shape[3]:
-            offset = (pad_shape[0][0] + (input.shape[2] - crop_shape[0])//2,
-                      pad_shape[1][0] + (input.shape[3] - crop_shape[1])//2)
+            offset = (pad_shape[0][0] + (input.shape[2] - crop_shape[0]) // 2,
+                      pad_shape[1][0] + (input.shape[3] - crop_shape[1]) // 2)
             offset = input2.shape[3] * offset[0] + offset[1]
-            deter_output = T.take_along_axis(flat_input, flat_indices + offset, 2).reshape(input.shape[:2] + tuple(crop_shape))
+            deter_output = T.take_along_axis(
+                flat_input, flat_indices + offset, 2).reshape(input.shape[:2] + tuple(crop_shape))
         else:
             deter_output = input
-        return output#deter_output * dirac +  (1 - dirac) * output
-
-
-
-
+        return output  # deter_output * dirac +  (1 - dirac) * output
 
 
 class BatchNormalization(Layer):
@@ -360,7 +362,6 @@ class BatchNormalization(Layer):
 
         super().__init__(self.forward(self.input))
 
-
     def forward(self, input, deterministic=None):
 
         if deterministic is None:
@@ -370,8 +371,11 @@ class BatchNormalization(Layer):
         mean = T.mean(input, self.axis, keepdims=True)
         var = T.var(input, self.axis, keepdims=True)
         if len(self.updates.keys()) == 0:
-            self.avgmean, upm, step = T.ExponentialMovingAverage(mean, self.beta1)
-            self.avgvar, upv, step = T.ExponentialMovingAverage(var, self.beta2, step=step, init=numpy.ones(var.shape).astype('float32'))
+            self.avgmean, upm, step = T.ExponentialMovingAverage(
+                mean, self.beta1)
+            self.avgvar, upv, step = T.ExponentialMovingAverage(
+                var, self.beta2, step=step, init=numpy.ones(
+                    var.shape).astype('float32'))
             self.add_variable(self.avgmean)
             self.add_variable(self.avgvar)
             self.add_update(upm)
@@ -379,4 +383,5 @@ class BatchNormalization(Layer):
 
         usemean = mean * (1 - dirac) + self.avgmean * dirac
         usevar = var * (1 - dirac) + self.avgvar * dirac
-        return self.W * (input - usemean) / (T.sqrt(usevar) + self.const) + self.b
+        return self.W * (input - usemean) / \
+            (T.sqrt(usevar) + self.const) + self.b

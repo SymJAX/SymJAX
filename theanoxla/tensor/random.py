@@ -1,10 +1,16 @@
 import jax.random as jnp
+import jax
 from .base import RandomOp
 from .ops_math import cast
 
 #_normal = RandomOp(jnp.normal)
 #_uniform = RandomOp(jnp.uniform)
 #_bernoulli = RandomOp(jnp.bernoulli)
+
+def permutation(n, dtype='int32'):
+    output = jax.numpy.arange(n).astype(dtype)
+    return shuffle(output)
+
 
 
 class _normal(RandomOp):
@@ -17,6 +23,12 @@ class uniform(RandomOp):
     def fn(key, shape, dtype='float32', minval=0., maxval=1.):
         return jnp.uniform(key=key, shape=shape, dtype=dtype, minval=minval,
                            maxval=maxval)
+
+class shuffle(RandomOp):
+    @staticmethod
+    def fn(key, x, axis=0):
+        return jnp.shuffle(key=key, x=x, axis=axis)
+
 
 class randint(RandomOp):
     @staticmethod
@@ -54,6 +66,9 @@ def normal(shape=(), mean=0, var=1, dtype='float32'):
         """
 
         return _normal(shape=shape, dtype=dtype)*var+mean
+
+
+randn = normal
 
 
 #def uniform(shape=(), lower=0, upper=1, dtype='float32'):

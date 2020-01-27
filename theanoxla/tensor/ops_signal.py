@@ -156,6 +156,8 @@ def freq_to_mel(f, option='linear'):
 
 def mel_filterbank(length, n_filter, low, high, nyquist):
 
+    assert length >= n_filter
+    print(length, n_filter)
     # convert the low and high frequency into mel scale
     low_freq_mel = freq_to_mel(low)
     high_freq_mel = freq_to_mel(high)

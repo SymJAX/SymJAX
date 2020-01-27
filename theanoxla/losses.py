@@ -35,20 +35,19 @@ def sparse_crossentropy_logits(p, q, weights=None):
     linear = T.take_along_axis(q, p[:, None], 1).squeeze()
     logsumexp = T.logsumexp(q, 1)
     if weights is not None:
-        return weights*(-linear + logsumexp)
+        return weights * (-linear + logsumexp)
     else:
         return logsumexp - linear
 
 
 def crossentropy_logits(p, q, weights=None, p_sparse=True):
     """see sparse cross entropy"""
-    linear = (p*q).sum(1)
+    linear = (p * q).sum(1)
     logsumexp = T.logsumexp(q, 1)
     if weights is not None:
-        return weights*(-linear + logsumexp)
+        return weights * (-linear + logsumexp)
     else:
         return -linear + logsumexp
-
 
 
 def multiclass_hinge_loss(predictions, targets, delta=1):
@@ -80,15 +79,13 @@ def multiclass_hinge_loss(predictions, targets, delta=1):
     elif targets.ndim != predictions.ndim:
         raise TypeError('rank mismatch between targets and predictions')
     corrects = predictions[targets.nonzero()]
-    rest = predictions[(1-targets).nonzero()].reshape((-1, num_cls-1))
+    rest = predictions[(1 - targets).nonzero()].reshape((-1, num_cls - 1))
     rest = rest.max(axis=1)
     return T.activations.relu(rest - corrects + delta)
 
 
-
-def squared_error(targets, predictions):
+def squared_difference(targets, predictions):
     return (targets - predictions)**2
-
 
 
 def accuracy(targets, predictions):
@@ -96,6 +93,4 @@ def accuracy(targets, predictions):
         accu = T.cast(T.equal(targets, predictions.argmax(1)), 'float32')
     else:
         accu = T.cast(T.equal(targets, predictions), 'float32')
-    return accu
-
-
+    return accu.mean()

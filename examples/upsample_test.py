@@ -7,16 +7,36 @@ import theanoxla
 import theanoxla.tensor as T
 
 
-SHAPE = (4, 4)
+o = T.one_hot(1, 5)
+print(o.get({}))
+
+SHAPE = (2, 2)
 z = T.Variable(np.random.randn(*SHAPE).astype('float32'), name='z')
 
 # shuffle
-z_p = T.random.shuffle(z, 0)
-print(z_p.shape)
-f_shuffle = theanoxla.function(outputs=[z, z_p])
+z_1 = T.upsample(z, (2, 1), 'repeat')
+z_2 = T.upsample(z, (1, 2), 'repeat')
+z_3 = T.upsample(z, (2, 3), 'repeat')
 
-print(f_shuffle())
-print(f_shuffle())
+f_shuffle = theanoxla.function(outputs=[z, z_1, z_2, z_3])
+A = f_shuffle()
+for a in A:
+    print(a)
+
+# shuffle
+zz_1 = T.upsample(z, (2, 1))
+zz_2 = T.upsample(z, (1, 2))
+zz_3 = T.upsample(z, (2, 3))
+
+ff_shuffle = theanoxla.function(outputs=[z, zz_1, zz_2, zz_3])
+A = ff_shuffle()
+for a in A:
+    print(a)
+
+
+
+
+
 asdasd
 
 

@@ -15,11 +15,10 @@ def gradients(scalar, deps, aggregation=tensor.sum):
     # their value will not change the gradient computation
     # now we check if we have to differentiate w.r.t a non root variable
     to_add = list(set(scalar.roots) - set(deps))
-    #[dep for dep in deps if dep not in scalar.roots]
     all_roots = scalar.roots + to_add
 
     # get the argnum (index of the function input that will have to be
-    # differentiated
+    # differentiated)
     argnums = [all_roots.index(dep) for dep in deps]
 
     # create a dummy function that is needed for jax to compute a gradient func
@@ -28,6 +27,7 @@ def gradients(scalar, deps, aggregation=tensor.sum):
 
     grad_fn = jax.grad(fn, argnums)
     return tensor.Tuple(grad_fn, args=all_roots)
+
 
 def jacobian_forward(scalar, deps):
     # good for tall J
@@ -41,7 +41,7 @@ def jacobian_forward(scalar, deps):
     all_roots += to_add
 
     # get the argnum (index of the function input that will have to be
-    # differentiated
+    # differentiated)
     argnums = [i for i, arg in enumerate(all_roots) if arg in deps]
 
     # create a dummy function that is needed for jax to compute a gradient func
@@ -50,9 +50,6 @@ def jacobian_forward(scalar, deps):
 
     grad_fn = jax.jacfwd(fn, argnums)
     return tensor.Tuple(grad_fn, args=all_roots)
-
-
-
 
 
 def jacobian_backward(scalar, deps):
@@ -78,44 +75,59 @@ def jacobian_backward(scalar, deps):
     return tensor.Tuple(grad_fn, args=all_roots)
 
 
-
-
-
 class function:
 
     def __init__(self, *classargs, outputs=[], updates=None, device=None,
                  backend=None, default_value=None):
 
-        # check the updates
+        # check the given updates (if any) and ensure that they only
+        # update Variable objects
         if updates is None:
             updates = {}
-        else:
-            for update in updates.keys():
-                if not isinstance(update, tensor.Variable):
-                    raise RuntimeError(
-                  "{} is not a Variable, it can not be updated".format(update))
-
-        # check the inputs
-        placeholders = []
-        for output in outputs:
-            placeholders += filter(lambda x: isinstance(x, tensor.Placeholder),
-                                   output.roots)
-        placeholders = list(set(placeholders))
-        for placeholder in placeholders:
-            if placeholder not in classargs:
+        for update in updates.keys():
+            if not isinstance(update, tensor.Variable):
                 raise RuntimeError(
-                    "Placeholder {} was not given as function input".format(placeholder))
+                    "{} is not a Variable, it can not be updated".format(update))
+
+#        # check the function inputs, they must be at least contain all the
+#        # placeholders needed to compute the outputs values
+#        placeholders = []
+#        for output in outputs:
+#            placeholders += filter(lambda x: isinstance(x, tensor.Placeholder),
+#                                   output.roots)
+#        placeholders = list(set(placeholders))
+#        for placeholder in placeholders:
+#            if placeholder not in classargs:
+#                raise RuntimeError(
+#                    "Placeholder {} was not given as function input".format(placeholder))
 
         # create the function that will take the inputs and return the update
         # values (if any) and the outputs, this function is jit compiled for
         # performances, we also add the roots/updates as hidden inputs
+
+        # gather all roots
+        all_roots = set(sum([output.roots for output in outputs], []))
+
+        # ensure that not variable being update is also an input to the graph
+        assert len(set(updates.keys()).intersection(set(classargs))) == 0
+
+        # we need to add as input of this functin any variable not just the ones
+        # being updates, otherwise they are treated as constant by jax compiled
+        # function, we thus now search which variables do we need to add
+        # we also don't optimize by searching if the path to some variables
+        # was cut by a given input as it won't happen in general
+
         update_inputs = list(updates.keys())
-        hidden_inputs = list()
-        for output in outputs:
-            only_vars = filter(lambda x:isinstance(x, tensor.Variable), output.roots)
-            for variable in only_vars:
-                if variable not in hidden_inputs:
-                    hidden_inputs.append(variable)
+        # retreive the variables that are in the roots
+        all_var_roots = filter(
+            lambda x: isinstance(x, tensor.Variable), list(all_roots))
+        hidden_inputs = list(set(all_var_roots) - set(update_inputs))
+#        for output in outputs:
+#            only_vars = filter(
+#                lambda x: isinstance(x, tensor.Variable), output.roots)
+#            for variable in only_vars:
+#                if variable not in hidden_inputs:
+#                    hidden_inputs.append(variable)
 
         def jitfn(*jitargs, rng):
 
@@ -141,8 +153,10 @@ class function:
             # ensure that the number of arguments is correct
             assert len(fnargs) == len(classargs)
 
-            # get the addition inputs to the function (the values to be updated)
-            hidden_values = [var.value for var in update_inputs + hidden_inputs]
+            # get the addition inputs to the function (the values to be
+            # updated)
+            hidden_values = [
+                var.value for var in update_inputs + hidden_inputs]
 
             # retreive the function outputs and updated values and apply them
             fn_outputs, fn_updates = self.jitfn(*fnargs, *hidden_values, rng=rng)

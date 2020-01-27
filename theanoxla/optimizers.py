@@ -3,8 +3,6 @@ from . import tensor
 from .base import gradients, function
 
 
-
-
 class Optimizer:
 
     def reset(self):
@@ -19,19 +17,19 @@ class Optimizer:
             self._update()
 
 
-class PiecewiseConstant(Optimizer):
-
-    def __init__(self, init, values):
-        self.init = init
-        self.values = values
-        self.step = tensor.Variable(0, trainable=False, name='step')
-        self.value = tensor.PiecewiseConstant(self.init, self.values,
-                                              self.step)[0]
-        self.updates = {self.step: self.step + 1}
-        self.variables = [self.step]
-
-    def __call__(self):
-        return self.value
+# class PiecewiseConstant(Optimizer):
+#
+#    def __init__(self, init, values):
+#        self.init = init
+#        self.values = values
+#        self.step = tensor.Variable(0, trainable=False, name='step')
+#        self.value = tensor.PiecewiseConstant(self.init, self.values,
+#                                              self.step)[0]
+#        self.updates = {self.step: self.step + 1}
+#        self.variables = [self.step]
+#
+#    def __call__(self):
+#        return self.value
 
 
 class SGD(Optimizer):
@@ -61,19 +59,20 @@ class Adam(Optimizer):
         step = tensor.Variable(0., trainable=False, name='step')
         variables = [step]
         # get the learning rate
-        if not numpy.isscalar(learning_rate) and not isinstance(learning_rate, tensor.Placeholder):
+        if not numpy.isscalar(learning_rate) and not isinstance(
+                learning_rate, tensor.Placeholder):
             learning_rate = learning_rate()
 
         updates = dict()
         for param, grad in zip(params, grads):
             m, update_m, _ = tensor.ExponentialMovingAverage(grad, beta1,
                                                              step=step)
-            v, update_v, _ = tensor.ExponentialMovingAverage(tensor.square(grad), beta2, step,
-                                             init=numpy.ones(grad.shape))
+            v, update_v, _ = tensor.ExponentialMovingAverage(
+                tensor.square(grad), beta2, step, init=numpy.ones(grad.shape))
             variables += [m, v]
             updates.update(update_m)
             updates.update(update_v)
-            update = updates[m]/(tensor.sqrt(updates[v])+epsilon)
+            update = updates[m] / (tensor.sqrt(updates[v]) + epsilon)
             updates[param] = param - learning_rate * update
         updates[step] = step + 1
         self.updates = updates

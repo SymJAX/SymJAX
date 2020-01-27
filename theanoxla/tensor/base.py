@@ -9,7 +9,7 @@ from functools import wraps
 
 def create_generic_class(func):
     name = func.split('.')[-1]
-    exec('global {}\nclass {}(Op):\n\tpass\nadd_fn({})({})'.format(name, name,               
+    exec('global {}\nclass {}(Op):\n\tpass\nadd_fn({})({})'.format(name, name,
                                                                    name, func))
 
 
@@ -19,7 +19,7 @@ def add_fn(cls):
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
         setattr(cls, 'fn', staticmethod(wrapper))
-        return func # returning func means func can still be used normally
+        return func  # returning func means func can still be used normally
     return decorator
 
 
@@ -33,23 +33,40 @@ def add_method(cls):
             setattr(cls, func.__name__, wrapper)
         else:
             setattr(cls, name, wrapper)
-        return func # returning func means func can still be used normally
+        return func  # returning func means func can still be used normally
     return decorator
 
+
 def args_formatting(args, extra_args, indices):
+    """ utility function to be used in the Tensor class to correctly join the
+    args and extra_args based on the indices
+
+    Parameters:
+    -----------
+
+    args: List
+
+    extra_args: List
+
+    indices: List of binary values
+        the indices (one per element) to join args and extra_args in the correct
+        order
+
+    """
     output = ()
     arg_iterator = iter(args)
     extra_arg_iterator = iter(extra_args)
     for i in indices:
-#        print(i, args, extra_args)
+        #        print(i, args, extra_args)
         if i:
             output += (next(extra_arg_iterator),)
         else:
             output += (next(arg_iterator),)
     return output
 
+
 def reset(item):
-    if type(item) == list or type(item) == tuple:
+    if isinstance(item, list) or isinstance(item, tuple):
         [reset(i) for i in item]
     elif hasattr(item, 'eval_value'):
         item.eval_value = None
@@ -58,10 +75,8 @@ def reset(item):
             reset(i)
 
 
-
-
-def getroots(item, roots = []):
-    if type(item) == list or type(item) == tuple:
+def getroots(item, roots=[]):
+    if isinstance(item, list) or isinstance(item, tuple):
         return roots + sum([getroots(i, roots) for i in item], [])
     elif hasattr(item, 'roots'):
         return roots + item.roots
@@ -70,7 +85,7 @@ def getroots(item, roots = []):
 
 
 def get(item, tracker):
-    if type(item) == list or type(item) == tuple:
+    if isinstance(item, list) or isinstance(item, tuple):
         current = [get(i, tracker) for i in item]
         return current
     elif item in tracker:
@@ -81,40 +96,46 @@ def get(item, tracker):
     else:
         return item
 
-def extract_variables(items, acc = []):
-    if not isinstance(items, Tensor) and hasattr(items, '__len__'):
-        for item in items:
-            acc += getdepts(item, acc)
-    elif isinstance(items, Variable):
-        return [item]
-    else:
-        return []
-    return acc
 
-def extract_variables_placeholders(items, acc = []):
-    if not isinstance(items, Tensor) and hasattr(items, '__len__'):
-        for item in items:
-            acc += getdepts(item, acc)
-    elif isinstance(items, Variable) or isinstance(items, Placeholder):
-        return [item]
-    else:
-        return []
-    return acc
+# def extract_variables(items, acc=[]):
+#    if not isinstance(items, Tensor) and hasattr(items, '__len__'):
+#        for item in items:
+#            acc += getdepts(item, acc)
+#    elif isinstance(items, Variable):
+#        return [item]
+#    else:
+#        return []
+#    return acc
 
 
+# def extract_variables_placeholders(items, acc=[]):
+#    if not isinstance(items, Tensor) and hasattr(items, '__len__'):
+#        for item in items:
+#            acc += getdepts(item, acc)
+#    elif isinstance(items, Variable) or isinstance(items, Placeholder):
+#        return [item]
+#    else:
+#        return []
+#    return acc
 
-def isdep(item):
-    v = isinstance(item, Variable)
-    p = isinstance(item, Placeholder)
-    return p or v
+
+# def isdep(item):
+#    v = isinstance(item, Variable)
+#    p = isinstance(item, Placeholder)
+#    return p or v
 
 
 def isvar(item):
-    if type(item) == list or type(item) == tuple:
+    """ check whether an item (possibly an ested list etc) contains a variable
+    (any subtype of Tensor) """
+    # in case of nested lists/tuples, recursively call the function on it
+    if isinstance(item, list) or isinstance(item, tuple):
         return numpy.sum([isvar(value) for value in item])
+    # otherwise cheack that it is a subtype of Tensor or a Tracer and not
+    # a callable
     else:
         cond1 = isinstance(item, Tensor)
-        cond2 = type(item) == jax.interpreters.partial_eval.JaxprTracer
+        cond2 = isinstance(item, jax.interpreters.partial_eval.JaxprTracer)
         cond3 = not callable(item)
         return (cond1 or cond2) and cond3
 
@@ -132,7 +153,6 @@ class Tensor:
 
     def __str__(self):
         return self.__repr__()
-
 
     @property
     def shape(self):
@@ -159,7 +179,6 @@ class Tensor:
             output = self.copyof.get(tracker)
             tracker[self] = output
             return output
-
 
 
 class Op(Tensor):
@@ -191,23 +210,22 @@ class Op(Tensor):
             else:
                 indices.append(0)
 
-        self.extra_args = [arg for i, arg in enumerate(self.args) if indices[i]]
+        self.extra_args = [arg for i,
+                           arg in enumerate(self.args) if indices[i]]
         self.args = [arg for i, arg in enumerate(self.args) if indices[i] == 0]
         self.indices = indices
 
-        tree = jax.eval_shape(lambda *args, **kwargs: self.fn(*args_formatting(args, self.extra_args, self.indices) , **kwargs, **self.extra_kwargs), *self.args, **self.kwargs)
+        tree = jax.eval_shape(lambda *args, **kwargs: self.fn(*args_formatting(args, self.extra_args, self.indices), **kwargs, **self.extra_kwargs), *self.args, **self.kwargs)
         shape, dtype = tree.shape, tree.dtype
 
         super().__init__(shape, dtype, roots)
 
-
     def __repr__(self):
-        return '(Op: ' + self.fn.__name__ + ', shape='+str(self.shape) +\
+        return '(Op: ' + self.fn.__name__ + ', shape=' + str(self.shape) +\
                ', dtype=' + str(self.dtype) + ')'
 
     def __str__(self):
         return self.__repr__()
-
 
     def get(self, tracker=None):
         if tracker is None:
@@ -253,14 +271,14 @@ class RandomOp(Op):
 
     def __init__(self, *args, seed=None, **kwargs):
         if seed is None:
-            seed = 0
+            seed = numpy.random.randint(0, 2147483647)
         self.seed = seed
         key = jax.random.PRNGKey(seed)
         super().__init__(key, *args, **kwargs, roots=[self])
 
     def __repr__(self):
         return '(RandomTensor: ' + self.print_name + 'dtype='\
-                +  str(self.dtype) + ', shape='+str(self.shape) + ')'
+            + str(self.dtype) + ', shape=' + str(self.shape) + ')'
 
     def get(self, tracker=None):
         if tracker is None:
@@ -270,22 +288,18 @@ class RandomOp(Op):
 
         # argument list
         if 'rng' in tracker:
-            key = jax.random.PRNGKey(self.seed+tracker['rng'])
-        else:
-            key = jax.random.PRNGKey(self.seed)
+            key = jax.random.PRNGKey(self.seed + tracker['rng'])
+            self.extra_args[0] = key
+        return super().get(tracker)
 
-        # kwarg dictionnary
-        kwargs = dict()
-        for name, var in self.kwargs.items():
-            kwargs.update({name: get(var, tracker)})
-        if 'key' in self.extra_kwargs:
-            del self.extra_kwargs['key']
-        tracker[self] = self.fn(key, **kwargs, **self.extra_kwargs)
-        return tracker[self]
-
-
-
-
+#        # kwarg dictionnary
+#        kwargs = dict()
+#        for name, var in self.kwargs.items():
+#            kwargs.update({name: get(var, tracker)})
+#        if 'key' in self.extra_kwargs:
+#            del self.extra_kwargs['key']
+#        tracker[self] = self.fn(key, **kwargs, **self.extra_kwargs)
+#        return tracker[self]
 
 
 class SubTensor(Tensor):
@@ -299,14 +313,13 @@ class SubTensor(Tensor):
         return self.parent.get(tracker)[self.index]
 
 
-
 class Tuple(tuple):
 
-    def __new__ (cls, fn, args=[], kwargs={}):
+    def __new__(cls, fn, args=[], kwargs={}):
         trees = jax.eval_shape(lambda *a, **b: fn(*a, **b), *args,
-                              **kwargs)
+                               **kwargs)
         items = [SubTensor(t.shape, t.dtype, i, None, roots=[])
-                      for i, t in enumerate(trees)]
+                 for i, t in enumerate(trees)]
 
         return super(Tuple, cls).__new__(cls, tuple(items))
 
@@ -356,7 +369,6 @@ class Tuple(tuple):
         return tracker[self]
 
 
-
 class Variable(Tensor):
 
     def __init__(self, value_or_fn, shape=None, dtype=None,
@@ -383,7 +395,7 @@ class Variable(Tensor):
         super().__init__(shape, dtype, roots=[self])
 
     def reset(self):
-        if type(self.value)==tuple:
+        if isinstance(self.value, tuple):
             value = self.init_value[0](self.init_value[1])
         else:
             value = self.init_value
@@ -391,7 +403,8 @@ class Variable(Tensor):
 
     def __repr__(self):
         return '(Variable: ' + self.name + 'dtype=' + str(self.dtype) + \
-               ', shape='+str(self.shape) + ', trainable='+str(self.trainable) + ')'
+               ', shape=' + str(self.shape) + ', trainable=' + \
+            str(self.trainable) + ')'
 
     def get(self, tracker):
         if self not in tracker:
@@ -407,12 +420,13 @@ class Placeholder(Tensor):
 
     def __repr__(self):
         return '(Placeholder: ' + self.name + 'dtype=' + str(self.dtype) + \
-               ', shape='+str(self.shape) + ')'
+               ', shape=' + str(self.shape) + ')'
 
     def get(self, tracker):
         if self not in tracker:
             raise ValueError(' no value given for placeholder {}'.format(self))
         return tracker[self]
+
 
 def placeholder_like(item, name=''):
     return Placeholder(item.shape, item.dtype, name=name)
@@ -433,4 +447,3 @@ def theanofn_to_jaxfn(*args, _fn, **kwargs):
     feed_dict = list(zip(pargs, args)) + list(zip(pkwargs.values(),
                                                   kwargs.values()))
     return output.get(dict(feed_dict))
-

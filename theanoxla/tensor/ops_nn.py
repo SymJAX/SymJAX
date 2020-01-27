@@ -130,21 +130,12 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
 
 
     specs = (input_format, filter_format, output_format)
-#    output_shape = jla.conv_general_shape_tuple(lhs_shape=input.shape,
-#                                                rhs_shape=filter.shape,
-#                                                window_strides=strides,
-#                                                padding=padding,
-#                                                dimension_numbers=specs)
-#    output_dtype = 'float32'
     return conv_general_dilated_op(lhs=input, rhs=filter, window_strides=strides,
                                  padding=padding, lhs_dilation=input_dilation,
                                  rhs_dilation=filter_dilation,
                                  dimension_numbers=specs, precision=None)
-#                                 _shape=output_shape, _dtype=output_dtype)
 
 
-#conv_transpose_shape_tuple(lhs_shape, rhs_shape, window_strides, padding,
-#                             dimension_numbers)
 
 # pooling
 class reduce_window(Op):
