@@ -20,96 +20,6 @@ names = ['blackman',
 for name in names:
     create_generic_class('jnp.' + name)
 
-def hanning(M):
-    """
-    Return the Hanning window.
-    The Hanning window is a taper formed by using a weighted cosine.
-    Parameters
-    ----------
-    M : int
-        Number of points in the output window. If zero or less, an
-        empty array is returned.
-    Returns
-    -------
-    out : ndarray, shape(M,)
-        The window, with the maximum value normalized to one (the value
-        one appears only if `M` is odd).
-    See Also
-    --------
-    bartlett, blackman, hamming, kaiser
-    Notes
-    -----
-    The Hanning window is defined as
-    .. math::  w(n) = 0.5 - 0.5cos\\left(\\frac{2\\pi{n}}{M-1}\\right)
-               \\qquad 0 \\leq n \\leq M-1
-    The Hanning was named for Julius von Hann, an Austrian meteorologist.
-    It is also known as the Cosine Bell. Some authors prefer that it be
-    called a Hann window, to help avoid confusion with the very similar
-    Hamming window.
-    Most references to the Hanning window come from the signal processing
-    literature, where it is used as one of many windowing functions for
-    smoothing values.  It is also known as an apodization (which means
-    "removing the foot", i.e. smoothing discontinuities at the beginning
-    and end of the sampled signal) or tapering function.
-    References
-    ----------
-    .. [1] Blackman, R.B. and Tukey, J.W., (1958) The measurement of power
-           spectra, Dover Publications, New York.
-    .. [2] E.R. Kanasewich, "Time Sequence Analysis in Geophysics",
-           The University of Alberta Press, 1975, pp. 106-108.
-    .. [3] Wikipedia, "Window function",
-           https://en.wikipedia.org/wiki/Window_function
-    .. [4] W.H. Press,  B.P. Flannery, S.A. Teukolsky, and W.T. Vetterling,
-           "Numerical Recipes", Cambridge University Press, 1986, page 425.
-    """
-    n = T.arange(0, M)
-    return 0.5 - 0.5*T.cos(2.0*3.14159*n/(M-1))
-
-
-def hamming(M):
-    """
-    Return the Hamming window.
-    The Hamming window is a taper formed by using a weighted cosine.
-    Parameters
-    ----------
-    M : int
-        Number of points in the output window. If zero or less, an
-        empty array is returned.
-    Returns
-    -------
-    out : ndarray
-        The window, with the maximum value normalized to one (the value
-        one appears only if the number of samples is odd).
-    See Also
-    --------
-    bartlett, blackman, hanning, kaiser
-    Notes
-    -----
-    The Hamming window is defined as
-    .. math::  w(n) = 0.54 - 0.46cos\\left(\\frac{2\\pi{n}}{M-1}\\right)
-               \\qquad 0 \\leq n \\leq M-1
-    The Hamming was named for R. W. Hamming, an associate of J. W. Tukey
-    and is described in Blackman and Tukey. It was recommended for
-    smoothing the truncated autocovariance function in the time domain.
-    Most references to the Hamming window come from the signal processing
-    literature, where it is used as one of many windowing functions for
-    smoothing values.  It is also known as an apodization (which means
-    "removing the foot", i.e. smoothing discontinuities at the beginning
-    and end of the sampled signal) or tapering function.
-    References
-    ----------
-    .. [1] Blackman, R.B. and Tukey, J.W., (1958) The measurement of power
-           spectra, Dover Publications, New York.
-    .. [2] E.R. Kanasewich, "Time Sequence Analysis in Geophysics", The
-           University of Alberta Press, 1975, pp. 109-110.
-    .. [3] Wikipedia, "Window function",
-           https://en.wikipedia.org/wiki/Window_function
-    .. [4] W.H. Press,  B.P. Flannery, S.A. Teukolsky, and W.T. Vetterling,
-           "Numerical Recipes", Cambridge University Press, 1986, page 425.
-    """
-    n = T.arange(0, M)
-    return 0.54 - 0.46*T.cos(2.0*3.14159*n/(M-1))
-
 
 def bin_to_freq(bins, max_f):
     return (bins / bins.max()) * max_f
@@ -136,7 +46,6 @@ def mel_to_freq(m, option='linear'):
     else:
         return 700 * (T.power(10.,(m/2595))-1)
 
-
 def freq_to_mel(f, option='linear'):
     # convert frequency to mel with
     if option == 'linear':
@@ -156,8 +65,6 @@ def freq_to_mel(f, option='linear'):
 
 def mel_filterbank(length, n_filter, low, high, nyquist):
 
-    assert length >= n_filter
-    print(length, n_filter)
     # convert the low and high frequency into mel scale
     low_freq_mel = freq_to_mel(low)
     high_freq_mel = freq_to_mel(high)
