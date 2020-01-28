@@ -37,7 +37,4 @@ class cond(Op):
         return jla.cond(predicate, true_predicate, newtruefn, false_predicate,
                    newfalsefn)
 
-        op = _cond(predicate, true_predicate, newtruefn, false_predicate,
-                   newfalsefn)
-        return op
 

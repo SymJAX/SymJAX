@@ -56,7 +56,7 @@ class Adam(Optimizer):
             grads = gradients(grads_or_loss, params)
         else:
             grads = grads_or_loss
-        step = tensor.Variable(0., trainable=False, name='step')
+        step = tensor.Variable([[0.]], trainable=False, name='step')
         variables = [step]
         # get the learning rate
         if not numpy.isscalar(learning_rate) and not isinstance(

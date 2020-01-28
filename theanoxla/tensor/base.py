@@ -277,7 +277,7 @@ class RandomOp(Op):
         super().__init__(key, *args, **kwargs, roots=[self])
 
     def __repr__(self):
-        return '(RandomTensor: ' + self.print_name + 'dtype='\
+        return '(RandomTensor: ' + self.print_name + ', dtype='\
             + str(self.dtype) + ', shape=' + str(self.shape) + ')'
 
     def get(self, tracker=None):
@@ -285,21 +285,11 @@ class RandomOp(Op):
             tracker = dict()
         elif self in tracker:
             return tracker[self]
-
         # argument list
         if 'rng' in tracker:
             key = jax.random.PRNGKey(self.seed + tracker['rng'])
             self.extra_args[0] = key
         return super().get(tracker)
-
-#        # kwarg dictionnary
-#        kwargs = dict()
-#        for name, var in self.kwargs.items():
-#            kwargs.update({name: get(var, tracker)})
-#        if 'key' in self.extra_kwargs:
-#            del self.extra_kwargs['key']
-#        tracker[self] = self.fn(key, **kwargs, **self.extra_kwargs)
-#        return tracker[self]
 
 
 class SubTensor(Tensor):
@@ -341,6 +331,7 @@ class Tuple(tuple):
         roots = list(set(roots))
         for item in self:
             item.parent = self
+            item.roots = roots
 
         self.args, self.kwargs = args, kwargs
 

@@ -33,8 +33,8 @@ add_method(Tensor)(ops_math.greater_equal, '__ge__')
 add_method(Tensor)(ops_math.less, '__rge__')
 add_method(Tensor)(ops_math.less_equal, '__le__')
 add_method(Tensor)(ops_math.greater, '__rle__')
-add_method(Tensor)(ops_math.not_equal, '__ne__')
-add_method(Tensor)(ops_math.not_equal, '__rne__')
+#add_method(Tensor)(ops_math.not_equal, '__ne__')
+#add_method(Tensor)(ops_math.not_equal, '__rne__')
 
 ## additional operators
 add_method(Tensor)(ops_math.sum)
