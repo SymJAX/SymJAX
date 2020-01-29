@@ -97,36 +97,8 @@ def get(item, tracker):
         return item
 
 
-# def extract_variables(items, acc=[]):
-#    if not isinstance(items, Tensor) and hasattr(items, '__len__'):
-#        for item in items:
-#            acc += getdepts(item, acc)
-#    elif isinstance(items, Variable):
-#        return [item]
-#    else:
-#        return []
-#    return acc
-
-
-# def extract_variables_placeholders(items, acc=[]):
-#    if not isinstance(items, Tensor) and hasattr(items, '__len__'):
-#        for item in items:
-#            acc += getdepts(item, acc)
-#    elif isinstance(items, Variable) or isinstance(items, Placeholder):
-#        return [item]
-#    else:
-#        return []
-#    return acc
-
-
-# def isdep(item):
-#    v = isinstance(item, Variable)
-#    p = isinstance(item, Placeholder)
-#    return p or v
-
-
 def isvar(item):
-    """ check whether an item (possibly an ested list etc) contains a variable
+    """ check whether an item (possibly a nested list etc) contains a variable
     (any subtype of Tensor) """
     # in case of nested lists/tuples, recursively call the function on it
     if isinstance(item, list) or isinstance(item, tuple):
@@ -361,6 +333,32 @@ class Tuple(tuple):
 
 
 class Variable(Tensor):
+    """variable that is a standalone persistent tensor. this tensor
+    can be updated and differentiated.
+
+    Parameters:
+    -----------
+
+        value_or_fn: array or initializer
+            the value given as a numpy array or an initializer which
+            takes as input the shape and can be type casted afterward
+            via numpy.cast
+
+        shape: tuple (optional)
+            the shape of the variable, used only if the value_or_fn is an
+            initializer
+
+        dtype: dtype (optional)
+            the dtype of the variable, used only if the value_or_fn is an
+            initializer
+
+        name: str (optional)
+            the name of the variable, there is no test of name duplication
+
+        trainable: bool
+            whether the variable is trainable or not. It is set as an
+            attribute and can be accessed.
+    """
 
     def __init__(self, value_or_fn, shape=None, dtype=None,
                  name='', trainable=True):
@@ -386,6 +384,12 @@ class Variable(Tensor):
         super().__init__(shape, dtype, roots=[self])
 
     def reset(self):
+        """reset the value of the variable based on the initial one, whether
+        it was an array or initializer. If it was a random initializer,
+        nothing guarantees that the reset will give back the original value
+        as opposed to the array case
+        """
+
         if isinstance(self.value, tuple):
             value = self.init_value[0](self.init_value[1])
         else:
@@ -404,6 +408,23 @@ class Variable(Tensor):
 
 
 class Placeholder(Tensor):
+    """placeholder is an input to the computational graph that takes outside
+    values. That is, it is an input gate to feed data into a computational
+    graph as opposed to for example variables which are living in memory and
+    are not fed externally.
+
+    Parameters:
+    -----------
+
+        shape: tuple
+            the shape of the placeholder
+
+        dtype: dtype
+            the dtype of the placeholder
+
+        name: str (optional)
+            the name of the variable, there is no test of name duplication
+    """
 
     def __init__(self, shape, dtype, name=''):
         self.name = name

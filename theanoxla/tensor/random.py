@@ -69,7 +69,7 @@ def normal(shape=(), mean=0, var=1, dtype='float32'):
 
 
 randn = normal
-
+rand = uniform
 
 #def uniform(shape=(), lower=0, upper=1, dtype='float32'):
 #    """

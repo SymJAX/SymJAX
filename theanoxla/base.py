@@ -91,8 +91,8 @@ def jacobians(tensor, variables, mode='forward'):
     def fn(*args):
         return tensor.get(dict(zip(all_roots, list(args))))
 
-    # now we obtain the grad function. In fact, Jax returns a function that,
-    # when it is called, returns the gradient values, this function is then
+    # now we obtain the jacobian function. In fact, Jax returns a function that
+    # when it is called, returns the jacobian values, this function is then
     # used to generate the Tuple of symbolic variables
     if mode == 'forward':
         jacob_fn = jacfwd(fn, argnums)
@@ -108,27 +108,76 @@ class function:
 
     def __init__(self, *classargs, outputs=[], updates=None, device=None,
                  backend=None, default_value=None):
+        """generates a user function that compiles a computational graph
+        based on given inputs, outputs and update policy of variables. This
+        function internally jit compile the underlying jax computational
+        graph for performances and thus should be favored to the get
+        method of tensors.
+
+        Parameters:
+        -----------
+
+            *classargs: trailing tuple
+                the inputs to the function to be compiled. The tuple should
+                contain all the placeholders that are roots of any output
+                given of the function and update values
+
+
+            outputs: List (optional)
+                the outputs of the function, if a single element, it can be
+                given as a standalone and not a list
+
+            updates: Dict (optional)
+                the dictionnary of updates as per {var:new_value} for any
+                variable of the graph
+
+            device: ??
+                ??
+
+            backend: 'cpu' or 'gpu'
+                the backend to use to run the function on
+
+            default_value: not implemented
+                not implemented
+
+        Returns:
+        --------
+
+            function: callable
+                the user frontend function that takes the specified inputs,
+                returns the specified outputs and perform internally the
+                updates
+        """
 
         # check the given updates (if any) and ensure that they only
         # update Variable objects
         if updates is None:
             updates = {}
+
         for update in updates.keys():
             if not isinstance(update, t.Variable):
                 raise RuntimeError(
                     "{} is not a Variable, it can not be updated".format(update))
 
+        # ensure that all inputs are actual placeholders or variables
+        for arg in classargs:
+            if not isinstance(arg, t.Tensor):
+                raise RuntimeError(
+                        "{} is not a Tensor type. Only tensor types can be function inputs".format(arg))
+
         # gather all roots, they need to be explicit as inputs of the
         # underlying functions otherwise they are treated as constants
         # and any change in their value will not appear when running the
         # function
-        self.all_roots = set(
-            sum([output.roots for output in outputs + list(updates.values())], []))
+        all_roots = [outputs] if isinstance(outputs, t.Tensor) else outputs
+        all_roots += list(updates.values())
+        self.all_roots = set(sum([output.roots for output in all_roots], []))
         self.classargs = classargs
         self.outputs = outputs
         items = list(updates.items())
         self.updates_keys = [item[0] for item in items]
         self.updates_values = [item[1] for item in items]
+
         # check the function inputs, they must be at least contain all the
         # placeholders needed to compute the outputs values
         placeholders = filter(
@@ -143,19 +192,24 @@ class function:
         # already ensured that all placeholders are given as inputs to the
         # function. Now we must ensure that the other ones will also be given
         # as inputs to not be treated as constants by jax.
-        self.extra_inputs = list(set(self.all_roots)\
-                - set(list(self.classargs) + self.updates_keys))
+        self.extra_inputs = list(
+            set(self.all_roots) - set(list(self.classargs) + self.updates_keys))
 
         def jitfn(*jitargs):
 
-            allargs = list(self.classargs) + self.updates_keys + self.extra_inputs
+            allargs = list(self.classargs) + \
+                self.updates_keys + self.extra_inputs
             kwargs = dict(zip(allargs, jitargs))
 
             # compute the outputs
-            jit_outputs = [output.get(kwargs) for output in self.outputs]
+            if isinstance(self.outputs, t.Tensor):
+                jit_outputs = self.outputs.get(kwargs)
+            else:
+                jit_outputs = [output.get(kwargs) for output in self.outputs]
 
             # compute the values of the updates
-            jit_updates = [output.get(kwargs) for output in self.updates_values]
+            jit_updates = [output.get(kwargs)
+                           for output in self.updates_values]
             return jit_outputs, jit_updates
 
         # we compile our underlying function using jit for performances
@@ -168,12 +222,13 @@ class function:
 
             # ensure that the number of arguments is correct
             assert len(fnargs) == len(self.classargs)
-            # get the addition inputs to the function (the values to be updated)
+
+            # get the addition inputs to the function (the values to be
+            # updated)
             extra_values = [var.value if not isinstance(var, t.RandomOp)
-                    else var.get({'rng': rng})
-                    for var in self.updates_keys + self.extra_inputs]
-            print('trues', self.updates_keys, self.extra_inputs)
-            print('hidden', extra_values)
+                            else var.get({'rng': rng})
+                            for var in self.updates_keys + self.extra_inputs]
+
             # retreive the function outputs and updated values and apply them
             jitoutputs, jitupdates = self.jitfn(*fnargs, *extra_values)
             for key, update in zip(self.updates_keys, jitupdates):

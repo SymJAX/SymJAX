@@ -6,18 +6,40 @@ sys.path.insert(0, "../")
 import theanoxla
 import theanoxla.tensor as T
 
-
+# test the random normal/uniform
 SHAPE = (2, 2)
-z = T.Variable(np.random.randn(*SHAPE).astype('float32'), name='z')
-t = T.Placeholder((), 'float32')
-tt = T.Placeholder((), 'float32')
-z_r = T.random.randn()
-# shuffle
-z_p = T.random.shuffle(z, 0)
-f_shuffle = theanoxla.function(t, tt, outputs=[z_r+t+tt])
+randn = T.random.randn(SHAPE)
+rand = T.random.rand(SHAPE)
+
+get_vars = theanoxla.function(outputs=[randn, rand])
 
 for i in range(10):
-    print(f_shuffle(1, 1)[0])
+    print(get_vars())
+
+# test shuffle
+matrix = T.linspace(0, 1, 16).reshape((4, 4))
+smatrix = T.random.shuffle(matrix, 0)
+
+get_shuffle = theanoxla.function(outputs=smatrix)
+
+for i in range(10):
+    print(get_shuffle())
+
+
+asdfsadf
+
+# test the random uniform
+SHAPE = (2, 2)
+z = T.Variable(np.random.randn(*SHAPE).astype('float32'), name='z')
+get_z = theanoxla.function(outputs=z)
+
+for i in range(10):
+    print(get_z())
+
+
+
+
+
 
 #print(f_shuffle()[0])
 asdasd
