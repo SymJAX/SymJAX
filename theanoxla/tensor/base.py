@@ -390,7 +390,7 @@ class Variable(Tensor):
         as opposed to the array case
         """
 
-        if isinstance(self.value, tuple):
+        if isinstance(self.init_value, tuple):
             value = self.init_value[0](self.init_value[1])
         else:
             value = self.init_value
