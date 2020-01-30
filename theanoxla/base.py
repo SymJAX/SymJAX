@@ -8,8 +8,8 @@ from jax import jacfwd, jacrev
 def gradients(scalar, variables):
     """computes the gradients of a scalar w.r.t to a given list of variables.
 
-    Parameters:
-    -----------
+    Arguments
+    ---------
 
         scalar: Tensor
             the variable to differentiate
@@ -17,8 +17,8 @@ def gradients(scalar, variables):
         variables: List or Tuple
             the variables used to compute the derivative.
 
-    Returns:
-    --------
+    Returns
+    -------
 
         gradients: Tuple
             the sequency of gradients ordered as given in the input variables
@@ -60,8 +60,8 @@ def jacobians(tensor, variables, mode='forward'):
     to specify the mode forward or backward. For tall jacobians, forward
     is faster and vice-versa.
 
-    Parameters:
-    -----------
+    Arguments
+    ---------
 
         vector: Tensor
             the variable to differentiate
@@ -69,8 +69,8 @@ def jacobians(tensor, variables, mode='forward'):
         variables: List or Tuple
             the variables used to compute the derivative.
 
-    Returns:
-    --------
+    Returns
+    -------
 
         jacobians: Tuple
             the sequency of gradients ordered as given in the input variables
@@ -106,48 +106,64 @@ def jacobians(tensor, variables, mode='forward'):
 
 class function:
 
+    """generates a user function that compiles a computational graph
+    based on given inputs, outputs and update policy of variables. This
+    function internally jit compile the underlying jax computational
+    graph for performances and thus should be favored to the get
+    method of tensors.
+
+    Arguments
+    ---------
+
+        classargs: trailing tuple
+            the inputs to the function to be compiled. The tuple should
+            contain all the placeholders that are roots of any output
+            given of the function and update values
+
+        outputs: List (optional)
+            the outputs of the function, if a single element, it can be
+            given as a standalone and not a list
+
+        updates: Dict (optional)
+            the dictionnary of updates as per {var:new_value} for any
+            variable of the graph
+
+        device: ??
+            ??
+
+        backend: 'cpu' or 'gpu'
+            the backend to use to run the function on
+
+        default_value: not implemented
+            not implemented
+
+    Returns
+    -------
+
+        callable:
+            the user frontend function that takes the specified inputs,
+            returns the specified outputs and perform internally the
+            updates
+
+    Examples
+    --------
+
+        >>> import jaxonn
+        >>> import jaxonn.tensor as T
+        >>> x = T.ones((4, 4))
+        >>> xs = x.sum() + 1
+        >>> f = jaxonn.function(outputs=xs)
+        >>> print(f()) # returns 17
+
+        >>> w = T.Variable(0., name='w')
+        >>> increment = jaxonn.function(updates={w: w + 1})
+        >>> for i in range(10):
+        >>>     increment()
+        >>> print(w.value) # returns 10
+
+    """
     def __init__(self, *classargs, outputs=[], updates=None, device=None,
                  backend=None, default_value=None):
-        """generates a user function that compiles a computational graph
-        based on given inputs, outputs and update policy of variables. This
-        function internally jit compile the underlying jax computational
-        graph for performances and thus should be favored to the get
-        method of tensors.
-
-        Parameters:
-        -----------
-
-            *classargs: trailing tuple
-                the inputs to the function to be compiled. The tuple should
-                contain all the placeholders that are roots of any output
-                given of the function and update values
-
-
-            outputs: List (optional)
-                the outputs of the function, if a single element, it can be
-                given as a standalone and not a list
-
-            updates: Dict (optional)
-                the dictionnary of updates as per {var:new_value} for any
-                variable of the graph
-
-            device: ??
-                ??
-
-            backend: 'cpu' or 'gpu'
-                the backend to use to run the function on
-
-            default_value: not implemented
-                not implemented
-
-        Returns:
-        --------
-
-            function: callable
-                the user frontend function that takes the specified inputs,
-                returns the specified outputs and perform internally the
-                updates
-        """
 
         # check the given updates (if any) and ensure that they only
         # update Variable objects

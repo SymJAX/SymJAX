@@ -14,5 +14,5 @@ __all__ = [
 
 __version__ = 'alpha.1'
 
-from .base import *
+from .base import gradients, jacobians, function
 from . import *
