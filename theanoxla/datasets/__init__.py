@@ -7,6 +7,7 @@
 from . import mnist
 from . import dsprites
 from . import gtzan
+from . import urban
 #from .mnist import *
 #from .svhn import *
 from .cifar10 import *

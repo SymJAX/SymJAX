@@ -246,7 +246,15 @@ class RandomOp(Op):
             seed = numpy.random.randint(0, 2147483647)
         self.seed = seed
         key = jax.random.PRNGKey(seed)
-        super().__init__(key, *args, **kwargs, roots=[self])
+
+        # we need to check to not add the random op as a root if it depends on
+        # upper variables
+        roots = getroots([i for i in kwargs.values()] + list(args))
+        if len(roots) == 0:
+            roots = [self]
+        else:
+            roots = []
+        super().__init__(key, *args, **kwargs, roots=roots)
 
     def __repr__(self):
         return '(RandomTensor: ' + self.print_name + ', dtype='\
