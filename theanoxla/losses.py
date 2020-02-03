@@ -40,7 +40,7 @@ def sparse_crossentropy_logits(p, q, weights=None):
         return logsumexp - linear
 
 
-def crossentropy_logits(p, q, weights=None, p_sparse=True):
+def crossentropy_logits(p, q, p_sparse=True):
     """see sparse cross entropy"""
     linear = (p * q).sum(1)
     logsumexp = T.logsumexp(q, 1)
@@ -48,6 +48,15 @@ def crossentropy_logits(p, q, weights=None, p_sparse=True):
         return weights * (-linear + logsumexp)
     else:
         return -linear + logsumexp
+
+
+def sigmoid_crossentropy_logits(labels, logits):
+    zeros = T.zeros_like(logits, dtype=logits.dtype)
+    cond = (logits >= zeros)
+    relu_logits = T.relu(logits)
+    abs_logits = T.abs(logits)
+    return relu_logits - logits * labels + T.log1p(T.exp(abs_logits))
+
 
 
 def multiclass_hinge_loss(predictions, targets, delta=1):
