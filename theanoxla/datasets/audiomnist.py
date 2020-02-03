@@ -50,7 +50,7 @@ def load(path=None, subsample=1):
         if '.wav' not in filename:
             continue
         filename_end = filename.split('/')[-1]
-        digits.append(filename_end.split('_')[0])
+        digits.append(int(filename_end.split('_')[0]))
         speakers.append(int(filename_end.split('_')[1])-1)
         wavfile   = f.read(filename)
         byt       = io.BytesIO(wavfile)
