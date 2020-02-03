@@ -9,7 +9,7 @@ from . import dsprites
 from . import gtzan
 from . import urban
 from . import audiomnist
-
+from . import esc50
 
 #from .mnist import *
 #from .svhn import *

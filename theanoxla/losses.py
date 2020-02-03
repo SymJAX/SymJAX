@@ -51,11 +51,7 @@ def crossentropy_logits(p, q, p_sparse=True):
 
 
 def sigmoid_crossentropy_logits(labels, logits):
-    zeros = T.zeros_like(logits, dtype=logits.dtype)
-    cond = (logits >= zeros)
-    relu_logits = T.relu(logits)
-    abs_logits = T.abs(logits)
-    return relu_logits - logits * labels + T.log1p(T.exp(abs_logits))
+    return - logits * labels + T.log1p(T.exp(logits))
 
 
 
