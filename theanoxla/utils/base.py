@@ -2,11 +2,29 @@ import numpy as np
 from multiprocessing import Pool, Queue, Lock, Process
 
 
-def train_test_split(*args, train_size=0.2):
-    indices = np.random.permutation(args[0].shape[0])
-    N_TRAIN = train_size if train_size>1 else int(args[0].shape[0] * train_size)
-    train_indices = indices[:N_TRAIN]
-    test_indices = indices[N_TRAIN:]
+def train_test_split(*args, train_size=0.2, stratify=None):
+    if stratify is not None:
+        train_indices = list()
+        test_indices = list()
+        for c in set(stratify):
+            c_indices = np.where(stratify == c)[0]
+            np.random.shuffle(c_indices)
+            if train_size > 1:
+                cutoff = train_size
+            else:
+                cutoff = int(len(c_indices)*train_size)
+            train_indices.append(c_indices[:cutoff])
+            test_indices.append(c_indices[cutoff:])
+        train_indices = np.concatenate(train_indices, 0)
+        test_indices = np.concatenate(test_indices, 0)
+    else:
+        indices = np.random.permutation(args[0].shape[0])
+        if train_size > 1:
+            cutoff = train_size
+        else:
+            cutoff = int(len(args[0])*train_size)
+        train_indices = indices[:cutoff]
+        test_indices = indices[cutoff:]
     output = sum([[arg[train_indices], arg[test_indices]] for arg in args], [])
     return output
 

@@ -29,7 +29,7 @@ class PiecewiseConstant(Schedule):
         self.value = tensor.PiecewiseConstant(self.init, self.values,
                                               self.step)[0]
         self.updates = {self.step: self.step + 1}
-        self.variables = [self.step, self.value]
+        self.variables = [self.step]
 
     def __call__(self):
         return self.value

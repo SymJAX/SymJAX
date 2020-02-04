@@ -10,6 +10,7 @@ from . import gtzan
 from . import urban
 from . import audiomnist
 from . import esc50
+from . import irmas
 
 #from .mnist import *
 #from .svhn import *
