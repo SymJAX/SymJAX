@@ -19,8 +19,9 @@ def download(path):
     # Check if file exists
     if not os.path.exists(path+'audiomnist/data.zip'):
         td  = time.time()
+        print('Downloading Audio-MNIST')
         urllib.request.urlretrieve(url, path+'audiomnist/data.zip')
-
+        print('Done in {} s.'.format(time.time() - td))
 
 def load(path=None, subsample=1):
     """Audio MNIST.
@@ -46,7 +47,7 @@ def load(path=None, subsample=1):
     digits = list()
     speakers = list()
     N = 0
-    for filename in f.namelist():
+    for filename in tqdm(f.namelist(), ascii=True):
         if '.wav' not in filename:
             continue
         filename_end = filename.split('/')[-1]
@@ -63,4 +64,5 @@ def load(path=None, subsample=1):
     for i in range(len(wavs)):
         left = (N-len(wavs[i])) // 2
         all_wavs[i, left: left + len(wavs[i])] = wavs[i]
+    print('Audio-MNIST loaded in {} s.'.format(time.time() - t0))
     return all_wavs, digits, speakers

@@ -194,6 +194,7 @@ def wvd(signal, window, hop, L, apod=hanning, mode='valid'):
     output = (patches * T.conj(T.flip(patches, -1)) * mask).sum(-1)
     return T.real(output)
 
+
 def sinc_bandpass(time, f0, f1):
     high = f0 * T.sinc(time * f0)
     low = f1 * T.sinc(time * f1)
