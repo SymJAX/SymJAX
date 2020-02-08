@@ -1,16 +1,14 @@
 import jax.numpy as jnp
 import jax.lax as jla
 
-from .base import Op, Tensor, Variable, add_fn
+from .base import Op, Tensor, Variable, jax_wrap
 from .control_flow import cond
 from .ops_math import dynamic_slice_in_dim
 import numpy
 
 
 # conv
-class conv_general_dilated_op(Op):
-    pass
-add_fn(conv_general_dilated_op)(jla.conv_general_dilated)
+conv_general_dilated = jax_wrap(jla.conv_general_dilated)
 
 def convNd(input, filter, strides=1, padding='VALID', input_format=None,
            filter_format=None, output_format=None, input_dilation=None,
@@ -130,7 +128,7 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
 
 
     specs = (input_format, filter_format, output_format)
-    return conv_general_dilated_op(lhs=input, rhs=filter, window_strides=strides,
+    return conv_general_dilated(lhs=input, rhs=filter, window_strides=strides,
                                  padding=padding, lhs_dilation=input_dilation,
                                  rhs_dilation=filter_dilation,
                                  dimension_numbers=specs, precision=None)
@@ -138,9 +136,7 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
 
 
 # pooling
-class reduce_window(Op):
-    pass
-add_fn(reduce_window)(jla.reduce_window)
+reduce_window = jax_wrap(jla.reduce_window)
 
 def poolNd(input, window_shape, reducer='MAX', strides=None, padding='VALID',
           init_val=None, rescalor=None):

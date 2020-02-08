@@ -4,21 +4,36 @@ import urllib.request
 import numpy as np
 import scipy.misc
 from PIL import Image
-from . import Dataset
 
 
-def load_tinyimagenet(data_format='NCHW'):
+def download(path):
 
-    PATH = os.environ['DATASET_PATH']
+    path = os.environ['DATASET_path']
 
-    if not os.path.isdir(PATH+'tinyimagenet'):
-        os.mkdir(PATH+'tinyimagenet')
+    if not os.path.isdir(path+'tinyimagenet'):
+        os.mkdir(path+'tinyimagenet')
 
-    if not os.path.exists(PATH+'tinyimagenet/tiny-imagenet-200.zip'):
+    if not os.path.exists(path+'tinyimagenet/tiny-imagenet-200.zip'):
         url = 'http://cs231n.stanford.edu/tiny-imagenet-200.zip'
-        urllib.request.urlretrieve(url,PATH+'tinyimagenet/tiny-imagenet-200.zip')
+        urllib.request.urlretrieve(url,path+'tinyimagenet/tiny-imagenet-200.zip')
+
+    return dataset
+
+
+
+
+
+
+
+def load_tinyimagenet(path=None):
+
+    if path is None:
+        path = os.environ['DATASET_path']
+
+    download(path)
+
     # Loading the file
-    f       = ZipFile(PATH+'tinyimagenet/tiny-imagenet-200.zip', 'r')
+    f       = ZipFile(path+'tinyimagenet/tiny-imagenet-200.zip', 'r')
     names   = [name for name in f.namelist() if name.endswith('JPEG')]
     val_classes = np.loadtxt(f.open('tiny-imagenet-200/val/val_annotations.txt'),
                              dtype=str, delimiter='\t')
@@ -40,12 +55,8 @@ def load_tinyimagenet(data_format='NCHW'):
             x_test.append(scipy.misc.imread(f.open(name), flatten=False,
                            mode='RGB').transpose((2, 0, 1)))
 
-    dataset = Dataset()
-    dataset['images/train_set'], dataset['labels/train_set'] = x_train, y_train
-    dataset['images/test_set'], dataset['labels/test_set'] = x_test, np.zeros(100)
-    dataset['images/valid_set'], dataset['labels/valid_set'] = x_valid, y_valid
 
-    return dataset
+    return x_train, y_train, x_valid, y_valid, x_test
 
 
 

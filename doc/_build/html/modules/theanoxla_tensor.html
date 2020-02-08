@@ -12,8 +12,10 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="theanoxla.datasets" href="datasets.html" />
     <link rel="prev" title="theanoxla" href="theanoxla.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -31,58 +33,1744 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-theanoxla.tensor">
-<span id="theanoxla-tensor"></span><h1><a class="reference internal" href="#module-theanoxla.tensor" title="theanoxla.tensor"><code class="xref py py-mod docutils literal notranslate"><span class="pre">theanoxla.tensor</span></code></a><a class="headerlink" href="#module-theanoxla.tensor" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-theanoxla.tensor.signal">
+<span id="theanoxla-tensor"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">theanoxla.tensor</span></code><a class="headerlink" href="#module-theanoxla.tensor.signal" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="theanoxla.tensor.zeros">
-<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.</code><code class="sig-name descname">zeros</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.zeros" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
-<dt id="theanoxla.tensor.zeros.fn">
-<em class="property">static </em><code class="sig-name descname">fn</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">dtype=None</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.zeros.fn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a new array of given shape and type, filled with zeros.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.zeros" title="theanoxla.tensor.zeros"><code class="xref py py-func docutils literal notranslate"><span class="pre">zeros()</span></code></a>. Original docstring below.</p>
-<p>zeros(shape, dtype=float, order=’C’)</p>
+<dt id="theanoxla.tensor.signal.bartlett">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">bartlett</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.bartlett" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Bartlett window.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.bartlett" title="theanoxla.tensor.signal.bartlett"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartlett()</span></code></a>. Original docstring below.</p>
 <blockquote>
-<div><blockquote>
-<div></div></blockquote>
-<dl>
-<dt>Returns</dt><dd><dl class="simple">
-<dt>out<span class="classifier">ndarray</span></dt><dd><p>Array of zeros with the given shape, dtype, and order.</p>
+<div><p>The Bartlett window is very similar to a triangular window, except
+that the end points are at zero.  It is often used in signal
+processing for tapering a signal, without generating too much
+ripple in the frequency domain.</p>
+<dl class="simple">
+<dt>M<span class="classifier">int</span></dt><dd><p>Number of points in the output window. If zero or less, an
+empty array is returned.</p>
 </dd>
 </dl>
-<p>zeros_like : Return an array of zeros with shape and type of input.
-empty : Return a new uninitialized array.
-ones : Return a new array setting values to one.
-full : Return a new array of given shape filled with value.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-<span class="go">array([ 0.,  0.,  0.,  0.,  0.])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">5</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-<span class="go">array([0, 0, 0, 0, 0])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<span class="go">array([[ 0.],</span>
-<span class="go">       [ 0.]])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-<span class="go">array([[ 0.,  0.],</span>
-<span class="go">       [ 0.,  0.]])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;i4&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;i4&#39;</span><span class="p">)])</span> <span class="c1"># custom dtype</span>
-<span class="go">array([(0, 0), (0, 0)],</span>
-<span class="go">      dtype=[(&#39;x&#39;, &#39;&lt;i4&#39;), (&#39;y&#39;, &#39;&lt;i4&#39;)])</span>
-</pre></div>
-</div>
+<dl class="simple">
+<dt>out<span class="classifier">array</span></dt><dd><p>The triangular window, with the maximum value normalized to one
+(the value one appears only if the number of samples is odd), with
+the first and last samples equal to zero.</p>
 </dd>
 </dl>
+<p>blackman, hamming, hanning, kaiser</p>
+<p>The Bartlett window is defined as</p>
+<div class="math notranslate nohighlight">
+\[w(n) = \frac{2}{M-1} \left(
+\frac{M-1}{2} - \left|n - \frac{M-1}{2}\right|
+\right)\]</div>
+<p>Most references to the Bartlett window come from the signal
+processing literature, where it is used as one of many windowing
+functions for smoothing values.  Note that convolution with this
+window produces linear interpolation.  It is also known as an
+apodization (which means”removing the foot”, i.e. smoothing
+discontinuities at the beginning and end of the sampled signal) or
+tapering function. The fourier transform of the Bartlett is the product
+of two sinc functions.
+Note the excellent discussion in Kanasewich.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id1"><span class="brackets">1</span></dt>
+<dd><p>M.S. Bartlett, “Periodogram Analysis and Continuous Spectra”,
+Biometrika 37, 1-16, 1950.</p>
+</dd>
+<dt class="label" id="id2"><span class="brackets">2</span></dt>
+<dd><p>E.R. Kanasewich, “Time Sequence Analysis in Geophysics”,
+The University of Alberta Press, 1975, pp. 109-110.</p>
+</dd>
+<dt class="label" id="id3"><span class="brackets">3</span></dt>
+<dd><p>A.V. Oppenheim and R.W. Schafer, “Discrete-Time Signal
+Processing”, Prentice-Hall, 1999, pp. 468-471.</p>
+</dd>
+<dt class="label" id="id4"><span class="brackets">4</span></dt>
+<dd><p>Wikipedia, “Window function”,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Window_function">https://en.wikipedia.org/wiki/Window_function</a></p>
+</dd>
+<dt class="label" id="id5"><span class="brackets">5</span></dt>
+<dd><p>W.H. Press,  B.P. Flannery, S.A. Teukolsky, and W.T. Vetterling,
+“Numerical Recipes”, Cambridge University Press, 1986, page 429.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">bartlett</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<span class="go">array([ 0.        ,  0.18181818,  0.36363636,  0.54545455,  0.72727273, # may vary</span>
+<span class="go">        0.90909091,  0.90909091,  0.72727273,  0.54545455,  0.36363636,</span>
+<span class="go">        0.18181818,  0.        ])</span>
+</pre></div>
+</div>
+<p>Plot the window and its frequency response (requires SciPy and matplotlib):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bartlett</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Bartlett window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Bartlett window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Amplitude&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Sample&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Sample&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="go">&lt;Figure size 640x480 with 0 Axes&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)</span> <span class="o">/</span> <span class="mf">25.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fftshift</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">response</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Frequency response of Bartlett window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Frequency response of Bartlett window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Magnitude [dB]&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Magnitude [dB]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Normalized frequency [cycles per sample]&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Normalized frequency [cycles per sample]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 </div></blockquote>
 </dd></dl>
 
+<dl class="class">
+<dt id="theanoxla.tensor.signal.blackman">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">blackman</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.blackman" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Blackman window.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.blackman" title="theanoxla.tensor.signal.blackman"><code class="xref py py-func docutils literal notranslate"><span class="pre">blackman()</span></code></a>. Original docstring below.</p>
+<blockquote>
+<div><p>The Blackman window is a taper formed by using the first three
+terms of a summation of cosines. It was designed to have close to the
+minimal leakage possible.  It is close to optimal, only slightly worse
+than a Kaiser window.</p>
+<dl class="simple">
+<dt>M<span class="classifier">int</span></dt><dd><p>Number of points in the output window. If zero or less, an empty
+array is returned.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>out<span class="classifier">ndarray</span></dt><dd><p>The window, with the maximum value normalized to one (the value one
+appears only if the number of samples is odd).</p>
+</dd>
+</dl>
+<p>bartlett, hamming, hanning, kaiser</p>
+<p>The Blackman window is defined as</p>
+<div class="math notranslate nohighlight">
+\[w(n) = 0.42 - 0.5 \cos(2\pi n/M) + 0.08 \cos(4\pi n/M)\]</div>
+<p>Most references to the Blackman window come from the signal processing
+literature, where it is used as one of many windowing functions for
+smoothing values.  It is also known as an apodization (which means
+“removing the foot”, i.e. smoothing discontinuities at the beginning
+and end of the sampled signal) or tapering function. It is known as a
+“near optimal” tapering function, almost as good (by some measures)
+as the kaiser window.</p>
+<p>Blackman, R.B. and Tukey, J.W., (1958) The measurement of power spectra,
+Dover Publications, New York.</p>
+<p>Oppenheim, A.V., and R.W. Schafer. Discrete-Time Signal Processing.
+Upper Saddle River, NJ: Prentice-Hall, 1999, pp. 468-471.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">blackman</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<span class="go">array([-1.38777878e-17,   3.26064346e-02,   1.59903635e-01, # may vary</span>
+<span class="go">        4.14397981e-01,   7.36045180e-01,   9.67046769e-01,</span>
+<span class="go">        9.67046769e-01,   7.36045180e-01,   4.14397981e-01,</span>
+<span class="go">        1.59903635e-01,   3.26064346e-02,  -1.38777878e-17])</span>
+</pre></div>
+</div>
+<p>Plot the window and the frequency response:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">blackman</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Blackman window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Blackman window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Amplitude&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Sample&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Sample&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="go">&lt;Figure size 640x480 with 0 Axes&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)</span> <span class="o">/</span> <span class="mf">25.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fftshift</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">response</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Frequency response of Blackman window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Frequency response of Blackman window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Magnitude [dB]&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Magnitude [dB]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Normalized frequency [cycles per sample]&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Normalized frequency [cycles per sample]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.tensor.signal.dct">
+<code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">dct</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">axes=(-1</em>, <em class="sig-param">)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/theanoxla/tensor/signal.html#dct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#theanoxla.tensor.signal.dct" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://dsp.stackexchange.com/questions/2807/fast-cosine-transform-via-fft">https://dsp.stackexchange.com/questions/2807/fast-cosine-transform-via-fft</a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.fft">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">fft</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.fft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the one-dimensional discrete Fourier Transform.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.fft" title="theanoxla.tensor.signal.fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">fft()</span></code></a>. Original docstring below.</p>
+<p>This function computes the one-dimensional <em>n</em>-point discrete Fourier
+Transform (DFT) with the efficient Fast Fourier Transform (FFT)
+algorithm [CT].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The truncated or zero-padded input, transformed along the axis
+indicated by <cite>axis</cite>, or the last one if <cite>axis</cite> is not specified.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>complex ndarray</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>IndexError</strong> – if <cite>axes</cite> is larger than the last axis of <cite>a</cite>.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.fft</span></code></dt><dd><p>for definition of the DFT and conventions used.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.ifft" title="theanoxla.tensor.signal.ifft"><code class="xref py py-class docutils literal notranslate"><span class="pre">ifft</span></code></a></dt><dd><p>The inverse of <cite>fft</cite>.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fft2" title="theanoxla.tensor.signal.fft2"><code class="xref py py-class docutils literal notranslate"><span class="pre">fft2</span></code></a></dt><dd><p>The two-dimensional FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fftn" title="theanoxla.tensor.signal.fftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">fftn</span></code></a></dt><dd><p>The <em>n</em>-dimensional FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.rfftn" title="theanoxla.tensor.signal.rfftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">rfftn</span></code></a></dt><dd><p>The <em>n</em>-dimensional FFT of real input.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fftfreq" title="theanoxla.tensor.signal.fftfreq"><code class="xref py py-class docutils literal notranslate"><span class="pre">fftfreq</span></code></a></dt><dd><p>Frequency bins for given FFT parameters.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>FFT (Fast Fourier Transform) refers to a way the discrete Fourier
+Transform (DFT) can be calculated efficiently, by using symmetries in the
+calculated terms.  The symmetry is highest when <cite>n</cite> is a power of 2, and
+the transform is therefore most efficient for these sizes.</p>
+<p>The DFT is defined, with the conventions used in this implementation, in
+the documentation for the <cite>numpy.fft</cite> module.</p>
+<p class="rubric">References</p>
+<dl class="citation">
+<dt class="label" id="ct"><span class="brackets">CT</span></dt>
+<dd><p>Cooley, James W., and John W. Tukey, 1965, “An algorithm for the
+machine calculation of complex Fourier series,” <em>Math. Comput.</em>
+19: 297-301.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="o">/</span> <span class="mi">8</span><span class="p">))</span>
+<span class="go">array([-2.33486982e-16+1.14423775e-17j,  8.00000000e+00-1.25557246e-15j,</span>
+<span class="go">        2.33486982e-16+2.33486982e-16j,  0.00000000e+00+1.22464680e-16j,</span>
+<span class="go">       -1.14423775e-17+2.33486982e-16j,  0.00000000e+00+5.20784380e-16j,</span>
+<span class="go">        1.14423775e-17+1.14423775e-17j,  0.00000000e+00+1.22464680e-16j])</span>
+</pre></div>
+</div>
+<p>In this example, real input has an FFT which is Hermitian, i.e., symmetric
+in the real part and anti-symmetric in the imaginary part, as described in
+the <cite>numpy.fft</cite> documentation:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">sp</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">sp</span><span class="o">.</span><span class="n">imag</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;, &lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.fft2">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">fft2</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.fft2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the 2-dimensional discrete Fourier Transform</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.fft2" title="theanoxla.tensor.signal.fft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">fft2()</span></code></a>. Original docstring below.</p>
+<p>This function computes the <em>n</em>-dimensional discrete Fourier Transform
+over any axes in an <em>M</em>-dimensional array by means of the
+Fast Fourier Transform (FFT).  By default, the transform is computed over
+the last two axes of the input array, i.e., a 2-dimensional FFT.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The truncated or zero-padded input, transformed along the axes
+indicated by <cite>axes</cite>, or the last two axes if <cite>axes</cite> is not given.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>complex ndarray</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <cite>s</cite> and <cite>axes</cite> have different length, or <cite>axes</cite> not given and
+    <code class="docutils literal notranslate"><span class="pre">len(s)</span> <span class="pre">!=</span> <span class="pre">2</span></code>.</p></li>
+<li><p><strong>IndexError</strong> – If an element of <cite>axes</cite> is larger than than the number of axes of <cite>a</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.fft</span></code></dt><dd><p>Overall view of discrete Fourier transforms, with definitions and conventions used.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.ifft2" title="theanoxla.tensor.signal.ifft2"><code class="xref py py-class docutils literal notranslate"><span class="pre">ifft2</span></code></a></dt><dd><p>The inverse two-dimensional FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fft" title="theanoxla.tensor.signal.fft"><code class="xref py py-class docutils literal notranslate"><span class="pre">fft</span></code></a></dt><dd><p>The one-dimensional FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fftn" title="theanoxla.tensor.signal.fftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">fftn</span></code></a></dt><dd><p>The <em>n</em>-dimensional FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fftshift" title="theanoxla.tensor.signal.fftshift"><code class="xref py py-class docutils literal notranslate"><span class="pre">fftshift</span></code></a></dt><dd><p>Shifts zero-frequency terms to the center of the array. For two-dimensional input, swaps first and third quadrants, and second and fourth quadrants.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p><cite>fft2</cite> is just <cite>fftn</cite> with a different default for <cite>axes</cite>.</p>
+<p>The output, analogously to <cite>fft</cite>, contains the term for zero frequency in
+the low-order corner of the transformed axes, the positive frequency terms
+in the first half of these axes, the term for the Nyquist frequency in the
+middle of the axes and the negative frequency terms in the second half of
+the axes, in order of decreasingly negative frequency.</p>
+<p>See <cite>fftn</cite> for details and a plotting example, and <cite>numpy.fft</cite> for
+definitions and conventions used.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[:</span><span class="mi">5</span><span class="p">,</span> <span class="p">:</span><span class="mi">5</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft2</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">array([[ 50.  +0.j        ,   0.  +0.j        ,   0.  +0.j        , # may vary</span>
+<span class="go">          0.  +0.j        ,   0.  +0.j        ],</span>
+<span class="go">       [-12.5+17.20477401j,   0.  +0.j        ,   0.  +0.j        ,</span>
+<span class="go">          0.  +0.j        ,   0.  +0.j        ],</span>
+<span class="go">       [-12.5 +4.0614962j ,   0.  +0.j        ,   0.  +0.j        ,</span>
+<span class="go">          0.  +0.j        ,   0.  +0.j        ],</span>
+<span class="go">       [-12.5 -4.0614962j ,   0.  +0.j        ,   0.  +0.j        ,</span>
+<span class="go">          0.  +0.j        ,   0.  +0.j        ],</span>
+<span class="go">       [-12.5-17.20477401j,   0.  +0.j        ,   0.  +0.j        ,</span>
+<span class="go">          0.  +0.j        ,   0.  +0.j        ]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.fftfreq">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">fftfreq</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.fftfreq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Discrete Fourier Transform sample frequencies.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.fftfreq" title="theanoxla.tensor.signal.fftfreq"><code class="xref py py-func docutils literal notranslate"><span class="pre">fftfreq()</span></code></a>. Original docstring below.</p>
+<p>The returned float array <cite>f</cite> contains the frequency bin centers in cycles
+per unit of the sample spacing (with zero at the start).  For instance, if
+the sample spacing is in seconds, then the frequency unit is cycles/second.</p>
+<p>Given a window length <cite>n</cite> and a sample spacing <cite>d</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span>   <span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>     <span class="o">-</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">d</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>   <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="n">even</span>
+<span class="n">f</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">d</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>   <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="n">odd</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>f</strong> – Array of length <cite>n</cite> containing the sample frequencies.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fourier</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">size</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">timestep</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="n">timestep</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span>
+<span class="go">array([ 0.  ,  1.25,  2.5 , ..., -3.75, -2.5 , -1.25])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.fftn">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">fftn</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.fftn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the N-dimensional discrete Fourier Transform.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.fftn" title="theanoxla.tensor.signal.fftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">fftn()</span></code></a>. Original docstring below.</p>
+<p>This function computes the <em>N</em>-dimensional discrete Fourier Transform over
+any number of axes in an <em>M</em>-dimensional array by means of the Fast Fourier
+Transform (FFT).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>array_like</em>) – Input array, can be complex.</p></li>
+<li><p><strong>s</strong> (<em>sequence of ints</em><em>, </em><em>optional</em>) – Shape (length of each transformed axis) of the output
+(<code class="docutils literal notranslate"><span class="pre">s[0]</span></code> refers to axis 0, <code class="docutils literal notranslate"><span class="pre">s[1]</span></code> to axis 1, etc.).
+This corresponds to <code class="docutils literal notranslate"><span class="pre">n</span></code> for <code class="docutils literal notranslate"><span class="pre">fft(x,</span> <span class="pre">n)</span></code>.
+Along any axis, if the given shape is smaller than that of the input,
+the input is cropped.  If it is larger, the input is padded with zeros.
+if <cite>s</cite> is not given, the shape of the input along the axes specified
+by <cite>axes</cite> is used.</p></li>
+<li><p><strong>axes</strong> (<em>sequence of ints</em><em>, </em><em>optional</em>) – Axes over which to compute the FFT.  If not given, the last <code class="docutils literal notranslate"><span class="pre">len(s)</span></code>
+axes are used, or all axes if <cite>s</cite> is also not specified.
+Repeated indices in <cite>axes</cite> means that the transform over that axis is
+performed multiple times.</p></li>
+<li><p><strong>norm</strong> (<em>{None</em><em>, </em><em>&quot;ortho&quot;}</em><em>, </em><em>optional</em>) – <div class="versionadded">
+<p><span class="versionmodified added">New in version 1.10.0.</span></p>
+</div>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>out</strong> – The truncated or zero-padded input, transformed along the axes
+indicated by <cite>axes</cite>, or by a combination of <cite>s</cite> and <cite>a</cite>,
+as explained in the parameters section above.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>complex ndarray</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <cite>s</cite> and <cite>axes</cite> have different length.</p></li>
+<li><p><strong>IndexError</strong> – If an element of <cite>axes</cite> is larger than than the number of axes of <cite>a</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.fft</span></code></dt><dd><p>Overall view of discrete Fourier transforms, with definitions and conventions used.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.ifftn" title="theanoxla.tensor.signal.ifftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">ifftn</span></code></a></dt><dd><p>The inverse of <cite>fftn</cite>, the inverse <em>n</em>-dimensional FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fft" title="theanoxla.tensor.signal.fft"><code class="xref py py-class docutils literal notranslate"><span class="pre">fft</span></code></a></dt><dd><p>The one-dimensional FFT, with definitions and conventions used.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.rfftn" title="theanoxla.tensor.signal.rfftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">rfftn</span></code></a></dt><dd><p>The <em>n</em>-dimensional FFT of real input.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fft2" title="theanoxla.tensor.signal.fft2"><code class="xref py py-class docutils literal notranslate"><span class="pre">fft2</span></code></a></dt><dd><p>The two-dimensional FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fftshift" title="theanoxla.tensor.signal.fftshift"><code class="xref py py-class docutils literal notranslate"><span class="pre">fftshift</span></code></a></dt><dd><p>Shifts zero-frequency terms to centre of array</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The output, analogously to <cite>fft</cite>, contains the term for zero frequency in
+the low-order corner of all axes, the positive frequency terms in the
+first half of all axes, the term for the Nyquist frequency in the middle
+of all axes and the negative frequency terms in the second half of all
+axes, in order of decreasingly negative frequency.</p>
+<p>See <cite>numpy.fft</cite> for details, definitions and conventions used.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftn</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="go">array([[[ 0.+0.j,   0.+0.j,   0.+0.j], # may vary</span>
+<span class="go">        [ 0.+0.j,   0.+0.j,   0.+0.j],</span>
+<span class="go">        [ 0.+0.j,   0.+0.j,   0.+0.j]],</span>
+<span class="go">       [[ 9.+0.j,   0.+0.j,   0.+0.j],</span>
+<span class="go">        [ 0.+0.j,   0.+0.j,   0.+0.j],</span>
+<span class="go">        [ 0.+0.j,   0.+0.j,   0.+0.j]],</span>
+<span class="go">       [[18.+0.j,   0.+0.j,   0.+0.j],</span>
+<span class="go">        [ 0.+0.j,   0.+0.j,   0.+0.j],</span>
+<span class="go">        [ 0.+0.j,   0.+0.j,   0.+0.j]]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftn</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="go">array([[[ 2.+0.j,  2.+0.j,  2.+0.j], # may vary</span>
+<span class="go">        [ 0.+0.j,  0.+0.j,  0.+0.j]],</span>
+<span class="go">       [[-2.+0.j, -2.+0.j, -2.+0.j],</span>
+<span class="go">        [ 0.+0.j,  0.+0.j,  0.+0.j]]])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span> <span class="o">/</span> <span class="mi">12</span><span class="p">,</span>
+<span class="gp">... </span>                     <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span> <span class="o">/</span> <span class="mi">34</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">FS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftn</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">FS</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.fftshift">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">fftshift</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.fftshift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shift the zero-frequency component to the center of the spectrum.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.fftshift" title="theanoxla.tensor.signal.fftshift"><code class="xref py py-func docutils literal notranslate"><span class="pre">fftshift()</span></code></a>. Original docstring below.</p>
+<p>This function swaps half-spaces for all axes listed (defaults to all).
+Note that <code class="docutils literal notranslate"><span class="pre">y[0]</span></code> is the Nyquist component only if <code class="docutils literal notranslate"><span class="pre">len(x)</span></code> is even.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>y</strong> – The shifted array.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.ifftshift" title="theanoxla.tensor.signal.ifftshift"><code class="xref py py-class docutils literal notranslate"><span class="pre">ifftshift</span></code></a></dt><dd><p>The inverse of <cite>fftshift</cite>.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freqs</span>
+<span class="go">array([ 0.,  1.,  2., ..., -3., -2., -1.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">freqs</span><span class="p">)</span>
+<span class="go">array([-5., -4., -3., -2., -1.,  0.,  1.,  2.,  3.,  4.])</span>
+</pre></div>
+</div>
+<p>Shift the zero-frequency component only along the second axis:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mf">1.</span><span class="o">/</span><span class="mi">9</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freqs</span>
+<span class="go">array([[ 0.,  1.,  2.],</span>
+<span class="go">       [ 3.,  4., -4.],</span>
+<span class="go">       [-3., -2., -1.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
+<span class="go">array([[ 2.,  0.,  1.],</span>
+<span class="go">       [-4.,  3.,  4.],</span>
+<span class="go">       [-1., -3., -2.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.func">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">func</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.func" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the 2-dimensional discrete Fourier Transform</p>
+<p>This function computes the <em>n</em>-dimensional discrete Fourier Transform
+over any axes in an <em>M</em>-dimensional array by means of the
+Fast Fourier Transform (FFT).  By default, the transform is computed over
+the last two axes of the input array, i.e., a 2-dimensional FFT.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>array_like</em>) – Input array, can be complex</p></li>
+<li><p><strong>s</strong> (<em>sequence of ints</em><em>, </em><em>optional</em>) – Shape (length of each transformed axis) of the output
+(<code class="docutils literal notranslate"><span class="pre">s[0]</span></code> refers to axis 0, <code class="docutils literal notranslate"><span class="pre">s[1]</span></code> to axis 1, etc.).
+This corresponds to <code class="docutils literal notranslate"><span class="pre">n</span></code> for <code class="docutils literal notranslate"><span class="pre">fft(x,</span> <span class="pre">n)</span></code>.
+Along each axis, if the given shape is smaller than that of the input,
+the input is cropped.  If it is larger, the input is padded with zeros.
+if <cite>s</cite> is not given, the shape of the input along the axes specified
+by <cite>axes</cite> is used.</p></li>
+<li><p><strong>axes</strong> (<em>sequence of ints</em><em>, </em><em>optional</em>) – Axes over which to compute the FFT.  If not given, the last two
+axes are used.  A repeated index in <cite>axes</cite> means the transform over
+that axis is performed multiple times.  A one-element sequence means
+that a one-dimensional FFT is performed.</p></li>
+<li><p><strong>norm</strong> (<em>{None</em><em>, </em><em>&quot;ortho&quot;}</em><em>, </em><em>optional</em>) – <div class="versionadded">
+<p><span class="versionmodified added">New in version 1.10.0.</span></p>
+</div>
+<p>Normalization mode (see <cite>numpy.fft</cite>). Default is None.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>out</strong> – The truncated or zero-padded input, transformed along the axes
+indicated by <cite>axes</cite>, or the last two axes if <cite>axes</cite> is not given.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>complex ndarray</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <cite>s</cite> and <cite>axes</cite> have different length, or <cite>axes</cite> not given and
+    <code class="docutils literal notranslate"><span class="pre">len(s)</span> <span class="pre">!=</span> <span class="pre">2</span></code>.</p></li>
+<li><p><strong>IndexError</strong> – If an element of <cite>axes</cite> is larger than than the number of axes of <cite>a</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.fft</span></code></dt><dd><p>Overall view of discrete Fourier transforms, with definitions and conventions used.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.ifft2" title="theanoxla.tensor.signal.ifft2"><code class="xref py py-class docutils literal notranslate"><span class="pre">ifft2</span></code></a></dt><dd><p>The inverse two-dimensional FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fft" title="theanoxla.tensor.signal.fft"><code class="xref py py-class docutils literal notranslate"><span class="pre">fft</span></code></a></dt><dd><p>The one-dimensional FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fftn" title="theanoxla.tensor.signal.fftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">fftn</span></code></a></dt><dd><p>The <em>n</em>-dimensional FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fftshift" title="theanoxla.tensor.signal.fftshift"><code class="xref py py-class docutils literal notranslate"><span class="pre">fftshift</span></code></a></dt><dd><p>Shifts zero-frequency terms to the center of the array. For two-dimensional input, swaps first and third quadrants, and second and fourth quadrants.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p><cite>fft2</cite> is just <cite>fftn</cite> with a different default for <cite>axes</cite>.</p>
+<p>The output, analogously to <cite>fft</cite>, contains the term for zero frequency in
+the low-order corner of the transformed axes, the positive frequency terms
+in the first half of these axes, the term for the Nyquist frequency in the
+middle of the axes and the negative frequency terms in the second half of
+the axes, in order of decreasingly negative frequency.</p>
+<p>See <cite>fftn</cite> for details and a plotting example, and <cite>numpy.fft</cite> for
+definitions and conventions used.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[:</span><span class="mi">5</span><span class="p">,</span> <span class="p">:</span><span class="mi">5</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft2</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">array([[ 50.  +0.j        ,   0.  +0.j        ,   0.  +0.j        , # may vary</span>
+<span class="go">          0.  +0.j        ,   0.  +0.j        ],</span>
+<span class="go">       [-12.5+17.20477401j,   0.  +0.j        ,   0.  +0.j        ,</span>
+<span class="go">          0.  +0.j        ,   0.  +0.j        ],</span>
+<span class="go">       [-12.5 +4.0614962j ,   0.  +0.j        ,   0.  +0.j        ,</span>
+<span class="go">          0.  +0.j        ,   0.  +0.j        ],</span>
+<span class="go">       [-12.5 -4.0614962j ,   0.  +0.j        ,   0.  +0.j        ,</span>
+<span class="go">          0.  +0.j        ,   0.  +0.j        ],</span>
+<span class="go">       [-12.5-17.20477401j,   0.  +0.j        ,   0.  +0.j        ,</span>
+<span class="go">          0.  +0.j        ,   0.  +0.j        ]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.get_module_functions">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">get_module_functions</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.get_module_functions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds functions in module.
+:param module: A Python module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A set of functions, builtins or ufuncs in <cite>module</cite>.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>module_fns</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.hamming">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">hamming</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.hamming" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Hamming window.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.hamming" title="theanoxla.tensor.signal.hamming"><code class="xref py py-func docutils literal notranslate"><span class="pre">hamming()</span></code></a>. Original docstring below.</p>
+<blockquote>
+<div><p>The Hamming window is a taper formed by using a weighted cosine.</p>
+<dl class="simple">
+<dt>M<span class="classifier">int</span></dt><dd><p>Number of points in the output window. If zero or less, an
+empty array is returned.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>out<span class="classifier">ndarray</span></dt><dd><p>The window, with the maximum value normalized to one (the value
+one appears only if the number of samples is odd).</p>
+</dd>
+</dl>
+<p>bartlett, blackman, hanning, kaiser</p>
+<p>The Hamming window is defined as</p>
+<div class="math notranslate nohighlight">
+\[w(n) = 0.54 - 0.46cos\left(\frac{2\pi{n}}{M-1}\right)
+\qquad 0 \leq n \leq M-1\]</div>
+<p>The Hamming was named for R. W. Hamming, an associate of J. W. Tukey
+and is described in Blackman and Tukey. It was recommended for
+smoothing the truncated autocovariance function in the time domain.
+Most references to the Hamming window come from the signal processing
+literature, where it is used as one of many windowing functions for
+smoothing values.  It is also known as an apodization (which means
+“removing the foot”, i.e. smoothing discontinuities at the beginning
+and end of the sampled signal) or tapering function.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id6"><span class="brackets">1</span></dt>
+<dd><p>Blackman, R.B. and Tukey, J.W., (1958) The measurement of power
+spectra, Dover Publications, New York.</p>
+</dd>
+<dt class="label" id="id7"><span class="brackets">2</span></dt>
+<dd><p>E.R. Kanasewich, “Time Sequence Analysis in Geophysics”, The
+University of Alberta Press, 1975, pp. 109-110.</p>
+</dd>
+<dt class="label" id="id8"><span class="brackets">3</span></dt>
+<dd><p>Wikipedia, “Window function”,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Window_function">https://en.wikipedia.org/wiki/Window_function</a></p>
+</dd>
+<dt class="label" id="id9"><span class="brackets">4</span></dt>
+<dd><p>W.H. Press,  B.P. Flannery, S.A. Teukolsky, and W.T. Vetterling,
+“Numerical Recipes”, Cambridge University Press, 1986, page 425.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">hamming</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<span class="go">array([ 0.08      ,  0.15302337,  0.34890909,  0.60546483,  0.84123594, # may vary</span>
+<span class="go">        0.98136677,  0.98136677,  0.84123594,  0.60546483,  0.34890909,</span>
+<span class="go">        0.15302337,  0.08      ])</span>
+</pre></div>
+</div>
+<p>Plot the window and the frequency response:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hamming</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Hamming window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Hamming window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Amplitude&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Sample&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Sample&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="go">&lt;Figure size 640x480 with 0 Axes&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)</span> <span class="o">/</span> <span class="mf">25.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fftshift</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Frequency response of Hamming window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Frequency response of Hamming window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Magnitude [dB]&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Magnitude [dB]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Normalized frequency [cycles per sample]&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Normalized frequency [cycles per sample]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></blockquote>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.hanning">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">hanning</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.hanning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Hanning window.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.hanning" title="theanoxla.tensor.signal.hanning"><code class="xref py py-func docutils literal notranslate"><span class="pre">hanning()</span></code></a>. Original docstring below.</p>
+<blockquote>
+<div><p>The Hanning window is a taper formed by using a weighted cosine.</p>
+<dl class="simple">
+<dt>M<span class="classifier">int</span></dt><dd><p>Number of points in the output window. If zero or less, an
+empty array is returned.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>out<span class="classifier">ndarray, shape(M,)</span></dt><dd><p>The window, with the maximum value normalized to one (the value
+one appears only if <cite>M</cite> is odd).</p>
+</dd>
+</dl>
+<p>bartlett, blackman, hamming, kaiser</p>
+<p>The Hanning window is defined as</p>
+<div class="math notranslate nohighlight">
+\[w(n) = 0.5 - 0.5cos\left(\frac{2\pi{n}}{M-1}\right)
+\qquad 0 \leq n \leq M-1\]</div>
+<p>The Hanning was named for Julius von Hann, an Austrian meteorologist.
+It is also known as the Cosine Bell. Some authors prefer that it be
+called a Hann window, to help avoid confusion with the very similar
+Hamming window.</p>
+<p>Most references to the Hanning window come from the signal processing
+literature, where it is used as one of many windowing functions for
+smoothing values.  It is also known as an apodization (which means
+“removing the foot”, i.e. smoothing discontinuities at the beginning
+and end of the sampled signal) or tapering function.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id10"><span class="brackets">1</span></dt>
+<dd><p>Blackman, R.B. and Tukey, J.W., (1958) The measurement of power
+spectra, Dover Publications, New York.</p>
+</dd>
+<dt class="label" id="id11"><span class="brackets">2</span></dt>
+<dd><p>E.R. Kanasewich, “Time Sequence Analysis in Geophysics”,
+The University of Alberta Press, 1975, pp. 106-108.</p>
+</dd>
+<dt class="label" id="id12"><span class="brackets">3</span></dt>
+<dd><p>Wikipedia, “Window function”,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Window_function">https://en.wikipedia.org/wiki/Window_function</a></p>
+</dd>
+<dt class="label" id="id13"><span class="brackets">4</span></dt>
+<dd><p>W.H. Press,  B.P. Flannery, S.A. Teukolsky, and W.T. Vetterling,
+“Numerical Recipes”, Cambridge University Press, 1986, page 425.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">hanning</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<span class="go">array([0.        , 0.07937323, 0.29229249, 0.57115742, 0.82743037,</span>
+<span class="go">       0.97974649, 0.97974649, 0.82743037, 0.57115742, 0.29229249,</span>
+<span class="go">       0.07937323, 0.        ])</span>
+</pre></div>
+</div>
+<p>Plot the window and its frequency response:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hanning</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Hann window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Hann window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Amplitude&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Sample&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Sample&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="go">&lt;Figure size 640x480 with 0 Axes&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)</span> <span class="o">/</span> <span class="mf">25.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fftshift</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">response</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Frequency response of the Hann window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Frequency response of the Hann window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Magnitude [dB]&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Magnitude [dB]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Normalized frequency [cycles per sample]&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Normalized frequency [cycles per sample]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></blockquote>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.hfft">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">hfft</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.hfft" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Compute the FFT of a signal that has Hermitian symmetry, i.e., a real</dt><dd><p>spectrum.</p>
+</dd>
+</dl>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.hfft" title="theanoxla.tensor.signal.hfft"><code class="xref py py-func docutils literal notranslate"><span class="pre">hfft()</span></code></a>. Original docstring below.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The truncated or zero-padded input, transformed along the axis
+indicated by <cite>axis</cite>, or the last one if <cite>axis</cite> is not specified.
+The length of the transformed axis is <cite>n</cite>, or, if <cite>n</cite> is not given,
+<code class="docutils literal notranslate"><span class="pre">2*m</span> <span class="pre">-</span> <span class="pre">2</span></code> where <code class="docutils literal notranslate"><span class="pre">m</span></code> is the length of the transformed axis of
+the input. To get an odd number of output points, <cite>n</cite> must be
+specified, for instance as <code class="docutils literal notranslate"><span class="pre">2*m</span> <span class="pre">-</span> <span class="pre">1</span></code> in the typical case,</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>IndexError</strong> – If <cite>axis</cite> is larger than the last axis of <cite>a</cite>.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.rfft" title="theanoxla.tensor.signal.rfft"><code class="xref py py-class docutils literal notranslate"><span class="pre">rfft</span></code></a></dt><dd><p>Compute the one-dimensional FFT for real input.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.ihfft" title="theanoxla.tensor.signal.ihfft"><code class="xref py py-class docutils literal notranslate"><span class="pre">ihfft</span></code></a></dt><dd><p>The inverse of <cite>hfft</cite>.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p><cite>hfft</cite>/<cite>ihfft</cite> are a pair analogous to <cite>rfft</cite>/<cite>irfft</cite>, but for the
+opposite case: here the signal has Hermitian symmetry in the time
+domain and is real in the frequency domain. So here it’s <cite>hfft</cite> for
+which you must supply the length of the result if it is to be odd.</p>
+<ul class="simple">
+<li><p>even: <code class="docutils literal notranslate"><span class="pre">ihfft(hfft(a,</span> <span class="pre">2*len(a)</span> <span class="pre">-</span> <span class="pre">2)</span> <span class="pre">==</span> <span class="pre">a</span></code>, within roundoff error,</p></li>
+<li><p>odd: <code class="docutils literal notranslate"><span class="pre">ihfft(hfft(a,</span> <span class="pre">2*len(a)</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">==</span> <span class="pre">a</span></code>, within roundoff error.</p></li>
+</ul>
+<p>The correct interpretation of the hermitian input depends on the length of
+the original data, as given by <cite>n</cite>. This is because each input shape could
+correspond to either an odd or even length signal. By default, <cite>hfft</cite>
+assumes an even output length which puts the last entry at the Nyquist
+frequency; aliasing with its symmetric counterpart. By Hermitian symmetry,
+the value is thus treated as purely real. To avoid losing information, the
+shape of the full signal <strong>must</strong> be given.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
+<span class="go">array([15.+0.j,  -4.+0.j,   0.+0.j,  -1.-0.j,   0.+0.j,  -4.+0.j]) # may vary</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">hfft</span><span class="p">(</span><span class="n">signal</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span> <span class="c1"># Input first half of signal</span>
+<span class="go">array([15.,  -4.,   0.,  -1.,   0.,  -4.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">hfft</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>  <span class="c1"># Input entire signal and truncate</span>
+<span class="go">array([15.,  -4.,   0.,  -1.,   0.,  -4.])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.</span><span class="n">j</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.</span><span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">-</span> <span class="n">signal</span>   <span class="c1"># check Hermitian symmetry</span>
+<span class="go">array([[ 0.-0.j,  -0.+0.j], # may vary</span>
+<span class="go">       [ 0.+0.j,  0.-0.j]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq_spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">hfft</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq_spectrum</span>
+<span class="go">array([[ 1.,  1.],</span>
+<span class="go">       [ 2., -2.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.ifft">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">ifft</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.ifft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the one-dimensional inverse discrete Fourier Transform.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.ifft" title="theanoxla.tensor.signal.ifft"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifft()</span></code></a>. Original docstring below.</p>
+<p>This function computes the inverse of the one-dimensional <em>n</em>-point
+discrete Fourier transform computed by <cite>fft</cite>.  In other words,
+<code class="docutils literal notranslate"><span class="pre">ifft(fft(a))</span> <span class="pre">==</span> <span class="pre">a</span></code> to within numerical accuracy.
+For a general description of the algorithm and definitions,
+see <cite>numpy.fft</cite>.</p>
+<p>The input should be ordered in the same way as is returned by <cite>fft</cite>,
+i.e.,</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">a[0]</span></code> should contain the zero frequency term,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">a[1:n//2]</span></code> should contain the positive-frequency terms,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">a[n//2</span> <span class="pre">+</span> <span class="pre">1:]</span></code> should contain the negative-frequency terms, in
+increasing order starting from the most negative frequency.</p></li>
+</ul>
+<p>For an even number of input points, <code class="docutils literal notranslate"><span class="pre">A[n//2]</span></code> represents the sum of
+the values at the positive and negative Nyquist frequencies, as the two
+are aliased together. See <cite>numpy.fft</cite> for details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The truncated or zero-padded input, transformed along the axis
+indicated by <cite>axis</cite>, or the last one if <cite>axis</cite> is not specified.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>complex ndarray</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>IndexError</strong> – If <cite>axes</cite> is larger than the last axis of <cite>a</cite>.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.fft</span></code></dt><dd><p>An introduction, with definitions and general explanations.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fft" title="theanoxla.tensor.signal.fft"><code class="xref py py-class docutils literal notranslate"><span class="pre">fft</span></code></a></dt><dd><p>The one-dimensional (forward) FFT, of which <cite>ifft</cite> is the inverse</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.ifft2" title="theanoxla.tensor.signal.ifft2"><code class="xref py py-class docutils literal notranslate"><span class="pre">ifft2</span></code></a></dt><dd><p>The two-dimensional inverse FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.ifftn" title="theanoxla.tensor.signal.ifftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">ifftn</span></code></a></dt><dd><p>The n-dimensional inverse FFT.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>If the input parameter <cite>n</cite> is larger than the size of the input, the input
+is padded by appending zeros at the end.  Even though this is the common
+approach, it might lead to surprising results.  If a different padding is
+desired, it must be performed before calling <cite>ifft</cite>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="go">array([ 1.+0.j,  0.+1.j, -1.+0.j,  0.-1.j]) # may vary</span>
+</pre></div>
+</div>
+<p>Create and plot a band-limited signal with random phases:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">400</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">400</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span><span class="p">[</span><span class="mi">40</span><span class="p">:</span><span class="mi">60</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="p">(</span><span class="mi">20</span><span class="p">,)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="s1">&#39;b-&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="s1">&#39;r--&#39;</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at ...&gt;, &lt;matplotlib.lines.Line2D object at ...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">((</span><span class="s1">&#39;real&#39;</span><span class="p">,</span> <span class="s1">&#39;imaginary&#39;</span><span class="p">))</span>
+<span class="go">&lt;matplotlib.legend.Legend object at ...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.ifft2">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">ifft2</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.ifft2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the 2-dimensional inverse discrete Fourier Transform.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.ifft2" title="theanoxla.tensor.signal.ifft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifft2()</span></code></a>. Original docstring below.</p>
+<p>This function computes the inverse of the 2-dimensional discrete Fourier
+Transform over any number of axes in an M-dimensional array by means of
+the Fast Fourier Transform (FFT).  In other words, <code class="docutils literal notranslate"><span class="pre">ifft2(fft2(a))</span> <span class="pre">==</span> <span class="pre">a</span></code>
+to within numerical accuracy.  By default, the inverse transform is
+computed over the last two axes of the input array.</p>
+<p>The input, analogously to <cite>ifft</cite>, should be ordered in the same way as is
+returned by <cite>fft2</cite>, i.e. it should have the term for zero frequency
+in the low-order corner of the two axes, the positive frequency terms in
+the first half of these axes, the term for the Nyquist frequency in the
+middle of the axes and the negative frequency terms in the second half of
+both axes, in order of decreasingly negative frequency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The truncated or zero-padded input, transformed along the axes
+indicated by <cite>axes</cite>, or the last two axes if <cite>axes</cite> is not given.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>complex ndarray</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <cite>s</cite> and <cite>axes</cite> have different length, or <cite>axes</cite> not given and
+    <code class="docutils literal notranslate"><span class="pre">len(s)</span> <span class="pre">!=</span> <span class="pre">2</span></code>.</p></li>
+<li><p><strong>IndexError</strong> – If an element of <cite>axes</cite> is larger than than the number of axes of <cite>a</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.fft</span></code></dt><dd><p>Overall view of discrete Fourier transforms, with definitions and conventions used.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fft2" title="theanoxla.tensor.signal.fft2"><code class="xref py py-class docutils literal notranslate"><span class="pre">fft2</span></code></a></dt><dd><p>The forward 2-dimensional FFT, of which <cite>ifft2</cite> is the inverse.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.ifftn" title="theanoxla.tensor.signal.ifftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">ifftn</span></code></a></dt><dd><p>The inverse of the <em>n</em>-dimensional FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fft" title="theanoxla.tensor.signal.fft"><code class="xref py py-class docutils literal notranslate"><span class="pre">fft</span></code></a></dt><dd><p>The one-dimensional FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.ifft" title="theanoxla.tensor.signal.ifft"><code class="xref py py-class docutils literal notranslate"><span class="pre">ifft</span></code></a></dt><dd><p>The one-dimensional inverse FFT.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p><cite>ifft2</cite> is just <cite>ifftn</cite> with a different default for <cite>axes</cite>.</p>
+<p>See <cite>ifftn</cite> for details and a plotting example, and <cite>numpy.fft</cite> for
+definition and conventions used.</p>
+<p>Zero-padding, analogously with <cite>ifft</cite>, is performed by appending zeros to
+the input along the specified dimension.  Although this is the common
+approach, it might lead to surprising results.  If another form of zero
+padding is desired, it must be performed before <cite>ifft2</cite> is called.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft2</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">array([[1.+0.j,  0.+0.j,  0.+0.j,  0.+0.j], # may vary</span>
+<span class="go">       [0.+0.j,  0.+0.j,  0.+0.j,  1.+0.j],</span>
+<span class="go">       [0.+0.j,  0.+0.j,  1.+0.j,  0.+0.j],</span>
+<span class="go">       [0.+0.j,  1.+0.j,  0.+0.j,  0.+0.j]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.ifftn">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">ifftn</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.ifftn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the N-dimensional inverse discrete Fourier Transform.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.ifftn" title="theanoxla.tensor.signal.ifftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifftn()</span></code></a>. Original docstring below.</p>
+<p>This function computes the inverse of the N-dimensional discrete
+Fourier Transform over any number of axes in an M-dimensional array by
+means of the Fast Fourier Transform (FFT).  In other words,
+<code class="docutils literal notranslate"><span class="pre">ifftn(fftn(a))</span> <span class="pre">==</span> <span class="pre">a</span></code> to within numerical accuracy.
+For a description of the definitions and conventions used, see <cite>numpy.fft</cite>.</p>
+<p>The input, analogously to <cite>ifft</cite>, should be ordered in the same way as is
+returned by <cite>fftn</cite>, i.e. it should have the term for zero frequency
+in all axes in the low-order corner, the positive frequency terms in the
+first half of all axes, the term for the Nyquist frequency in the middle
+of all axes and the negative frequency terms in the second half of all
+axes, in order of decreasingly negative frequency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>array_like</em>) – Input array, can be complex.</p></li>
+<li><p><strong>s</strong> (<em>sequence of ints</em><em>, </em><em>optional</em>) – Shape (length of each transformed axis) of the output
+(<code class="docutils literal notranslate"><span class="pre">s[0]</span></code> refers to axis 0, <code class="docutils literal notranslate"><span class="pre">s[1]</span></code> to axis 1, etc.).
+This corresponds to <code class="docutils literal notranslate"><span class="pre">n</span></code> for <code class="docutils literal notranslate"><span class="pre">ifft(x,</span> <span class="pre">n)</span></code>.
+Along any axis, if the given shape is smaller than that of the input,
+the input is cropped.  If it is larger, the input is padded with zeros.
+if <cite>s</cite> is not given, the shape of the input along the axes specified
+by <cite>axes</cite> is used.  See notes for issue on <cite>ifft</cite> zero padding.</p></li>
+<li><p><strong>axes</strong> (<em>sequence of ints</em><em>, </em><em>optional</em>) – Axes over which to compute the IFFT.  If not given, the last <code class="docutils literal notranslate"><span class="pre">len(s)</span></code>
+axes are used, or all axes if <cite>s</cite> is also not specified.
+Repeated indices in <cite>axes</cite> means that the inverse transform over that
+axis is performed multiple times.</p></li>
+<li><p><strong>norm</strong> (<em>{None</em><em>, </em><em>&quot;ortho&quot;}</em><em>, </em><em>optional</em>) – <div class="versionadded">
+<p><span class="versionmodified added">New in version 1.10.0.</span></p>
+</div>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>out</strong> – The truncated or zero-padded input, transformed along the axes
+indicated by <cite>axes</cite>, or by a combination of <cite>s</cite> or <cite>a</cite>,
+as explained in the parameters section above.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>complex ndarray</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <cite>s</cite> and <cite>axes</cite> have different length.</p></li>
+<li><p><strong>IndexError</strong> – If an element of <cite>axes</cite> is larger than than the number of axes of <cite>a</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.fft</span></code></dt><dd><p>Overall view of discrete Fourier transforms, with definitions and conventions used.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fftn" title="theanoxla.tensor.signal.fftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">fftn</span></code></a></dt><dd><p>The forward <em>n</em>-dimensional FFT, of which <cite>ifftn</cite> is the inverse.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.ifft" title="theanoxla.tensor.signal.ifft"><code class="xref py py-class docutils literal notranslate"><span class="pre">ifft</span></code></a></dt><dd><p>The one-dimensional inverse FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.ifft2" title="theanoxla.tensor.signal.ifft2"><code class="xref py py-class docutils literal notranslate"><span class="pre">ifft2</span></code></a></dt><dd><p>The two-dimensional inverse FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.ifftshift" title="theanoxla.tensor.signal.ifftshift"><code class="xref py py-class docutils literal notranslate"><span class="pre">ifftshift</span></code></a></dt><dd><p>Undoes <cite>fftshift</cite>, shifts zero-frequency terms to beginning of array.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>See <cite>numpy.fft</cite> for definitions and conventions used.</p>
+<p>Zero-padding, analogously with <cite>ifft</cite>, is performed by appending zeros to
+the input along the specified dimension.  Although this is the common
+approach, it might lead to surprising results.  If another form of zero
+padding is desired, it must be performed before <cite>ifftn</cite> is called.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftn</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,)),</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
+<span class="go">array([[1.+0.j,  0.+0.j,  0.+0.j,  0.+0.j], # may vary</span>
+<span class="go">       [0.+0.j,  1.+0.j,  0.+0.j,  0.+0.j],</span>
+<span class="go">       [0.+0.j,  0.+0.j,  1.+0.j,  0.+0.j],</span>
+<span class="go">       [0.+0.j,  0.+0.j,  0.+0.j,  1.+0.j]])</span>
+</pre></div>
+</div>
+<p>Create and plot an image with band-limited frequency content:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">200</span><span class="p">,</span><span class="mi">200</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span><span class="p">[</span><span class="mi">60</span><span class="p">:</span><span class="mi">80</span><span class="p">,</span> <span class="mi">20</span><span class="p">:</span><span class="mi">40</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.ifftshift">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">ifftshift</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.ifftshift" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>The inverse of <cite>fftshift</cite>. Although identical for even-length <cite>x</cite>, the</dt><dd><p>functions differ by one sample for odd-length <cite>x</cite>.</p>
+</dd>
+</dl>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.ifftshift" title="theanoxla.tensor.signal.ifftshift"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifftshift()</span></code></a>. Original docstring below.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>y</strong> – The shifted array.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fftshift" title="theanoxla.tensor.signal.fftshift"><code class="xref py py-class docutils literal notranslate"><span class="pre">fftshift</span></code></a></dt><dd><p>Shift zero-frequency component to the center of the spectrum.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mf">1.</span><span class="o">/</span><span class="mi">9</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freqs</span>
+<span class="go">array([[ 0.,  1.,  2.],</span>
+<span class="go">       [ 3.,  4., -4.],</span>
+<span class="go">       [-3., -2., -1.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">freqs</span><span class="p">))</span>
+<span class="go">array([[ 0.,  1.,  2.],</span>
+<span class="go">       [ 3.,  4., -4.],</span>
+<span class="go">       [-3., -2., -1.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.ihfft">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">ihfft</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.ihfft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the inverse FFT of a signal that has Hermitian symmetry.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.ihfft" title="theanoxla.tensor.signal.ihfft"><code class="xref py py-func docutils literal notranslate"><span class="pre">ihfft()</span></code></a>. Original docstring below.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The truncated or zero-padded input, transformed along the axis
+indicated by <cite>axis</cite>, or the last one if <cite>axis</cite> is not specified.
+The length of the transformed axis is <code class="docutils literal notranslate"><span class="pre">n//2</span> <span class="pre">+</span> <span class="pre">1</span></code>.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>complex ndarray</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#theanoxla.tensor.signal.hfft" title="theanoxla.tensor.signal.hfft"><code class="xref py py-class docutils literal notranslate"><span class="pre">hfft</span></code></a>, <a class="reference internal" href="#theanoxla.tensor.signal.irfft" title="theanoxla.tensor.signal.irfft"><code class="xref py py-class docutils literal notranslate"><span class="pre">irfft</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p><cite>hfft</cite>/<cite>ihfft</cite> are a pair analogous to <cite>rfft</cite>/<cite>irfft</cite>, but for the
+opposite case: here the signal has Hermitian symmetry in the time
+domain and is real in the frequency domain. So here it’s <cite>hfft</cite> for
+which you must supply the length of the result if it is to be odd:</p>
+<ul class="simple">
+<li><p>even: <code class="docutils literal notranslate"><span class="pre">ihfft(hfft(a,</span> <span class="pre">2*len(a)</span> <span class="pre">-</span> <span class="pre">2)</span> <span class="pre">==</span> <span class="pre">a</span></code>, within roundoff error,</p></li>
+<li><p>odd: <code class="docutils literal notranslate"><span class="pre">ihfft(hfft(a,</span> <span class="pre">2*len(a)</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">==</span> <span class="pre">a</span></code>, within roundoff error.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">15</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">spectrum</span><span class="p">)</span>
+<span class="go">array([1.+0.j,  2.+0.j,  3.+0.j,  4.+0.j,  3.+0.j,  2.+0.j]) # may vary</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ihfft</span><span class="p">(</span><span class="n">spectrum</span><span class="p">)</span>
+<span class="go">array([ 1.-0.j,  2.-0.j,  3.-0.j,  4.-0.j]) # may vary</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.irfft">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">irfft</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.irfft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the inverse of the n-point DFT for real input.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.irfft" title="theanoxla.tensor.signal.irfft"><code class="xref py py-func docutils literal notranslate"><span class="pre">irfft()</span></code></a>. Original docstring below.</p>
+<p>This function computes the inverse of the one-dimensional <em>n</em>-point
+discrete Fourier Transform of real input computed by <cite>rfft</cite>.
+In other words, <code class="docutils literal notranslate"><span class="pre">irfft(rfft(a),</span> <span class="pre">len(a))</span> <span class="pre">==</span> <span class="pre">a</span></code> to within numerical
+accuracy. (See Notes below for why <code class="docutils literal notranslate"><span class="pre">len(a)</span></code> is necessary here.)</p>
+<p>The input is expected to be in the form returned by <cite>rfft</cite>, i.e. the
+real zero-frequency term followed by the complex positive frequency terms
+in order of increasing frequency.  Since the discrete Fourier Transform of
+real input is Hermitian-symmetric, the negative frequency terms are taken
+to be the complex conjugates of the corresponding positive frequency terms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The truncated or zero-padded input, transformed along the axis
+indicated by <cite>axis</cite>, or the last one if <cite>axis</cite> is not specified.
+The length of the transformed axis is <cite>n</cite>, or, if <cite>n</cite> is not given,
+<code class="docutils literal notranslate"><span class="pre">2*(m-1)</span></code> where <code class="docutils literal notranslate"><span class="pre">m</span></code> is the length of the transformed axis of the
+input. To get an odd number of output points, <cite>n</cite> must be specified.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>IndexError</strong> – If <cite>axis</cite> is larger than the last axis of <cite>a</cite>.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.fft</span></code></dt><dd><p>For definition of the DFT and conventions used.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.rfft" title="theanoxla.tensor.signal.rfft"><code class="xref py py-class docutils literal notranslate"><span class="pre">rfft</span></code></a></dt><dd><p>The one-dimensional FFT of real input, of which <cite>irfft</cite> is inverse.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fft" title="theanoxla.tensor.signal.fft"><code class="xref py py-class docutils literal notranslate"><span class="pre">fft</span></code></a></dt><dd><p>The one-dimensional FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.irfft2" title="theanoxla.tensor.signal.irfft2"><code class="xref py py-class docutils literal notranslate"><span class="pre">irfft2</span></code></a></dt><dd><p>The inverse of the two-dimensional FFT of real input.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.irfftn" title="theanoxla.tensor.signal.irfftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">irfftn</span></code></a></dt><dd><p>The inverse of the <em>n</em>-dimensional FFT of real input.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Returns the real valued <cite>n</cite>-point inverse discrete Fourier transform
+of <cite>a</cite>, where <cite>a</cite> contains the non-negative frequency terms of a
+Hermitian-symmetric sequence. <cite>n</cite> is the length of the result, not the
+input.</p>
+<p>If you specify an <cite>n</cite> such that <cite>a</cite> must be zero-padded or truncated, the
+extra/removed values will be added/removed at high frequencies. One can
+thus resample a series to <cite>m</cite> points via Fourier interpolation by:
+<code class="docutils literal notranslate"><span class="pre">a_resamp</span> <span class="pre">=</span> <span class="pre">irfft(rfft(a),</span> <span class="pre">m)</span></code>.</p>
+<p>The correct interpretation of the hermitian input depends on the length of
+the original data, as given by <cite>n</cite>. This is because each input shape could
+correspond to either an odd or even length signal. By default, <cite>irfft</cite>
+assumes an even output length which puts the last entry at the Nyquist
+frequency; aliasing with its symmetric counterpart. By Hermitian symmetry,
+the value is thus treated as purely real. To avoid losing information, the
+correct length of the real input <strong>must</strong> be given.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="n">j</span><span class="p">])</span>
+<span class="go">array([0.+0.j,  1.+0.j,  0.+0.j,  0.+0.j]) # may vary</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfft</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">array([0.,  1.,  0.,  0.])</span>
+</pre></div>
+</div>
+<p>Notice how the last term in the input to the ordinary <cite>ifft</cite> is the
+complex conjugate of the second term, and the output has zero imaginary
+part everywhere.  When calling <cite>irfft</cite>, the negative frequencies are not
+specified, and the output array is purely real.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.irfft2">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">irfft2</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.irfft2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the 2-dimensional inverse FFT of a real array.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.irfft2" title="theanoxla.tensor.signal.irfft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">irfft2()</span></code></a>. Original docstring below.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The result of the inverse real 2-D FFT.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.irfftn" title="theanoxla.tensor.signal.irfftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">irfftn</span></code></a></dt><dd><p>Compute the inverse of the N-dimensional FFT of real input.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>This is really <cite>irfftn</cite> with different defaults.
+For more details see <cite>irfftn</cite>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.irfftn">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">irfftn</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.irfftn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the inverse of the N-dimensional FFT of real input.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.irfftn" title="theanoxla.tensor.signal.irfftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">irfftn()</span></code></a>. Original docstring below.</p>
+<p>This function computes the inverse of the N-dimensional discrete
+Fourier Transform for real input over any number of axes in an
+M-dimensional array by means of the Fast Fourier Transform (FFT).  In
+other words, <code class="docutils literal notranslate"><span class="pre">irfftn(rfftn(a),</span> <span class="pre">a.shape)</span> <span class="pre">==</span> <span class="pre">a</span></code> to within numerical
+accuracy. (The <code class="docutils literal notranslate"><span class="pre">a.shape</span></code> is necessary like <code class="docutils literal notranslate"><span class="pre">len(a)</span></code> is for <cite>irfft</cite>,
+and for the same reason.)</p>
+<p>The input should be ordered in the same way as is returned by <cite>rfftn</cite>,
+i.e. as for <cite>irfft</cite> for the final transformation axis, and as for <cite>ifftn</cite>
+along all the other axes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The truncated or zero-padded input, transformed along the axes
+indicated by <cite>axes</cite>, or by a combination of <cite>s</cite> or <cite>a</cite>,
+as explained in the parameters section above.
+The length of each transformed axis is as given by the corresponding
+element of <cite>s</cite>, or the length of the input in every axis except for the
+last one if <cite>s</cite> is not given.  In the final transformed axis the length
+of the output when <cite>s</cite> is not given is <code class="docutils literal notranslate"><span class="pre">2*(m-1)</span></code> where <code class="docutils literal notranslate"><span class="pre">m</span></code> is the
+length of the final transformed axis of the input.  To get an odd
+number of output points in the final axis, <cite>s</cite> must be specified.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <cite>s</cite> and <cite>axes</cite> have different length.</p></li>
+<li><p><strong>IndexError</strong> – If an element of <cite>axes</cite> is larger than than the number of axes of <cite>a</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.rfftn" title="theanoxla.tensor.signal.rfftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">rfftn</span></code></a></dt><dd><p>The forward n-dimensional FFT of real input, of which <cite>ifftn</cite> is the inverse.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fft" title="theanoxla.tensor.signal.fft"><code class="xref py py-class docutils literal notranslate"><span class="pre">fft</span></code></a></dt><dd><p>The one-dimensional FFT, with definitions and conventions used.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.irfft" title="theanoxla.tensor.signal.irfft"><code class="xref py py-class docutils literal notranslate"><span class="pre">irfft</span></code></a></dt><dd><p>The inverse of the one-dimensional FFT of real input.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.irfft2" title="theanoxla.tensor.signal.irfft2"><code class="xref py py-class docutils literal notranslate"><span class="pre">irfft2</span></code></a></dt><dd><p>The inverse of the two-dimensional FFT of real input.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>See <cite>fft</cite> for definitions and conventions used.</p>
+<p>See <cite>rfft</cite> for definitions and conventions used for real input.</p>
+<p>The correct interpretation of the hermitian input depends on the shape of
+the original data, as given by <cite>s</cite>. This is because each input shape could
+correspond to either an odd or even length signal. By default, <cite>irfftn</cite>
+assumes an even output length which puts the last entry at the Nyquist
+frequency; aliasing with its symmetric counterpart. When performing the
+final complex to real transform, the last value is thus treated as purely
+real. To avoid losing information, the correct shape of the real input
+<strong>must</strong> be given.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfftn</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">array([[[1.,  1.],</span>
+<span class="go">        [1.,  1.]],</span>
+<span class="go">       [[1.,  1.],</span>
+<span class="go">        [1.,  1.]],</span>
+<span class="go">       [[1.,  1.],</span>
+<span class="go">        [1.,  1.]]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.kaiser">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">kaiser</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.kaiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Kaiser window.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.kaiser" title="theanoxla.tensor.signal.kaiser"><code class="xref py py-func docutils literal notranslate"><span class="pre">kaiser()</span></code></a>. Original docstring below.</p>
+<blockquote>
+<div><p>The Kaiser window is a taper formed by using a Bessel function.</p>
+<dl class="simple">
+<dt>M<span class="classifier">int</span></dt><dd><p>Number of points in the output window. If zero or less, an
+empty array is returned.</p>
+</dd>
+<dt>beta<span class="classifier">float</span></dt><dd><p>Shape parameter for window.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>out<span class="classifier">array</span></dt><dd><p>The window, with the maximum value normalized to one (the value
+one appears only if the number of samples is odd).</p>
+</dd>
+</dl>
+<p>bartlett, blackman, hamming, hanning</p>
+<p>The Kaiser window is defined as</p>
+<div class="math notranslate nohighlight">
+\[w(n) = I_0\left( \beta \sqrt{1-\frac{4n^2}{(M-1)^2}}
+\right)/I_0(\beta)\]</div>
+<p>with</p>
+<div class="math notranslate nohighlight">
+\[\quad -\frac{M-1}{2} \leq n \leq \frac{M-1}{2},\]</div>
+<p>where <span class="math notranslate nohighlight">\(I_0\)</span> is the modified zeroth-order Bessel function.</p>
+<p>The Kaiser was named for Jim Kaiser, who discovered a simple
+approximation to the DPSS window based on Bessel functions.  The Kaiser
+window is a very good approximation to the Digital Prolate Spheroidal
+Sequence, or Slepian window, which is the transform which maximizes the
+energy in the main lobe of the window relative to total energy.</p>
+<p>The Kaiser can approximate many other windows by varying the beta
+parameter.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 85%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>beta</p></th>
+<th class="head"><p>Window shape</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>Rectangular</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>Similar to a Hamming</p></td>
+</tr>
+<tr class="row-even"><td><p>6</p></td>
+<td><p>Similar to a Hanning</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.6</p></td>
+<td><p>Similar to a Blackman</p></td>
+</tr>
+</tbody>
+</table>
+<p>A beta value of 14 is probably a good starting point. Note that as beta
+gets large, the window narrows, and so the number of samples needs to be
+large enough to sample the increasingly narrow spike, otherwise NaNs will
+get returned.</p>
+<p>Most references to the Kaiser window come from the signal processing
+literature, where it is used as one of many windowing functions for
+smoothing values.  It is also known as an apodization (which means
+“removing the foot”, i.e. smoothing discontinuities at the beginning
+and end of the sampled signal) or tapering function.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id14"><span class="brackets">1</span></dt>
+<dd><p>J. F. Kaiser, “Digital Filters” - Ch 7 in “Systems analysis by
+digital computer”, Editors: F.F. Kuo and J.F. Kaiser, p 218-285.
+John Wiley and Sons, New York, (1966).</p>
+</dd>
+<dt class="label" id="id15"><span class="brackets">2</span></dt>
+<dd><p>E.R. Kanasewich, “Time Sequence Analysis in Geophysics”, The
+University of Alberta Press, 1975, pp. 177-178.</p>
+</dd>
+<dt class="label" id="id16"><span class="brackets">3</span></dt>
+<dd><p>Wikipedia, “Window function”,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Window_function">https://en.wikipedia.org/wiki/Window_function</a></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">kaiser</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
+<span class="go"> array([7.72686684e-06, 3.46009194e-03, 4.65200189e-02, # may vary</span>
+<span class="go">        2.29737120e-01, 5.99885316e-01, 9.45674898e-01,</span>
+<span class="go">        9.45674898e-01, 5.99885316e-01, 2.29737120e-01,</span>
+<span class="go">        4.65200189e-02, 3.46009194e-03, 7.72686684e-06])</span>
+</pre></div>
+</div>
+<p>Plot the window and the frequency response:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kaiser</span><span class="p">(</span><span class="mi">51</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Kaiser window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Kaiser window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Amplitude&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Sample&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Sample&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="go">&lt;Figure size 640x480 with 0 Axes&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)</span> <span class="o">/</span> <span class="mf">25.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fftshift</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Frequency response of Kaiser window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Frequency response of Kaiser window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Magnitude [dB]&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Magnitude [dB]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Normalized frequency [cycles per sample]&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Normalized frequency [cycles per sample]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="go">(-0.5, 0.5, -100.0, ...) # may vary</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.tensor.signal.mfcc">
+<code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">mfcc</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">window</em>, <em class="sig-param">hop</em>, <em class="sig-param">n_filter</em>, <em class="sig-param">low_freq</em>, <em class="sig-param">high_freq</em>, <em class="sig-param">nyquist</em>, <em class="sig-param">n_mfcc</em>, <em class="sig-param">nfft=None</em>, <em class="sig-param">mode='valid'</em>, <em class="sig-param">apod=&lt;class 'theanoxla.tensor.signal.hanning'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/theanoxla/tensor/signal.html#mfcc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#theanoxla.tensor.signal.mfcc" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://librosa.github.io/librosa/_modules/librosa/feature/spectral.html#mfcc">https://librosa.github.io/librosa/_modules/librosa/feature/spectral.html#mfcc</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.tensor.signal.power_to_db">
+<code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">power_to_db</code><span class="sig-paren">(</span><em class="sig-param">S</em>, <em class="sig-param">ref=1.0</em>, <em class="sig-param">amin=1e-10</em>, <em class="sig-param">top_db=80.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/theanoxla/tensor/signal.html#power_to_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#theanoxla.tensor.signal.power_to_db" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://librosa.github.io/librosa/_modules/librosa/core/spectrum.html#power_to_db">https://librosa.github.io/librosa/_modules/librosa/core/spectrum.html#power_to_db</a>
+Convert a power spectrogram (amplitude squared) to decibel (dB) units</p>
+<p>This computes the scaling <code class="docutils literal notranslate"><span class="pre">10</span> <span class="pre">*</span> <span class="pre">log10(S</span> <span class="pre">/</span> <span class="pre">ref)</span></code> in a numerically
+stable way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S</strong> (<em>np.ndarray</em>) – input power</p></li>
+<li><p><strong>ref</strong> (<em>scalar</em><em> or </em><em>callable</em>) – <p>If scalar, the amplitude <cite>abs(S)</cite> is scaled relative to <cite>ref</cite>:
+<cite>10 * log10(S / ref)</cite>.
+Zeros in the output correspond to positions where <cite>S == ref</cite>.</p>
+<p>If callable, the reference value is computed as <cite>ref(S)</cite>.</p>
+</p></li>
+<li><p><strong>amin</strong> (<em>float &gt; 0</em><em> [</em><em>scalar</em><em>]</em>) – minimum threshold for <cite>abs(S)</cite> and <cite>ref</cite></p></li>
+<li><p><strong>top_db</strong> (<em>float &gt;= 0</em><em> [</em><em>scalar</em><em>]</em>) – threshold the output at <cite>top_db</cite> below the peak:
+<code class="docutils literal notranslate"><span class="pre">max(10</span> <span class="pre">*</span> <span class="pre">log10(S))</span> <span class="pre">-</span> <span class="pre">top_db</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>S_db</strong> – <code class="docutils literal notranslate"><span class="pre">S_db</span> <span class="pre">~=</span> <span class="pre">10</span> <span class="pre">*</span> <span class="pre">log10(S)</span> <span class="pre">-</span> <span class="pre">10</span> <span class="pre">*</span> <span class="pre">log10(ref)</span></code></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">perceptual_weighting()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">db_to_power()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">amplitude_to_db()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">db_to_amplitude()</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.rfft">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">rfft</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.rfft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the one-dimensional discrete Fourier Transform for real input.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.rfft" title="theanoxla.tensor.signal.rfft"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfft()</span></code></a>. Original docstring below.</p>
+<p>This function computes the one-dimensional <em>n</em>-point discrete Fourier
+Transform (DFT) of a real-valued array by means of an efficient algorithm
+called the Fast Fourier Transform (FFT).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The truncated or zero-padded input, transformed along the axis
+indicated by <cite>axis</cite>, or the last one if <cite>axis</cite> is not specified.
+If <cite>n</cite> is even, the length of the transformed axis is <code class="docutils literal notranslate"><span class="pre">(n/2)+1</span></code>.
+If <cite>n</cite> is odd, the length is <code class="docutils literal notranslate"><span class="pre">(n+1)/2</span></code>.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>complex ndarray</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>IndexError</strong> – If <cite>axis</cite> is larger than the last axis of <cite>a</cite>.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.fft</span></code></dt><dd><p>For definition of the DFT and conventions used.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.irfft" title="theanoxla.tensor.signal.irfft"><code class="xref py py-class docutils literal notranslate"><span class="pre">irfft</span></code></a></dt><dd><p>The inverse of <cite>rfft</cite>.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fft" title="theanoxla.tensor.signal.fft"><code class="xref py py-class docutils literal notranslate"><span class="pre">fft</span></code></a></dt><dd><p>The one-dimensional FFT of general (complex) input.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fftn" title="theanoxla.tensor.signal.fftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">fftn</span></code></a></dt><dd><p>The <em>n</em>-dimensional FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.rfftn" title="theanoxla.tensor.signal.rfftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">rfftn</span></code></a></dt><dd><p>The <em>n</em>-dimensional FFT of real input.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>When the DFT is computed for purely real input, the output is
+Hermitian-symmetric, i.e. the negative frequency terms are just the complex
+conjugates of the corresponding positive-frequency terms, and the
+negative-frequency terms are therefore redundant.  This function does not
+compute the negative frequency terms, and the length of the transformed
+axis of the output is therefore <code class="docutils literal notranslate"><span class="pre">n//2</span> <span class="pre">+</span> <span class="pre">1</span></code>.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">=</span> <span class="pre">rfft(a)</span></code> and fs is the sampling frequency, <code class="docutils literal notranslate"><span class="pre">A[0]</span></code> contains
+the zero-frequency term 0*fs, which is real due to Hermitian symmetry.</p>
+<p>If <cite>n</cite> is even, <code class="docutils literal notranslate"><span class="pre">A[-1]</span></code> contains the term representing both positive
+and negative Nyquist frequency (+fs/2 and -fs/2), and must also be purely
+real. If <cite>n</cite> is odd, there is no term at fs/2; <code class="docutils literal notranslate"><span class="pre">A[-1]</span></code> contains
+the largest positive frequency (fs/2*(n-1)/n), and is complex in the
+general case.</p>
+<p>If the input <cite>a</cite> contains an imaginary part, it is silently discarded.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="go">array([ 1.+0.j,  0.-1.j, -1.+0.j,  0.+1.j]) # may vary</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="go">array([ 1.+0.j,  0.-1.j, -1.+0.j]) # may vary</span>
+</pre></div>
+</div>
+<p>Notice how the final element of the <cite>fft</cite> output is the complex conjugate
+of the second element, for real input. For <cite>rfft</cite>, this symmetry is
+exploited to compute only the non-negative frequency terms.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.rfft2">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">rfft2</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.rfft2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the 2-dimensional FFT of a real array.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.rfft2" title="theanoxla.tensor.signal.rfft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfft2()</span></code></a>. Original docstring below.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The result of the real 2-D FFT.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.rfftn" title="theanoxla.tensor.signal.rfftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">rfftn</span></code></a></dt><dd><p>Compute the N-dimensional discrete Fourier Transform for real input.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>This is really just <cite>rfftn</cite> with different default behavior.
+For more details see <cite>rfftn</cite>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.rfftfreq">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">rfftfreq</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.rfftfreq" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Return the Discrete Fourier Transform sample frequencies</dt><dd><p>(for usage with rfft, irfft).</p>
+</dd>
+</dl>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.rfftfreq" title="theanoxla.tensor.signal.rfftfreq"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfftfreq()</span></code></a>. Original docstring below.</p>
+<p>The returned float array <cite>f</cite> contains the frequency bin centers in cycles
+per unit of the sample spacing (with zero at the start).  For instance, if
+the sample spacing is in seconds, then the frequency unit is cycles/second.</p>
+<p>Given a window length <cite>n</cite> and a sample spacing <cite>d</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span>     <span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>     <span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">d</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>   <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="n">even</span>
+<span class="n">f</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">d</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>   <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="n">odd</span>
+</pre></div>
+</div>
+<p>Unlike <cite>fftfreq</cite> (but like <cite>scipy.fftpack.rfftfreq</cite>)
+the Nyquist frequency component is considered to be positive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>f</strong> – Array of length <code class="docutils literal notranslate"><span class="pre">n//2</span> <span class="pre">+</span> <span class="pre">1</span></code> containing the sample frequencies.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fourier</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">size</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample_rate</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mf">1.</span><span class="o">/</span><span class="n">sample_rate</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span>
+<span class="go">array([  0.,  10.,  20., ..., -30., -20., -10.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftfreq</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mf">1.</span><span class="o">/</span><span class="n">sample_rate</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span>
+<span class="go">array([  0.,  10.,  20.,  30.,  40.,  50.])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="theanoxla.tensor.signal.rfftn">
+<em class="property">class </em><code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">rfftn</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">roots=[]</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.tensor.signal.rfftn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the N-dimensional discrete Fourier Transform for real input.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#theanoxla.tensor.signal.rfftn" title="theanoxla.tensor.signal.rfftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfftn()</span></code></a>. Original docstring below.</p>
+<p>This function computes the N-dimensional discrete Fourier Transform over
+any number of axes in an M-dimensional real array by means of the Fast
+Fourier Transform (FFT).  By default, all axes are transformed, with the
+real transform performed over the last axis, while the remaining
+transforms are complex.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The truncated or zero-padded input, transformed along the axes
+indicated by <cite>axes</cite>, or by a combination of <cite>s</cite> and <cite>a</cite>,
+as explained in the parameters section above.
+The length of the last axis transformed will be <code class="docutils literal notranslate"><span class="pre">s[-1]//2+1</span></code>,
+while the remaining transformed axes will have lengths according to
+<cite>s</cite>, or unchanged from the input.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>complex ndarray</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <cite>s</cite> and <cite>axes</cite> have different length.</p></li>
+<li><p><strong>IndexError</strong> – If an element of <cite>axes</cite> is larger than than the number of axes of <cite>a</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.irfftn" title="theanoxla.tensor.signal.irfftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">irfftn</span></code></a></dt><dd><p>The inverse of <cite>rfftn</cite>, i.e. the inverse of the n-dimensional FFT of real input.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fft" title="theanoxla.tensor.signal.fft"><code class="xref py py-class docutils literal notranslate"><span class="pre">fft</span></code></a></dt><dd><p>The one-dimensional FFT, with definitions and conventions used.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.rfft" title="theanoxla.tensor.signal.rfft"><code class="xref py py-class docutils literal notranslate"><span class="pre">rfft</span></code></a></dt><dd><p>The one-dimensional FFT of real input.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.fftn" title="theanoxla.tensor.signal.fftn"><code class="xref py py-class docutils literal notranslate"><span class="pre">fftn</span></code></a></dt><dd><p>The n-dimensional FFT.</p>
+</dd>
+<dt><a class="reference internal" href="#theanoxla.tensor.signal.rfft2" title="theanoxla.tensor.signal.rfft2"><code class="xref py py-class docutils literal notranslate"><span class="pre">rfft2</span></code></a></dt><dd><p>The two-dimensional FFT of real input.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The transform for real input is performed over the last transformation
+axis, as by <cite>rfft</cite>, then the transform over the remaining axes is
+performed as by <cite>fftn</cite>.  The order of the output is as for <cite>rfft</cite> for the
+final transformation axis, and as for <cite>fftn</cite> for the remaining
+transformation axes.</p>
+<p>See <cite>fft</cite> for details, definitions and conventions used.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftn</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">array([[[8.+0.j,  0.+0.j], # may vary</span>
+<span class="go">        [0.+0.j,  0.+0.j]],</span>
+<span class="go">       [[0.+0.j,  0.+0.j],</span>
+<span class="go">        [0.+0.j,  0.+0.j]]])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftn</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="go">array([[[4.+0.j,  0.+0.j], # may vary</span>
+<span class="go">        [4.+0.j,  0.+0.j]],</span>
+<span class="go">       [[0.+0.j,  0.+0.j],</span>
+<span class="go">        [0.+0.j,  0.+0.j]]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.tensor.signal.stft">
+<code class="sig-prename descclassname">theanoxla.tensor.signal.</code><code class="sig-name descname">stft</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">window</em>, <em class="sig-param">hop</em>, <em class="sig-param">apod=&lt;class 'theanoxla.tensor.ops_math.ones'&gt;</em>, <em class="sig-param">nfft=None</em>, <em class="sig-param">mode='valid'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/theanoxla/tensor/signal.html#stft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#theanoxla.tensor.signal.stft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Shoft-Time-Fourier-Transform of a signal given the
+window length, hop and additional parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signal</strong> (<em>array</em>) – the signal (possibly stacked of signals)</p></li>
+<li><p><strong>window</strong> (<em>int</em>) – the window length to be considered for the fft</p></li>
+<li><p><strong>hop</strong> (<em>int</em>) – the amount by which the window is moved</p></li>
+<li><p><strong>apod</strong> (<a class="reference internal" href="#theanoxla.tensor.signal.func" title="theanoxla.tensor.signal.func"><em>func</em></a>) – a function that takes an integer as input and return
+the apodization window of the same length</p></li>
+<li><p><strong>nfft</strong> (<em>int</em><em> (</em><em>optional</em><em>)</em>) – the number of bin that the fft on the window will use.
+If not given it is set the same as window.</p></li>
+<li><p><strong>mode</strong> (<em>'valid'</em><em>, </em><em>'same'</em><em> or </em><em>'full'</em>) – the padding of the input signals</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>output</strong> – the complex stft</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>complex array</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -107,6 +1795,7 @@ full : Return a new array of given shape filled with value.</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="theanoxla.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">theanoxla</span></code></a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">theanoxla.tensor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">theanoxla.datasets</span></code></a></li>
 </ul>
 
 <div class="relations">
@@ -114,6 +1803,7 @@ full : Return a new array of given shape filled with value.</p>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
       <li>Previous: <a href="theanoxla.html" title="previous chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">theanoxla</span></code></a></li>
+      <li>Next: <a href="datasets.html" title="next chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">theanoxla.datasets</span></code></a></li>
   </ul></li>
 </ul>
 </div>

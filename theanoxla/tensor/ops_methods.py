@@ -1,13 +1,12 @@
 import jax.numpy as jnp
 import jax.lax as jla
-from .base import Tensor, Op, add_method, add_fn
+from .base import Tensor, Op, add_method, jax_wrap
 from . import ops_math
 
 
 ## getitem operator
-class getitem(Op):
-    pass
-add_fn(getitem)(jnp.lax_numpy._rewriting_take)
+getitem = jax_wrap(jnp.lax_numpy._rewriting_take)
+
 add_method(Tensor)(getitem, '__getitem__')
 
 ## overloading the basic arithmetic operators

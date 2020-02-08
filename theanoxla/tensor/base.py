@@ -153,7 +153,62 @@ class Tensor:
             return output
 
 
-class Op(Tensor):
+
+
+def jax_wrap(func):
+    @wraps(func)
+    def op(*args, **kwargs):
+        # now use the builin function to infer shape and dtype given a
+
+        # we need to remove the static arguments first
+        # we first do it for the kwars
+        static_kwargs = {}
+        var_kwargs = {}
+        for name, arg in list(kwargs.items()):
+            if name == 'key' or not isvar(arg):
+                static_kwargs.update({name: arg})
+            else:
+                var_kwargs.update({name: args})
+
+        # we need to do the same for the args
+        indices = list()
+        for i, arg in enumerate(args):
+            if not isvar(arg):
+                indices.append(1)
+            else:
+                indices.append(0)
+        static_args = [arg for i, arg in zip(indices, args) if i]
+        var_args = [arg for i, arg in zip(indices, args) if not i]
+
+        # we need to define an abstract function that only takes as input the
+        # non -static arguments, internally join them with the static ones
+        # and return the output. This is because the jax shape inference
+        # functions does not work with static arguments (such as the dimensions
+        # of the transpose function)
+        def abstract_func(*args, **kwargs):
+            all_args = args_formatting(var_args, static_args, indices)
+            return func(*all_args, **var_kwargs, **static_kwargs)
+
+        # now we evaluate the shape from the jax built-in function
+        tree = jax.eval_shape(abstract_func, *var_args, **var_kwargs)
+
+        # now we determine if it is an Op or a Tuple object based on the
+        # infered shape
+        if hasattr(tree, '__len__'):
+            shapes = [t.shape for t in tree]
+            dtypes = [t.dtype for t in tree]
+            return Tuple(*args, jax_function=func, shapes=shape, dtypes=dtype,
+                         **kwargs)
+        else:
+            shape, dtype = tree.shape, tree.dtype
+            return Op(*args, jax_function=func, shape=shape, dtype=dtype,
+                      **kwargs)
+    return op
+
+
+
+
+class OpOld(Tensor):
     """an Op generates a Tensor object obtained from a function"""
 
     name = ''
@@ -187,13 +242,13 @@ class Op(Tensor):
         self.args = [arg for i, arg in enumerate(self.args) if indices[i] == 0]
         self.indices = indices
 
-        tree = jax.eval_shape(lambda *args, **kwargs: self.fn(*args_formatting(args, self.extra_args, self.indices), **kwargs, **self.extra_kwargs), *self.args, **self.kwargs)
+        tree = jax.eval_shape(lambda *args, **kwargs: self.jax_function(*args_formatting(args, self.extra_args, self.indices), **kwargs, **self.extra_kwargs), *self.args, **self.kwargs)
         shape, dtype = tree.shape, tree.dtype
 
         super().__init__(shape, dtype, roots)
 
     def __repr__(self):
-        return '(Op: ' + self.fn.__name__ + ', shape=' + str(self.shape) +\
+        return '(Op: ' + self.jax_function.__name__ + ', shape=' + str(self.shape) +\
                ', dtype=' + str(self.dtype) + ')'
 
     def __str__(self):
@@ -210,8 +265,54 @@ class Op(Tensor):
         for name, var in list(self.kwargs.items()):
             kwargs.update({name: get(var, tracker)})
         args = [get(var, tracker) for var in self.args]
-        tracker[self] = self.fn(*args_formatting(args, self.extra_args, self.indices), **kwargs, **self.extra_kwargs)
+        tracker[self] = self.jax_function(*args_formatting(args, self.extra_args, self.indices), **kwargs, **self.extra_kwargs)
         return tracker[self]
+
+
+
+
+class Op(Tensor):
+    """an Op generates a Tensor object obtained from a function"""
+
+    name = ''
+
+    def __init__(self, *args, jax_function, shape, dtype, roots=[], **kwargs):
+
+        # save args and kwargs
+        self.kwargs = kwargs
+        self.args = args
+        self.jax_function = jax_function
+
+        # set roots
+        roots = getroots([i for i in kwargs.values()] + list(args)) + roots
+        roots = list(set(roots))
+
+        super().__init__(shape, dtype, roots)
+
+    def __repr__(self):
+        name = 'Tensor(Op={}, shape={}, dtype={})'
+        return name.format(self.jax_function.__name__, self.shape, self.dtype)
+
+    def __str__(self):
+        return self.__repr__()
+
+    def get(self, tracker=None):
+        if tracker is None:
+            tracker = dict()
+        if self in tracker:
+            return tracker[self]
+
+        # evaluate the function kwargs as explicit jax arrays
+        kwargs = dict()
+        for name, var in list(self.kwargs.items()):
+            kwargs.update({name: get(var, tracker)})
+        args = [get(var, tracker) for var in self.args]
+        tracker[self] = self.jax_function(*args, **kwargs)
+        return tracker[self]
+
+
+
+
 
 
 class RandomOp(Op):
@@ -297,7 +398,7 @@ class Tuple(tuple):
 
         self.args = args
         self.kwargs = kwargs
-        self.fn = fn_or_list
+        self.jax_function = fn_or_list
         self.name = ''
         # set roots
         roots = list()
@@ -331,7 +432,7 @@ class Tuple(tuple):
             kwargs.update({name: get(var, tracker)})
 
         # we add the list object itself into the dictionnary first
-        tracker[self] = tuple(self.fn(*args, **kwargs))
+        tracker[self] = tuple(self.jax_function(*args, **kwargs))
 
         # then we add each element of the list into the dictionnary
         for i in range(len(self)):

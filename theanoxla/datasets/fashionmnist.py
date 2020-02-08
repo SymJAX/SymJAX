@@ -4,13 +4,35 @@ import urllib.request
 import numpy as np
 import time
 
-from . import Dataset
 
-from ..utils import to_one_hot, DownloadProgressBar
+def download(path):
+
+    print('Loading fashionmnist')
+
+    t0 = time.time()
+
+    if not os.path.isdir(path+'fashionmnist'):
+        print('\tCreating Directory')
+        os.mkdir(path+'fashionmnist')
+    base_url = 'http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/'
+    if not os.path.exists(path+'fashionmnist/train-images.gz'):
+        url = base_url+'train-images-idx3-ubyte.gz'
+        urllib.request.urlretrieve(url,path+'fashionmnist/train-images.gz')
+
+    if not os.path.exists(path+'fashionmnist/train-labels.gz'):
+        url = base_url+'train-labels-idx1-ubyte.gz'
+        urllib.request.urlretrieve(url,path+'fashionmnist/train-labels.gz')
+
+    if not os.path.exists(path+'fashionmnist/test-images.gz'):
+        url = base_url+'t10k-images-idx3-ubyte.gz'
+        urllib.request.urlretrieve(url,path+'fashionmnist/test-images.gz')
+
+    if not os.path.exists(path+'fashionmnist/test-labels.gz'):
+        url = base_url+'t10k-labels-idx1-ubyte.gz'
+        urllib.request.urlretrieve(url,path+'fashionmnist/test-labels.gz')
 
 
-
-def load_fashionmnist(PATH=None):
+def load(path=None):
     """Grayscale `Zalando <https://jobs.zalando.com/tech/>`_ 's article image classification.
     `Fashion-MNIST <https://github.com/zalandoresearch/fashion-mnist>`_ is 
     a dataset of `Zalando <https://jobs.zalando.com/tech/>`_ 's article 
@@ -24,71 +46,26 @@ def load_fashionmnist(PATH=None):
     Parameters
     ----------
         path: str (optional)
-            default $DATASET_PATH), the path to look for the data and
+            default $DATASET_path), the path to look for the data and
             where the data will be downloaded if not present
     """
-    if PATH is None:
-        PATH = os.environ['DATASET_PATH']
-    dict_init = [("n_classes",10),("path",PATH),("name","fashionmnist"),
-                ("classes",["T-shirt/top", "Trouser", "Pullover",
-                    "Dress", "Coat", "Sandal", "Shirt",
-                    "Sneaker", "Bag", "Ankle boot"])]
-
-    dataset = Dataset(**dict(dict_init))
-    # Load the dataset (download if necessary) and set
-    # the class attributes.
-    print('Loading fashionmnist')
-
-    t0 = time.time()
-
-    if not os.path.isdir(PATH+'fashionmnist'):
-        print('\tCreating Directory')
-        os.mkdir(PATH+'fashionmnist')
-    base_url = 'http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/'
-    if not os.path.exists(PATH+'fashionmnist/train-images.gz'):
-        url = base_url+'train-images-idx3-ubyte.gz'
-        with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, 
-                                        desc='Downloading train images') as t:
-            urllib.request.urlretrieve(url,PATH+'fashionmnist/train-images.gz')
-
-    if not os.path.exists(PATH+'fashionmnist/train-labels.gz'):
-        url = base_url+'train-labels-idx1-ubyte.gz'
-        with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, 
-                                        desc='Downloading train labels') as t:
-            urllib.request.urlretrieve(url,PATH+'fashionmnist/train-labels.gz')
-
-    if not os.path.exists(PATH+'fashionmnist/test-images.gz'):
-        url = base_url+'t10k-images-idx3-ubyte.gz'
-        with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, 
-                                        desc='Downloading test images') as t:
-            urllib.request.urlretrieve(url,PATH+'fashionmnist/test-images.gz')
-
-    if not os.path.exists(PATH+'fashionmnist/test-labels.gz'):
-        url = base_url+'t10k-labels-idx1-ubyte.gz'
-        with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, 
-                                        desc='Downloading test labels') as t:
-            urllib.request.urlretrieve(url,PATH+'fashionmnist/test-labels.gz')
 
     # Loading the file
 
-    with gzip.open(PATH+'fashionmnist/train-labels.gz', 'rb') as lbpath:
-        dataset['labels/train_set'] = np.frombuffer(lbpath.read(), 
+    with gzip.open(path+'fashionmnist/train-labels.gz', 'rb') as lbpath:
+        train_labels = np.frombuffer(lbpath.read(), dtype=np.uint8, offset=8)
+
+    with gzip.open(path+'fashionmnist/train-images.gz', 'rb') as lbpath:
+        train_images = np.frombuffer(lbpath.read(), dtype=np.uint8, offset=16).reshape((-1,1,28,28))
+
+    with gzip.open(path+'fashionmnist/test-labels.gz', 'rb') as lbpath:
+        test_labels = np.frombuffer(lbpath.read(), 
                                                    dtype=np.uint8, offset=8)
 
-    with gzip.open(PATH+'fashionmnist/train-images.gz', 'rb') as lbpath:
-        dataset['images/train_set'] = np.frombuffer(lbpath.read(), 
-                                dtype=np.uint8, offset=16).reshape((-1,1,28,28))
-
-    with gzip.open(PATH+'fashionmnist/test-labels.gz', 'rb') as lbpath:
-        dataset['labels/test_set'] = np.frombuffer(lbpath.read(), 
-                                                   dtype=np.uint8, offset=8)
-
-    with gzip.open(PATH+'fashionmnist/test-images.gz', 'rb') as lbpath:
-        dataset['images/test_set'] = np.frombuffer(lbpath.read(), 
+    with gzip.open(path+'fashionmnist/test-images.gz', 'rb') as lbpath:
+        test_images = np.frombuffer(lbpath.read(), 
                             dtype=np.uint8, offset=16).reshape((-1,1,28,28))
 
-    dataset.cast('images','float32')
-    dataset.cast('labels','int32')
 
     print('Dataset fashionmnist loaded in','{0:.2f}s.'.format(time.time()-t0))
-    return dataset
+    return train_images, train_labels, test_images, test_labels

@@ -1,6 +1,5 @@
 :mod:`theanoxla.tensor`
 -----------------------
 
-.. automodule:: theanoxla.tensor
-  :members: zeros
-
+.. automodule:: theanoxla.tensor.signal
+   :members:

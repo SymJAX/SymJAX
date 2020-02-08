@@ -1,31 +1,49 @@
 import jax.numpy as jnp
+import jax.numpy.fft as jnpf
 import jax.lax as jla
 import numpy
+import inspect
 from .. import tensor as T
-from .base import add_fn, Op
-
-def create_generic_class(func):                                                              
-    name = func.split('.')[-1]
-    exec('global {}\nclass {}(Op):\n\tpass\nadd_fn({})({})'.format(name, name,               
-                                                                   name, func))
+from .base import Op
+import sys
 
 
-
+# first add the apodization windows
 names = ['blackman',
          'bartlett',
          'hamming',
          'hanning',
          'kaiser']
 
+
+module = sys.modules[__name__]
 for name in names:
-    create_generic_class('jnp.' + name)
+    module.__dict__.update(
+        {name: type(name, (Op,), {'_fn': staticmethod(jnp.__dict__[name])})})
+    module.__dict__[name].__doc__ = jnp.__dict__[name].__doc__
+
+
+
+
+# now add the fft module
+JNP_NAMES = [c[0] for c in inspect.getmembers(jnpf, inspect.isfunction)]
+for name in JNP_NAMES:
+    if name[0] == '_':
+        continue
+    module.__dict__.update(
+        {name: type(name, (Op,), {'_fn': staticmethod(jnpf.__dict__[name])})})
+    module.__dict__[name].__doc__ = jnpf.__dict__[name].__doc__
+
+
+# now add other functions
 
 
 def bin_to_freq(bins, max_f):
     return (bins / bins.max()) * max_f
 
+
 def freq_to_bin(freq, n_bins, fmin, fmax):
-    unit = (fmax-fmin) / n_bins
+    unit = (fmax - fmin) / n_bins
     return (freq / unit).astype('int32')
 
 
@@ -36,15 +54,18 @@ def mel_to_freq(m, option='linear'):
         f_sp = 200.0 / 3
 
         # And now the nonlinear scale
-        min_log_hz = 1000.0                         # beginning of log region (Hz)
+        # beginning of log region (Hz)
+        min_log_hz = 1000.0
         min_log_mel = min_log_hz / f_sp   # same (Mels)
-        logstep = numpy.log(6.4) / 27.0                # step size for log region
+        # step size for log region
+        logstep = numpy.log(6.4) / 27.0
 
         # If we have vector data, vectorize
         freq = min_log_hz * T.exp(logstep * (m - min_log_mel))
-        return T.where( m >= min_log_mel, freq, f_sp * m)
+        return T.where(m >= min_log_mel, freq, f_sp * m)
     else:
-        return 700 * (T.power(10.,(m/2595))-1)
+        return 700 * (T.power(10., (m / 2595)) - 1)
+
 
 def freq_to_mel(f, option='linear'):
     # convert frequency to mel with
@@ -58,9 +79,9 @@ def freq_to_mel(f, option='linear'):
         min_log_mel = min_log_hz / f_sp   # same (Mels)
         logstep = numpy.log(6.4) / 27.0    # step size for log region
         mel = min_log_mel + T.log(f / min_log_hz) / logstep
-        return T.where(f >= min_log_hz, mel, f/f_sp)
+        return T.where(f >= min_log_hz, mel, f / f_sp)
     else:
-        return 2595 * T.log10(1+f / 700)
+        return 2595 * T.log10(1 + f / 700)
 
 
 def mel_filterbank(length, n_filter, low, high, nyquist):
@@ -81,22 +102,55 @@ def mel_filterbank(length, n_filter, low, high, nyquist):
 
 
 def stft(signal, window, hop, apod=T.ones, nfft=None, mode='valid'):
+    """
+    Compute the Shoft-Time-Fourier-Transform of a signal given the
+    window length, hop and additional parameters.
+
+    Parameters
+    ----------
+
+        signal: array
+            the signal (possibly stacked of signals)
+
+        window: int
+            the window length to be considered for the fft
+
+        hop: int
+            the amount by which the window is moved
+
+        apod: func
+            a function that takes an integer as input and return
+            the apodization window of the same length
+
+        nfft: int (optional)
+            the number of bin that the fft on the window will use.
+            If not given it is set the same as window.
+
+        mode: 'valid', 'same' or 'full'
+            the padding of the input signals
+
+    Returns
+    -------
+
+        output: complex array
+            the complex stft
+    """
     if nfft is None:
         nfft = window
     if mode == 'same':
         left = (window + 1) // 2
         psignal = T.pad(signal, [[0, 0], [0, 0], [left, window + 1 - left]])
     elif mode == 'full':
-        left = (window + 1) //2
+        left = (window + 1) // 2
         psignal = T.pad(signal, [[0, 0], [0, 0], [window - 1, window - 1]])
     else:
         psignal = signal
-    p = T.extract_signal_patches(psignal, window, hop) * apod(window).reshape((1, 1, -1))
-    if nfft > window:
-        pp = T.pad(p, [[0, 0], [0, 0], [0, 0], [0, nfft - window]])
-    else:
-        pp = p
-    S = fft(pp, (nfft,), (-1,))
+
+    apodization = apod(window).reshape((1, 1, -1))
+
+    p = T.extract_signal_patches(
+        psignal, window, hop) * apodization
+    S = fft(pp, (nfft,))
     return S[..., : int(numpy.ceil(nfft / 2))].transpose([0, 1, 3, 2])
 
 
@@ -105,13 +159,14 @@ def spectrogram(signal, window, hop, apod=hanning, nfft=None, mode='valid'):
 
 
 def melspectrogram(signal, window, hop, n_filter, low_freq, high_freq, nyquist,
-         nfft=None, mode='valid', apod=hanning):
+                   nfft=None, mode='valid', apod=hanning):
     spec = spectrogram(signal, window, hop, apod, nfft, mode)
     filterbank = mel_filterbank(spec.shape[-2], n_filter, low_freq, high_freq,
                                 nyquist)
     flip_filterbank = filterbank.expand_dims(-1)
     output = (T.expand_dims(spec, -3) * flip_filterbank).sum(-2)
     return output
+
 
 def mfcc(signal, window, hop, n_filter, low_freq, high_freq, nyquist, n_mfcc,
          nfft=None, mode='valid', apod=hanning):
@@ -165,7 +220,7 @@ def power_to_db(S, ref=1.0, amin=1e-10, top_db=80.0):
     db_to_amplitude
     """
     ref_value = numpy.abs(ref)
-    log_spec = 10.0 * T.log10(T.maximum(amin, S)/T.maximum(amin, ref))
+    log_spec = 10.0 * T.log10(T.maximum(amin, S) / T.maximum(amin, ref))
     if top_db is not None:
         if top_db < 0:
             error
@@ -176,21 +231,22 @@ def power_to_db(S, ref=1.0, amin=1e-10, top_db=80.0):
 
 def wvd(signal, window, hop, L, apod=hanning, mode='valid'):
     # define the following constant for clarity
-    PI = 2*3.14159
+    PI = 2 * 3.14159
 
     # compute the stft with 2 times bigger window to interp.
-    s = stft(signal, window, hop, apod, nfft = 2*window, mode=mode) #(N C F T)
+    s = stft(signal, window, hop, apod, nfft=2 * window, mode=mode)
 
     # remodulate the stft prior the spectral correlation for simplicity
     # with the following mask
     step = 1 / window
     freq = T.linspace(-step * L, step * L, 2 * L + 1)
     time = T.range(s.shape[-1]).reshape((-1, 1))
-    mask = T.complex(T.cos(PI*time*freq), T.sin(PI*time*freq)) * hanning(2*L+1)
+    mask = T.complex(T.cos(PI * time * freq),
+                     T.sin(PI * time * freq)) * hanning(2 * L + 1)
 
     # extract vertical (freq) partches to perform auto correlation
     patches = T.extract_image_patches(s, (2 * L + 1, 1), (2, 1),
-                                      mode='same')[..., 0] #(N C F' T L)
+                                      mode='same').squeeze()  # (N C F' T L)
     output = (patches * T.conj(T.flip(patches, -1)) * mask).sum(-1)
     return T.real(output)
 
@@ -198,35 +254,7 @@ def wvd(signal, window, hop, L, apod=hanning, mode='valid'):
 def sinc_bandpass(time, f0, f1):
     high = f0 * T.sinc(time * f0)
     low = f1 * T.sinc(time * f1)
-    filter = 2 * (high - low)
-    return filter
-
-
-class fft(Op):
-    @staticmethod
-    def fn(input, s=None, axes=(-1,)):
-        if s is not None:
-            assert len(s) == len(axes)
-            # make then all positive (no -1 -2 -3 etc)
-            axes = [a if a >= 0 else input.ndim + a for a in axes]
-            # check how much to pad
-            cpt = 0
-            to_pad = []
-            for d in range(input.ndim):
-                if d in axes:
-                    to_pad.append((0, s[cpt]-input.shape[d]))
-                    cpt += 1
-                else:
-                    to_pad.append((0, 0))
-            pad_input = jnp.pad(input, to_pad)
-        else:
-            pad_input = input
-        return jnp.fft.fftn(pad_input, s=None, axes=axes)
-
-class ifft(Op):
-    pass
-add_fn(ifft)(jnp.fft.ifftn)
-
+    return 2 * (high - low)
 
 def dct(signal, axes=(-1,)):
     """
@@ -234,12 +262,10 @@ def dct(signal, axes=(-1,)):
     """
     if len(axes) > 1:
         raise NotImplemented('not yet implemented more than 1D')
-    to_pad = [(0,0) if ax not in axes else (0, signal.shape[ax])
-                                   for ax in range(signal.ndim)]
+    to_pad = [(0, 0) if ax not in axes else (0, signal.shape[ax])
+              for ax in range(signal.ndim)]
     pad_signal = T.pad(signal, to_pad)
     exp = 2 * T.exp(-1j * 3.14159 * T.linspace(0, 0.5, signal.shape[axes[0]]))
     y = fft(pad_signal, axes=axes)
     cropped_y = T.dynamic_slice_in_dim(y, 0, signal.shape[axes[0]], axes[0])
     return T.real(cropped_y * exp.expand_dims(-1))
-
-

@@ -1,0 +1,353 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>theanoxla.datasets &#8212; jaxonn 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="theanoxla.tensor" href="theanoxla_tensor.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="theanoxla-datasets">
+<h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">theanoxla.datasets</span></code><a class="headerlink" href="#theanoxla-datasets" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="images">
+<h2>Images<a class="headerlink" href="#images" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.mnist</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#theanoxla.datasets.fashionmnist" title="theanoxla.datasets.fashionmnist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.fashionmnist</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#theanoxla.datasets.dsprites" title="theanoxla.datasets.dsprites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.dsprites</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#theanoxla.datasets.svhn" title="theanoxla.datasets.svhn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.svhn</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#theanoxla.datasets.cifar10" title="theanoxla.datasets.cifar10"><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.cifar10</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#theanoxla.datasets.cifar100" title="theanoxla.datasets.cifar100"><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.cifar100</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#theanoxla.datasets.tinyimagenet" title="theanoxla.datasets.tinyimagenet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.tinyimagenet</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#theanoxla.datasets.imagenet" title="theanoxla.datasets.imagenet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.imagenet</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="audio">
+<h2>Audio<a class="headerlink" href="#audio" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.audiomnist</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.esc50</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.warblr</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.urban</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.gtzan</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.DCLDE</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.irmas</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.freefield1010</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">theanoxla.datasets.dcase</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="detailed-description-image">
+<h2>Detailed description (Image)<a class="headerlink" href="#detailed-description-image" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="theanoxla.datasets.mnist.load">
+<code class="sig-prename descclassname">theanoxla.datasets.mnist.</code><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">PATH=None</em>, <em class="sig-param">classes=range(0</em>, <em class="sig-param">10)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/theanoxla/datasets/mnist.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#theanoxla.datasets.mnist.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grayscale digit classification.
+The <a class="reference external" href="http://yann.lecun.com/exdb/mnist/">MNIST</a> database of handwritten
+digits, available from this page, has a training set of 60,000 examples,
+and a test set of 10,000 examples. It is a subset of a larger set available
+from NIST. The digits have been size-normalized and centered in a
+fixed-size image. It is a good database for people who want to try learning
+techniques and pattern recognition methods on real-world data while
+spending minimal efforts on preprocessing and formatting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default $DATASET_PATH), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.datasets.fashionmnist">
+<code class="sig-prename descclassname">theanoxla.datasets.</code><code class="sig-name descname">fashionmnist</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.datasets.fashionmnist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.datasets.dsprites">
+<code class="sig-prename descclassname">theanoxla.datasets.</code><code class="sig-name descname">dsprites</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.datasets.dsprites" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.datasets.svhn">
+<code class="sig-prename descclassname">theanoxla.datasets.</code><code class="sig-name descname">svhn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.datasets.svhn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.datasets.cifar10">
+<code class="sig-prename descclassname">theanoxla.datasets.</code><code class="sig-name descname">cifar10</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.datasets.cifar10" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.datasets.cifar100">
+<code class="sig-prename descclassname">theanoxla.datasets.</code><code class="sig-name descname">cifar100</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.datasets.cifar100" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.datasets.tinyimagenet">
+<code class="sig-prename descclassname">theanoxla.datasets.</code><code class="sig-name descname">tinyimagenet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.datasets.tinyimagenet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.datasets.imagenet">
+<code class="sig-prename descclassname">theanoxla.datasets.</code><code class="sig-name descname">imagenet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#theanoxla.datasets.imagenet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="detailed-description-audio">
+<h2>Detailed description (Audio)<a class="headerlink" href="#detailed-description-audio" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="theanoxla.datasets.audiomnist.load">
+<code class="sig-prename descclassname">theanoxla.datasets.audiomnist.</code><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path=None</em>, <em class="sig-param">subsample=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/theanoxla/datasets/audiomnist.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#theanoxla.datasets.audiomnist.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Audio MNIST.</p>
+<p><a class="reference external" href="https://github.com/soerenab/AudioMNIST">https://github.com/soerenab/AudioMNIST</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default $DATASET_path), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.datasets.esc50.load">
+<code class="sig-prename descclassname">theanoxla.datasets.esc50.</code><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path=None</em>, <em class="sig-param">subsample=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/theanoxla/datasets/esc50.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#theanoxla.datasets.esc50.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>ESC 50.</p>
+<p><a class="reference external" href="https://github.com/karolpiczak/ESC-50#download">https://github.com/karolpiczak/ESC-50#download</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default $DATASET_path), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.datasets.warblr.load">
+<code class="sig-prename descclassname">theanoxla.datasets.warblr.</code><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/theanoxla/datasets/warblr.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#theanoxla.datasets.warblr.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Binary audio classification, presence or absence of a bird.
+<a class="reference external" href="http://machine-listening.eecs.qmul.ac.uk/bird-audio-detection-challenge/#downloads">Warblr</a>
+comes from a UK bird-sound crowdsourcing
+research spinout called Warblr. From this initiative we have
+10,000 ten-second smartphone audio recordings from around the UK.
+The audio totals around 44 hours duration. The audio will be
+published by Warblr under a Creative Commons licence. The audio
+covers a wide distribution of UK locations and environments, and
+includes weather noise, traffic noise, human speech and even human
+bird imitations. It is directly representative of the data that is
+collected from a mobile crowdsourcing initiative.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_format</strong> (<em>'NCHW'</em><em> or </em><em>'NHWC'</em>) – (optional, default ‘NCHW’)</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – (optional, default $DATASET_path), the path to look for the data and
+where the data will be downloaded if not present</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.datasets.urban.load">
+<code class="sig-prename descclassname">theanoxla.datasets.urban.</code><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path=None</em>, <em class="sig-param">classes=range(0</em>, <em class="sig-param">10)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/theanoxla/datasets/urban.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#theanoxla.datasets.urban.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Urban.
+Reference at <a class="reference external" href="https://zenodo.org/record/3233082">https://zenodo.org/record/3233082</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default $DATASET_path), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.datasets.gtzan.load">
+<code class="sig-prename descclassname">theanoxla.datasets.gtzan.</code><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">subsample=1</em>, <em class="sig-param">PATH=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/theanoxla/datasets/gtzan.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#theanoxla.datasets.gtzan.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.datasets.DCLDE.load">
+<code class="sig-prename descclassname">theanoxla.datasets.DCLDE.</code><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">window_size=441000</em>, <em class="sig-param">path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/theanoxla/datasets/DCLDE.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#theanoxla.datasets.DCLDE.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>ToDo</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.datasets.irmas.load">
+<code class="sig-prename descclassname">theanoxla.datasets.irmas.</code><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">PATH=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/theanoxla/datasets/irmas.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#theanoxla.datasets.irmas.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>IRMAS.
+ref <a class="reference external" href="https://zenodo.org/record/1290750#.WzCwSRyxXMU">https://zenodo.org/record/1290750#.WzCwSRyxXMU</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default $DATASET_PATH), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="theanoxla.datasets.freefield1010.load">
+<code class="sig-prename descclassname">theanoxla.datasets.freefield1010.</code><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">subsample=1</em>, <em class="sig-param">path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/theanoxla/datasets/freefield1010.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#theanoxla.datasets.freefield1010.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Audio binary classification, presence or absence of bird songs.
+<a class="reference external" href="http://machine-listening.eecs.qmul.ac.uk/bird-audio-detection-challenge/#downloads">freefield1010</a>.
+is a collection of over 7,000 excerpts from field recordings
+around the world, gathered by the FreeSound project, and then standardised
+for research. This collection is very diverse in location and environment,
+and for the BAD Challenge we have newly annotated it for the
+presence/absence of birds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subsample</strong> (<em>int</em><em> (</em><em>optional</em><em>)</em>) – the amount of subsample ot apply. No low-pass filtering is applied
+before-hand; too much subsample will create aliasing. Default value
+does not subsample the signals.</p></li>
+<li><p><strong>n_samples</strong> (<em>int</em><em> (</em><em>optional</em><em>)</em>) – The number of samples to load. By default, load the whole dataset.</p></li>
+<li><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – The path to use for dataset loading (downloading if needed). By
+default use the environment variable <span class="target" id="index-0"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">DATASET_path</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">jaxonn</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="theanoxla.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">theanoxla</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="theanoxla_tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">theanoxla.tensor</span></code></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">theanoxla.datasets</span></code></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="theanoxla_tensor.html" title="previous chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">theanoxla.tensor</span></code></a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Randall Balestriero.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/modules/datasets.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -8,19 +8,10 @@ import io
 from scipy.io.wavfile import read as wav_read
 from tqdm import tqdm
 
-from ..utils import to_one_hot, DownloadProgressBar
 
-
-from . import Dataset
-
-def load_DCLDE(window_size=441000,PATH=None):
+def download(path):
     """ToDo
     """
-    if PATH is None:
-        PATH = os.environ['DATASET_PATH']
-    dict_init = [('sampling_rate',44100),("n_classes",2),("path",PATH),
-                ("name","freefield1010"),('classes',["no bird","bird"])]
-    dataset = Dataset(**dict(dict_init))
 
     # Load the dataset (download if necessary) and set
     # the class attributes.
@@ -28,17 +19,26 @@ def load_DCLDE(window_size=441000,PATH=None):
     print("Loading DCLDE")
     t = time.time()
 
-    if not os.path.isdir(PATH+'DCLDE'):
+    if not os.path.isdir(path+'DCLDE'):
         print('\tCreating Directory')
-        os.mkdir(PATH+'DCLDE')
-    if not os.path.exists(PATH+'DCLDE/DCLDE_LF_Dev.zip'):
+        os.mkdir(path+'DCLDE')
+    if not os.path.exists(path+'DCLDE/DCLDE_LF_Dev.zip'):
         url = 'http://sabiod.univ-tln.fr/workspace/DCLDE2018/DCLDE_LF_Dev.zip'
         with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, 
                                                     desc='Wav files') as t:
-            urllib.request.urlretrieve(url,PATH+'DCLDE/DCLDE_LF_Dev.zip')
+            urllib.request.urlretrieve(url,path+'DCLDE/DCLDE_LF_Dev.zip')
+
+
+
+def load(window_size=441000,path=None):
+    """ToDo
+    """
+    if path is None:
+        path = os.environ['DATASET_path']
+    download(path)
 
     # Loading the files
-    f       = zipfile.ZipFile(PATH+'DCLDE/DCLDE_LF_Dev.zip')
+    f       = zipfile.ZipFile(path+'DCLDE/DCLDE_LF_Dev.zip')
     wavs    = list()
 #    labels  = list()
     for zipf in tqdm(f.filelist,ascii=True):

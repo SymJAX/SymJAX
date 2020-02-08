@@ -20,10 +20,13 @@ API
 ===
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
   modules/theanoxla
   modules/theanoxla_tensor
+  modules/datasets
+
+
 
 
 Indices and tables

@@ -4,14 +4,25 @@ import urllib.request
 import numpy as np
 import tarfile
 import time
-#from tqdm import tqdm
+from tqdm import tqdm
 
-#from . import Dataset
+def download(path):
 
-#from ..utils import to_one_hot, DownloadProgressBar
+    t0 = time.time()
 
+    print('Loading cifar10')
 
-def load_cifar10(PATH=None):
+    # Check if directory exists
+    if not os.path.isdir(path+'cifar10'):
+        print('\tCreating Directory')
+        os.mkdir(path+'cifar10')
+
+    # Check if file exists
+    if not os.path.exists(path+'cifar10/cifar10.tar.gz'):
+        url = 'https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
+        urllib.request.urlretrieve(url,path+'cifar10/cifar10.tar.gz')
+
+def load(path=None):
     """Image classification.
     The `CIFAR-10 <https://www.cs.toronto.edu/~kriz/cifar.html>`_ dataset 
     was collected by Alex Krizhevsky, Vinod Nair, and Geoffrey 
@@ -27,38 +38,18 @@ def load_cifar10(PATH=None):
     Parameters
     ----------
         path: str (optional)
-            default $DATASET_PATH), the path to look for the data and
+            default $DATASET_path), the path to look for the data and
             where the data will be downloaded if not present
 
     """
-    if PATH is None:
-        PATH = os.environ['DATASET_PATH']
-    dict_init = [("n_classes",10),("path",PATH),("name","cifar10")]
-    class_init = ["airplane", "automobile", "bird", "cat", "deer", "dog",
-                "frog", "horse", "ship", "truck"]
-#    dataset = Dataset(**dict(dict_init+[('classes',class_init)]))
+    if path is None:
+        path = os.environ['DATASET_path']
 
-    # Load the dataset (download if necessary) and set
-    # the class attributes.
-        
     t0 = time.time()
 
     print('Loading cifar10')
 
-    # Check if directory exists
-    if not os.path.isdir(PATH+'cifar10'):
-        print('\tCreating Directory')
-        os.mkdir(PATH+'cifar10')
-
-    # Check if file exists
-    if not os.path.exists(PATH+'cifar10/cifar10.tar.gz'):
-        url = 'https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
-#        with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, 
-#                                            desc='Downloading Dataset') as t:
-        urllib.request.urlretrieve(url,PATH+'cifar10/cifar10.tar.gz')
-
-    # Loading dataset
-    tar = tarfile.open(PATH+'cifar10/cifar10.tar.gz', 'r:gz')
+    tar = tarfile.open(path+'cifar10/cifar10.tar.gz', 'r:gz')
 
     # Load train set
     train_images  = list()
@@ -71,8 +62,6 @@ def load_cifar10(PATH=None):
         train_labels.append(data_dic['labels'])
     train_images = np.concatenate(train_images,0).astype('float32')
     train_labels = np.concatenate(train_labels,0).astype('int32')
-#    dataset['images/train_set'] = np.concatenate(train_images,0)
-#    dataset['labels/train_set'] = np.concatenate(train_labels,0)
 
     # Load test set
     f        = tar.extractfile('cifar-10-batches-py/test_batch').read()
@@ -80,12 +69,5 @@ def load_cifar10(PATH=None):
     test_images = data_dic['data'].reshape((-1,3,32,32)).astype('float32')
     test_labels = np.array(data_dic['labels']).astype('int32')
 
-#    dataset['images/test_set'] = data_dic['data'].reshape((-1,3,32,32))
-#    dataset['labels/test_set'] = np.array(data_dic['labels'])
-
-#    dataset.cast('images','float32')
-#    dataset.cast('labels','int32')
-
     print('Dataset cifar10 loaded in{0:.2f}s.'.format(time.time()-t0))
-
-    return (train_images, test_images), (train_labels, test_labels)
+    return train_images, train_labels, test_iamges, test_labels

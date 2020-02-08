@@ -6,14 +6,35 @@ import time
 import zipfile
 import io
 from scipy.io.wavfile import read as wav_read
-
-from . import Dataset
 from tqdm import tqdm
 
-from ..utils import to_one_hot, DownloadProgressBar
+
+def download(path=None):
+    if path is None:
+        path = os.environ['DATASET_path']
+    dict_init = [('sampling_rate',44100),("n_classes",2),("path",path),
+                ("name","warblr"),('classes',["no bird","bird"])]
+
+    # Load the dataset (download if necessary) and set
+    # the class attributes.
+    print('Loading warblr')
+    t = time.time()
+    if not os.path.isdir(path+'warblr'):
+        print('\tCreating Directory')
+        os.mkdir(path+'warblr')
+
+    if not os.path.exists(path+'warblr/warblrb10k_public_wav.zip'):
+        url = 'https://archive.org/download/warblrb10k_public/warblrb10k_public_wav.zip'
+        urllib.request.urlretrieve(url,path+\
+                                'warblr/warblrb10k_public_wav.zip')
+        
+    if not os.path.exists(path+'warblr/warblrb10k_public_metadata.csv'):
+        url = 'https://ndownloader.figshare.com/files/6035817'
+        urllib.request.urlretrieve(url,path+\
+                                'warblr/warblrb10k_public_metadata.csv')  
 
 
-def load_warblr(PATH=None):
+def load(path=None):
     """Binary audio classification, presence or absence of a bird.
     `Warblr <http://machine-listening.eecs.qmul.ac.uk/bird-audio-detection-challenge/#downloads>`_ 
     comes from a UK bird-sound crowdsourcing 
@@ -28,47 +49,25 @@ def load_warblr(PATH=None):
 
     :param data_format: (optional, default 'NCHW')
     :type data_format: 'NCHW' or 'NHWC'
-    :param path: (optional, default $DATASET_PATH), the path to look for the data and 
+    :param path: (optional, default $DATASET_path), the path to look for the data and 
                      where the data will be downloaded if not present
     :type path: str
     """
-    if PATH is None:
-        PATH = os.environ['DATASET_PATH']
-    dict_init = [('sampling_rate',44100),("n_classes",2),("path",PATH),
-                ("name","warblr"),('classes',["no bird","bird"])]
+    if path is None:
+        path = os.environ['DATASET_path']
 
-    dataset = Dataset(**dict(dict_init))
-        
+    download(path)
+
     # Load the dataset (download if necessary) and set
     # the class attributes.
-        
     print('Loading warblr')
     t = time.time()
-    if not os.path.isdir(PATH+'warblr'):
-        print('\tCreating Directory')
-        os.mkdir(PATH+'warblr')
-
-    if not os.path.exists(PATH+'warblr/warblrb10k_public_wav.zip'):
-        url = 'https://archive.org/download/warblrb10k_public/warblrb10k_public_wav.zip'
-        with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, 
-                                        desc='Downloading dataset') as t:
-
-            urllib.request.urlretrieve(url,PATH+\
-                                'warblr/warblrb10k_public_wav.zip')
-        
-    if not os.path.exists(PATH+'warblr/warblrb10k_public_metadata.csv'):
-        url = 'https://ndownloader.figshare.com/files/6035817'
-        with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, 
-                                            desc='Downloading metadata') as t:
-
-            urllib.request.urlretrieve(url,PATH+\
-                                'warblr/warblrb10k_public_metadata.csv')  
 
     #Loading Labels
-    labels = np.loadtxt(PATH+'warblr/warblrb10k_public_metadata.csv',
+    labels = np.loadtxt(path+'warblr/warblrb10k_public_metadata.csv',
             delimiter=',',skiprows=1,dtype='str')
     # Loading the files
-    f    = zipfile.ZipFile(PATH+'warblr/warblrb10k_public_wav.zip')
+    f    = zipfile.ZipFile(path+'warblr/warblrb10k_public_wav.zip')
     N    = labels.shape[0]
     wavs = list()
     for i,files_ in tqdm(enumerate(labels),ascii=True):
@@ -76,11 +75,7 @@ def load_warblr(PATH=None):
         byt       = io.BytesIO(wavfile)
         wavs.append(np.expand_dims(wav_read(byt)[1].astype('float32'),0))
     labels    = labels[:,1].astype('int32')
-    dataset.add_variable({'signals':[{'train_set':wavs},
-                                    (1,None),'float32'],
-                        'labels':[{'train_set':labels},
-                                    (),'int32']})
 
     print('Dataset warblr loaded in','{0:.2f}'.format(time.time()-t),'s.')
-    return dataset
+    return wavs, labels
 

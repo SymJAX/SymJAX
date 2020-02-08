@@ -10,7 +10,32 @@ from tqdm import tqdm
 
 
 
-def load_freefield1010(subsample=1, PATH=None):
+def download(path):
+    if path is None:
+        path = os.environ['DATASET_path']
+
+    # Load the dataset (download if necessary) and set
+    # the class attributes.
+
+    print("Loading freefield1010")
+    t = time.time()
+
+    if not os.path.isdir(path+'freefield1010'):
+        print('\tCreating Directory')
+        os.mkdir(path+'freefield1010')
+
+    if not os.path.exists(path+'freefield1010/ff1010bird_wav.zip'):
+        url = 'https://archive.org/download/ff1010bird/ff1010bird_wav.zip'
+        urllib.request.urlretrieve(url,path+
+                    'freefield1010/ff1010bird_wav.zip')  
+
+    if not os.path.exists(path+'freefield1010/ff1010bird_metadata.csv'):
+        url = 'https://ndownloader.figshare.com/files/6035814'
+        urllib.request.urlretrieve(url,path+
+                            'freefield1010/ff1010bird_metadata.csv')  
+
+
+def load(subsample=1, path=None):
     """Audio binary classification, presence or absence of bird songs.
     `freefield1010 <http://machine-listening.eecs.qmul.ac.uk/bird-audio-detection-challenge/#downloads>`_. 
     is a collection of over 7,000 excerpts from field recordings 
@@ -30,38 +55,21 @@ def load_freefield1010(subsample=1, PATH=None):
     n_samples : int (optional)
         The number of samples to load. By default, load the whole dataset.
 
-    PATH : str (optional)
+    path : str (optional)
         The path to use for dataset loading (downloading if needed). By
-        default use the environment variable :envvar:`DATASET_PATH`.
+        default use the environment variable :envvar:`DATASET_path`.
     """
-    if PATH is None:
-        PATH = os.environ['DATASET_PATH']
+    if path is None:
+        path = os.environ['DATASET_path']
 
-    # Load the dataset (download if necessary) and set
-    # the class attributes.
-
-    print("Loading freefield1010")
+    download(path)
     t = time.time()
 
-    if not os.path.isdir(PATH+'freefield1010'):
-        print('\tCreating Directory')
-        os.mkdir(PATH+'freefield1010')
-
-    if not os.path.exists(PATH+'freefield1010/ff1010bird_wav.zip'):
-        url = 'https://archive.org/download/ff1010bird/ff1010bird_wav.zip'
-        urllib.request.urlretrieve(url,PATH+
-                    'freefield1010/ff1010bird_wav.zip')  
-
-    if not os.path.exists(PATH+'freefield1010/ff1010bird_metadata.csv'):
-        url = 'https://ndownloader.figshare.com/files/6035814'
-        urllib.request.urlretrieve(url,PATH+
-                            'freefield1010/ff1010bird_metadata.csv')  
-
     # load labels
-    labels = np.loadtxt(PATH+'freefield1010/ff1010bird_metadata.csv',
+    labels = np.loadtxt(path+'freefield1010/ff1010bird_metadata.csv',
             delimiter=',',skiprows=1,dtype='int32')
     # load wavs
-    f       = zipfile.ZipFile(PATH+'freefield1010/ff1010bird_wav.zip')
+    f       = zipfile.ZipFile(path+'freefield1010/ff1010bird_wav.zip')
     # init. the data array
     N       = labels.shape[0]
     wavs    = np.empty((N,441000//subsample),dtype='float32')
