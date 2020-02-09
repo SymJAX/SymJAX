@@ -8,15 +8,19 @@ import matplotlib.pyplot as plt
 
 ###### DERIVATIVE OF GAUSSIAN EXAMPLE
 
-t = T.Placeholder((1000,), 'float32')
-f = T.exp(-(t**2))
-g = theanoxla.gradients(f.sum(), [t])
-g2 = theanoxla.gradients(g[0].sum(), [t])
-g3 = theanoxla.gradients(g2[0].sum(), [t])
 
-dog = theanoxla.function(t, outputs=[g[0], g2[0], g3[0]])
 
-plt.plot(np.array(dog(np.linspace(-10, 10, 1000))).T)
+
+#t = T.Placeholder((1000,), 'float32')
+#f = T.exp(-(t**2))
+#u = f.sum()
+#g = theanoxla.gradients(u, [t])
+#g2 = theanoxla.gradients(g[0].sum(), [t])
+#g3 = theanoxla.gradients(g2[0].sum(), [t])
+#
+#dog = theanoxla.function(t, outputs=[g[0], g2[0], g3[0]])
+#
+#plt.plot(np.array(dog(np.linspace(-10, 10, 1000))).T)
 
 
 
@@ -24,27 +28,28 @@ plt.plot(np.array(dog(np.linspace(-10, 10, 1000))).T)
 z = T.Variable(3.)
 loss = z**2
 g_z = theanoxla.gradients(loss, [z])
+print(loss, z)
 train = theanoxla.function(outputs=[loss, z], updates={z:z-0.1 * g_z[0]})
 
 losses = list()
 values = list()
-#for i in range(5):
-#    a, b = train()
-#    losses.append(a)
-#    values.append(b)
+for i in range(5):
+    a, b = train()
+    losses.append(a)
+    values.append(b)
 
-#plt.figure()
-#plt.subplot(121)
-#plt.plot(losses)
-#plt.subplot(122)
-#plt.plot(values, np.zeros_like(values), 'kx')
+plt.figure()
+plt.subplot(121)
+plt.plot(losses)
+plt.subplot(122)
+plt.plot(values, np.zeros_like(values), 'kx')
 
 
 ###### NOISY GRADIENT DESCENT
 z = T.Variable(3.)
-loss = z**2 + T.random.randn()
+loss = z**2 + T.random.randn(())*10
 g_z = theanoxla.gradients(loss, [z])
-
+print(loss, g_z)
 train = theanoxla.function(outputs=[loss, z], updates={z:z-0.1 * g_z[0]})
 
 losses = list()
@@ -60,6 +65,8 @@ plt.plot(losses)
 plt.subplot(122)
 plt.plot(values, np.zeros_like(values), 'kx')
 
+
+plt.show()
 ####### jacobians
 
 x, y = T.ones(()), T.ones(())

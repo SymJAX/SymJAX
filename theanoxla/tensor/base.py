@@ -1,5 +1,6 @@
 import jax
 import jax.numpy as jnp
+import jax.random as jnr
 from jax.random import _is_prng_key
 import numpy
 import inspect
@@ -57,7 +58,6 @@ def args_formatting(args, extra_args, indices):
     arg_iterator = iter(args)
     extra_arg_iterator = iter(extra_args)
     for i in indices:
-        #        print(i, args, extra_args)
         if i:
             output += (next(extra_arg_iterator),)
         else:
@@ -157,7 +157,7 @@ class Tensor:
 
 def jax_wrap(func):
     @wraps(func)
-    def op(*args, **kwargs):
+    def op(*args, seed=None, **kwargs):
         # now use the builin function to infer shape and dtype given a
 
         # we need to remove the static arguments first
@@ -180,14 +180,86 @@ def jax_wrap(func):
         static_args = [arg for i, arg in zip(indices, args) if i]
         var_args = [arg for i, arg in zip(indices, args) if not i]
 
+        # this is just to get shape and dtype so we do not bother
+        # to use the correct seed yet
+        if func in jnr.__dict__.values():
+            key = jax.random.PRNGKey(0)
+            static_args = [key] + static_args
+
         # we need to define an abstract function that only takes as input the
-        # non -static arguments, internally join them with the static ones
+        # non-static arguments, internally join them with the static ones
         # and return the output. This is because the jax shape inference
         # functions does not work with static arguments (such as the dimensions
         # of the transpose function)
         def abstract_func(*args, **kwargs):
-            all_args = args_formatting(var_args, static_args, indices)
-            return func(*all_args, **var_kwargs, **static_kwargs)
+            all_args = args_formatting(args, static_args, indices)
+            return func(*all_args, **kwargs, **static_kwargs)
+
+        # now we evaluate the shape from the jax built-in function
+        print(static_args, static_kwargs, var_args, var_kwargs)
+        tree = jax.eval_shape(abstract_func, *var_args, **var_kwargs)
+
+        # now we determine if it is an Op or a Tuple object based on the
+        # infered shape
+
+        print(func in list(jnr.__dict__.values()))
+        print(func)
+
+        if hasattr(tree, '__len__'):
+            shapes = [t.shape for t in tree]
+            dtypes = [t.dtype for t in tree]
+            return Tuple(*args, jax_function=func, shapes=shapes, dtypes=dtypes,
+                         **kwargs)
+        elif func in list(jnr.__dict__.values()):
+            shape, dtype = tree.shape, tree.dtype
+            return RandomOp(*args, jax_function=func, shape=shape, dtype=dtype,
+                      seed=seed, **kwargs)
+        else:
+            shape, dtype = tree.shape, tree.dtype
+            return Op(*args, jax_function=func, shape=shape, dtype=dtype,
+                      **kwargs)
+    return op
+
+
+def jax_random_wrap(func):
+    @wraps(func)
+    def op(*args, seed=None, **kwargs):
+        # now use the builin function to infer shape and dtype given a
+
+        # we need to remove the static arguments first
+        # we first do it for the kwars
+        static_kwargs = {}
+        var_kwargs = {}
+        for name, arg in list(kwargs.items()):
+            if name == 'key' or not isvar(arg):
+                static_kwargs.update({name: arg})
+            else:
+                var_kwargs.update({name: args})
+
+        # we need to do the same for the args
+        indices = list()
+        for i, arg in enumerate(args):
+            if not isvar(arg):
+                indices.append(1)
+            else:
+                indices.append(0)
+        static_args = [arg for i, arg in zip(indices, args) if i]
+        var_args = [arg for i, arg in zip(indices, args) if not i]
+
+
+        if seed is None:
+            seed = numpy.random.randint(0, 2147483647)
+        key = jax.random.PRNGKey(seed)
+        static_args = [key] + static_args
+
+        # we need to define an abstract function that only takes as input the
+        # non-static arguments, internally join them with the static ones
+        # and return the output. This is because the jax shape inference
+        # functions does not work with static arguments (such as the dimensions
+        # of the transpose function)
+        def abstract_func(*args, **kwargs):
+            all_args = args_formatting(args, static_args, indices)
+            return func(*all_args, **kwargs, **static_kwargs)
 
         # now we evaluate the shape from the jax built-in function
         tree = jax.eval_shape(abstract_func, *var_args, **var_kwargs)
@@ -197,13 +269,15 @@ def jax_wrap(func):
         if hasattr(tree, '__len__'):
             shapes = [t.shape for t in tree]
             dtypes = [t.dtype for t in tree]
-            return Tuple(*args, jax_function=func, shapes=shape, dtypes=dtype,
+            return Tuple(*args, jax_function=func, shapes=shapes, dtypes=dtypes,
                          **kwargs)
         else:
             shape, dtype = tree.shape, tree.dtype
             return Op(*args, jax_function=func, shape=shape, dtype=dtype,
                       **kwargs)
     return op
+
+
 
 
 
@@ -274,8 +348,6 @@ class OpOld(Tensor):
 class Op(Tensor):
     """an Op generates a Tensor object obtained from a function"""
 
-    name = ''
-
     def __init__(self, *args, jax_function, shape, dtype, roots=[], **kwargs):
 
         # save args and kwargs
@@ -315,7 +387,7 @@ class Op(Tensor):
 
 
 
-class RandomOp(Op):
+class RandomOp(Tensor):
     """
     This class creates a :obj:`Tensor` object that given a function (see below)
     and its inputs can be used as a Node in the graph construction. This class
@@ -342,26 +414,29 @@ class RandomOp(Op):
         (Tensor, dtype=int32, shape=(3, 3))
     """
 
-    def __init__(self, *args, seed=None, **kwargs):
-        if seed is None:
-            seed = numpy.random.randint(0, 2147483647)
-        self.seed = seed
-        key = jax.random.PRNGKey(seed)
+    def __init__(self, *args, jax_function, shape, dtype, seed, **kwargs):
 
-        # we need to check to not add the random op as a root if it depends on
-        # upper variables
-        roots = getroots([i for i in kwargs.values()] + list(args))
-        if len(roots) == 0:
-            roots = [self]
+        self.kwargs = kwargs
+        self.args = args
+        self.jax_function = jax_function
+        if seed is None:
+            self.seed = numpy.random.randint(0, 1000000)
         else:
-            roots = []
-        super().__init__(key, *args, **kwargs, roots=roots)
+            self.seed = seed
+
+        # set roots
+        roots = getroots([i for i in kwargs.values()] + list(args))
+        roots = list(set(roots)) + [self]
+
+        super().__init__(shape, dtype, roots)
+
 
     def __repr__(self):
-        return '(RandomTensor: ' + self.print_name + ', dtype='\
-            + str(self.dtype) + ', shape=' + str(self.shape) + ')'
+        name = 'RandomTensor(Op={}, shape={}, dtype={})'
+        return name.format(self.jax_function.__name__, self.shape, self.dtype)
 
     def get(self, tracker=None):
+        print("asdfasdfasdf")
         if tracker is None:
             tracker = dict()
         elif self in tracker:
@@ -369,11 +444,24 @@ class RandomOp(Op):
         # argument list
         if 'rng' in tracker:
             key = jax.random.PRNGKey(self.seed + tracker['rng'])
-            self.extra_args[0] = key
+        else:
+            key = jax.random.PRNGKey(self.seed)
+
+        # evaluate the function kwargs as explicit jax arrays
+        kwargs = dict()
+        for name, var in list(self.kwargs.items()):
+            kwargs.update({name: get(var, tracker)})
+        args = [get(var, tracker) for var in self.args]
+        tracker[self] = self.jax_function(key, *args, **kwargs)
+        return tracker[self]
+
+
+
+        self.args[0] = key
         return super().get(tracker)
 
 
-class SubTensor(Tensor):
+class TupleItem(Tensor):
 
     def __init__(self, shape, dtype, index, parent, roots, name=''):
         self.parent = parent
@@ -386,20 +474,17 @@ class SubTensor(Tensor):
 
 class Tuple(tuple):
 
-    def __new__(cls, fn, args=[], kwargs={}):
-        trees = jax.eval_shape(lambda *a, **b: fn(*a, **b), *args,
-                               **kwargs)
-        items = [SubTensor(t.shape, t.dtype, i, None, roots=[])
-                 for i, t in enumerate(trees)]
-
+    def __new__(cls, *args, jax_function, shapes, dtypes, **kwargs):
+        items = [TupleItem(shape, dtype, i, None, roots=[])
+                 for i, (shape, dtype) in enumerate(zip(shapes, dtypes))]
         return super(Tuple, cls).__new__(cls, tuple(items))
 
-    def __init__(self, fn_or_list, args=[], kwargs={}):
+    def __init__(self, *args, jax_function, shapes, dtypes, **kwargs):
 
         self.args = args
         self.kwargs = kwargs
-        self.jax_function = fn_or_list
-        self.name = ''
+        self.jax_function = jax_function
+
         # set roots
         roots = list()
         for value in kwargs.values():
@@ -410,6 +495,8 @@ class Tuple(tuple):
                 roots += value.roots
 
         roots = list(set(roots))
+
+        # set the parent link with the inside items and set the roots too
         for item in self:
             item.parent = self
             item.roots = roots

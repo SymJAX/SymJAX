@@ -46,63 +46,63 @@ def hat_1D(x, t_left, t_center, t_right):
     return output
 
 
-class extract_signal_patches(Op):
-    @staticmethod
-    def fn(signal, window_length, hop=1, data_format='NCW'):
-        assert not hasattr(window_length, '__len__')
-        if data_format == 'NCW':
-            N = (signal.shape[2] - window_length) // hop + 1
-            indices = jnp.arange(window_length) +\
-                jnp.expand_dims(jnp.arange(N) * hop, 1)
-            indices = jnp.reshape(indices, [1, 1, N * window_length])
-            patches = jnp.take_along_axis(signal, indices, 2)
-            return jnp.reshape(patches, signal.shape[:2] + (N, window_length))
-        else:
-            error
+def _extract_signal_patches(signal, window_length, hop=1, data_format='NCW'):
+    assert not hasattr(window_length, '__len__')
+    if data_format == 'NCW':
+        N = (signal.shape[2] - window_length) // hop + 1
+        indices = jnp.arange(window_length) +\
+            jnp.expand_dims(jnp.arange(N) * hop, 1)
+        indices = jnp.reshape(indices, [1, 1, N * window_length])
+        patches = jnp.take_along_axis(signal, indices, 2)
+        return jnp.reshape(patches, signal.shape[:2] + (N, window_length))
+    else:
+        error
+
+extract_signal_patches = jax_wrap(_extract_signal_patches)
 
 
-class extract_image_patches(Op):
+def _extract_image_patches(image, window_shape, hop=1, data_format='NCHW',
+                           mode='valid'):
+    if mode == 'same':
+        p1 = (window_shape[0] - 1)
+        p2 = (window_shape[1] - 1)
+        image = jnp.pad(image, [(0, 0), (0, 0), (p1 // 2, p1 - p1 // 2),
+                                (p2 // 2, p2 - p2 // 2)])
+    if not hasattr(hop, '__len__'):
+        hop = (hop, hop)
+    if data_format == 'NCHW':
 
-    @staticmethod
-    def fn(image, window_shape, hop=1, data_format='NCHW', mode='valid'):
-        if mode == 'same':
-            p1 = (window_shape[0] - 1)
-            p2 = (window_shape[1] - 1)
-            image = jnp.pad(image, [(0, 0), (0, 0), (p1 // 2, p1 - p1 // 2),
-                                    (p2 // 2, p2 - p2 // 2)])
-        if not hasattr(hop, '__len__'):
-            hop = (hop, hop)
-        if data_format == 'NCHW':
+        # compute the number of windows in both dimensions
+        N = ((image.shape[2] - window_shape[0]) // hop[0] + 1,
+             (image.shape[3] - window_shape[1]) // hop[1] + 1)
 
-            # compute the number of windows in both dimensions
-            N = ((image.shape[2] - window_shape[0]) // hop[0] + 1,
-                 (image.shape[3] - window_shape[1]) // hop[1] + 1)
+        # compute the base indices of a 2d patch
+        patch = jnp.arange(numpy.prod(window_shape)).reshape(window_shape)
+        offset = jnp.expand_dims(jnp.arange(window_shape[0]), 1)
+        patch_indices = patch + offset * (image.shape[3] - window_shape[1])
 
-            # compute the base indices of a 2d patch
-            patch = jnp.arange(numpy.prod(window_shape)).reshape(window_shape)
-            offset = jnp.expand_dims(jnp.arange(window_shape[0]), 1)
-            patch_indices = patch + offset * (image.shape[3] - window_shape[1])
+        # create all the shifted versions of it
+        ver_shifts = jnp.reshape(
+            jnp.arange(
+                N[0]) * hop[0] * image.shape[3], (-1, 1, 1, 1))
+        hor_shifts = jnp.reshape(jnp.arange(N[1]) * hop[1], (-1, 1, 1))
+        all_cols = patch_indices + jnp.reshape(jnp.arange(N[1]) * hop[1],
+                                               (-1, 1, 1))
+        indices = patch_indices + ver_shifts + hor_shifts
 
-            # create all the shifted versions of it
-            ver_shifts = jnp.reshape(
-                jnp.arange(
-                    N[0]) * hop[0] * image.shape[3], (-1, 1, 1, 1))
-            hor_shifts = jnp.reshape(jnp.arange(N[1]) * hop[1], (-1, 1, 1))
-            all_cols = patch_indices + jnp.reshape(jnp.arange(N[1]) * hop[1],
-                                                   (-1, 1, 1))
-            indices = patch_indices + ver_shifts + hor_shifts
+        # now extract shape (1, 1, H'W'a'b')
+        flat_indices = jnp.reshape(indices, [1, 1, -1])
+        # shape is now (N, C, W*H)
+        flat_image = jnp.reshape(
+            image, (image.shape[0], image.shape[1], -1))
+        # shape is now (N, C)
+        patches = jnp.take_along_axis(flat_image, flat_indices, 2)
+        return jnp.reshape(patches,
+                           image.shape[:2] + N + tuple(window_shape))
+    else:
+        error
 
-            # now extract shape (1, 1, H'W'a'b')
-            flat_indices = jnp.reshape(indices, [1, 1, -1])
-            # shape is now (N, C, W*H)
-            flat_image = jnp.reshape(
-                image, (image.shape[0], image.shape[1], -1))
-            # shape is now (N, C)
-            patches = jnp.take_along_axis(flat_image, flat_indices, 2)
-            return jnp.reshape(patches,
-                               image.shape[:2] + N + tuple(window_shape))
-        else:
-            error
+extract_image_patches = jax_wrap(_extract_image_patches)
 
 
 class add_n(Op):
@@ -205,7 +205,6 @@ TO_SKIP = [
     'fromstring',
     'fv',
     'genfromtxt',
-    'geomspace',
     'get_array_wrap',
     'get_include',
     'get_module_functions',
@@ -225,17 +224,14 @@ TO_SKIP = [
     'issubdtype',
     'issubsctype',
     'iterable',
-    'ix_',
     'jit',
     'load',
     'loads',
     'loadtxt',
-    'logspace',
     'lookfor',
     'mafromtxt',
     'maximum_sctype',
     'may_share_memory',
-    'meshgrid',
     'mintypecode',
     'ndfromtxt',
     'negative',
@@ -285,30 +281,16 @@ for name in JNP_NAMES:
     if name in TO_SKIP:
         continue
     module.__dict__.update({name: jax_wrap(jnp.__dict__[name])})
-#    module.__dict__.update(
-#        {name: type(name, (Op,), {'_fn': staticmethod(jnp.__dict__[name])})})
-#    module.__dict__[name].__doc__ = jnp.__dict__[name].__doc__
 
-
-module.__dict__.update(
-    {'cast': type('cast', (Op,), {'_fn': staticmethod(jla.convert_element_type)})})
-module.__dict__['cast'].__doc__ = jla.convert_element_type.__doc__
-
-
-for name in ['complex', 'stop_gradient', 'dynamic_slice_in_dim']:
-    module.__dict__.update(
-        {name: type(name, (Op,), {'_fn': staticmethod(jla.__dict__[name])})})
-    module.__dict__[name].__doc__ = jla.__dict__[name].__doc__
-
-
-# some additional ones
+cast = jax_wrap(jla.convert_element_type)
+complex = jax_wrap(jla.complex)
+stop_gradient = jax_wrap(jla.stop_gradient)
+dynamic_slice_in_dim = jax_wrap(jla.dynamic_slice_in_dim)
 range = arange
 T = transpose
 
-
 def flatten(input):
     return reshape(input, (-1,))
-
 
 def flatten2d(input):
     assert input.ndim > 1
@@ -316,20 +298,6 @@ def flatten2d(input):
         return input
     return reshape(input, (input.shape[0], -1))
 
-
 def logsumexp(x, axis):
     x_max = stop_gradient(x.max(axis, keepdims=True))
     return log(exp(x - x_max).sum(axis)) + squeeze(x_max)
-
-
-class add_n(Op):
-    @staticmethod
-    def _fn(args):
-        start = args[0]
-        for arg in args:
-            start = jnp.add(start, arg)
-        return start
-
-
-def meshgrid(*args):
-    return Tuple(jnp.meshgrid, args=args)

@@ -1,11 +1,60 @@
 import jax
 import jax.numpy as np
 from . import tensor as t
-
 from jax import jacfwd, jacrev
 
 
+
 def gradients(scalar, variables):
+    """computes the gradients of a scalar w.r.t to a given list of variables.
+
+    Arguments
+    ---------
+
+        scalar: Tensor
+            the variable to differentiate
+
+        variables: List or Tuple
+            the variables used to compute the derivative.
+
+    Returns
+    -------
+
+        gradients: Tuple
+            the sequency of gradients ordered as given in the input variables
+    """
+
+    if scalar.shape != ():
+        raise RuntimeError("the variable to differentiate is not a scalar")
+    elif not isinstance(scalar, t.Tensor):
+        raise RuntimeError(
+            "the variable used in gradients should be a Tensor type")
+
+    # get all the roots of the scalar, this is needed as otherwise they are not
+    # as the input of the gradient function and thus a change of
+    # their value will not change the gradient computation, we also ensure
+    # uniqueness
+    all_roots = list(set(scalar.roots + variables))
+
+    # get the argnum of the variables that we differentiate one
+    argnums = [all_roots.index(var) for var in variables]
+
+    # create a dummy function that is needed for jax to compute a gradient func
+    # this function is the one that builds the graph of computation from all roots
+    # to the scalar varible s.t. automatic diffenrentiation can be applied
+    def fn(*args):
+        return scalar.get(dict(zip(all_roots, list(args))))
+
+    # now we obtain the grad function. In fact, Jax returns a function that,
+    # when it is called, returns the gradient values, this function is then
+    # used to generate the Tuple of symbolic variables
+    grad_fn = jax.grad(fn, argnums)
+    wrap_fn = t.jax_wrap(grad_fn)
+    return wrap_fn(*all_roots)
+
+
+
+def gradients_old(scalar, variables):
     """computes the gradients of a scalar w.r.t to a given list of variables.
 
     Arguments
@@ -165,6 +214,8 @@ class function:
     def __init__(self, *classargs, outputs=[], updates=None, device=None,
                  backend=None, default_value=None):
 
+        print('original outputs', outputs)
+
         # check the given updates (if any) and ensure that they only
         # update Variable objects
         if updates is None:
@@ -180,20 +231,18 @@ class function:
             if not isinstance(arg, t.Tensor):
                 raise RuntimeError(
                         "{} is not a Tensor type. Only tensor types can be function inputs".format(arg))
-
         # gather all roots, they need to be explicit as inputs of the
         # underlying functions otherwise they are treated as constants
         # and any change in their value will not appear when running the
         # function
-        all_roots = [outputs] if isinstance(outputs, t.Tensor) else outputs
-        all_roots += list(updates.values())
+        all_roots = list(updates.values())
+        all_roots += [outputs] if isinstance(outputs, t.Tensor) else outputs
         self.all_roots = set(sum([output.roots for output in all_roots], []))
         self.classargs = classargs
         self.outputs = outputs
         items = list(updates.items())
         self.updates_keys = [item[0] for item in items]
         self.updates_values = [item[1] for item in items]
-
         # check the function inputs, they must be at least contain all the
         # placeholders needed to compute the outputs values
         placeholders = filter(
@@ -210,7 +259,7 @@ class function:
         # as inputs to not be treated as constants by jax.
         self.extra_inputs = list(
             set(self.all_roots) - set(list(self.classargs) + self.updates_keys))
-
+        print('outputs',outputs)
         def jitfn(*jitargs):
 
             allargs = list(self.classargs) + \
