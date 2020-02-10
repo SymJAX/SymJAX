@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 
-Welcome to jaxonn's documentation!
+Welcome to SymJax's documentation!
 ==================================
 
 Examples
@@ -22,8 +22,8 @@ API
 .. toctree::
   :maxdepth: 1
 
-  modules/theanoxla
-  modules/theanoxla_tensor
+  modules/symjax
+  modules/symjax_tensor
   modules/datasets
 
 

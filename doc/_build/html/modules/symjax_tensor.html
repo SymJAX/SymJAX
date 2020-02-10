@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>symjax.tensor &#8212; symjax 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="symjax.datasets" href="datasets.html" />
+    <link rel="prev" title="symjax" href="symjax.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-symjax.tensor.signal">
+<span id="symjax-tensor"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code><a class="headerlink" href="#module-symjax.tensor.signal" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="symjax.tensor.signal.dct">
+<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">dct</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">axes=(-1</em>, <em class="sig-param">)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#dct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.dct" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://dsp.stackexchange.com/questions/2807/fast-cosine-transform-via-fft">https://dsp.stackexchange.com/questions/2807/fast-cosine-transform-via-fft</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.signal.mfcc">
+<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">mfcc</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">window</em>, <em class="sig-param">hop</em>, <em class="sig-param">n_filter</em>, <em class="sig-param">low_freq</em>, <em class="sig-param">high_freq</em>, <em class="sig-param">nyquist</em>, <em class="sig-param">n_mfcc</em>, <em class="sig-param">nfft=None</em>, <em class="sig-param">mode='valid'</em>, <em class="sig-param">apod=&lt;function _wrap_numpy_nullary_function.&lt;locals&gt;.wrapper&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#mfcc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.mfcc" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://librosa.github.io/librosa/_modules/librosa/feature/spectral.html#mfcc">https://librosa.github.io/librosa/_modules/librosa/feature/spectral.html#mfcc</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.signal.power_to_db">
+<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">power_to_db</code><span class="sig-paren">(</span><em class="sig-param">S</em>, <em class="sig-param">ref=1.0</em>, <em class="sig-param">amin=1e-10</em>, <em class="sig-param">top_db=80.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#power_to_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.power_to_db" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://librosa.github.io/librosa/_modules/librosa/core/spectrum.html#power_to_db">https://librosa.github.io/librosa/_modules/librosa/core/spectrum.html#power_to_db</a>
+Convert a power spectrogram (amplitude squared) to decibel (dB) units</p>
+<p>This computes the scaling <code class="docutils literal notranslate"><span class="pre">10</span> <span class="pre">*</span> <span class="pre">log10(S</span> <span class="pre">/</span> <span class="pre">ref)</span></code> in a numerically
+stable way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S</strong> (<em>np.ndarray</em>) – input power</p></li>
+<li><p><strong>ref</strong> (<em>scalar</em><em> or </em><em>callable</em>) – <p>If scalar, the amplitude <cite>abs(S)</cite> is scaled relative to <cite>ref</cite>:
+<cite>10 * log10(S / ref)</cite>.
+Zeros in the output correspond to positions where <cite>S == ref</cite>.</p>
+<p>If callable, the reference value is computed as <cite>ref(S)</cite>.</p>
+</p></li>
+<li><p><strong>amin</strong> (<em>float &gt; 0</em><em> [</em><em>scalar</em><em>]</em>) – minimum threshold for <cite>abs(S)</cite> and <cite>ref</cite></p></li>
+<li><p><strong>top_db</strong> (<em>float &gt;= 0</em><em> [</em><em>scalar</em><em>]</em>) – threshold the output at <cite>top_db</cite> below the peak:
+<code class="docutils literal notranslate"><span class="pre">max(10</span> <span class="pre">*</span> <span class="pre">log10(S))</span> <span class="pre">-</span> <span class="pre">top_db</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>S_db</strong> – <code class="docutils literal notranslate"><span class="pre">S_db</span> <span class="pre">~=</span> <span class="pre">10</span> <span class="pre">*</span> <span class="pre">log10(S)</span> <span class="pre">-</span> <span class="pre">10</span> <span class="pre">*</span> <span class="pre">log10(ref)</span></code></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">perceptual_weighting()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">db_to_power()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">amplitude_to_db()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">db_to_amplitude()</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.signal.stft">
+<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">stft</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">window</em>, <em class="sig-param">hop</em>, <em class="sig-param">apod=&lt;function ones&gt;</em>, <em class="sig-param">nfft=None</em>, <em class="sig-param">mode='valid'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#stft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.stft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Shoft-Time-Fourier-Transform of a signal given the
+window length, hop and additional parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signal</strong> (<em>array</em>) – the signal (possibly stacked of signals)</p></li>
+<li><p><strong>window</strong> (<em>int</em>) – the window length to be considered for the fft</p></li>
+<li><p><strong>hop</strong> (<em>int</em>) – the amount by which the window is moved</p></li>
+<li><p><strong>apod</strong> (<em>func</em>) – a function that takes an integer as input and return
+the apodization window of the same length</p></li>
+<li><p><strong>nfft</strong> (<em>int</em><em> (</em><em>optional</em><em>)</em>) – the number of bin that the fft on the window will use.
+If not given it is set the same as window.</p></li>
+<li><p><strong>mode</strong> (<em>'valid'</em><em>, </em><em>'same'</em><em> or </em><em>'full'</em>) – the padding of the input signals</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>output</strong> – the complex stft</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>complex array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">symjax</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="symjax.html" title="previous chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+      <li>Next: <a href="datasets.html" title="next chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Randall Balestriero.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/modules/symjax_tensor.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

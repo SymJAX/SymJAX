@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>symjax.datasets.esc50 &#8212; symjax 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for symjax.datasets.esc50</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span><span class="o">,</span><span class="nn">gzip</span>
+<span class="kn">import</span> <span class="nn">urllib.request</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">tarfile</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">from</span> <span class="nn">scipy.io.wavfile</span> <span class="kn">import</span> <span class="n">read</span> <span class="k">as</span> <span class="n">wav_read</span>
+<span class="kn">import</span> <span class="nn">io</span>
+
+
+<div class="viewcode-block" id="esc50"><a class="viewcode-back" href="../../../modules/datasets.html#symjax.datasets.esc50">[docs]</a><span class="k">class</span> <span class="nc">esc50</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    https://github.com/karolpiczak/ESC-50#download</span>
+
+<span class="sd">    The ESC-50 dataset is a labeled collection of 2000 environmental audio</span>
+<span class="sd">    recordings suitable for benchmarking methods of environmental sound</span>
+<span class="sd">    classification.</span>
+
+<span class="sd">    The dataset consists of 5-second-long recordings organized into 50</span>
+<span class="sd">    semantical classes (with 40 examples per class) loosely arranged into 5</span>
+<span class="sd">    major categories:</span>
+
+<span class="sd">    Clips in this dataset have been manually extracted from public field</span>
+<span class="sd">    recordings gathered by the Freesound.org project. The dataset has been</span>
+<span class="sd">    prearranged into 5 folds for comparable cross-validation, making sure that</span>
+<span class="sd">    fragments from the same original source file are contained in a single fold.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fine_to_coarse</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;dog&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;rooster&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;pig&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;cow&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;frog&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                          <span class="s1">&#39;cat&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;hen&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;insects&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;sheep&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;crow&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                          <span class="s1">&#39;rain&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;sea_waves&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;crackling_fire&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                          <span class="s1">&#39;crickets&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;chirping_birds&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;water_drops&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                          <span class="s1">&#39;wind&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;pouring_water&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;toilet_flush&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                          <span class="s1">&#39;thunderstorm&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;crying_baby&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;sneezing&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                          <span class="s1">&#39;clapping&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;breathing&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;coughing&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                          <span class="s1">&#39;footsteps&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;laughing&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;brushing_teeth&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                          <span class="s1">&#39;snoring&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;drinking_sipping&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;door_wood_knock&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                          <span class="s1">&#39;mouse_click&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;keyboard_typing&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                          <span class="s1">&#39;door_wood_creaks&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;can_opening&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                          <span class="s1">&#39;washing_machine&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;vacuum_cleaner&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                          <span class="s1">&#39;clock_alarm&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;clock_tick&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;glass_breaking&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                          <span class="s1">&#39;helicopter&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;chainsaw&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;siren&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                          <span class="s1">&#39;car_horn&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;engine&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                          <span class="s1">&#39;church_bells&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;airplane&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;fireworks&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                          <span class="s1">&#39;hand_saw&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}</span>
+ 
+    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    
+        <span class="c1"># Check if directory exists</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;esc50&#39;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Creating esc50 Directory&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span><span class="s1">&#39;esc50&#39;</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://github.com/karoldvl/ESC-50/archive/master.zip&#39;</span>
+        <span class="c1"># Check if file exists</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;esc50/master.zip&#39;</span><span class="p">):</span>
+            <span class="n">td</span>  <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">path</span><span class="o">+</span><span class="s1">&#39;esc50/master.zip&#39;</span><span class="p">)</span>
+    
+    
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;ESC 50.</span>
+<span class="sd">    </span>
+<span class="sd">        https://github.com/karolpiczak/ESC-50#download</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            path: str (optional)</span>
+<span class="sd">                default $DATASET_path), the path to look for the data and</span>
+<span class="sd">                where the data will be downloaded if not present</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+    
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DATASET_PATH&#39;</span><span class="p">]</span>
+        <span class="n">esc50</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    
+        <span class="n">f</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;esc50/master.zip&#39;</span><span class="p">)</span>
+    
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;ESC-50-master/meta/esc50.csv&#39;</span><span class="p">)),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span>
+                          <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;str&#39;</span><span class="p">)</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">meta</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">folds</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+        <span class="n">fine_labels</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+        <span class="n">categories</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="n">coarse_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">esc50</span><span class="o">.</span><span class="n">fine_to_coarse</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+    
+        <span class="n">wavs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;.wav&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">wavfile</span>   <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">byt</span>       <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">wavfile</span><span class="p">)</span>
+            <span class="n">wavs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wav_read</span><span class="p">(</span><span class="n">byt</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)[::</span><span class="n">subsample</span><span class="p">])</span>
+            <span class="n">order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filenames</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">wavs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+    
+        <span class="n">all_wavs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">wavs</span><span class="p">),</span> <span class="n">N</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wavs</span><span class="p">)):</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">wavs</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="n">all_wavs</span><span class="p">[</span><span class="n">order</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">wavs</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span> <span class="o">=</span> <span class="n">wavs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">all_wavs</span><span class="p">,</span> <span class="n">fine_labels</span><span class="p">,</span> <span class="n">coarse_labels</span><span class="p">,</span> <span class="n">categories</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">symjax</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax_tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Randall Balestriero.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

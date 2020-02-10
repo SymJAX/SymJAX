@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'jaxonn'
+project = 'symjax'
 copyright = '2020, Randall Balestriero'
 author = 'Randall Balestriero'
 

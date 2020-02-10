@@ -1,65 +1,55 @@
-:mod:`theanoxla.datasets`
--------------------------
+:mod:`symjax.datasets`
+----------------------
 
 Images
 ======
 
 .. autosummary::
 
-   theanoxla.datasets.mnist
-   theanoxla.datasets.fashionmnist
-   theanoxla.datasets.dsprites
-   theanoxla.datasets.svhn
-   theanoxla.datasets.cifar10
-   theanoxla.datasets.cifar100
-   theanoxla.datasets.tinyimagenet
-   theanoxla.datasets.imagenet
+   symjax.datasets.mnist
+   symjax.datasets.fashionmnist
+   symjax.datasets.dsprites
+   symjax.datasets.svhn
+   symjax.datasets.cifar10
+   symjax.datasets.cifar100
+   symjax.datasets.tinyimagenet
 
 Audio
 =====
 
 .. autosummary::
 
-   theanoxla.datasets.audiomnist
-   theanoxla.datasets.esc50
-   theanoxla.datasets.warblr
-   theanoxla.datasets.urban
-   theanoxla.datasets.gtzan
-   theanoxla.datasets.DCLDE
-   theanoxla.datasets.irmas
-   theanoxla.datasets.freefield1010
-   theanoxla.datasets.dcase
+   symjax.datasets.audiomnist
+   symjax.datasets.esc50
+   symjax.datasets.warblr
+   symjax.datasets.urban
+   symjax.datasets.gtzan
+   symjax.datasets.dclde
+   symjax.datasets.irmas
+   symjax.datasets.freefield1010
+   symjax.datasets.dcase
 
 
 Detailed description (Image)
 ============================
 
-.. autofunction:: theanoxla.datasets.mnist.load
-.. autofunction:: theanoxla.datasets.fashionmnist
-.. autofunction:: theanoxla.datasets.dsprites
-.. autofunction:: theanoxla.datasets.svhn
-.. autofunction:: theanoxla.datasets.cifar10
-.. autofunction:: theanoxla.datasets.cifar100
-.. autofunction:: theanoxla.datasets.tinyimagenet
-.. autofunction:: theanoxla.datasets.imagenet
+.. autoclass:: symjax.datasets.mnist
+.. autoclass:: symjax.datasets.fashionmnist
+.. autoclass:: symjax.datasets.dsprites
+.. autoclass:: symjax.datasets.svhn
+.. autoclass:: symjax.datasets.cifar10
+.. autoclass:: symjax.datasets.cifar100
+.. autoclass:: symjax.datasets.tinyimagenet
   
   
 Detailed description (Audio)
 ============================
 
-.. autofunction:: theanoxla.datasets.audiomnist.load
-.. autofunction:: theanoxla.datasets.esc50.load
-.. autofunction:: theanoxla.datasets.warblr.load
-.. autofunction:: theanoxla.datasets.urban.load
-.. autofunction:: theanoxla.datasets.gtzan.load
-.. autofunction:: theanoxla.datasets.DCLDE.load
-.. autofunction:: theanoxla.datasets.irmas.load
-.. autofunction:: theanoxla.datasets.freefield1010.load
-
-
-
-
-
-
-
- 
+.. autoclass:: symjax.datasets.audiomnist
+.. autoclass:: symjax.datasets.esc50
+.. autoclass:: symjax.datasets.warblr
+.. autoclass:: symjax.datasets.urban
+.. autoclass:: symjax.datasets.gtzan
+.. autoclass:: symjax.datasets.dclde
+.. autoclass:: symjax.datasets.irmas
+.. autoclass:: symjax.datasets.freefield1010 

@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>symjax.datasets.urban &#8212; symjax 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for symjax.datasets.urban</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span><span class="o">,</span><span class="nn">gzip</span>
+<span class="kn">import</span> <span class="nn">urllib.request</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">tarfile</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">scipy.io.wavfile</span> <span class="kn">import</span> <span class="n">read</span> <span class="k">as</span> <span class="n">wav_read</span>
+
+<div class="viewcode-block" id="urban"><a class="viewcode-back" href="../../../modules/datasets.html#symjax.datasets.urban">[docs]</a><span class="k">class</span> <span class="nc">urban</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;urban sound classification</span>
+
+<span class="sd">    Reference at https://zenodo.org/record/3233082 </span>
+
+<span class="sd">    Description</span>
+
+<span class="sd">    SONYC Urban Sound Tagging (SONYC-UST) is a dataset for the development and</span>
+<span class="sd">    evaluation of machine listening systems for realistic urban noise</span>
+<span class="sd">    monitoring. The audio was recorded from the SONYC acoustic sensor network.</span>
+<span class="sd">    Volunteers on the Zooniverse citizen science platform tagged the presence</span>
+<span class="sd">    of 23 classes that were chosen in consultation with the New York City</span>
+<span class="sd">    Department of Environmental Protection. These 23 fine-grained classes can be</span>
+<span class="sd">    grouped into 8 coarse-grained classes. The recordings are split into three</span>
+<span class="sd">    subsets: training, validation, and test. These sets are disjoint with</span>
+<span class="sd">    respect to the sensor from which each recording came. For increased</span>
+<span class="sd">    reliability, three volunteers annotated each recording, and members of the</span>
+<span class="sd">    SONYC team subsequently created a set of ground-truth tags for the</span>
+<span class="sd">    validation set using a two-stage annotation procedure in which two</span>
+<span class="sd">    annotators independently tagged and then collectively resolved any</span>
+<span class="sd">    disagreements. For more details on the motivation and creation of this</span>
+<span class="sd">    dataset see the DCASE 2019 Urban Sound Tagging Task website.</span>
+
+<span class="sd">    Audio data</span>
+<span class="sd">    </span>
+<span class="sd">    The provided audio has been acquired using the SONYC acoustic sensor network </span>
+<span class="sd">    for urban noise pollution monitoring. Over 50 different sensors have been</span>
+<span class="sd">    deployed in New York City, and these sensors have collectively gathered the</span>
+<span class="sd">    equivalent of 37 years of audio data, of which we provide a small subset.</span>
+<span class="sd">    The data was sampled by selecting the nearest neighbors on VGGish features</span>
+<span class="sd">    of recordings known to have classes of interest. All recordings are 10</span>
+<span class="sd">    seconds and were recorded with identical microphones at identical gain</span>
+<span class="sd">    settings. To maintain privacy, the recordings in this release have been</span>
+<span class="sd">    distributed in time and location, and the time and location of the</span>
+<span class="sd">    recordings are not included in the metadata.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    
+        <span class="c1"># Check if directory exists</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;ust&#39;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Creating mnist Directory&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;ust&#39;</span><span class="p">)</span>
+    
+        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://zenodo.org/record/3233082/files/audio-dev.tar.gz?download=1&#39;</span>
+        <span class="c1"># Check if file exists</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;ust/audio-dev.tar.gz&#39;</span><span class="p">):</span>
+            <span class="n">td</span>  <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">path</span><span class="o">+</span><span class="s1">&#39;ust/audio-dev.tar.gz&#39;</span><span class="p">)</span>
+    
+        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://zenodo.org/record/3233082/files/annotations-dev.csv?download=1&#39;</span>
+        <span class="c1"># Check if file exists</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;ust/annotations-dev.csv&#39;</span><span class="p">):</span>
+            <span class="n">td</span>  <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">path</span><span class="o">+</span><span class="s1">&#39;ust/annotations-dev.csv&#39;</span><span class="p">)</span>
+    
+    
+    
+    
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)):</span>
+    
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DATASET_PATH&#39;</span><span class="p">]</span>
+        <span class="n">download</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    
+        <span class="c1"># Loading the file</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;ust/audio-dev.tar.gz&#39;</span><span class="p">,</span> <span class="s1">&#39;r:gz&#39;</span><span class="p">)</span>
+        <span class="n">annotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;ust/annotations-dev.csv&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span>
+                                 <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;str&#39;</span><span class="p">)</span>
+    
+        <span class="c1"># get name</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">annotations</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">)):</span>
+            <span class="n">filenames</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">annotations</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">filenames</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    
+        <span class="c1"># get fine labels and limts for coarse classes</span>
+        <span class="n">fine_labels</span> <span class="o">=</span> <span class="n">annotations</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">33</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+        <span class="n">class_limits</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">29</span><span class="p">]</span>
+        <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">class_limits</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">annotations</span><span class="p">)</span>
+        <span class="n">llabels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_classes</span><span class="p">):</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="n">fine_labels</span><span class="p">[:,</span> <span class="n">class_limits</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span> <span class="n">class_limits</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+            <span class="n">llabels</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    
+        <span class="n">POT</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">wavs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2794</span><span class="p">,</span> <span class="mi">441000</span><span class="p">))</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2794</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="n">files</span><span class="o">.</span><span class="n">getnames</span><span class="p">()</span>
+        <span class="n">cpt</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">ascii</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s1">&#39;.wav&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">wav</span> <span class="o">=</span> <span class="n">wav_read</span><span class="p">(</span><span class="n">files</span><span class="o">.</span><span class="n">extractfile</span><span class="p">(</span><span class="n">name</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+            <span class="n">wavs</span><span class="p">[</span><span class="n">cpt</span><span class="p">,</span> <span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">wav</span><span class="p">)]</span> <span class="o">=</span> <span class="n">wav</span>
+            <span class="n">labels</span><span class="p">[</span><span class="n">cpt</span><span class="p">]</span> <span class="o">=</span> <span class="n">llabels</span><span class="p">[</span><span class="n">filenames</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span>
+            <span class="n">cpt</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">wavs</span><span class="p">,</span> <span class="n">labels</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">symjax</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax_tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Randall Balestriero.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
