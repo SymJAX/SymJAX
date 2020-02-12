@@ -48,6 +48,7 @@ def hat_1D(x, t_left, t_center, t_right):
 
 def _extract_signal_patches(signal, window_length, hop=1, data_format='NCW'):
     assert not hasattr(window_length, '__len__')
+    assert signal.ndim == 3
     if data_format == 'NCW':
         N = (signal.shape[2] - window_length) // hop + 1
         indices = jnp.arange(window_length) +\

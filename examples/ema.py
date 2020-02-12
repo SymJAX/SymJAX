@@ -3,14 +3,15 @@ import numpy as np
 import sys
 sys.path.insert(0, "../")
 
-import theanoxla
-import theanoxla.tensor as T
-import theanoxla.nn as nn
+import symjax
+import symjax.tensor as T
 
 w = T.Placeholder((3,), 'float32', name='w')
 alpha = 0.5
-var, updates, step = nn.ExponentialMovingAverage(w, alpha)
-train = theanoxla.function(w, outputs=[updates[var]], updates=updates)
+var, updates, step = T.ExponentialMovingAverage(w, alpha)
+
+train = symjax.function(w, outputs=[updates[var]], updates=updates)
+
 
 import matplotlib.pyplot as plt
 data = np.stack([np.ones(20), np.random.randn(20), np.zeros(20)], 1)

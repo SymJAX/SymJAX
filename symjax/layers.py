@@ -1,3 +1,4 @@
+from .tensor import ops_methods
 from . import tensor as T
 from . import initializers
 import numpy

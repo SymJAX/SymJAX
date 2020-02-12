@@ -4,16 +4,24 @@
    contain the root `toctree` directive.
 
 
-Welcome to SymJax's documentation!
+Welcome to SymJAX's documentation!
 ==================================
+
+XLA + Autograd = JAX
+JAX + Symbolic = SymJAX
+
 
 Examples
 ========
 
+
+
 Installation
 ============
 
+Need for cuda
 
+pip install symjax
 
 
 API
@@ -22,11 +30,11 @@ API
 .. toctree::
   :maxdepth: 1
 
-  modules/symjax
-  modules/symjax_tensor
   modules/datasets
-
-
+  modules/symjax
+  modules/tensor
+  modules/pdfs
+  modules/signal
 
 
 Indices and tables

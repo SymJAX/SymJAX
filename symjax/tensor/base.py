@@ -6,7 +6,7 @@ import numpy
 import inspect
 import copy
 from functools import wraps
-
+import re
 
 def add_method(cls):
     # important we keep the self inside the function call !
@@ -18,7 +18,7 @@ def add_method(cls):
             setattr(cls, func.__name__, wrapper)
         else:
             setattr(cls, name, wrapper)
-        return func  # returning func means func can still be used normally
+        return func # returning func means func can still be used normally
     return decorator
 
 
@@ -69,9 +69,16 @@ def getroots(item, roots=[]):
 
 
 def get(item, tracker):
-    if isinstance(item, list) or isinstance(item, tuple):
+    if isinstance(item, slice):
+        return item
+    elif isinstance(item, numpy.ndarray):
+        return item
+    elif isinstance(item, list):
         current = [get(i, tracker) for i in item]
         return current
+    elif isinstance(item, tuple):
+        current = [get(i, tracker) for i in item]
+        return tuple(current)
     elif item in tracker:
         return tracker[item]
     elif hasattr(item, 'get'):
@@ -85,15 +92,17 @@ def isvar(item):
     """ check whether an item (possibly a nested list etc) contains a variable
     (any subtype of Tensor) """
     # in case of nested lists/tuples, recursively call the function on it
-    if isinstance(item, list) or isinstance(item, tuple):
+    if isinstance(item, slice):
+        return False
+    elif isinstance(item, list) or isinstance(item, tuple):
         return numpy.sum([isvar(value) for value in item])
     # otherwise cheack that it is a subtype of Tensor or a Tracer and not
     # a callable
     else:
         cond1 = isinstance(item, Tensor)
 #        cond2 = isinstance(item, jax.interpreters.partial_eval.JaxprTracer)
-        cond3 = not callable(item)
-        return cond1 and cond3  # (cond1 or cond2) and cond3
+        cond3 = callable(item)
+        return cond1 and not cond3  # (cond1 or cond2) and cond3
 
 
 class Tensor:
@@ -136,9 +145,41 @@ class Tensor:
             tracker[self] = output
             return output
 
+_numpy_signature_re = re.compile(r'^([\w., ]+=)?\s*[\w\.]+\(.*\)$')
 
-def jax_wrap(func, insert_default_kwargs=True):
-    @wraps(func)
+def update_numpydoc(docstr, fun, op):
+    '''Transforms the numpy docstring to remove references of
+       parameters that are supported by the numpy version but not the JAX version'''
+  
+    #Some numpy functions have an extra tab at the beginning of each line,
+    #If this function is one of those we remove this extra tab from all the lines
+    if not hasattr(op, '__code__'):
+      return docstr
+    if docstr[:4] == '    ':
+      lines = docstr.split('\n')
+      for idx, line in enumerate(lines):
+        lines[idx] = line.replace('    ', '', 1)
+      docstr = '\n'.join(lines)
+  
+    begin_idx = docstr.find("Parameters")
+    begin_idx = docstr.find("--\n", begin_idx) + 2
+    end_idx = docstr.find("Returns", begin_idx)
+  
+    parameters = docstr[begin_idx:end_idx]
+    param_list = parameters.replace('\n    ', '@@').split('\n')
+    for idx, p in enumerate(param_list):
+      param = p[:p.find(' : ')].split(", ")[0]
+      if param not in op.__code__.co_varnames:
+        param_list[idx] = ''
+    param_list = [param for param in param_list if param != '']
+    parameters = '\n'.join(param_list).replace('@@', '\n    ')
+    return docstr[:begin_idx + 1] + parameters + docstr[end_idx - 2:]
+
+def jax_wrap(func, insert_default_kwargs=True, doc_func=None):
+    if doc_func is None:
+        doc_func=func
+
+    @wraps(doc_func)
     def op(*args, seed=None, **kwargs):
 
         # first we check if we are in a random function to be careful
@@ -147,17 +188,16 @@ def jax_wrap(func, insert_default_kwargs=True):
         random_func = func in random._RANDOM_FUNCTIONS
 
         # now get the function signature
-        signature = list(inspect.signature(func).parameters.items())
-
-        # second we add the default values to the kwargs in case not
-        # given. This would be taken care by the wraps for the output
-        # function but we need it here to infer the correct shape and
-        # because we manually instantiate the output in this function
-        if insert_default_kwargs:
-            for name, parameter in signature[len(args) + int(random_func):]:
-                if name not in kwargs:
-                    kwargs[name] = parameter.default
-
+#        signature = list(inspect.signature(doc_func).parameters.items())
+#
+#        # second we add the default values to the kwargs in case not
+#        # given. This would be taken care by the wraps for the output
+#        # function but we need it here to infer the correct shape and
+#        # because we manually instantiate the output in this function
+#        if insert_default_kwargs:
+#            for name, parameter in signature[len(args) + int(random_func):]:
+#                if name not in kwargs:
+#                    kwargs[name] = parameter.default
         # we need to remove the static arguments first
         # we first do it for the kwars
         static_kwargs = {}
@@ -166,7 +206,7 @@ def jax_wrap(func, insert_default_kwargs=True):
             if not isvar(arg):
                 static_kwargs.update({name: arg})
             else:
-                var_kwargs.update({name: args})
+                var_kwargs.update({name: arg})
 
         # we need to do the same for the args
         indices = list()
@@ -195,6 +235,7 @@ def jax_wrap(func, insert_default_kwargs=True):
             return func(*all_args, **kwargs, **static_kwargs)
 
         # now we evaluate the shape from the jax built-in function
+        
         tree = jax.eval_shape(abstract_func, *var_args, **var_kwargs)
 
         # now we determine if it is an Op or a Tuple object based on the
@@ -221,7 +262,48 @@ def jax_wrap(func, insert_default_kwargs=True):
             shape, dtype = tree.shape, tree.dtype
             return Op(*args, _jax_function=func, _shape=shape, _dtype=dtype,
                       **kwargs)
+
+    if not hasattr(func, '__doc__') or func.__doc__ is None:
+        return op
+
+    if doc_func is not None:
+        sections = func.__doc__.split("\n\n")
+    
+        signatures = []
+        summary = None
+        for i in range(len(sections)):
+          if _numpy_signature_re.match(sections[i]):
+            signatures.append(sections[i])
+          else:
+            summary = sections[i].strip()
+            break
+        body = "\n\n".join(signatures + sections[i + 1:])
+        body = update_numpydoc(body, func , op)
+        desc = "ADDITION"
+        docstr = (
+            "{summary}\n\nLAX-backend implementation of :func:`{fun}`.\n"
+            "{lax_description}Original docstring below.\n\n{body}"
+            .format(summary=summary, lax_description=desc,
+                    fun=func.__name__, body=body))
+    
+        op.__name__ = func.__name__
+        op.__doc__ = docstr
+
     return op
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class Op(Tensor):
@@ -527,3 +609,68 @@ def theanofn_to_jaxfn(*args, _fn, **kwargs):
     feed_dict = list(zip(pargs, args)) + list(zip(pkwargs.values(),
                                                   kwargs.values()))
     return output.get(dict(feed_dict))
+
+
+
+######################
+
+
+### getitem operator
+#getitem = jax_wrap(jnp.lax_numpy._rewriting_take)
+#
+#add_method(Tensor)(getitem, '__getitem__')
+#
+#from . import ops_math
+### overloading the basic arithmetic operators
+#add_method(Tensor)(ops_math.add, '__add__')
+#add_method(Tensor)(ops_math.add, '__radd__')
+#add_method(Tensor)(ops_math.multiply, '__mul__')
+#add_method(Tensor)(ops_math.multiply, '__rmul__')
+#add_method(Tensor)(ops_math.true_divide, '__truediv__')
+#add_method(Tensor)(lambda a, b: ops_math.true_divide(b, a), '__rtruediv__')
+#add_method(Tensor)(ops_math.subtract, '__sub__')
+#add_method(Tensor)(lambda a, b: ops_math.subtract(b,a), '__rsub__')
+#add_method(Tensor)(ops_math.power, '__pow__')
+#add_method(Tensor)(lambda a: 0 - a, '__neg__')
+#
+### overloading comparison operators
+##add_method(Tensor)(ops_math.equal, '__eq__')
+##add_method(Tensor)(ops_math.equal, '__req__')
+#add_method(Tensor)(ops_math.less, '__lt__')
+#add_method(Tensor)(ops_math.greater_equal, '__rlt__')
+#add_method(Tensor)(ops_math.greater, '__gt__')
+#add_method(Tensor)(ops_math.less_equal, '__rgt__')
+#add_method(Tensor)(ops_math.greater_equal, '__ge__')
+#add_method(Tensor)(ops_math.less, '__rge__')
+#add_method(Tensor)(ops_math.less_equal, '__le__')
+#add_method(Tensor)(ops_math.greater, '__rle__')
+##add_method(Tensor)(ops_math.not_equal, '__ne__')
+##add_method(Tensor)(ops_math.not_equal, '__rne__')
+#
+### additional operators
+#add_method(Tensor)(ops_math.sum, 'sum')
+#add_method(Tensor)(ops_math.prod, 'prod')
+#add_method(Tensor)(ops_math.mean, 'mean')
+#add_method(Tensor)(ops_math.max, 'max')
+#add_method(Tensor)(ops_math.min, 'min')
+#add_method(Tensor)(ops_math.std, 'std')
+#add_method(Tensor)(ops_math.var, 'var')
+#
+### additional operators
+#add_method(Tensor)(ops_math.argmax, 'argmax')
+#add_method(Tensor)(ops_math.argmin, 'argmin')
+#
+#
+#
+#
+### additional operators
+#add_method(Tensor)(ops_math.cast)
+#add_method(Tensor)(ops_math.prod)
+#add_method(Tensor)(ops_math.squeeze)
+#add_method(Tensor)(ops_math.flatten)
+#add_method(Tensor)(ops_math.reshape)
+#add_method(Tensor)(ops_math.T)
+#add_method(Tensor)(ops_math.dot)
+#add_method(Tensor)(ops_math.repeat)
+#add_method(Tensor)(ops_math.expand_dims)
+#add_method(Tensor)(ops_math.matmul)

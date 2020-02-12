@@ -34,22 +34,50 @@ Detailed description (Image)
 ============================
 
 .. autoclass:: symjax.datasets.mnist
+   :members:
+
 .. autoclass:: symjax.datasets.fashionmnist
+   :members:
+
 .. autoclass:: symjax.datasets.dsprites
+   :members:
+
 .. autoclass:: symjax.datasets.svhn
+   :members:
+
 .. autoclass:: symjax.datasets.cifar10
+   :members:
+
 .. autoclass:: symjax.datasets.cifar100
+   :members:
+
 .. autoclass:: symjax.datasets.tinyimagenet
+   :members:
   
   
 Detailed description (Audio)
 ============================
 
 .. autoclass:: symjax.datasets.audiomnist
+   :members:
+
 .. autoclass:: symjax.datasets.esc50
+   :members:
+
 .. autoclass:: symjax.datasets.warblr
+   :members:
+
 .. autoclass:: symjax.datasets.urban
+   :members:
+
 .. autoclass:: symjax.datasets.gtzan
+   :members:
+
 .. autoclass:: symjax.datasets.dclde
+   :members:
+
 .. autoclass:: symjax.datasets.irmas
+   :members:
+
 .. autoclass:: symjax.datasets.freefield1010 
+   :members:

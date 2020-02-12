@@ -12,6 +12,7 @@
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
@@ -36,7 +37,8 @@
 
 <span class="c1"># https://github.com/deepmind/dsprites-dataset</span>
 <div class="viewcode-block" id="dsprites"><a class="viewcode-back" href="../../../modules/datasets.html#symjax.datasets.dsprites">[docs]</a><span class="k">class</span> <span class="nc">dsprites</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;greyscale image classification and disentanglement</span>
+
 <span class="sd">    This dataset consists of 737,280 images of 2D shapes, procedurally generated</span>
 <span class="sd">    from 5 ground truth independent latent factors, controlling the shape, scale,</span>
 <span class="sd">    rotation and position of a sprite. This data can be used to assess the</span>
@@ -50,7 +52,7 @@
 <span class="sd">    generating N = 737280 total images.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<div class="viewcode-block" id="dsprites.download"><a class="viewcode-back" href="../../../modules/datasets.html#symjax.datasets.dsprites.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Download the MNIST dataset and store the result into the given</span>
@@ -75,10 +77,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;dsprites/&#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">):</span>
             <span class="n">td</span>  <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://github.com/deepmind/dsprites-dataset/blob/master/&#39;</span> <span class="o">+</span> <span class="n">filename</span>
-            <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;dsprites/filename.npz&#39;</span><span class="p">)</span>
+            <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;dsprites/filename.npz&#39;</span><span class="p">)</span></div>
     
     
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="dsprites.load"><a class="viewcode-back" href="../../../modules/datasets.html#symjax.datasets.dsprites.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -108,7 +110,7 @@
         <span class="n">latents_values</span> <span class="o">=</span> <span class="n">dataset_zip</span><span class="p">[</span><span class="s1">&#39;latents_values&#39;</span><span class="p">]</span>
         <span class="n">latents_classes</span> <span class="o">=</span> <span class="n">dataset_zip</span><span class="p">[</span><span class="s1">&#39;latents_classes&#39;</span><span class="p">]</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="n">dataset_zip</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][()]</span>
-        <span class="k">return</span> <span class="n">imgs</span><span class="p">,</span> <span class="n">latent_values</span><span class="p">,</span> <span class="n">latents_classes</span></div>
+        <span class="k">return</span> <span class="n">imgs</span><span class="p">,</span> <span class="n">latent_values</span><span class="p">,</span> <span class="n">latents_classes</span></div></div>
     
 </pre></div>
 
@@ -129,9 +131,11 @@
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax_tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/pdfs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.pdfs</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
 </ul>
 
 <div class="relations">

@@ -3,8 +3,8 @@ import numpy as np
 import sys
 sys.path.insert(0, "../")
 
-import theanoxla
-import theanoxla.tensor as T
+import symjax
+import symjax.tensor as T
 
 def mymean(x):
     return (x[::2,::2]+x[1::2,::2]+x[::2,1::2]+x[1::2,1::2])/4
@@ -16,11 +16,11 @@ def mymax(x):
 
 SHAPE = (4, 4)
 w = T.Placeholder(SHAPE, 'float32', name='w')
-maxpool = T.pool(w, (2, 2), reducer='MAX')
-meanpool = T.pool(w, (2, 2), reducer='AVG')
-sumpool = T.pool(w, (2, 2), reducer='SUM')
+maxpool = T.poolNd(w, (2, 2), reducer='MAX')
+meanpool = T.poolNd(w, (2, 2), reducer='AVG')
+sumpool = T.poolNd(w, (2, 2), reducer='SUM')
 
-f = theanoxla.function(w, outputs=[maxpool, meanpool, sumpool])
+f = symjax.function(w, outputs=[maxpool, meanpool, sumpool])
 
 for i in range(10):
     data = np.random.randn(*SHAPE)

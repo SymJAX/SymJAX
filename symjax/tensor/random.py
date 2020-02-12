@@ -1,18 +1,16 @@
 import jax.random as jnp
-import jax
-from .base import RandomOp, jax_wrap
-from .ops_math import cast
+from .base import jax_wrap
+import sys
 
 
 
-
-_RANDOM_FUNCTIONS = [jax.random.bernoulli, jax.random.beta, jax.random.cauchy,
-                     jax.random.dirichlet, jax.random.gamma, jax.random.gumbel,
-                     jax.random.laplace, jax.random.logit,
-                     jax.random.multivariate_normal, jax.random.normal,
-                     jax.random.pareto, jax.random.randint, jax.random.shuffle,
-                     jax.random.threefry_2x32, jax.random.truncated_normal,
-                     jax.random.uniform]
+_RANDOM_FUNCTIONS = [jnp.bernoulli, jnp.beta, jnp.cauchy,
+                     jnp.dirichlet, jnp.gamma, jnp.gumbel,
+                     jnp.laplace, jnp.logit,
+                     jnp.multivariate_normal, jnp.normal,
+                     jnp.pareto, jnp.randint, jnp.shuffle,
+                     jnp.threefry_2x32, jnp.truncated_normal,
+                     jnp.uniform]
 
 
 
@@ -20,6 +18,10 @@ _RANDOM_FUNCTIONS = [jax.random.bernoulli, jax.random.beta, jax.random.cauchy,
 #_normal = RandomOp(jnp.normal)
 #_uniform = RandomOp(jnp.uniform)
 #_bernoulli = RandomOp(jnp.bernoulli)
+module = sys.modules[__name__]
+
+for name in _RANDOM_FUNCTIONS:
+    module.__dict__.update({name.__name__: jax_wrap(name)})
 
 randn = jax_wrap(jnp.normal)
 

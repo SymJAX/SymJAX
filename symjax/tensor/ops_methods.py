@@ -36,30 +36,29 @@ add_method(Tensor)(ops_math.greater, '__rle__')
 #add_method(Tensor)(ops_math.not_equal, '__rne__')
 
 ## additional operators
-add_method(Tensor)(ops_math.sum)
-add_method(Tensor)(ops_math.prod)
-add_method(Tensor)(ops_math.mean)
-add_method(Tensor)(ops_math.max)
-add_method(Tensor)(ops_math.min)
-add_method(Tensor)(ops_math.std)
-add_method(Tensor)(ops_math.var)
+add_method(Tensor)(ops_math.sum, 'sum')
+add_method(Tensor)(ops_math.prod, 'prod')
+add_method(Tensor)(ops_math.mean, 'mean')
+add_method(Tensor)(ops_math.max, 'max')
+add_method(Tensor)(ops_math.min, 'min')
+add_method(Tensor)(ops_math.std, 'std')
+add_method(Tensor)(ops_math.var, 'var')
 
 ## additional operators
-add_method(Tensor)(ops_math.argmax)
-add_method(Tensor)(ops_math.argmin)
+add_method(Tensor)(ops_math.argmax, 'argmax')
+add_method(Tensor)(ops_math.argmin, 'argmin')
 
 
 
 
 ## additional operators
-add_method(Tensor)(ops_math.cast)
+add_method(Tensor)(ops_math.cast, 'cast')
 add_method(Tensor)(ops_math.cast, 'astype')
-add_method(Tensor)(ops_math.prod)
-add_method(Tensor)(ops_math.squeeze)
-add_method(Tensor)(ops_math.flatten)
-add_method(Tensor)(ops_math.reshape)
+add_method(Tensor)(ops_math.squeeze, 'squeeze')
+add_method(Tensor)(ops_math.flatten, 'flatten')
+add_method(Tensor)(ops_math.reshape, 'reshape')
 add_method(Tensor)(ops_math.T)
-add_method(Tensor)(ops_math.dot)
-add_method(Tensor)(ops_math.repeat)
-add_method(Tensor)(ops_math.expand_dims)
-add_method(Tensor)(ops_math.matmul)
+add_method(Tensor)(ops_math.dot, 'dot')
+add_method(Tensor)(ops_math.repeat, 'repeat')
+add_method(Tensor)(ops_math.expand_dims, 'expand_dims')
+add_method(Tensor)(ops_math.matmul, 'matmul')

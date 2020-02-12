@@ -12,6 +12,7 @@
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
@@ -44,6 +45,7 @@
 
 <div class="viewcode-block" id="warblr"><a class="viewcode-back" href="../../../modules/datasets.html#symjax.datasets.warblr">[docs]</a><span class="k">class</span> <span class="nc">warblr</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Binary audio classification, presence or absence of a bird.</span>
+
 <span class="sd">    `Warblr &lt;http://machine-listening.eecs.qmul.ac.uk/bird-audio-detection-challenge/#downloads&gt;`_ </span>
 <span class="sd">    comes from a UK bird-sound crowdsourcing </span>
 <span class="sd">    research spinout called Warblr. From this initiative we have </span>
@@ -54,15 +56,12 @@
 <span class="sd">    includes weather noise, traffic noise, human speech and even human </span>
 <span class="sd">    bird imitations. It is directly representative of the data that is </span>
 <span class="sd">    collected from a mobile crowdsourcing initiative.</span>
-
-<span class="sd">    :param data_format: (optional, default &#39;NCHW&#39;)</span>
-<span class="sd">    :type data_format: &#39;NCHW&#39; or &#39;NHWC&#39;</span>
-<span class="sd">    :param path: (optional, default $DATASET_path), the path to look for the data and </span>
-<span class="sd">                     where the data will be downloaded if not present</span>
-<span class="sd">    :type path: str</span>
 <span class="sd">    &quot;&quot;&quot;</span>
  
-    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<div class="viewcode-block" id="warblr.download"><a class="viewcode-back" href="../../../modules/datasets.html#symjax.datasets.warblr.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download the data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
     
         <span class="c1"># Load the dataset (download if necessary) and set</span>
         <span class="c1"># the class attributes.</span>
@@ -80,10 +79,14 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;warblr/warblrb10k_public_metadata.csv&#39;</span><span class="p">):</span>
             <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://ndownloader.figshare.com/files/6035817&#39;</span>
             <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="n">path</span><span class="o">+</span>\
-                                    <span class="s1">&#39;warblr/warblrb10k_public_metadata.csv&#39;</span><span class="p">)</span>  
+                                    <span class="s1">&#39;warblr/warblrb10k_public_metadata.csv&#39;</span><span class="p">)</span>  </div>
     
     
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="warblr.load"><a class="viewcode-back" href="../../../modules/datasets.html#symjax.datasets.warblr.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the data given a path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DATASET_PATH&#39;</span><span class="p">]</span>
     
@@ -108,7 +111,7 @@
         <span class="n">labels</span>    <span class="o">=</span> <span class="n">labels</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
     
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Dataset warblr loaded in&#39;</span><span class="p">,</span><span class="s1">&#39;</span><span class="si">{0:.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t</span><span class="p">),</span><span class="s1">&#39;s.&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">wavs</span><span class="p">,</span> <span class="n">labels</span></div>
+        <span class="k">return</span> <span class="n">wavs</span><span class="p">,</span> <span class="n">labels</span></div></div>
     
 </pre></div>
 
@@ -129,9 +132,11 @@
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax_tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/pdfs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.pdfs</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
 </ul>
 
 <div class="relations">

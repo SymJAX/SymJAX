@@ -1,0 +1,28 @@
+Metadata-Version: 2.1
+Name: symjax
+Version: 0.1
+Summary: A symbolic JAX software
+Home-page: https://github.com/RandallBalestriero/SymJAX.git
+Author: Randall Balestriero
+Author-email: randallbalestriero@gmail.com
+License: UNKNOWN
+Description: # TheanoXLA
+        conda list --explicit > spec-file.txt
+        conda create --name myenv --file spec-file.txt
+        
+            pip freeze>requirements.txt
+        
+        
+            pip download -r requirements.txt -d path_to_the_folder
+        
+        
+            pip install -r requirements.txt --find-links=path_to_the_folder
+        
+        
+Platform: UNKNOWN
+Classifier: Natural Language :: English
+Classifier: Development Status :: 3 - Alpha
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: Unix
+Description-Content-Type: text/markdown
