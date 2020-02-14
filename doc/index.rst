@@ -11,6 +11,16 @@ XLA + Autograd = JAX
 JAX + Symbolic = SymJAX
 
 
+
+The advantages of a symbolic programming language are multiple. First, one
+can create and test the entire computational graph without performing any
+memory allocation or actual computations. Second, for performances, the
+computational graph needs to be defined prior being optimized and compiled.
+This holds across softwares (Tensorflow, JAX, ...).
+SymJAX simply allows the user to do so in a simple, natural and
+streamlined fashion.
+
+
 Examples
 ========
 
@@ -19,9 +29,11 @@ Examples
 Installation (GPU)
 ==================
 
+Preriquisites
+-------------
 
-First there is the obvious need to have cuda/cudnn/drivers installed
-and GPUs that are visible.
+First install cuda/cudnn/GPU drivers.
+Ensure that the GPUs that are visible.
 
 
 JAX installation

@@ -188,12 +188,13 @@ class function:
         # function
         all_roots = list(updates.values())
         all_roots += [outputs] if isinstance(outputs, t.Tensor) else outputs
-        self.all_roots = set(sum([output.roots for output in all_roots], []))
+        self.all_roots = set(t.getroots(all_roots))
         self.classargs = classargs
         self.outputs = outputs
         items = list(updates.items())
         self.updates_keys = [item[0] for item in items]
         self.updates_values = [item[1] for item in items]
+
         # check the function inputs, they must be at least contain all the
         # placeholders needed to compute the outputs values
         placeholders = filter(
@@ -208,29 +209,26 @@ class function:
         # already ensured that all placeholders are given as inputs to the
         # function. Now we must ensure that the other ones will also be given
         # as inputs to not be treated as constants by jax.
-        self.extra_inputs = list(
-            set(self.all_roots) - set(list(self.classargs) + self.updates_keys))
+        self.extra_inputs = set(self.all_roots)
+        self.extra_inputs -= set(self.classargs)
+        self.extra_inputs -= set(self.updates_keys)
+        self.extra_inputs = list(self.extra_inputs)
 
         def jitfn(*jitargs):
-
-            allargs = list(self.classargs) + \
-                self.updates_keys + self.extra_inputs
+            allargs = list(self.classargs) + self.updates_keys +\
+                                            self.extra_inputs
             kwargs = dict(zip(allargs, jitargs))
 
             # compute the outputs
-            if isinstance(self.outputs, t.Tensor):
-                jit_outputs = self.outputs.get(kwargs)
-            else:
-                jit_outputs = [output.get(kwargs) for output in self.outputs]
+            jit_outputs = t.get(self.outputs, kwargs)
 
             # compute the values of the updates
-            jit_updates = [output.get(kwargs)
-                           for output in self.updates_values]
+            jit_updates = t.get(self.updates_values, kwargs)
+
             return jit_outputs, jit_updates
 
         # we compile our underlying function using jit for performances
-        jitfn = jax.jit(jitfn, device=device, backend=backend)
-        self.jitfn = jitfn
+        self.jitfn = jax.jit(jitfn, device=device, backend=backend)
 
         # define the frontend function that takes as input the inputs variables
         # and internally compute and update the variables from updates if any
@@ -238,14 +236,17 @@ class function:
 
             # ensure that the number of arguments is correct
             assert len(fnargs) == len(self.classargs)
+            for fnarg, classarg in zip(fnargs, self.classargs):
+                if hasattr(fnarg, 'shape'):
+                    if fnarg.shape != classarg.shape:
+                        raise RuntimeError("wrong input given for {}".format(classarg))
 
             # get the addition inputs to the function (the values to be
             # updated)
-            extra_values = [var.value if not isinstance(var, t.RandomOp)
-                            else var.get({'rng': rng})
-                            for var in self.updates_keys + self.extra_inputs]
+            extra_values = t.get(self.updates_keys + self.extra_inputs,
+                                 {'rng': rng})
 
-            # retreive the function outputs and updated values and apply them
+            # retreive the function outputs, updated values and apply them
             jitoutputs, jitupdates = self.jitfn(*fnargs, *extra_values)
             for key, update in zip(self.updates_keys, jitupdates):
                 key.value = update

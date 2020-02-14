@@ -1,10 +1,11 @@
 import os
-import pickle,gzip
+import pickle,gzip, zipfile, io
+from tqdm import tqdm
 import urllib.request
 import numpy as np
 import time
+from scipy.io.wavfile import read as wav_read
 
-#from ..utils import  DownloadProgressBar
 class irmas:
     """music instrument classification
 
@@ -74,7 +75,7 @@ class irmas:
         wavs = list()
         labels = list()
     
-        f       = zipfile.ZipFile(path+'irmas/IRMAS-TrainingData.zip')
+        f = zipfile.ZipFile(path+'irmas/IRMAS-TrainingData.zip')
         namelist = f.namelist()
         for filename in tqdm(namelist, ascii=True):
             if '.wav' not in filename:

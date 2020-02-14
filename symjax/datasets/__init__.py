@@ -11,8 +11,9 @@ from .cifar100 import cifar100
 from .tinyimagenet import tinyimagenet
 
 # audio
+from .TUTacousticscences2017 import TUTacousticscences2017
 from .gtzan import gtzan
-from .urban import urban
+from .sonycust import sonycust
 from .audiomnist import audiomnist
 from .esc50 import esc50
 from .irmas import irmas

@@ -8,7 +8,7 @@ import copy
 from functools import wraps
 import re
 
-def add_method(cls):
+def _add_method(cls):
     # important we keep the self inside the function call !
     def decorator(func, name=''):
         @wraps(func)
@@ -22,7 +22,7 @@ def add_method(cls):
     return decorator
 
 
-def args_formatting(args, extra_args, indices):
+def _args_formatting(args, extra_args, indices):
     """ utility function to be used in the Tensor class to correctly join the
     args and extra_args based on the indices
 
@@ -69,9 +69,7 @@ def getroots(item, roots=[]):
 
 
 def get(item, tracker):
-    if isinstance(item, slice):
-        return item
-    elif isinstance(item, numpy.ndarray):
+    if isinstance(item, slice) or isinstance(item, numpy.ndarray):
         return item
     elif isinstance(item, list):
         current = [get(i, tracker) for i in item]
@@ -82,8 +80,7 @@ def get(item, tracker):
     elif item in tracker:
         return tracker[item]
     elif hasattr(item, 'get'):
-        item.get(tracker)
-        return tracker[item]
+        return item.get(tracker)
     else:
         return item
 
@@ -231,7 +228,7 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None):
         # functions does not work with static arguments (such as the dimensions
         # of the transpose function)
         def abstract_func(*args, **kwargs):
-            all_args = args_formatting(args, static_args, indices)
+            all_args = _args_formatting(args, static_args, indices)
             return func(*all_args, **kwargs, **static_kwargs)
 
         # now we evaluate the shape from the jax built-in function
@@ -317,9 +314,7 @@ class Op(Tensor):
         self.jax_function = _jax_function
 
         # set roots
-        roots = getroots(
-            [i for i in list(kwargs.values()) + list(args)]) + roots
-        roots = list(set(roots))
+        roots = list(set(getroots(list(kwargs.values())+ list(args)) + roots))
 
         super().__init__(_shape, _dtype, roots)
 
@@ -333,7 +328,7 @@ class Op(Tensor):
     def get(self, tracker=None):
         if tracker is None:
             tracker = dict()
-        if self in tracker:
+        elif self in tracker:
             return tracker[self]
 
         # evaluate the function kwargs as explicit jax arrays
@@ -342,6 +337,11 @@ class Op(Tensor):
             kwargs.update({name: get(var, tracker)})
         args = [get(var, tracker) for var in self.args]
         tracker[self] = self.jax_function(*args, **kwargs)
+#        if tracker[self].shape != self.shape:
+#            print(self.args, self.jax_function)
+#            print(args, kwargs)
+#            print([a.shape for a in args if hasattr(a, 'shape')])
+#            input('sdf')
         return tracker[self]
 
 
@@ -512,18 +512,15 @@ class Variable(Tensor):
 
     def __init__(self, value_or_fn, shape=None, dtype=None,
                  name='', trainable=True):
+
         self.trainable = trainable
         self.name = name
-        if callable(value_or_fn):
-            if dtype is not None:
-                value = value_or_fn(shape).astype(dtype)
-            else:
-                value = value_or_fn(shape).astype(dtype)
-            self.value = jnp.asarray(value)
-            self.init_value = (value_or_fn, shape)
-        else:
-            self.value = jnp.asarray(value_or_fn)
-            self.init_value = copy.deepcopy(self.value)
+        self.value_or_fn = value_or_fn
+        self._shape = shape
+        self._dtype = dtype
+
+        self.value = jnp.array(copy.deepcopy(self._get_value()))
+
         if hasattr(self.value, 'shape'):
             shape = self.value.shape
             dtype = self.value.dtype
@@ -533,23 +530,41 @@ class Variable(Tensor):
 
         super().__init__(shape, dtype, roots=[self])
 
+    def _get_value(self):
+        """ utility function that takes the input and return
+            the actual value. It deals with cases where the input
+            was a function or not etc
+        """
+
+        if not callable(self.value_or_fn):
+            if isinstance(self.value_or_fn, Tensor):
+                return numpy.array(self.value_or_fn.get({}))
+            else:
+                return self.value_or_fn
+
+        # we get the actual value
+        value = self.value_or_fn(self._shape)
+
+        # we cast the value
+        if isinstance(value, numpy.ndarray) and self._dtype is not None:
+            value = value.astype(self._dtype)
+        elif isinstance(value, Tensor):
+            value = numpy.array(value.get({}))
+            if self._dtype is not None:
+                value = value.astype(self._dtype)
+        return value
+
     def reset(self):
         """reset the value of the variable based on the initial one, whether
         it was an array or initializer. If it was a random initializer,
         nothing guarantees that the reset will give back the original value
         as opposed to the array case
         """
-
-        if isinstance(self.init_value, tuple):
-            value = self.init_value[0](self.init_value[1])
-        else:
-            value = self.init_value
-        self.value = jnp.asarray(value).astype(self.dtype)
+        self.value = jnp.asarray(self._get_value())
 
     def __repr__(self):
-        return '(Variable: ' + self.name + 'dtype=' + str(self.dtype) + \
-               ', shape=' + str(self.shape) + ', trainable=' + \
-            str(self.trainable) + ')'
+        name = 'Variable(name={}, shape={}, dtype={}, train.={})'
+        return name.format(self.name, self.shape, self.dtype, self.trainable)
 
     def get(self, tracker):
         if self not in tracker:
@@ -610,67 +625,3 @@ def theanofn_to_jaxfn(*args, _fn, **kwargs):
                                                   kwargs.values()))
     return output.get(dict(feed_dict))
 
-
-
-######################
-
-
-### getitem operator
-#getitem = jax_wrap(jnp.lax_numpy._rewriting_take)
-#
-#add_method(Tensor)(getitem, '__getitem__')
-#
-#from . import ops_math
-### overloading the basic arithmetic operators
-#add_method(Tensor)(ops_math.add, '__add__')
-#add_method(Tensor)(ops_math.add, '__radd__')
-#add_method(Tensor)(ops_math.multiply, '__mul__')
-#add_method(Tensor)(ops_math.multiply, '__rmul__')
-#add_method(Tensor)(ops_math.true_divide, '__truediv__')
-#add_method(Tensor)(lambda a, b: ops_math.true_divide(b, a), '__rtruediv__')
-#add_method(Tensor)(ops_math.subtract, '__sub__')
-#add_method(Tensor)(lambda a, b: ops_math.subtract(b,a), '__rsub__')
-#add_method(Tensor)(ops_math.power, '__pow__')
-#add_method(Tensor)(lambda a: 0 - a, '__neg__')
-#
-### overloading comparison operators
-##add_method(Tensor)(ops_math.equal, '__eq__')
-##add_method(Tensor)(ops_math.equal, '__req__')
-#add_method(Tensor)(ops_math.less, '__lt__')
-#add_method(Tensor)(ops_math.greater_equal, '__rlt__')
-#add_method(Tensor)(ops_math.greater, '__gt__')
-#add_method(Tensor)(ops_math.less_equal, '__rgt__')
-#add_method(Tensor)(ops_math.greater_equal, '__ge__')
-#add_method(Tensor)(ops_math.less, '__rge__')
-#add_method(Tensor)(ops_math.less_equal, '__le__')
-#add_method(Tensor)(ops_math.greater, '__rle__')
-##add_method(Tensor)(ops_math.not_equal, '__ne__')
-##add_method(Tensor)(ops_math.not_equal, '__rne__')
-#
-### additional operators
-#add_method(Tensor)(ops_math.sum, 'sum')
-#add_method(Tensor)(ops_math.prod, 'prod')
-#add_method(Tensor)(ops_math.mean, 'mean')
-#add_method(Tensor)(ops_math.max, 'max')
-#add_method(Tensor)(ops_math.min, 'min')
-#add_method(Tensor)(ops_math.std, 'std')
-#add_method(Tensor)(ops_math.var, 'var')
-#
-### additional operators
-#add_method(Tensor)(ops_math.argmax, 'argmax')
-#add_method(Tensor)(ops_math.argmin, 'argmin')
-#
-#
-#
-#
-### additional operators
-#add_method(Tensor)(ops_math.cast)
-#add_method(Tensor)(ops_math.prod)
-#add_method(Tensor)(ops_math.squeeze)
-#add_method(Tensor)(ops_math.flatten)
-#add_method(Tensor)(ops_math.reshape)
-#add_method(Tensor)(ops_math.T)
-#add_method(Tensor)(ops_math.dot)
-#add_method(Tensor)(ops_math.repeat)
-#add_method(Tensor)(ops_math.expand_dims)
-#add_method(Tensor)(ops_math.matmul)

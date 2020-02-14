@@ -7,7 +7,7 @@ import tarfile
 from tqdm import tqdm
 from scipy.io.wavfile import read as wav_read
 
-class urban:
+class sonycust:
     """urban sound classification
 
     Reference at https://zenodo.org/record/3233082 
@@ -70,7 +70,7 @@ class urban:
     
         if path is None:
             path = os.environ['DATASET_PATH']
-        download(path)
+        sonycust.download(path)
     
         t0 = time.time()
     
@@ -97,7 +97,8 @@ class urban:
     
         POT = []
         wavs = np.zeros((2794, 441000))
-        labels = np.zeros((2794, n_classes)).astype('int')
+        coarse = np.zeros((2794, n_classes)).astype('int')
+        fine = np.zeros((2794, 29)).astype('int')
         filenames = files.getnames()
         cpt = 0
         for name in tqdm(filenames, ascii=True):
@@ -105,6 +106,6 @@ class urban:
                 continue
             wav = wav_read(files.extractfile(name))[1].astype('float32')
             wavs[cpt, :len(wav)] = wav
-            labels[cpt] = llabels[filenames.index(name)]
+            coarse[cpt] = llabels[filenames.index(name)]
             cpt += 1
         return wavs, labels
