@@ -14,6 +14,8 @@ matplotlib.use('Agg')
 
 
 t = T.Placeholder((1000,), 'float32')
+print(t)
+f = T.meshgrid(t, t)
 f = T.exp(-(t**2))
 u = f.sum()
 g = symjax.gradients(u, [t])
