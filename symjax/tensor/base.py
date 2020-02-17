@@ -237,7 +237,7 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None):
 
         # now we determine if it is an Op or a Tuple object based on the
         # infered shape
-        if hasattr(tree, '__len__'):
+        if type(tree) == list or type(tree) == tuple:
             shapes = [t.shape for t in tree]
             dtypes = [t.dtype for t in tree]
             return Tuple(
