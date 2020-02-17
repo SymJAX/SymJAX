@@ -273,27 +273,43 @@ class RandomFlip(Layer):
 
 class RandomCrop(Layer):
 
-    def __init__(self, input_or_shape, crop_shape, pad_shape, deterministic,
+    def __init__(self, input_or_shape, crop_shape, padding, deterministic,
                  seed=None):
 
         self.init_input(input_or_shape)
         self.crop_shape = crop_shape
-        if not hasattr(pad_shape, '__len__'):
-            self.pad_shape = [(pad_shape, pad_shape), (pad_shape, pad_shape)]
-        elif not hasattr(pad_shape[0], '__len__'):
-            self.pad_shape = [(pad_shape[0], pad_shape[0]), (pad_shape[1],
-                                                             pad_shape[1])]
+        # if given only a scalar
+        if not hasattr(padding, '__len__'):
+            self.pad_shape = [(padding, padding)] * (self.input_shape - 1)
+        # else
+        else:
+            self.pad_shape = [(pad, pad) if not hasattr(pad, '__len__')
+                              else pad for pad in padding]
+
+        assert len(self.pad_shape) == len(self.crop_shape)
+        assert len(self.pad_shape) == (len(self.input_shape) - 1)
 
         self.deterministic = deterministic
 
-        h = self.input.shape[2] + sum(self.pad_shape[0]) - crop_shape[0]
-        self.h_ind = T.random.randint(minval=0, maxval=h + 1,
-                                      shape=(input.shape[0],),
-                                      dtype='int32', seed=seed)
-        w = input.shape[3] + sum(self.pad_shape[0]) - crop_shape[1]
-        self.w_ind = T.random.randint(minval=0, maxval=w + 1,
-                                      shape=(input.shape[0],),
-                                      dtype='int32', seed=seed + 1 if seed is not None else seed)
+        self.start_indices = list()
+        self.fixed_indices = list()
+        for i, (pad, dim, crop) in enumerate(
+                zip(self.pad_shape, self.input_shape[1:], self.crop_shape)):
+            maxval = pad[0] + pad[1] + dim - crop
+            assert maxval >= 0
+            self.start_indices.append(
+                T.random.randint(
+                    minval=0,
+                    maxval=maxval,
+                    shape=(
+                        self.input_shape[0],
+                    ),
+                    dtype='int32',
+                    seed=seed + i))
+
+            self.fixed_indices.append(maxval//2)
+
+        self.fixed_indices = T.stack(self.fixed_indices, 2)
 
         super().__init__(self.forward(self.input))
 
@@ -303,37 +319,27 @@ class RandomCrop(Layer):
             deterministic = self.deterministic
         dirac = T.cast(deterministic, 'float32')
 
-        # pad the input as needed and flatten it
-        if pad_shape[0][0] > 0 or pad_shape[0][1] > 0\
-                or pad_shape[1][0] > 0 or pad_shape[1][1] > 0:
-            input2 = T.pad(input, [(0, 0), (0, 0), pad_shape[0], pad_shape[1]])
-        else:
-            input2 = input
-        flat_input = input2.reshape(input2.shape[:2] + (-1,))
+        # pad the input
+        pinput = T.pad(input, self.pad_shape)
 
-        # compute the base indices of a 2d patch
-        patch = T.arange(numpy.prod(crop_shape)).reshape(crop_shape)
-        offset = T.expand_dims(T.arange(crop_shape[0]), 1)
-        patch_indices = patch + offset * (input2.shape[3] - crop_shape[1])
-        # flatten them
-        flat_indices = patch_indices.reshape((1, 1, -1))
-        # and repeat for the input channels
-        cflat_indices = flat_indices  # .repeat(input.shape[1], 1)
+        routput = T.stack(
+            [
+                T.dynamic_slice(
+                    pinput[n],
+                    self.indices[n],
+                    self.crop_shape) for n in range(
+                    self.input_shape[0])],
+            0)
+        doutput = T.stack(
+            [
+                T.dynamic_slice(
+                    pinput[n],
+                    self.fixed_indices,
+                    self.crop_shape) for n in range(
+                    self.input_shape[0])],
+            0)
 
-        # create the random shifts and get the random patch indices
-        random_offsets = self.h_ind * input2.shape[3] + self.w_ind
-        crandom_offsets = random_offsets.reshape((-1, 1, 1))
-        random_indices = cflat_indices + crandom_offsets
-        flat_output = T.take_along_axis(flat_input, random_indices, 2)
-        output = flat_output.reshape(input.shape[:2] + tuple(crop_shape))
 
-        # create the deterministic version
-        if crop_shape[0] != input.shape[2] or crop_shape[1] != input.shape[3]:
-            offset = (pad_shape[0][0] + (input.shape[2] - crop_shape[0]) // 2,
-                      pad_shape[1][0] + (input.shape[3] - crop_shape[1]) // 2)
-            offset = input2.shape[3] * offset[0] + offset[1]
-            deter_output = T.take_along_axis(
-                flat_input, flat_indices + offset, 2).reshape(input.shape[:2] + tuple(crop_shape))
         else:
             deter_output = input
         return output  # deter_output * dirac +  (1 - dirac) * output

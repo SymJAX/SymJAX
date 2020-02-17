@@ -72,7 +72,6 @@ def morlet(M, s, w=5):
     with it.
     """
     x = T.linspace(-2 * 3.14159, 2 * 3.14159, M) * s
-    print('x', x.shape)
     sine = T.complex(T.cos(w * x), T.sin(w * x))
 
     # apply correction term for admissibility

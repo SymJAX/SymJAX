@@ -141,7 +141,7 @@ class TUTacousticscences2017:
             # load wavs
             f = zipfile.ZipFile(filename.format(part))
             for name in tqdm(f.namelist(), ascii=True,
-                             desc='Part:{}/10'.format(part)):
+                             desc='Train Part:{}/10'.format(part)):
                 if '.wav' not in name:
                     continue
                 wavfile = f.read(name)
@@ -160,24 +160,6 @@ class TUTacousticscences2017:
                         folds[-1].append(meta_name)
 
 
-        # meta data
-        filename = path+'TUTacousticscences2017/'\
-                    + 'TUT-acoustic-scenes-2017-evaluation.meta.zip'
-        meta = zipfile.ZipFile(filename)
-        for filename in meta.namelist():
-            if 'map.txt' in filename:
-                content = np.loadtxt(io.BytesIO(meta.read(filename)),
-                                     delimiter='\t', dtype='str')
-            elif 'evaluate.txt' in filename:
-                targets = np.loadtxt(io.BytesIO(meta.read(filename)),
-                                     delimiter='\t', dtype='str')
-        content_0 = [c.split('/')[1] for c in content[:, 0]]
-        content_1 = [c.split('/')[1] for c in content[:, 1]]
-        targets_0 = [c.split('/')[1] for c in targets[:, 0]]
-        for i in range(len(content_0)):
-            content_1[i] = targets[targets_0.index(content_1[i])][1]
-        mapping = dict(zip(targets_0, content_1))
-
         # now format the folds
         train_folds = np.zeros((len(folds), 4), dtype='bool')
         for i in range(len(folds)):
@@ -186,6 +168,27 @@ class TUTacousticscences2017:
                     train_folds[i, int(fold.split('_')[0][-1])-1] = 1
 
         # now deal with the test set 
+
+
+        # meta data
+        filename = path+'TUTacousticscences2017/'\
+                    + 'TUT-acoustic-scenes-2017-evaluation.meta.zip'
+        meta = zipfile.ZipFile(filename)
+        for filename in meta.namelist():
+#            if 'map.txt' in filename:
+#                content = np.loadtxt(io.BytesIO(meta.read(filename)),
+#                                     delimiter='\t', dtype='str')
+            if 'evaluate.txt' in filename:
+                targets = np.loadtxt(io.BytesIO(meta.read(filename)),
+                                     delimiter='\t', dtype='str')
+#        content_0 = [c.split('/')[1] for c in content[:, 0]]
+#        content_1 = [c.split('/')[1] for c in content[:, 1]]
+        targets_0 = [c.split('/')[1] for c in targets[:, 0]]
+        targets_1 = list(targets[:, 1])
+
+#        for i in range(len(content_0)):
+#            content_1[i] = targets_1[targets_0.index(content_1[i])]
+        mapping = dict(zip(targets_0, targets_1))
 
         test_wavs = list()
         test_labels = list()
@@ -196,7 +199,7 @@ class TUTacousticscences2017:
             # load wavs
             f = zipfile.ZipFile(filename.format(part))
             for name in tqdm(f.namelist(), ascii=True,
-                             desc='Part:{}/4'.format(part)):
+                             desc='Test Data Part{}/4'.format(part)):
                 if '.wav' not in name:
                     continue
                 byt = io.BytesIO(f.read(name))
