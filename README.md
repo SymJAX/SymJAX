@@ -1,4 +1,4 @@
-# TheanoXLA
+# SymJAX
 conda list --explicit > spec-file.txt
 conda create --name myenv --file spec-file.txt
 

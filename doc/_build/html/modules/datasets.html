@@ -7,16 +7,16 @@
     <title>symjax.datasets &#8212; symjax 0.0.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="symjax" href="symjax.html" />
-    <link rel="prev" title="Welcome to SymJAX’s documentation!" href="../index.html" />
+    <link rel="next" title="symjax.initializers" href="initializers.html" />
+    <link rel="prev" title="symjax.tensor.random" href="random.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -44,7 +44,7 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.mnist" title="symjax.datasets.mnist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.mnist</span></code></a></p></td>
-<td><p>Grayscale digit classification.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.fashionmnist" title="symjax.datasets.fashionmnist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.fashionmnist</span></code></a></p></td>
 <td><p>Grayscale image classification</p></td>
@@ -84,8 +84,8 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.warblr" title="symjax.datasets.warblr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.warblr</span></code></a></p></td>
 <td><p>Binary audio classification, presence or absence of a bird.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.urban" title="symjax.datasets.urban"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.urban</span></code></a></p></td>
-<td><p>urban sound classification</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.urban</span></code></p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.gtzan" title="symjax.datasets.gtzan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.gtzan</span></code></a></p></td>
 <td><p>music genre classification</p></td>
@@ -468,40 +468,6 @@ collected from a mobile crowdsourcing initiative.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="symjax.datasets.urban">
-<em class="property">class </em><code class="sig-prename descclassname">symjax.datasets.</code><code class="sig-name descname">urban</code><a class="reference internal" href="../_modules/symjax/datasets/urban.html#urban"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.urban" title="Permalink to this definition">¶</a></dt>
-<dd><p>urban sound classification</p>
-<p>Reference at <a class="reference external" href="https://zenodo.org/record/3233082">https://zenodo.org/record/3233082</a></p>
-<p>Description</p>
-<p>SONYC Urban Sound Tagging (SONYC-UST) is a dataset for the development and
-evaluation of machine listening systems for realistic urban noise
-monitoring. The audio was recorded from the SONYC acoustic sensor network.
-Volunteers on the Zooniverse citizen science platform tagged the presence
-of 23 classes that were chosen in consultation with the New York City
-Department of Environmental Protection. These 23 fine-grained classes can be
-grouped into 8 coarse-grained classes. The recordings are split into three
-subsets: training, validation, and test. These sets are disjoint with
-respect to the sensor from which each recording came. For increased
-reliability, three volunteers annotated each recording, and members of the
-SONYC team subsequently created a set of ground-truth tags for the
-validation set using a two-stage annotation procedure in which two
-annotators independently tagged and then collectively resolved any
-disagreements. For more details on the motivation and creation of this
-dataset see the DCASE 2019 Urban Sound Tagging Task website.</p>
-<p>Audio data</p>
-<p>The provided audio has been acquired using the SONYC acoustic sensor network
-for urban noise pollution monitoring. Over 50 different sensors have been
-deployed in New York City, and these sensors have collectively gathered the
-equivalent of 37 years of audio data, of which we provide a small subset.
-The data was sampled by selecting the nearest neighbors on VGGish features
-of recordings known to have classes of interest. All recordings are 10
-seconds and were recorded with identical microphones at identical gain
-settings. To maintain privacy, the recordings in this release have been
-distributed in time and location, and the time and location of the
-recordings are not included in the metadata.</p>
-</dd></dl>
-
-<dl class="class">
 <dt id="symjax.datasets.gtzan">
 <em class="property">class </em><code class="sig-prename descclassname">symjax.datasets.</code><code class="sig-name descname">gtzan</code><a class="reference internal" href="../_modules/symjax/datasets/gtzan.html#gtzan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.gtzan" title="Permalink to this definition">¶</a></dt>
 <dd><p>music genre classification</p>
@@ -581,20 +547,25 @@ presence/absence of birds.</p>
 
 
 <h3>Navigation</h3>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="pdfs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.pdfs</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="initializers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.initializers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="layers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.layers</span></code></a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="../index.html" title="previous chapter">Welcome to SymJAX’s documentation!</a></li>
-      <li>Next: <a href="symjax.html" title="next chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+      <li>Previous: <a href="random.html" title="previous chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+      <li>Next: <a href="initializers.html" title="next chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.initializers</span></code></a></li>
   </ul></li>
 </ul>
 </div>
@@ -607,7 +578,7 @@ presence/absence of birds.</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -624,7 +595,7 @@ presence/absence of birds.</p>
       &copy;2020, Randall Balestriero.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

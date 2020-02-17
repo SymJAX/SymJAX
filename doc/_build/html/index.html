@@ -7,15 +7,15 @@
     <title>Welcome to SymJAX’s documentation! &#8212; symjax 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="symjax.datasets" href="modules/datasets.html" />
+    <link rel="next" title="symjax" href="modules/symjax.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -34,26 +34,162 @@
             
   <div class="section" id="welcome-to-symjax-s-documentation">
 <h1>Welcome to SymJAX’s documentation!<a class="headerlink" href="#welcome-to-symjax-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>XLA + Autograd = JAX
-JAX + Symbolic = SymJAX</p>
+<p><a class="reference external" href="https://www.tensorflow.org/xla">XLA</a> + <a class="reference external" href="https://github.com/hips/autograd">Autograd</a> = <a class="reference external" href="https://github.com/google/jax">JAX</a></p>
+<p>Symbolic programming with <a class="reference external" href="https://github.com/google/jax">JAX</a> = SymJAX</p>
+<p><a class="reference external" href="https://www.tensorflow.org/xla">XLA</a>: compiler that optimizes a computational graph fusing multiple kernels
+into one preventing intermediate computation, reducing memory operations
+and increasing performances.</p>
+<p><a class="reference external" href="https://github.com/google/jax">JAX</a>: python interface providing a numpy-like software on top of XLA and
+providing just-in-time compilation a well as advanced automatic
+differenciation.</p>
+<p>SymJAX: symbolic programming version of <a class="reference external" href="https://github.com/google/jax">JAX</a> simplifying graph
+input/output/updates and providing additional functionalities for general
+machine learning and deep learning applications.</p>
+<p>This is a research project, not an official product, expect bugs and sharp
+edges; please help by trying it out, reporting bugs.</p>
 </div>
 <div class="section" id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;../&quot;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">symjax</span>
+<span class="kn">import</span> <span class="nn">symjax.tensor</span> <span class="k">as</span> <span class="nn">T</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;Agg&#39;</span><span class="p">)</span>
+
+<span class="c1">###### DERIVATIVE OF GAUSSIAN EXAMPLE</span>
+
+
+
+
+<span class="n">t</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Placeholder</span><span class="p">((</span><span class="mi">1000</span><span class="p">,),</span> <span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">t</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">u</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">[</span><span class="n">t</span><span class="p">])</span>
+<span class="n">g2</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="p">[</span><span class="n">t</span><span class="p">])</span>
+<span class="n">g3</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">g2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="p">[</span><span class="n">t</span><span class="p">])</span>
+
+<span class="n">dog</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">g2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">g3</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dog</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)))</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+
+
+
+<span class="c1">###### GRADIENT DESCENT</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="mf">3.</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">z</span><span class="o">**</span><span class="mi">2</span>
+<span class="n">g_z</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="p">[</span><span class="n">z</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+<span class="n">train</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">loss</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="n">updates</span><span class="o">=</span><span class="p">{</span><span class="n">z</span><span class="p">:</span><span class="n">z</span><span class="o">-</span><span class="mf">0.1</span> <span class="o">*</span> <span class="n">g_z</span><span class="p">[</span><span class="mi">0</span><span class="p">]})</span>
+
+<span class="n">losses</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+<span class="n">values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">train</span><span class="p">()</span>
+    <span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">losses</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="s1">&#39;kx&#39;</span><span class="p">)</span>
+
+
+<span class="c1">###### NOISY GRADIENT DESCENT</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="mf">3.</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">T</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(())</span><span class="o">*</span><span class="mi">10</span>
+<span class="n">g_z</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="p">[</span><span class="n">z</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">g_z</span><span class="p">)</span>
+<span class="n">train</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">loss</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="n">updates</span><span class="o">=</span><span class="p">{</span><span class="n">z</span><span class="p">:</span><span class="n">z</span><span class="o">-</span><span class="mf">0.1</span> <span class="o">*</span> <span class="n">g_z</span><span class="p">[</span><span class="mi">0</span><span class="p">]})</span>
+
+<span class="n">losses</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+<span class="n">values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">train</span><span class="p">()</span>
+    <span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">losses</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="s1">&#39;kx&#39;</span><span class="p">)</span>
+
+
+<span class="c1">####### jacobians</span>
+
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">ones</span><span class="p">(()),</span> <span class="n">T</span><span class="o">.</span><span class="n">ones</span><span class="p">(())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">ZZ</span><span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="mi">3</span><span class="o">*</span><span class="n">ZZ</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">ZZ</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">j</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">jacobians</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">[</span><span class="n">ZZ</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">g_j</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">outputs</span><span class="o">=</span><span class="n">j</span><span class="p">)</span>
+
+
+
+
+
+
+<span class="n">R</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">()</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">ZZ</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">R</span>
+<span class="n">j</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">jacobians</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">[</span><span class="n">ZZ</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">g_j</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">g_j</span><span class="p">())</span>
+
+
+
+<span class="c1">#plt.show()</span>
+
+</pre></div>
 </div>
-<div class="section" id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>Need for cuda</p>
+</div>
+<div class="section" id="installation-gpu">
+<h1>Installation (GPU)<a class="headerlink" href="#installation-gpu" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="preriquisites">
+<h2>Preriquisites<a class="headerlink" href="#preriquisites" title="Permalink to this headline">¶</a></h2>
+<p>First install cuda/cudnn/GPU drivers.</p>
+</div>
+<div class="section" id="jax-installation">
+<h2>JAX installation<a class="headerlink" href="#jax-installation" title="Permalink to this headline">¶</a></h2>
+<p>please see <a class="reference external" href="https://github.com/google/jax#installation">Jax Installation</a> for
+addition information, here is a minimal instruction to install the GPU version</p>
+<p>PYTHON_VERSION=cp37  # alternatives: cp35, cp36, cp37, cp38
+CUDA_VERSION=cuda92  # alternatives: cuda92, cuda100, cuda101, cuda102
+PLATFORM=linux_x86_64  # alternatives: linux_x86_64
+BASE_URL=’<a class="reference external" href="https://storage.googleapis.com/jax-releases">https://storage.googleapis.com/jax-releases</a>’
+pip install –upgrade $BASE_URL/$CUDA_VERSION/jaxlib-0.1.38-$PYTHON_VERSION-none-$PLATFORM.whl</p>
+</div>
+<div class="section" id="symjax-installation">
+<h2>SymJAX installation<a class="headerlink" href="#symjax-installation" title="Permalink to this headline">¶</a></h2>
 <p>pip install symjax</p>
 </div>
-<div class="section" id="api">
-<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="general-api">
+<h1>General API<a class="headerlink" href="#general-api" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="modules/datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/pdfs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.pdfs</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="deep-learning-api">
+<h1>Deep Learning API<a class="headerlink" href="#deep-learning-api" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules/datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/initializers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.initializers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/layers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.layers</span></code></a></li>
 </ul>
 </div>
 </div>
@@ -84,18 +220,23 @@ JAX + Symbolic = SymJAX</p>
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="modules/datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/pdfs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.pdfs</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules/datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/initializers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.initializers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/layers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.layers</span></code></a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="#">Documentation overview</a><ul>
-      <li>Next: <a href="modules/datasets.html" title="next chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
+      <li>Next: <a href="modules/symjax.html" title="next chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
   </ul></li>
 </ul>
 </div>
@@ -108,7 +249,7 @@ JAX + Symbolic = SymJAX</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -125,7 +266,7 @@ JAX + Symbolic = SymJAX</p>
       &copy;2020, Randall Balestriero.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

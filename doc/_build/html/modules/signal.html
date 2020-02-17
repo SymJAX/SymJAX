@@ -7,14 +7,15 @@
     <title>symjax.tensor.signal &#8212; symjax 0.0.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="symjax.tensor.random" href="random.html" />
     <link rel="prev" title="symjax.tensor.pdfs" href="pdfs.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -42,19 +43,19 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.tensor.signal.blackman" title="symjax.tensor.signal.blackman"><code class="xref py py-obj docutils literal notranslate"><span class="pre">blackman</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.tensor.signal.blackman" title="symjax.tensor.signal.blackman"><code class="xref py py-obj docutils literal notranslate"><span class="pre">blackman</span></code></a>(M)</p></td>
 <td><p>Return the Blackman window.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#symjax.tensor.signal.bartlett" title="symjax.tensor.signal.bartlett"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bartlett</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.tensor.signal.bartlett" title="symjax.tensor.signal.bartlett"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bartlett</span></code></a>(M)</p></td>
 <td><p>Return the Bartlett window.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.tensor.signal.hamming" title="symjax.tensor.signal.hamming"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hamming</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.tensor.signal.hamming" title="symjax.tensor.signal.hamming"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hamming</span></code></a>(M)</p></td>
 <td><p>Return the Hamming window.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#symjax.tensor.signal.hanning" title="symjax.tensor.signal.hanning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hanning</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.tensor.signal.hanning" title="symjax.tensor.signal.hanning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hanning</span></code></a>(M)</p></td>
 <td><p>Return the Hanning window.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.tensor.signal.kaiser" title="symjax.tensor.signal.kaiser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kaiser</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.tensor.signal.kaiser" title="symjax.tensor.signal.kaiser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kaiser</span></code></a>(M, beta)</p></td>
 <td><p>Return the Kaiser window.</p></td>
 </tr>
 </tbody>
@@ -137,11 +138,12 @@
 <h2>Detailed Descritpions<a class="headerlink" href="#detailed-descritpions" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="symjax.tensor.signal.blackman">
-<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">blackman</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.blackman" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">blackman</code><span class="sig-paren">(</span><em class="sig-param">M</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.blackman" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Blackman window.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.blackman" title="symjax.tensor.signal.blackman"><code class="xref py py-func docutils literal notranslate"><span class="pre">blackman()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.blackman" title="symjax.tensor.signal.blackman"><code class="xref py py-func docutils literal notranslate"><span class="pre">blackman()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.blackman" title="symjax.tensor.signal.blackman"><code class="xref py py-func docutils literal notranslate"><span class="pre">blackman()</span></code></a>.
+Original docstring below.</p>
 <blockquote>
 <div><blockquote>
 <div><p>The Blackman window is a taper formed by using the first three
@@ -220,11 +222,12 @@ Upper Saddle River, NJ: Prentice-Hall, 1999, pp. 468-471.</p>
 
 <dl class="function">
 <dt id="symjax.tensor.signal.bartlett">
-<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">bartlett</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.bartlett" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">bartlett</code><span class="sig-paren">(</span><em class="sig-param">M</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.bartlett" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Bartlett window.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.bartlett" title="symjax.tensor.signal.bartlett"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartlett()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.bartlett" title="symjax.tensor.signal.bartlett"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartlett()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.bartlett" title="symjax.tensor.signal.bartlett"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartlett()</span></code></a>.
+Original docstring below.</p>
 <blockquote>
 <div><blockquote>
 <div><p>The Bartlett window is very similar to a triangular window, except
@@ -325,11 +328,12 @@ Processing”, Prentice-Hall, 1999, pp. 468-471.</p>
 
 <dl class="function">
 <dt id="symjax.tensor.signal.hamming">
-<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">hamming</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.hamming" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">hamming</code><span class="sig-paren">(</span><em class="sig-param">M</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.hamming" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Hamming window.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hamming" title="symjax.tensor.signal.hamming"><code class="xref py py-func docutils literal notranslate"><span class="pre">hamming()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hamming" title="symjax.tensor.signal.hamming"><code class="xref py py-func docutils literal notranslate"><span class="pre">hamming()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hamming" title="symjax.tensor.signal.hamming"><code class="xref py py-func docutils literal notranslate"><span class="pre">hamming()</span></code></a>.
+Original docstring below.</p>
 <blockquote>
 <div><blockquote>
 <div><p>The Hamming window is a taper formed by using a weighted cosine.</p>
@@ -419,11 +423,12 @@ University of Alberta Press, 1975, pp. 109-110.</p>
 
 <dl class="function">
 <dt id="symjax.tensor.signal.hanning">
-<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">hanning</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.hanning" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">hanning</code><span class="sig-paren">(</span><em class="sig-param">M</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.hanning" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Hanning window.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hanning" title="symjax.tensor.signal.hanning"><code class="xref py py-func docutils literal notranslate"><span class="pre">hanning()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hanning" title="symjax.tensor.signal.hanning"><code class="xref py py-func docutils literal notranslate"><span class="pre">hanning()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hanning" title="symjax.tensor.signal.hanning"><code class="xref py py-func docutils literal notranslate"><span class="pre">hanning()</span></code></a>.
+Original docstring below.</p>
 <blockquote>
 <div><blockquote>
 <div><p>The Hanning window is a taper formed by using a weighted cosine.</p>
@@ -516,11 +521,12 @@ The University of Alberta Press, 1975, pp. 106-108.</p>
 
 <dl class="function">
 <dt id="symjax.tensor.signal.kaiser">
-<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">kaiser</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.kaiser" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">kaiser</code><span class="sig-paren">(</span><em class="sig-param">M</em>, <em class="sig-param">beta</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.kaiser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Kaiser window.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.kaiser" title="symjax.tensor.signal.kaiser"><code class="xref py py-func docutils literal notranslate"><span class="pre">kaiser()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.kaiser" title="symjax.tensor.signal.kaiser"><code class="xref py py-func docutils literal notranslate"><span class="pre">kaiser()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.kaiser" title="symjax.tensor.signal.kaiser"><code class="xref py py-func docutils literal notranslate"><span class="pre">kaiser()</span></code></a>.
+Original docstring below.</p>
 <blockquote>
 <div><blockquote>
 <div><p>The Kaiser window is a taper formed by using a Bessel function.</p>
@@ -649,7 +655,8 @@ University of Alberta Press, 1975, pp. 177-178.</p>
 <dd><p>Compute the one-dimensional discrete Fourier Transform.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fft" title="symjax.tensor.signal.fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">fft()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fft" title="symjax.tensor.signal.fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">fft()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fft" title="symjax.tensor.signal.fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">fft()</span></code></a>.
+Original docstring below.</p>
 <p>This function computes the one-dimensional <em>n</em>-point discrete Fourier
 Transform (DFT) with the efficient Fast Fourier Transform (FFT)
 algorithm [CT].</p>
@@ -725,7 +732,8 @@ the <cite>numpy.fft</cite> documentation:</p>
 <dd><p>Compute the one-dimensional inverse discrete Fourier Transform.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.ifft" title="symjax.tensor.signal.ifft"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifft()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.ifft" title="symjax.tensor.signal.ifft"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifft()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.ifft" title="symjax.tensor.signal.ifft"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifft()</span></code></a>.
+Original docstring below.</p>
 <p>This function computes the inverse of the one-dimensional <em>n</em>-point
 discrete Fourier transform computed by <cite>fft</cite>.  In other words,
 <code class="docutils literal notranslate"><span class="pre">ifft(fft(a))</span> <span class="pre">==</span> <span class="pre">a</span></code> to within numerical accuracy.
@@ -798,7 +806,8 @@ desired, it must be performed before calling <cite>ifft</cite>.</p>
 <dd><p>Compute the 2-dimensional discrete Fourier Transform</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fft2" title="symjax.tensor.signal.fft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">fft2()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fft2" title="symjax.tensor.signal.fft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">fft2()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fft2" title="symjax.tensor.signal.fft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">fft2()</span></code></a>.
+Original docstring below.</p>
 <p>This function computes the <em>n</em>-dimensional discrete Fourier Transform
 over any axes in an <em>M</em>-dimensional array by means of the
 Fast Fourier Transform (FFT).  By default, the transform is computed over
@@ -866,7 +875,8 @@ definitions and conventions used.</p>
 <dd><p>Compute the 2-dimensional inverse discrete Fourier Transform.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.ifft2" title="symjax.tensor.signal.ifft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifft2()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.ifft2" title="symjax.tensor.signal.ifft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifft2()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.ifft2" title="symjax.tensor.signal.ifft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifft2()</span></code></a>.
+Original docstring below.</p>
 <p>This function computes the inverse of the 2-dimensional discrete Fourier
 Transform over any number of axes in an M-dimensional array by means of
 the Fast Fourier Transform (FFT).  In other words, <code class="docutils literal notranslate"><span class="pre">ifft2(fft2(a))</span> <span class="pre">==</span> <span class="pre">a</span></code>
@@ -934,7 +944,8 @@ padding is desired, it must be performed before <cite>ifft2</cite> is called.</p
 <dd><p>Compute the N-dimensional discrete Fourier Transform.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fftn" title="symjax.tensor.signal.fftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">fftn()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fftn" title="symjax.tensor.signal.fftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">fftn()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fftn" title="symjax.tensor.signal.fftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">fftn()</span></code></a>.
+Original docstring below.</p>
 <p>This function computes the <em>N</em>-dimensional discrete Fourier Transform over
 any number of axes in an <em>M</em>-dimensional array by means of the Fast Fourier
 Transform (FFT).</p>
@@ -1015,7 +1026,8 @@ axes, in order of decreasingly negative frequency.</p>
 <dd><p>Compute the N-dimensional inverse discrete Fourier Transform.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.ifftn" title="symjax.tensor.signal.ifftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifftn()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.ifftn" title="symjax.tensor.signal.ifftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifftn()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.ifftn" title="symjax.tensor.signal.ifftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifftn()</span></code></a>.
+Original docstring below.</p>
 <p>This function computes the inverse of the N-dimensional discrete
 Fourier Transform over any number of axes in an M-dimensional array by
 means of the Fast Fourier Transform (FFT).  In other words,
@@ -1091,7 +1103,8 @@ padding is desired, it must be performed before <cite>ifftn</cite> is called.</p
 <dd><p>Compute the one-dimensional discrete Fourier Transform for real input.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.rfft" title="symjax.tensor.signal.rfft"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfft()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.rfft" title="symjax.tensor.signal.rfft"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfft()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.rfft" title="symjax.tensor.signal.rfft"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfft()</span></code></a>.
+Original docstring below.</p>
 <p>This function computes the one-dimensional <em>n</em>-point discrete Fourier
 Transform (DFT) of a real-valued array by means of an efficient algorithm
 called the Fast Fourier Transform (FFT).</p>
@@ -1157,7 +1170,8 @@ exploited to compute only the non-negative frequency terms.</p>
 <dd><p>Compute the inverse of the n-point DFT for real input.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.irfft" title="symjax.tensor.signal.irfft"><code class="xref py py-func docutils literal notranslate"><span class="pre">irfft()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.irfft" title="symjax.tensor.signal.irfft"><code class="xref py py-func docutils literal notranslate"><span class="pre">irfft()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.irfft" title="symjax.tensor.signal.irfft"><code class="xref py py-func docutils literal notranslate"><span class="pre">irfft()</span></code></a>.
+Original docstring below.</p>
 <p>This function computes the inverse of the one-dimensional <em>n</em>-point
 discrete Fourier Transform of real input computed by <cite>rfft</cite>.
 In other words, <code class="docutils literal notranslate"><span class="pre">irfft(rfft(a),</span> <span class="pre">len(a))</span> <span class="pre">==</span> <span class="pre">a</span></code> to within numerical
@@ -1232,7 +1246,8 @@ specified, and the output array is purely real.</p>
 <dd><p>Compute the 2-dimensional FFT of a real array.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.rfft2" title="symjax.tensor.signal.rfft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfft2()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.rfft2" title="symjax.tensor.signal.rfft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfft2()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.rfft2" title="symjax.tensor.signal.rfft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfft2()</span></code></a>.
+Original docstring below.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>out</strong> – The result of the real 2-D FFT.</p>
@@ -1259,7 +1274,8 @@ For more details see <cite>rfftn</cite>.</p>
 <dd><p>Compute the 2-dimensional inverse FFT of a real array.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.irfft2" title="symjax.tensor.signal.irfft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">irfft2()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.irfft2" title="symjax.tensor.signal.irfft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">irfft2()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.irfft2" title="symjax.tensor.signal.irfft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">irfft2()</span></code></a>.
+Original docstring below.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>out</strong> – The result of the inverse real 2-D FFT.</p>
@@ -1286,7 +1302,8 @@ For more details see <cite>irfftn</cite>.</p>
 <dd><p>Compute the N-dimensional discrete Fourier Transform for real input.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.rfftn" title="symjax.tensor.signal.rfftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfftn()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.rfftn" title="symjax.tensor.signal.rfftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfftn()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.rfftn" title="symjax.tensor.signal.rfftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfftn()</span></code></a>.
+Original docstring below.</p>
 <p>This function computes the N-dimensional discrete Fourier Transform over
 any number of axes in an M-dimensional real array by means of the Fast
 Fourier Transform (FFT).  By default, all axes are transformed, with the
@@ -1357,7 +1374,8 @@ transformation axes.</p>
 <dd><p>Compute the inverse of the N-dimensional FFT of real input.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.irfftn" title="symjax.tensor.signal.irfftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">irfftn()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.irfftn" title="symjax.tensor.signal.irfftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">irfftn()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.irfftn" title="symjax.tensor.signal.irfftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">irfftn()</span></code></a>.
+Original docstring below.</p>
 <p>This function computes the inverse of the N-dimensional discrete
 Fourier Transform for real input over any number of axes in an
 M-dimensional array by means of the Fast Fourier Transform (FFT).  In
@@ -1433,7 +1451,8 @@ real. To avoid losing information, the correct shape of the real input
 <dd><p>Return the Discrete Fourier Transform sample frequencies.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fftfreq" title="symjax.tensor.signal.fftfreq"><code class="xref py py-func docutils literal notranslate"><span class="pre">fftfreq()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fftfreq" title="symjax.tensor.signal.fftfreq"><code class="xref py py-func docutils literal notranslate"><span class="pre">fftfreq()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fftfreq" title="symjax.tensor.signal.fftfreq"><code class="xref py py-func docutils literal notranslate"><span class="pre">fftfreq()</span></code></a>.
+Original docstring below.</p>
 <p>The returned float array <cite>f</cite> contains the frequency bin centers in cycles
 per unit of the sample spacing (with zero at the start).  For instance, if
 the sample spacing is in seconds, then the frequency unit is cycles/second.</p>
@@ -1471,7 +1490,8 @@ the sample spacing is in seconds, then the frequency unit is cycles/second.</p>
 </dl>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.rfftfreq" title="symjax.tensor.signal.rfftfreq"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfftfreq()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.rfftfreq" title="symjax.tensor.signal.rfftfreq"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfftfreq()</span></code></a>. Original docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.rfftfreq" title="symjax.tensor.signal.rfftfreq"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfftfreq()</span></code></a>.
+Original docstring below.</p>
 <p>The returned float array <cite>f</cite> contains the frequency bin centers in cycles
 per unit of the sample spacing (with zero at the start).  For instance, if
 the sample spacing is in seconds, then the frequency unit is cycles/second.</p>
@@ -1507,7 +1527,7 @@ the Nyquist frequency component is considered to be positive.</p>
 
 <dl class="function">
 <dt id="symjax.tensor.signal.mfcc">
-<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">mfcc</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">window</em>, <em class="sig-param">hop</em>, <em class="sig-param">n_filter</em>, <em class="sig-param">low_freq</em>, <em class="sig-param">high_freq</em>, <em class="sig-param">nyquist</em>, <em class="sig-param">n_mfcc</em>, <em class="sig-param">nfft=None</em>, <em class="sig-param">mode='valid'</em>, <em class="sig-param">apod=&lt;function _wrap_numpy_nullary_function.&lt;locals&gt;.wrapper&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#mfcc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.mfcc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">mfcc</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">window</em>, <em class="sig-param">hop</em>, <em class="sig-param">n_filter</em>, <em class="sig-param">low_freq</em>, <em class="sig-param">high_freq</em>, <em class="sig-param">nyquist</em>, <em class="sig-param">n_mfcc</em>, <em class="sig-param">nfft=None</em>, <em class="sig-param">mode='valid'</em>, <em class="sig-param">apod=&lt;function hanning&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#mfcc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.mfcc" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference external" href="https://librosa.github.io/librosa/_modules/librosa/feature/spectral.html#mfcc">https://librosa.github.io/librosa/_modules/librosa/feature/spectral.html#mfcc</a></p>
 </dd></dl>
 
@@ -1519,7 +1539,7 @@ the Nyquist frequency component is considered to be positive.</p>
 
 <dl class="function">
 <dt id="symjax.tensor.signal.wvd">
-<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">wvd</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">window</em>, <em class="sig-param">hop</em>, <em class="sig-param">L</em>, <em class="sig-param">apod=&lt;function _wrap_numpy_nullary_function.&lt;locals&gt;.wrapper&gt;</em>, <em class="sig-param">mode='valid'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#wvd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.wvd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">symjax.tensor.signal.</code><code class="sig-name descname">wvd</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">window</em>, <em class="sig-param">hop</em>, <em class="sig-param">L</em>, <em class="sig-param">apod=&lt;function hanning&gt;</em>, <em class="sig-param">mode='valid'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#wvd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.wvd" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -1543,11 +1563,16 @@ the Nyquist frequency component is considered to be positive.</p>
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="pdfs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.pdfs</span></code></a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="initializers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.initializers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="layers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.layers</span></code></a></li>
 </ul>
 
 <div class="relations">
@@ -1555,6 +1580,7 @@ the Nyquist frequency component is considered to be positive.</p>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
       <li>Previous: <a href="pdfs.html" title="previous chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.pdfs</span></code></a></li>
+      <li>Next: <a href="random.html" title="next chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
   </ul></li>
 </ul>
 </div>
@@ -1567,7 +1593,7 @@ the Nyquist frequency component is considered to be positive.</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -1584,7 +1610,7 @@ the Nyquist frequency component is considered to be positive.</p>
       &copy;2020, Randall Balestriero.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

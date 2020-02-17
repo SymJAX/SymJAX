@@ -7,23 +7,32 @@
 Welcome to SymJAX's documentation!
 ==================================
 
-XLA + Autograd = JAX
-JAX + Symbolic = SymJAX
+`XLA`_ + `Autograd`_ = `JAX`_
+
+Symbolic programming with `JAX`_ = `SymJAX`_
+
+`XLA`_: compiler that optimizes a computational graph fusing multiple kernels
+into one preventing intermediate computation, reducing memory operations
+and increasing performances.
+
+`JAX`_: python interface providing a numpy-like software on top of XLA and
+providing just-in-time compilation a well as advanced automatic
+differenciation.
+
+`SymJAX`_: symbolic programming version of `JAX`_ simplifying graph
+input/output/updates and providing additional functionalities for general
+machine learning and deep learning applications.
 
 
-
-The advantages of a symbolic programming language are multiple. First, one
-can create and test the entire computational graph without performing any
-memory allocation or actual computations. Second, for performances, the
-computational graph needs to be defined prior being optimized and compiled.
-This holds across softwares (Tensorflow, JAX, ...).
-SymJAX simply allows the user to do so in a simple, natural and
-streamlined fashion.
+This is a research project, not an official product, expect bugs and sharp
+edges; please help by trying it out, reporting bugs.
 
 
 Examples
 ========
 
+
+.. literalinclude:: ../examples/sgd.py
 
 
 Installation (GPU)
@@ -33,11 +42,12 @@ Preriquisites
 -------------
 
 First install cuda/cudnn/GPU drivers.
-Ensure that the GPUs that are visible.
-
 
 JAX installation
 ----------------
+
+please see `Jax Installation <https://github.com/google/jax#installation>`_ for
+addition information, here is a minimal instruction to install the GPU version
 
 PYTHON_VERSION=cp37  # alternatives: cp35, cp36, cp37, cp38
 CUDA_VERSION=cuda92  # alternatives: cuda92, cuda100, cuda101, cuda102
@@ -52,17 +62,27 @@ SymJAX installation
 pip install symjax
 
 
-API
-===
+General API
+===========
+
+.. toctree::
+  :maxdepth: 1
+
+  modules/symjax
+  modules/tensor
+  modules/pdfs
+  modules/signal
+  modules/random
+
+Deep Learning API
+=================
 
 .. toctree::
   :maxdepth: 1
 
   modules/datasets
-  modules/symjax
-  modules/tensor
-  modules/pdfs
-  modules/signal
+  modules/initializers
+  modules/layers
 
 
 Indices and tables
@@ -71,3 +91,8 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+.. _XLA: https://www.tensorflow.org/xla
+.. _Autograd: https://github.com/hips/autograd
+.. _JAX: https://github.com/google/jax
+.. _SymJAX: https://github.com/RandallBalestriero/SymJAX
