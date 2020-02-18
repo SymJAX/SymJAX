@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/google/SymJAX/master/doc/img/logo.png" alt="logo"></img>
+<img src="https://raw.githubusercontent.com/RandallBalestriero/SymJAX/master/doc/img/logo.png" alt="logo"></img>
 </div>
 
 # SymJAX: symbolic CPU/GPU/TPU programming
