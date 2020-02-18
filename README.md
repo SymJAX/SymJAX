@@ -1,4 +1,8 @@
-# SymJAX
+<div align="center">
+<img src="https://raw.githubusercontent.com/RandallBalestriero/SymJAX/master/doc/img/logo.png" alt="logo"></img>
+</div>
+
+# SymJAX: symbolic CPU/GPU/TPU programming
 conda list --explicit > spec-file.txt
 conda create --name myenv --file spec-file.txt
 
