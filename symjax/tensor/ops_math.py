@@ -287,6 +287,7 @@ cast = jax_wrap(jla.convert_element_type)
 complex = jax_wrap(jla.complex)
 stop_gradient = jax_wrap(jla.stop_gradient)
 dynamic_slice_in_dim = jax_wrap(jla.dynamic_slice_in_dim)
+dynamic_slice = jax_wrap(jla.dynamic_slice)
 range = arange
 T = transpose
 

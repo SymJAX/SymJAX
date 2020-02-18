@@ -389,63 +389,59 @@ class RandomCrop(Layer):
         self.crop_shape = crop_shape
         # if given only a scalar
         if not hasattr(padding, '__len__'):
-            self.pad_shape = [(padding, padding)] * (self.input_shape - 1)
+            self.pad_shape = [(padding, padding)] * (self.input.shape - 1)
         # else
         else:
             self.pad_shape = [(pad, pad) if not hasattr(pad, '__len__')
                               else pad for pad in padding]
 
         assert len(self.pad_shape) == len(self.crop_shape)
-        assert len(self.pad_shape) == (len(self.input_shape) - 1)
+        assert len(self.pad_shape) == (len(self.input.shape) - 1)
 
         self.deterministic = deterministic
 
         self.start_indices = list()
         self.fixed_indices = list()
         for i, (pad, dim, crop) in enumerate(
-                zip(self.pad_shape, self.input_shape[1:], self.crop_shape)):
+                zip(self.pad_shape, self.input.shape[1:], self.crop_shape)):
             maxval = pad[0] + pad[1] + dim - crop
             assert maxval >= 0
             self.start_indices.append(
-                T.random.randint(
-                    minval=0,
-                    maxval=maxval,
-                    shape=(
-                        self.input_shape[0],
-                    ),
+                T.random.randint(minval=0, maxval=maxval,
+                    shape=(self.input.shape[0],1),
                     dtype='int32',
-                    seed=seed + i))
+                    seed=seed + i if seed is not None else seed))
 
-            self.fixed_indices.append(maxval//2)
-
-        self.fixed_indices = T.stack(self.fixed_indices, 2)
+            self.fixed_indices.append(T.ones((self.input.shape[0],1), 'int32') * (maxval//2))
+        self.start_indices = T.concatenate(self.start_indices, 1)
+        self.fixed_indices = T.concatenate(self.fixed_indices, 1)
 
         super().__init__(self.forward(self.input))
 
-    def forward(self, input, deterministic):
+    def forward(self, input, deterministic=None):
 
         if deterministic is None:
             deterministic = self.deterministic
         dirac = T.cast(deterministic, 'float32')
 
         # pad the input
-        pinput = T.pad(input, self.pad_shape)
+        pinput = T.pad(input, [(0,0)] + self.pad_shape)
 
         routput = T.stack(
             [
                 T.dynamic_slice(
                     pinput[n],
-                    self.indices[n],
+                    self.start_indices[n],
                     self.crop_shape) for n in range(
-                    self.input_shape[0])],
+                    self.input.shape[0])],
             0)
         doutput = T.stack(
             [
                 T.dynamic_slice(
                     pinput[n],
-                    self.fixed_indices,
+                    self.fixed_indices[n],
                     self.crop_shape) for n in range(
-                    self.input_shape[0])],
+                    self.input.shape[0])],
             0)
 
 

@@ -22,7 +22,7 @@ def psd(M):
 
 class multivariate_normal:
 
-    def logpdf(x, mean, cov, allow_singular=False):
+    def logpdf(x, mean, cov):
         """
         Log of the multivariate normal probability density function.
 
@@ -39,16 +39,16 @@ class multivariate_normal:
 
         # we get the precision matrix such that
         # precision = dot(prec_U, prec_U.T)
-        prec_U, log_det = pdf(cov)
+        prec_U, log_det = psd(cov)
         centered_x = x - mean
-        log_exp = (tensor.dot(dev, prec_U)**2).sum(axis=-1)
+        log_exp = (tensor.dot(centered_x, prec_U)**2).sum(axis=-1)
         return -0.5 * (x.shape[-1] * _LOG_2PI + log_det + log_exp)
 
 
 
         return _squeeze_output(out)
 
-    def pdf(self, x, mean, cov):
+    def pdf(x, mean, cov):
         """
         Multivariate normal probability density function.
         Parameters
@@ -60,4 +60,4 @@ class multivariate_normal:
         pdf : ndarray
             Probability density function evaluated at `x`
         """
-        return tensor.exp(multivariate_normal(x, mean, cov))
+        return tensor.exp(multivariate_normal.logpdf(x, mean, cov))

@@ -23,20 +23,29 @@ def gradients(scalar, variables):
             the sequency of gradients ordered as given in the input variables
     """
 
+
     if scalar.shape != ():
         raise RuntimeError("the variable to differentiate is not a scalar")
     elif not isinstance(scalar, t.Tensor):
         raise RuntimeError(
             "the variable used in gradients should be a Tensor type")
 
+
+    if isinstance(variables, t.Tensor):
+        input_variables = [variables]
+        input_list = False
+    else:
+        input_variables = variables
+        input_list = True
+
     # get all the roots of the scalar, this is needed as otherwise they are not
     # as the input of the gradient function and thus a change of
     # their value will not change the gradient computation, we also ensure
     # uniqueness
-    all_roots = list(set(scalar.roots + variables))
+    all_roots = list(set(scalar.roots + input_variables))
 
     # get the argnum of the variables that we differentiate one
-    argnums = [all_roots.index(var) for var in variables]
+    argnums = [all_roots.index(var) for var in input_variables]
 
     # create a dummy function that is needed for jax to compute a gradient func
     # this function is the one that builds the graph of computation from all roots
@@ -49,7 +58,10 @@ def gradients(scalar, variables):
     # used to generate the Tuple of symbolic variables
     grad_fn = jax.grad(fn, argnums)
     wrap_fn = t.jax_wrap(grad_fn, False)
-    return wrap_fn(*all_roots)
+    if input_list:
+        return wrap_fn(*all_roots)
+    else:
+        return wrap_fn(*all_roots)[0]
 
 
 def jacobians(tensor, variables, mode='forward'):

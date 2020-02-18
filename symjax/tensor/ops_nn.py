@@ -3,7 +3,7 @@ import jax.lax as jla
 
 from .base import Op, Tensor, Variable, jax_wrap
 from .control_flow import cond
-from .ops_math import dynamic_slice_in_dim, equal, where
+from .ops_math import dynamic_slice_in_dim, equal, where, dynamic_slice, greater
 import numpy
 
 
@@ -206,6 +206,10 @@ def ExponentialMovingAverage(value, alpha, step=None, init=None):
     return var, updates, _step
 
 # con
+
+def relu(x):
+    return where(greater(x, 0), x, 0)
+
 
 def PiecewiseConstant(init, values, step=None):
     """
