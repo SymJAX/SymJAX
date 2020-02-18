@@ -4,6 +4,7 @@
 
 # SymJAX: symbolic CPU/GPU/TPU programming [![Test status](https://travis-ci.org/google/jax.svg?branch=master)](https://travis-ci.org/google/jax)
 
+This is an under development research project, not an official product, expect bugs and sharp edges; please help by trying it out, reporting bugs.
 [**Reference docs**](https://symjax.readthedocs.io/en/latest/)
 
 
@@ -15,8 +16,7 @@ SymJAX is a symbolic programming version of JAX simplifying graph input/output/u
 
 ```python
 import sys
-sys.path.insert(0, "../")
-import symjax
+import symjax as sj
 import symjax.tensor as T
 
 # create our variable to be optimized
@@ -27,14 +27,14 @@ cost = T.exp(-(mu-1)**2)
 
 # get the gradient, notice that it is itself a tensor that can then
 # be manipulated as well
-g = symjax.gradients(cost, mu)
+g = sj.gradients(cost, mu)
 print(g)
 
 # (Tensor: shape=(), dtype=float32)
 
 # create the compield function that will compute the cost and apply
 # the update onto the variable
-f = symjax.function(outputs=cost, updates={mu:mu-0.2*g})
+f = sj.function(outputs=cost, updates={mu:mu-0.2*g})
 
 for i in range(10):
     print(f())
@@ -42,30 +42,26 @@ for i in range(10):
 # 0.008471076
 # 0.008201109
 # 0.007946267
-# 0.007705368
-# 0.0074773384
-# 0.007261208
-# 0.0070561105
-# 0.006861261
-# 0.006675923
-# 0.006499458
+# ...
 ```
 
 ## Installation
 
-conda list --explicit > spec-file.txt
-conda create --name myenv --file spec-file.txt
+Make sure to install all the needed GPU drivers (for GPU support, not mandatory) and install JAX as follows (see [**guide](https://github.com/google/jax/blob/master/README.md#installation)):
 
-    pip freeze>requirements.txt
+    export LD_LIBRARY_PATH=/usr/local/cuda-10.1/lib64:$LD_LIBRARY_PATH 
+    export LIBRARY_PATH=/usr/local/cuda-10.1/lib64:$LIBRARY_PATH                
+    export DATASET_PATH='XXX'                                    
+    export XLA_PYTHON_CLIENT_PREALLOCATE='false'                                export XLA_FLAGS="--xla_gpu_cuda_data_dir=/usr/local/cuda-10.1"             export CUDA_DIR="/usr/local/cuda-10.1"
+
+Then simply install SymJAX as follows:
+
+    pip install symjax
+
+once this is done, to leverage the dataset please set up the environment variable
+    
+    export DATASET_PATH=/path/to/default/location/
+    
+this path will be used as the default path where to download the various datasets in case no explicit path is given.
 
 
-    pip download -r requirements.txt -d path_to_the_folder
-
-
-    pip install -r requirements.txt --find-links=path_to_the_folder
-
-
-export LD_LIBRARY_PATH=/usr/local/cuda-10.1/lib64:$LD_LIBRARY_PATH 
-export LIBRARY_PATH=/usr/local/cuda-10.1/lib64:$LIBRARY_PATH                
-export DATASET_PATH='XXX'                                    
-export XLA_PYTHON_CLIENT_PREALLOCATE='false'                                export XLA_FLAGS="--xla_gpu_cuda_data_dir=/usr/local/cuda-10.1"             export CUDA_DIR="/usr/local/cuda-10.1"
