@@ -9,6 +9,7 @@ from .dsprites import dsprites
 from .cifar10 import cifar10
 from .cifar100 import cifar100
 from .tinyimagenet import tinyimagenet
+from .ibeans import ibeans
 
 # audio
 from .TUTacousticscences2017 import TUTacousticscences2017

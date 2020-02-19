@@ -68,17 +68,17 @@ def morlet(M, s, w=5):
     according to `s`.
     The fundamental frequency of this wavelet in Hz is given
     by ``f = 2*s*w*r / M`` where `r` is the sampling rate.
-    Note: This function was created before `cwt` and is not compatible
-    with it.
     """
-    x = T.linspace(-2 * 3.14159, 2 * 3.14159, M) * s
+    limit = 2 * numpy.pi
+    x = T.linspace(-limit, limit, M) * s
     sine = T.complex(T.cos(w * x), T.sin(w * x))
+    envelop = T.exp(-0.5 * (x**2))
 
     # apply correction term for admissibility
     wave = sine - T.exp(-0.5 * (w**2))
 
     # now localize the wave to obtain a wavelet
-    wavelet = wave * T.exp(-0.5 * (x**2)) * 3.14159**(-0.25)
+    wavelet = wave * envelop * numpy.pi**(-0.25)
 
     return wavelet
 

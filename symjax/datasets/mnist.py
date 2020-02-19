@@ -16,7 +16,7 @@ class mnist:
     techniques and pattern recognition methods on real-world data while 
     spending minimal efforts on preprocessing and formatting.
     """
-  
+    @staticmethod
     def download(path):
         """
         Download the MNIST dataset and store the result into the given
@@ -41,7 +41,7 @@ class mnist:
             url = 'http://deeplearning.net/data/mnist/mnist.pkl.gz'
             urllib.request.urlretrieve(url,path + 'mnist/mnist.pkl.gz')
 
-
+    @staticmethod
     def load(path=None):
         """
         Parameters
