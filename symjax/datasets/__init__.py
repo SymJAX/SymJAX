@@ -10,6 +10,8 @@ from .cifar10 import cifar10
 from .cifar100 import cifar100
 from .tinyimagenet import tinyimagenet
 from .ibeans import ibeans
+from .cassava import cassava
+
 
 # audio
 from .TUTacousticscences2017 import TUTacousticscences2017
