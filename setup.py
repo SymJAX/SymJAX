@@ -12,7 +12,7 @@ setuptools.setup(
 
      name='symjax',  
 
-     version='0.1',
+     version='0.2',
 
      scripts=['pkg'] ,
 
@@ -20,11 +20,11 @@ setuptools.setup(
 
      author_email="randallbalestriero@gmail.com",
 
-     description="A symbolic JAX software",
+     description="A Symbolic JAX software",
 
      long_description=long_description,
 
-   long_description_content_type="text/markdown",
+     long_description_content_type="text/markdown",
 
      url="https://github.com/RandallBalestriero/SymJAX.git",
 

@@ -48,6 +48,7 @@ def hat_1D(x, t_left, t_center, t_right):
 
 def _extract_signal_patches(signal, window_length, hop=1, data_format='NCW'):
     assert not hasattr(window_length, '__len__')
+    assert signal.ndim == 3
     if data_format == 'NCW':
         N = (signal.shape[2] - window_length) // hop + 1
         indices = jnp.arange(window_length) +\
@@ -286,6 +287,7 @@ cast = jax_wrap(jla.convert_element_type)
 complex = jax_wrap(jla.complex)
 stop_gradient = jax_wrap(jla.stop_gradient)
 dynamic_slice_in_dim = jax_wrap(jla.dynamic_slice_in_dim)
+dynamic_slice = jax_wrap(jla.dynamic_slice)
 range = arange
 T = transpose
 

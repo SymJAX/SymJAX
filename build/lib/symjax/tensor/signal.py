@@ -8,7 +8,7 @@ from .base import Op, jax_wrap
 import sys
 
 
-################ Add the apodization windows
+# Add the apodization windows
 
 names = ['blackman',
          'bartlett',
@@ -18,19 +18,69 @@ names = ['blackman',
 
 module = sys.modules[__name__]
 for name in names:
-    module.__dict__.update({name: jax_wrap(jnp.__dict__[name])})
+    module.__dict__.update({name: jax_wrap(jnp.__dict__[name], doc_func=numpy.__dict__[name])})
 
-################# Add the fft functions into signal
+# Add the fft functions into signal
 
 names = ['fft', 'ifft', 'fft2', 'ifft2', 'fftn', 'ifftn', 'rfft', 'irfft',
          'rfft2', 'irfft2', 'rfftn', 'irfftn', 'fftfreq', 'rfftfreq']
 for name in names:
-    print(name)
-    module.__dict__.update({name: jax_wrap(jnpf.__dict__[name])})
+    module.__dict__.update(
+        {name: jax_wrap(jnpf.__dict__[name], doc_func=numpy.fft.__dict__[name])})
 
 
+# Add some utility functions
 
-################# Add some utility functions
+def morlet(M, s, w=5):
+    """
+    Complex Morlet wavelet.
+    Parameters
+    ----------
+    M : int
+        Length of the wavelet.
+
+    s : float, optional
+        Scaling factor, windowed from ``-s*2*pi`` to ``+s*2*pi``. Default is 1.
+    w : float, optional
+        Omega0. Default is 5
+    complete : bool, optional
+        Whether to use the complete or the standard version.
+    Returns
+    -------
+    morlet : (M,) ndarray
+    See Also
+    --------
+    morlet2 : Implementation of Morlet wavelet, compatible with `cwt`.
+    scipy.signal.gausspulse
+    Notes
+    -----
+    The standard version::
+        pi**-0.25 * exp(1j*w*x) * exp(-0.5*(x**2))
+    This commonly used wavelet is often referred to simply as the
+    Morlet wavelet.  Note that this simplified version can cause
+    admissibility problems at low values of `w`.
+    The complete version::
+        pi**-0.25 * (exp(1j*w*x) - exp(-0.5*(w**2))) * exp(-0.5*(x**2))
+    This version has a correction
+    term to improve admissibility. For `w` greater than 5, the
+    correction term is negligible.
+    Note that the energy of the return wavelet is not normalised
+    according to `s`.
+    The fundamental frequency of this wavelet in Hz is given
+    by ``f = 2*s*w*r / M`` where `r` is the sampling rate.
+    """
+    limit = 2 * numpy.pi
+    x = T.linspace(-limit, limit, M) * s
+    sine = T.complex(T.cos(w * x), T.sin(w * x))
+    envelop = T.exp(-0.5 * (x**2))
+
+    # apply correction term for admissibility
+    wave = sine - T.exp(-0.5 * (w**2))
+
+    # now localize the wave to obtain a wavelet
+    wavelet = wave * envelop * numpy.pi**(-0.25)
+
+    return wavelet
 
 
 def bin_to_freq(bins, max_f):
@@ -128,15 +178,17 @@ def power_to_db(S, ref=1.0, amin=1e-10, top_db=80.0):
         return log_spec
 
 
-#################### Now some filter-bank and additional Time-Frequency Repr.
+# Now some filter-bank and additional Time-Frequency Repr.
 
 
 def sinc_bandpass(time, f0, f1):
+    """
+    ensure that f0<f1 and f0>0, f1<1
+    whenever time is ..., -1, 0, 1, ...
+    """
     high = f0 * T.sinc(time * f0)
     low = f1 * T.sinc(time * f1)
-    return 2 * (high - low)
-
-
+    return high - low
 
 
 def mel_filterbank(length, n_filter, low, high, nyquist):
@@ -158,8 +210,9 @@ def mel_filterbank(length, n_filter, low, high, nyquist):
 
 def stft(signal, window, hop, apod=T.ones, nfft=None, mode='valid'):
     """
-    Compute the Shoft-Time-Fourier-Transform of a signal given the
-    window length, hop and additional parameters.
+    Compute the Shoft-Time-Fourier-Transform of a
+    signal given the window length, hop and additional
+    parameters.
 
     Parameters
     ----------
@@ -190,6 +243,7 @@ def stft(signal, window, hop, apod=T.ones, nfft=None, mode='valid'):
         output: complex array
             the complex stft
     """
+    assert signal.ndim == 3
     if nfft is None:
         nfft = window
     if mode == 'same':
@@ -205,10 +259,10 @@ def stft(signal, window, hop, apod=T.ones, nfft=None, mode='valid'):
 
     p = T.extract_signal_patches(
         psignal, window, hop) * apodization
-    S = fft(pp, (nfft,))
+    assert nfft >= window
+    pp = T.pad(p, [[0, 0], [0, 0], [0, 0], [0, nfft-window]])
+    S = fft(pp)
     return S[..., : int(numpy.ceil(nfft / 2))].transpose([0, 1, 3, 2])
-
-
 
 
 def spectrogram(signal, window, hop, apod=hanning, nfft=None, mode='valid'):
@@ -243,7 +297,7 @@ def wvd(signal, window, hop, L, apod=hanning, mode='valid'):
 
     # compute the stft with 2 times bigger window to interp.
     s = stft(signal, window, hop, apod, nfft=2 * window, mode=mode)
-
+    print('s', s.shape)
     # remodulate the stft prior the spectral correlation for simplicity
     # with the following mask
     step = 1 / window
@@ -254,7 +308,7 @@ def wvd(signal, window, hop, L, apod=hanning, mode='valid'):
 
     # extract vertical (freq) partches to perform auto correlation
     patches = T.extract_image_patches(s, (2 * L + 1, 1), (2, 1),
-                                      mode='same').squeeze()  # (N C F' T L)
+                                      mode='same')[...,0]  # (N C F' T L)
     output = (patches * T.conj(T.flip(patches, -1)) * mask).sum(-1)
     return T.real(output)
 

@@ -21,11 +21,17 @@ class esc50:
     The dataset consists of 5-second-long recordings organized into 50
     semantical classes (with 40 examples per class) loosely arranged into 5
     major categories:
+        Animals
+        Natural soundscapes & water sounds
+        Human, non-speech sounds
+        Interior/domestic sounds
+        Exterior/urban noises
 
     Clips in this dataset have been manually extracted from public field
     recordings gathered by the Freesound.org project. The dataset has been
-    prearranged into 5 folds for comparable cross-validation, making sure that
-    fragments from the same original source file are contained in a single fold.
+    prearranged into 5 folds for comparable cross-validation, making sure
+    that fragments from the same original source file are contained in a
+    single fold.
     """
     fine_to_coarse = {'dog': 0, 'rooster': 0, 'pig': 0, 'cow': 0, 'frog': 0,
                           'cat': 0, 'hen': 0, 'insects': 0, 'sheep': 0, 'crow': 0,
@@ -94,7 +100,7 @@ class esc50:
                 continue
             wavfile   = f.read(filename)
             byt       = io.BytesIO(wavfile)
-            wavs.append(wav_read(byt)[1].astype('float32')[::subsample])
+            wavs.append(wav_read(byt)[1].astype('float32'))
             order.append(filenames.index(filename.split('/')[-1]))
             N = max(N, len(wavs[-1]))
     
@@ -102,4 +108,4 @@ class esc50:
         for i in range(len(wavs)):
             left = (N-len(wavs[i])) // 2
             all_wavs[order[i], left: left + len(wavs[i])] = wavs[i]
-        return all_wavs, fine_labels, coarse_labels, categories
+        return all_wavs, fine_labels, coarse_labels

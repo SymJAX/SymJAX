@@ -3,7 +3,7 @@ import jax.lax as jla
 
 from .base import Op, Tensor, Variable, jax_wrap
 from .control_flow import cond
-from .ops_math import dynamic_slice_in_dim
+from .ops_math import dynamic_slice_in_dim, equal, where, dynamic_slice, greater
 import numpy
 
 
@@ -186,6 +186,7 @@ def poolNd(input, window_shape, reducer='MAX', strides=None, padding='VALID',
                   window_strides=strides, padding=padding)
     return out
 
+
 def ExponentialMovingAverage(value, alpha, step=None, init=None):
     if step is None:
         _step = Variable(0, trainable=False, name='step')
@@ -197,9 +198,7 @@ def ExponentialMovingAverage(value, alpha, step=None, init=None):
     else:
         var = Variable(init, trainable=False, name='EMA')
 
-    new_value = cond(_step == 0, value, lambda x: x,
-                     (var, alpha, value), lambda a, b, c:
-                     a * b + (1 - b) * c)
+    new_value = where(equal(_step, 0), value, var * alpha + (1 - alpha) * value)
     if step is None:
         updates = {var: new_value, _step: _step + 1}
     else:
@@ -207,6 +206,10 @@ def ExponentialMovingAverage(value, alpha, step=None, init=None):
     return var, updates, _step
 
 # con
+
+def relu(x):
+    return where(greater(x, 0), x, 0)
+
 
 def PiecewiseConstant(init, values, step=None):
     """

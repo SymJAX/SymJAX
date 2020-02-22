@@ -2,13 +2,13 @@ import numpy as np
 from multiprocessing import Pool, Queue, Lock, Process
 
 
-def train_test_split(*args, train_size=0.2, stratify=None):
+def train_test_split(*args, train_size=0.8, stratify=None, seed=None):
     if stratify is not None:
         train_indices = list()
         test_indices = list()
-        for c in set(stratify):
+        for c in set(list(stratify)):
             c_indices = np.where(stratify == c)[0]
-            np.random.shuffle(c_indices)
+            np.random.RandomState(seed=seed).shuffle(c_indices)
             if train_size > 1:
                 cutoff = train_size
             else:
@@ -18,7 +18,7 @@ def train_test_split(*args, train_size=0.2, stratify=None):
         train_indices = np.concatenate(train_indices, 0)
         test_indices = np.concatenate(test_indices, 0)
     else:
-        indices = np.random.permutation(args[0].shape[0])
+        indices = np.random.RandomState(seed=seed).permutation(len(args[0]))
         if train_size > 1:
             cutoff = train_size
         else:

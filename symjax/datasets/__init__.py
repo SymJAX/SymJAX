@@ -23,3 +23,5 @@ from .irmas import irmas
 from .freefield1010 import freefield1010
 from .warblr import warblr
 from .birdvox_70k import birdvox_70k
+from .birdvox_dcase_20k import birdvox_dcase_20k
+

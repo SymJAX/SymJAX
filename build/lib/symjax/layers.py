@@ -1,10 +1,11 @@
+from .tensor import ops_methods
 from . import tensor as T
 from . import initializers
 import numpy
 import inspect
 
 
-def is_shape(x):
+def _is_shape(x):
     """utility function that checks if the input is a shape or not"""
     if not hasattr(x, '__len__'):
         return False
@@ -15,6 +16,19 @@ def is_shape(x):
 
 
 def forward(input, layers):
+    """ perform a forward path in the layers given an input
+
+    utility function
+
+    Parameters
+    ----------
+
+    input: Tensor
+        the tensor to be forwarded across the given layers
+
+    layers: list of layers
+        the layers to forward the input in a consecutive manner
+    """
     outputs = [layers[0].forward(input)]
     for layer in layers[1:]:
         outputs.append(layer.forward(outputs[-1]))
@@ -35,7 +49,7 @@ class Layer(T.Tensor):
             return self._variables
 
     def init_input(self, input_or_shape):
-        if is_shape(input_or_shape):
+        if _is_shape(input_or_shape):
             self.input = T.Placeholder(input_or_shape, 'float32')
         else:
             self.input = input_or_shape
@@ -133,17 +147,19 @@ class Dense(Layer):
 
 
 class Conv1D(Layer):
-
+    """ for standard conv1d the W_shape should be
+            (#out_filters, #in_channels, time_bins)
+        and for the bias it should be (#out_filters, 1) or to not
+        share the bias across time put
+        (#out_filters, time_bins) or to share all bias put (1,) be
+        careful to have the correct
+        time for broadcasting if needed
+    """
     def __init__(self, input_or_shape, W_shape, b_shape=None, strides=1,
                  pad='VALID', W=initializers.he, b=numpy.zeros,
                  W_dtype='float32', b_dtype='float32',
                  trainable_W=True, trainable_b=True,
                  input_dilations=None, filter_dilations=None):
-        """ for standard conv1d the W_shape should be (#out_filters, #in_channels, time_bins)
-            and for the bias it should be (#out_filters, 1) or to not share the bias across time put
-            (#out_filters, time_bins) or to share all bias put (1,) be careful to have the correct
-            time for broadcasting if needed
-        """
 
         self.init_input(input_or_shape)
         self.input_dilation = input_dilations
@@ -232,6 +248,30 @@ class Pool2D(Layer):
 
 class Dropout(Layer):
 
+    """binary mask onto the input
+
+    Parameters
+    ----------
+
+    input_or_shape: shape or Tensor
+        the layer input or shape
+
+    p: float (0<=p<=1)
+        the probability to drop the value
+
+    deterministic: bool or Tensor
+        the state of the layer
+
+    seed: seed
+        the RNG seed
+
+    Returns
+    -------
+
+    output: the layer output
+
+    """
+
     def __init__(self, input_or_shape, p, deterministic, seed=None):
 
         self.init_input(input_or_shape)
@@ -249,6 +289,40 @@ class Dropout(Layer):
 
 class RandomFlip(Layer):
 
+    """
+    random axis flip on the input
+
+    Random layer that will randomly flip the axis of the input.
+    Note that all the involved
+    operations are GPU compatible and allow for backpropagation
+
+    Parameters
+    ----------
+
+    input_or_shape: shape or Tensor
+        the input of the layer or the shape of the layer input
+
+    crop_shape: shape
+        the shape of the cropped part of the input. It must have the same
+        length as the input shape  minus one for the first dimension
+
+    deterministic: bool or Tensor
+        if the layer is in deterministic mode or not
+
+    padding: shape
+        the amount of padding to apply on each dimension (except the first
+        one) each dimension should have a couple for the before and
+        after padding parts
+
+    seed: seed (optional)
+        to control reproducibility
+
+    Returns
+    -------
+
+    output: the output tensor which containts the internal variables
+    """
+    
     def __init__(self, input_or_shape, p, axis, deterministic, seed=None):
 
         self.init_input(input_or_shape)
@@ -272,73 +346,144 @@ class RandomFlip(Layer):
 
 class RandomCrop(Layer):
 
-    def __init__(self, input_or_shape, crop_shape, pad_shape, deterministic,
-                 seed=None):
+    """
+    random crop selection form the input
+
+    Random layer that will select a window of the input based on the given
+    parameters, with the possibility to first apply a padding. This layer is
+    commonly used as a data augmentation technique and positioned at the
+    beginning of the deep network topology. Note that all the involved
+    operations are GPU compatible and allow for backpropagation
+
+    Parameters
+    ----------
+
+    input_or_shape: shape or Tensor
+        the input of the layer or the shape of the layer input
+
+    crop_shape: shape
+        the shape of the cropped part of the input. It must have the same
+        length as the input shape  minus one for the first dimension
+
+    deterministic: bool or Tensor
+        if the layer is in deterministic mode or not
+
+    padding: shape
+        the amount of padding to apply on each dimension (except the first
+        one) each dimension should have a couple for the before and
+        after padding parts
+
+    seed: seed (optional)
+        to control reproducibility
+
+    Returns
+    -------
+
+    output: the output tensor which containts the internal variables
+
+    """
+
+    def __init__(self, input_or_shape, crop_shape, deterministic, padding=0,                 seed=None):
 
         self.init_input(input_or_shape)
         self.crop_shape = crop_shape
-        if not hasattr(pad_shape, '__len__'):
-            self.pad_shape = [(pad_shape, pad_shape), (pad_shape, pad_shape)]
-        elif not hasattr(pad_shape[0], '__len__'):
-            self.pad_shape = [(pad_shape[0], pad_shape[0]), (pad_shape[1],
-                                                             pad_shape[1])]
+        # if given only a scalar
+        if not hasattr(padding, '__len__'):
+            self.pad_shape = [(padding, padding)] * (self.input.shape - 1)
+        # else
+        else:
+            self.pad_shape = [(pad, pad) if not hasattr(pad, '__len__')
+                              else pad for pad in padding]
+
+        assert len(self.pad_shape) == len(self.crop_shape)
+        assert len(self.pad_shape) == (len(self.input.shape) - 1)
 
         self.deterministic = deterministic
 
-        h = self.input.shape[2] + sum(self.pad_shape[0]) - crop_shape[0]
-        self.h_ind = T.random.randint(minval=0, maxval=h + 1,
-                                      shape=(input.shape[0],),
-                                      dtype='int32', seed=seed)
-        w = input.shape[3] + sum(self.pad_shape[0]) - crop_shape[1]
-        self.w_ind = T.random.randint(minval=0, maxval=w + 1,
-                                      shape=(input.shape[0],),
-                                      dtype='int32', seed=seed + 1 if seed is not None else seed)
+        self.start_indices = list()
+        self.fixed_indices = list()
+        for i, (pad, dim, crop) in enumerate(
+                zip(self.pad_shape, self.input.shape[1:], self.crop_shape)):
+            maxval = pad[0] + pad[1] + dim - crop
+            assert maxval >= 0
+            self.start_indices.append(
+                T.random.randint(minval=0, maxval=maxval,
+                    shape=(self.input.shape[0],1),
+                    dtype='int32',
+                    seed=seed + i if seed is not None else seed))
+
+            self.fixed_indices.append(T.ones((self.input.shape[0],1), 'int32') * (maxval//2))
+        self.start_indices = T.concatenate(self.start_indices, 1)
+        self.fixed_indices = T.concatenate(self.fixed_indices, 1)
 
         super().__init__(self.forward(self.input))
 
-    def forward(self, input, deterministic):
+    def forward(self, input, deterministic=None):
 
         if deterministic is None:
             deterministic = self.deterministic
         dirac = T.cast(deterministic, 'float32')
 
-        # pad the input as needed and flatten it
-        if pad_shape[0][0] > 0 or pad_shape[0][1] > 0\
-                or pad_shape[1][0] > 0 or pad_shape[1][1] > 0:
-            input2 = T.pad(input, [(0, 0), (0, 0), pad_shape[0], pad_shape[1]])
-        else:
-            input2 = input
-        flat_input = input2.reshape(input2.shape[:2] + (-1,))
+        # pad the input
+        pinput = T.pad(input, [(0,0)] + self.pad_shape)
 
-        # compute the base indices of a 2d patch
-        patch = T.arange(numpy.prod(crop_shape)).reshape(crop_shape)
-        offset = T.expand_dims(T.arange(crop_shape[0]), 1)
-        patch_indices = patch + offset * (input2.shape[3] - crop_shape[1])
-        # flatten them
-        flat_indices = patch_indices.reshape((1, 1, -1))
-        # and repeat for the input channels
-        cflat_indices = flat_indices  # .repeat(input.shape[1], 1)
+        routput = T.stack(
+            [
+                T.dynamic_slice(
+                    pinput[n],
+                    self.start_indices[n],
+                    self.crop_shape) for n in range(
+                    self.input.shape[0])],
+            0)
+        doutput = T.stack(
+            [
+                T.dynamic_slice(
+                    pinput[n],
+                    self.fixed_indices[n],
+                    self.crop_shape) for n in range(
+                    self.input.shape[0])],
+            0)
 
-        # create the random shifts and get the random patch indices
-        random_offsets = self.h_ind * input2.shape[3] + self.w_ind
-        crandom_offsets = random_offsets.reshape((-1, 1, 1))
-        random_indices = cflat_indices + crandom_offsets
-        flat_output = T.take_along_axis(flat_input, random_indices, 2)
-        output = flat_output.reshape(input.shape[:2] + tuple(crop_shape))
 
-        # create the deterministic version
-        if crop_shape[0] != input.shape[2] or crop_shape[1] != input.shape[3]:
-            offset = (pad_shape[0][0] + (input.shape[2] - crop_shape[0]) // 2,
-                      pad_shape[1][0] + (input.shape[3] - crop_shape[1]) // 2)
-            offset = input2.shape[3] * offset[0] + offset[1]
-            deter_output = T.take_along_axis(
-                flat_input, flat_indices + offset, 2).reshape(input.shape[:2] + tuple(crop_shape))
-        else:
-            deter_output = input
-        return output  # deter_output * dirac +  (1 - dirac) * output
+        return doutput * dirac +  (1 - dirac) * routput
 
 
 class BatchNormalization(Layer):
+    """
+    batch-normalization layer
+
+
+    Parameters:
+    -----------
+
+    input_or_shape: shape or Tensor
+        the layer input tensor or shape
+
+    axis: list or tuple of ints
+        the axis to normalize on. If using BN on a dense layer then
+        axis should be [0] to normalize over the samples. If the layer
+        if a convolutional layer with data format NCHW then axis should
+        be [0, 2, 3] to normalize over the samples and spatial dimensions
+        (commonly done)
+
+    deterministic: bool or Tensor
+        controlling the state of the layer
+
+    const: float32 (optional)
+        the constant used in the standard deviation renormalization
+
+    beta1: flaot32 (optional)
+        the parameter for the exponential moving average of the mean
+
+    beta2: float32 (optional)
+        the parameters for the exponential moving average of the std
+
+    Returns
+    -------
+
+    output: the layer output with attributes given by the layer options
+
+    """
     def __init__(self, input_or_shape, axis, deterministic, const=0.001,
                  beta1=0.99, beta2=0.99, W=numpy.ones, b=numpy.zeros):
 

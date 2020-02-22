@@ -72,9 +72,12 @@ class cifar10:
 
         """
 
+
         if path is None:
-            path = os.environ['DATASET_path']
+            path = os.environ['DATASET_PATH']
     
+        cifar10.download(path)
+
         t0 = time.time()
     
         print('Loading cifar10')
@@ -100,4 +103,4 @@ class cifar10:
         test_labels = np.array(data_dic['labels']).astype('int32')
     
         print('Dataset cifar10 loaded in{0:.2f}s.'.format(time.time()-t0))
-        return train_images, train_labels, test_iamges, test_labels
+        return train_images, train_labels, test_images, test_labels
