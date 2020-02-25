@@ -64,7 +64,7 @@ Deep Learning
   modules/datasets
   modules/initializers
   modules/layers
-
+  modules/optimizers
 
 Indices and tables
 ==================

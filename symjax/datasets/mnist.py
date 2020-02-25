@@ -38,6 +38,7 @@ class mnist:
         # Check if file exists
         if not os.path.exists(path+'mnist/mnist.pkl.gz'):
             td  = time.time()
+            print('Creating mnist')
             url = 'http://deeplearning.net/data/mnist/mnist.pkl.gz'
             urllib.request.urlretrieve(url,path + 'mnist/mnist.pkl.gz')
 
@@ -75,6 +76,7 @@ class mnist:
         t0 = time.time()
     
         # Loading the file
+        print('Loading mnist')
         f = gzip.open(path+'mnist/mnist.pkl.gz', 'rb')
         train_set, valid_set, test_set = pickle.load(f,encoding='latin1')
         f.close()
@@ -89,4 +91,4 @@ class mnist:
     
         print('Dataset mnist loaded in {0:.2f}s.'.format(time.time()-t0))
     
-        return train_set[0], train_set[1], valid_set[0], valid_sed[1], test_set[0], test_set[1]
+        return train_set[0], train_set[1], valid_set[0], valid_set[1], test_set[0], test_set[1]

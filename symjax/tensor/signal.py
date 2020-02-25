@@ -1,5 +1,5 @@
 import jax.numpy as jnp
-import jax.numpy.fft as jnpf
+import jax.numpy.fft as jnp
 import jax.lax as jla
 import numpy
 import inspect
@@ -18,7 +18,7 @@ names = ['blackman',
 
 module = sys.modules[__name__]
 for name in names:
-    module.__dict__.update({name: jax_wrap(jnp.__dict__[name], doc_func=numpy.__dict__[name])})
+    module.__dict__.update({name: jax_wrap(numpy.__dict__[name], doc_func=numpy.__dict__[name])})
 
 # Add the fft functions into signal
 
@@ -26,7 +26,7 @@ names = ['fft', 'ifft', 'fft2', 'ifft2', 'fftn', 'ifftn', 'rfft', 'irfft',
          'rfft2', 'irfft2', 'rfftn', 'irfftn', 'fftfreq', 'rfftfreq']
 for name in names:
     module.__dict__.update(
-        {name: jax_wrap(jnpf.__dict__[name], doc_func=numpy.fft.__dict__[name])})
+        {name: jax_wrap(jnp.__dict__[name], doc_func=numpy.fft.__dict__[name])})
 
 
 # Add some utility functions
@@ -139,8 +139,8 @@ def power_to_db(S, ref=1.0, amin=1e-10, top_db=80.0):
 
     Parameters
     ----------
-    S : np.ndarray
-        input power
+    S : numpy.ndarray
+        inumpy.t power
 
     ref : scalar or callable
         If scalar, the amplitude `abs(S)` is scaled relative to `ref`:
@@ -158,7 +158,7 @@ def power_to_db(S, ref=1.0, amin=1e-10, top_db=80.0):
 
     Returns
     -------
-    S_db : np.ndarray
+    S_db : numpy.ndarray
         ``S_db ~= 10 * log10(S) - 10 * log10(ref)``
 
     See Also
@@ -227,7 +227,7 @@ def stft(signal, window, hop, apod=T.ones, nfft=None, mode='valid'):
             the amount by which the window is moved
 
         apod: func
-            a function that takes an integer as input and return
+            a function that takes an integer as inumpy.t and return
             the apodization window of the same length
 
         nfft: int (optional)
@@ -235,7 +235,7 @@ def stft(signal, window, hop, apod=T.ones, nfft=None, mode='valid'):
             If not given it is set the same as window.
 
         mode: 'valid', 'same' or 'full'
-            the padding of the input signals
+            the padding of the inumpy.t signals
 
     Returns
     -------
@@ -326,3 +326,251 @@ def dct(signal, axes=(-1,)):
     y = fft(pad_signal, axes=axes)
     cropped_y = T.dynamic_slice_in_dim(y, 0, signal.shape[axes[0]], axes[0])
     return T.real(cropped_y * exp.expand_dims(-1))
+
+
+def phase_vocoder(D, rate, hop_length=None):
+    """Phase vocoder.  Given an STFT matrix D, speed up by a factor of `rate`
+
+    Based on the implementation provided by [1]_.
+
+    .. note:: This is a simplified implementation, intended primarily for
+             reference and pedagogical purposes.  It makes no attempt to
+             handle transients, and is likely to produce many audible
+             artifacts.  For a higher quality implementation, we recommend
+             the RubberBand library [2]_ and its Python wrapper `pyrubberband`.
+
+    .. [1] Ellis, D. P. W. "A phase vocoder in Matlab."
+        Columbia University, 2002.
+        http://www.ee.columbia.edu/~dpwe/resources/matlab/pvoc/
+
+    .. [2] https://breakfastquay.com/rubberband/
+
+    Examples
+   --------
+    >>> # Play at double speed
+    >>> y, sr   = librosa.load(librosa.util.example_audio_file())
+    >>> D       = librosa.stft(y, n_fft=2048, hop_length=512)
+    >>> D_fast  = librosa.phase_vocoder(D, 2.0, hop_length=512)
+    >>> y_fast  = librosa.istft(D_fast, hop_length=512)
+
+    >>> # Or play at 1/3 speed
+    >>> y, sr   = librosa.load(librosa.util.example_audio_file())
+    >>> D       = librosa.stft(y, n_fft=2048, hop_length=512)
+    >>> D_slow  = librosa.phase_vocoder(D, 1./3, hop_length=512)
+    >>> y_slow  = librosa.istft(D_slow, hop_length=512)
+
+    Parameters
+    ----------
+    D : numpy.ndarray [shape=(d, t), dtype=complex]
+        STFT matrix
+
+    rate :  float > 0 [scalar]
+        Speed-up factor: `rate > 1` is faster, `rate < 1` is slower.
+
+    hop_length : int > 0 [scalar] or None
+        The number of samples between successive columns of `D`.
+
+        If None, defaults to `n_fft/4 = (D.shape[0]-1)/2`
+
+    Returns
+    -------
+    D_stretched : numpy.ndarray [shape=(d, t / rate), dtype=complex]
+        time-stretched STFT
+
+    """
+    n_fft = 2 * (D.shape[0] - 1)
+    if hop_length is None:
+        hop_length = int(n_fft // 4)
+
+    time_steps = numpy.arange(0, D.shape[1], rate, 'float32')
+
+    # Create an empty output array
+    d_stretch = T.zeros((D.shape[0], len(time_steps)), D.dtype)
+
+    # Expected phase advance in each bin
+    phi_advance = T.linspace(0, numpy.pi * hop_length, D.shape[0])
+
+    # Pad 0 columns to simplify boundary logic
+    D = T.pad(D, [(0, 0), (0, 2)], mode='constant')
+    D = D[:, time_steps.astype('int32')]
+
+    alpha = numpy.mod(time_steps, 1.0)
+
+    mag = ((1.0 - alpha) * numpy.abs(D[:, :-1]) + alpha * numpy.abs(D[:, 1:]))
+
+    # Compute phase advance
+    dphase = (numpy.angle(D[:, 1:]) - numpy.angle(D[:, :-1]) - phi_advance[:, None])
+    # Wrap to -pi:pi range
+    dphase = dphase - 2.0 * numpy.pi * numpy.round(dphase / (2.0 * numpy.pi))
+
+    # Phase accumulator; initialize to the first sample
+    phase_acc = T.concatenate([numpy.angle(D[:, [0]]),
+                                T.cumsum(phi_advance + dphase, 1)], 1)
+    
+    d_stretch = mag * T.complex(T.cos(phase_acc), T.sin(phase_acc))
+
+    return d_stretch
+
+
+
+def istft(stft_matrix, hop_length=None, win_length=None, window='hann',
+          center=True, dtype=numpy.float32, length=None):
+    """
+    Inverse short-time Fourier transform (ISTFT).
+
+    Converts a complex-valued spectrogram `stft_matrix` to time-series `y`
+    by minimizing the mean squared error between `stft_matrix` and STFT of
+    `y` as described in [1]_ up to Section 2 (reconstruction from MSTFT).
+
+    In general, window function, hop length and other parameters should be same
+    as in stft, which mostly leads to perfect reconstruction of a signal from
+    unmodified `stft_matrix`.
+
+    .. [1] D. W. Griffin and J. S. Lim,
+        "Signal estimation from modified short-time Fourier transform,"
+        IEEE Trans. ASSP, vol.32, no.2, pp.236–243, Apr. 1984.
+
+    Parameters
+    ----------
+    stft_matrix : numpy.ndarray [shape=(1 + n_fft/2, t)]
+        STFT matrix from `stft`
+
+    hop_length : int > 0 [scalar]
+        Number of frames between STFT columns.
+        If unspecified, defaults to `win_length / 4`.
+
+    win_length : int <= n_fft = 2 * (stft_matrix.shape[0] - 1)
+        When reconstructing the time series, each frame is windowed
+        and each sample is normalized by the sum of squared window
+        according to the `window` function (see below).
+
+        If unspecified, defaults to `n_fft`.
+
+    window : string, tuple, number, function, numpy.ndarray [shape=(n_fft,)]
+        - a window specification (string, tuple, or number);
+          see `scipy.signal.get_window`
+        - a window function, such as `scipy.signal.hanning`
+        - a user-specified window vector of length `n_fft`
+
+        .. see also:: `filters.get_window`
+
+    center : boolean
+        - If `True`, `D` is assumed to have centered frames.
+        - If `False`, `D` is assumed to have left-aligned frames.
+
+    dtype : numeric type
+        Real numeric type for `y`.  Default is 32-bit float.
+
+    length : int > 0, optional
+        If provided, the output `y` is zero-padded or clipped to exactly
+        `length` samples.
+
+    Returns
+    -------
+    y : numpy.ndarray [shape=(n,)]
+        time domain signal reconstructed from `stft_matrix`
+
+    See Also
+    --------
+    stft : Short-time Fourier Transform
+
+    Notes
+    -----
+    This function caches at level 30.
+
+    Examples
+    --------
+    >>> y, sr = librosa.load(librosa.util.example_audio_file())
+    >>> D = librosa.stft(y)
+    >>> y_hat = librosa.istft(D)
+    >>> y_hat
+    array([ -4.812e-06,  -4.267e-06, ...,   6.271e-06,   2.827e-07], dtype=float32)
+
+    Exactly preserving length of the inumpy.t signal requires explicit padding.
+    Otherwise, a partial frame at the end of `y` will not be represented.
+
+    >>> n = len(y)
+    >>> n_fft = 2048
+    >>> y_pad = librosa.util.fix_length(y, n + n_fft // 2)
+    >>> D = librosa.stft(y_pad, n_fft=n_fft)
+    >>> y_out = librosa.istft(D, length=n)
+    >>> numpy.max(numpy.abs(y - y_out))
+    1.4901161e-07
+    """
+
+    n_fft = 2 * (stft_matrix.shape[0] - 1)
+
+    # By default, use the entire frame
+    if win_length is None:
+        win_length = n_fft
+
+    # Set the default hop, if it's not already specified
+    if hop_length is None:
+        hop_length = int(win_length // 4)
+
+    ifft_window = get_window(window, win_length, fftbins=True)
+
+    # Pad out to match n_fft, and add a broadcasting axis
+    ifft_window = util.pad_center(ifft_window, n_fft)[:, numpy.newaxis]
+
+    # For efficiency, trim STFT frames according to signal length if available
+    if length:
+        if center:
+            padded_length = length + int(n_fft)
+        else:
+            padded_length = length
+        n_frames = min(
+            stft_matrix.shape[1], int(numpy.ceil(padded_length / hop_length)))
+    else:
+        n_frames = stft_matrix.shape[1]
+
+    expected_signal_len = n_fft + hop_length * (n_frames - 1)
+    y = numpy.zeros(expected_signal_len, dtype=dtype)
+
+    n_columns = int(util.MAX_MEM_BLOCK // (stft_matrix.shape[0] *
+                                           stft_matrix.itemsize))
+
+    fft = get_fftlib()
+
+    frame = 0
+    for bl_s in range(0, n_frames, n_columns):
+        bl_t = min(bl_s + n_columns, n_frames)
+
+        # invert the block and apply the window function
+        ytmp = ifft_window * fft.irfft(stft_matrix[:, bl_s:bl_t], axis=0)
+
+        # Overlap-add the istft block starting at the i'th frame
+        __overlap_add(y[frame * hop_length:], ytmp, hop_length)
+
+        frame += (bl_t - bl_s)
+
+    # Normalize by sum of squared window
+    ifft_window_sum = window_sumsquare(window,
+                                       n_frames,
+                                       win_length=win_length,
+                                       n_fft=n_fft,
+                                       hop_length=hop_length,
+                                       dtype=dtype)
+
+    approx_nonzero_indices = ifft_window_sum > util.tiny(ifft_window_sum)
+    y[approx_nonzero_indices] /= ifft_window_sum[approx_nonzero_indices]
+
+    if length is None:
+        # If we don't need to control length, just do the usual center trimming
+        # to eliminate padded data
+        if center:
+            y = y[int(n_fft // 2):-int(n_fft // 2)]
+    else:
+        if center:
+            # If we're centering, crop off the first n_fft//2 samples
+            # and then trim/pad to the target length.
+            # We don't trim the end here, so that if the signal is zero-padded
+            # to a longer duration, the decay is smooth by windowing
+            start = int(n_fft // 2)
+        else:
+            # If we're not centering, start at 0 and trim/pad as necessary
+            start = 0
+
+        y = util.fix_length(y[start:], length)
+
+    return y

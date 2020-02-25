@@ -1,5 +1,5 @@
 :mod:`symjax.initializers`
--------------------
+--------------------------
 
 .. autoclass:: symjax.initializers
 

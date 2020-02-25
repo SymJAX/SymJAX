@@ -38,15 +38,15 @@ class cifar10:
 
         t0 = time.time()
     
-        print('Loading cifar10')
     
         # Check if directory exists
         if not os.path.isdir(path+'cifar10'):
-            print('\tCreating Directory')
+            print('\tCreating cifar10 Directory')
             os.mkdir(path+'cifar10')
     
         # Check if file exists
         if not os.path.exists(path+'cifar10/cifar10.tar.gz'):
+            print('\tDownloading cifar10')
             url = 'https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
             urllib.request.urlretrieve(url,path+'cifar10/cifar10.tar.gz')
     
@@ -80,15 +80,14 @@ class cifar10:
 
         t0 = time.time()
     
-        print('Loading cifar10')
     
         tar = tarfile.open(path+'cifar10/cifar10.tar.gz', 'r:gz')
     
         # Load train set
         train_images  = list()
         train_labels  = list()
-        for k in range(1, 6):#tqdm(range(1,6),desc='Loading dataset'):
-            f        = tar.extractfile(
+        for k in tqdm(range(1,6),desc='Loading cifar10', ascii=True):
+            f = tar.extractfile(
                             'cifar-10-batches-py/data_batch_'+str(k)).read()
             data_dic = pickle.loads(f,encoding='latin1')
             train_images.append(data_dic['data'].reshape((-1,3,32,32)))

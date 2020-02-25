@@ -16,6 +16,14 @@ class Optimizer:
             self._update = function(updates=self.updates)
             self._update()
 
+    def _get_grads(self, grads_or_loss, params):
+        # get grads if given is loss
+        if isinstance(grads_or_loss, tensor.Tensor):
+            grads = gradients(grads_or_loss, params)
+        else:
+            grads = grads_or_loss
+        return grads
+ 
 
 # class PiecewiseConstant(Optimizer):
 #
@@ -33,12 +41,38 @@ class Optimizer:
 
 
 class SGD(Optimizer):
+    """Gradient Descent Optimization
+
+    Parameters
+    ----------
+
+    grads_or_loss: scalar tensor or list of gradients
+        either the loss (scalar of Tensor type) to be differentied
+        or the list of gradients already computed and possibly altered
+        manually (such as clipping)
+
+    params: list of parameters to update
+        if grads_or_loss is al list then it should be ordered w.r.t. the
+        given parameters
+
+    learning_rate: constant or Tensor
+        the learning rate use to update the parameters
+
+    Attributes
+    ----------
+
+    updates: list of updates
+
+    variables: list of variables
+
+    """
+ 
     def __init__(self, grads_or_loss, params, learning_rate):
-        # get grads if given is loss
-        if isinstance(grads_or_loss, tensor.Tensor):
-            grads = gradients(grads_or_loss, params)
-        else:
-            grads = grads_or_loss
+        grads = self._get_grads(grads_or_loss, params)
+
+        if not numpy.isscalar(learning_rate) and not isinstance(
+                learning_rate, tensor.Placeholder):
+            learning_rate = learning_rate()
 
         updates = dict()
         for param, grad in zip(params, grads):
@@ -48,14 +82,43 @@ class SGD(Optimizer):
 
 
 class Adam(Optimizer):
+    """Adaptive Gradient Based Optimization with renormalization
+
+    Parameters
+    ----------
+
+    grads_or_loss: scalar tensor or list of gradients
+        either the loss (scalar of Tensor type) to be differentied
+        or the list of gradients already computed and possibly altered
+        manually (such as clipping)
+
+    params: list of parameters to update
+        if grads_or_loss is al list then it should be ordered w.r.t. the
+        given parameters
+
+    learning_rate: constant or Tensor
+        the learning rate use to update the parameters
+
+    beta1: constant or Tensor
+        the value of the exponential moving average of the average of the
+        gradients through time (updates)
+
+    beta2: constant or Tensor
+        the value of the exponential moving average of the variance of the
+        gradients through time
+
+    Attributes
+    ----------
+
+    updates: list of updates
+
+    variables: list of variables
+
+    """
     def __init__(self, grads_or_loss, params, learning_rate, beta1=0.9,
                  beta2=0.999, epsilon=1e-6):
 
-        # get grads if given is loss
-        if isinstance(grads_or_loss, tensor.Tensor):
-            grads = gradients(grads_or_loss, params)
-        else:
-            grads = grads_or_loss
+        grads = self._get_grads(grads_or_loss, params)
         step = tensor.Variable([[0.]], trainable=False, name='step')
         variables = [step]
         # get the learning rate

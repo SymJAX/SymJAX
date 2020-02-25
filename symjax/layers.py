@@ -513,20 +513,20 @@ class BatchNormalization(Layer):
             deterministic = self.deterministic
         dirac = T.cast(deterministic, 'float32')
 
-        mean = T.mean(input, self.axis, keepdims=True)
-        var = T.var(input, self.axis, keepdims=True)
+        self.mean = T.mean(input, self.axis, keepdims=True)
+        self.var = T.var(input, self.axis, keepdims=True)
         if len(self.updates.keys()) == 0:
             self.avgmean, upm, step = T.ExponentialMovingAverage(
-                mean, self.beta1)
+                self.mean, self.beta1)
             self.avgvar, upv, step = T.ExponentialMovingAverage(
-                var, self.beta2, step=step, init=numpy.ones(
-                    var.shape).astype('float32'))
+                self.var, self.beta2, step=step, init=numpy.ones(
+                    self.var.shape).astype('float32'))
             self.add_variable(self.avgmean)
             self.add_variable(self.avgvar)
             self.add_update(upm)
             self.add_update(upv)
 
-        usemean = mean * (1 - dirac) + self.avgmean * dirac
-        usevar = var * (1 - dirac) + self.avgvar * dirac
-        return self.W * (input - usemean) / \
-            (T.sqrt(usevar) + self.const) + self.b
+        self.usemean = self.mean * (1 - dirac) + self.avgmean * dirac
+        self.usevar = self.var * (1 - dirac) + self.avgvar * dirac
+        return self.W * (input - self.usemean) / \
+            (T.sqrt(self.usevar) + self.const) + self.b
