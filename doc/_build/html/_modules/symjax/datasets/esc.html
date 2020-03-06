@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>symjax.datasets.esc50 &mdash; symjax 0.0.1 documentation</title>
+  <title>symjax.datasets.esc &mdash; symjax 0.0.1 documentation</title>
   
 
   
@@ -97,6 +97,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/initializers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.initializers</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/layers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.layers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/optimizers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.optimizers</span></code></a></li>
 </ul>
 
             
@@ -144,7 +145,7 @@
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
-      <li>symjax.datasets.esc50</li>
+      <li>symjax.datasets.esc</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -159,7 +160,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for symjax.datasets.esc50</h1><div class="highlight"><pre>
+  <h1>Source code for symjax.datasets.esc</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pickle</span><span class="o">,</span><span class="nn">gzip</span>
 <span class="kn">import</span> <span class="nn">urllib.request</span>
@@ -172,8 +173,9 @@
 <span class="kn">import</span> <span class="nn">io</span>
 
 
-<div class="viewcode-block" id="esc50"><a class="viewcode-back" href="../../../modules/datasets.html#symjax.datasets.esc50">[docs]</a><span class="k">class</span> <span class="nc">esc50</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="esc"><a class="viewcode-back" href="../../../modules/datasets.html#symjax.datasets.esc">[docs]</a><span class="k">class</span> <span class="nc">esc</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;ESC-10/50: Environmental Sound Classification</span>
+
 <span class="sd">    https://github.com/karolpiczak/ESC-50#download</span>
 
 <span class="sd">    The ESC-50 dataset is a labeled collection of 2000 environmental audio</span>
@@ -183,11 +185,18 @@
 <span class="sd">    The dataset consists of 5-second-long recordings organized into 50</span>
 <span class="sd">    semantical classes (with 40 examples per class) loosely arranged into 5</span>
 <span class="sd">    major categories:</span>
+<span class="sd">        Animals</span>
+<span class="sd">        Natural soundscapes &amp; water sounds</span>
+<span class="sd">        Human, non-speech sounds</span>
+<span class="sd">        Interior/domestic sounds</span>
+<span class="sd">        Exterior/urban noises</span>
 
 <span class="sd">    Clips in this dataset have been manually extracted from public field</span>
 <span class="sd">    recordings gathered by the Freesound.org project. The dataset has been</span>
-<span class="sd">    prearranged into 5 folds for comparable cross-validation, making sure that</span>
-<span class="sd">    fragments from the same original source file are contained in a single fold.</span>
+<span class="sd">    prearranged into 5 folds for comparable cross-validation, making sure</span>
+<span class="sd">    that fragments from the same original source file are contained in a</span>
+<span class="sd">    single fold.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fine_to_coarse</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;dog&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;rooster&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;pig&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;cow&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;frog&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
                           <span class="s1">&#39;cat&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;hen&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;insects&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;sheep&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;crow&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
@@ -211,16 +220,16 @@
     
         <span class="c1"># Check if directory exists</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;esc50&#39;</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Creating esc50 Directory&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Creating esc50 Directory&#39;</span><span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span><span class="s1">&#39;esc50&#39;</span><span class="p">)</span>
         <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://github.com/karoldvl/ESC-50/archive/master.zip&#39;</span>
         <span class="c1"># Check if file exists</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;esc50/master.zip&#39;</span><span class="p">):</span>
-            <span class="n">td</span>  <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Downloading esc50&#39;</span><span class="p">)</span>
             <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">path</span><span class="o">+</span><span class="s1">&#39;esc50/master.zip&#39;</span><span class="p">)</span>
     
     
-<div class="viewcode-block" id="esc50.load"><a class="viewcode-back" href="../../../modules/datasets.html#symjax.datasets.esc50.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="esc.load"><a class="viewcode-back" href="../../../modules/datasets.html#symjax.datasets.esc.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;ESC 50.</span>
 <span class="sd">    </span>
 <span class="sd">        https://github.com/karolpiczak/ESC-50#download</span>
@@ -228,25 +237,54 @@
 <span class="sd">    </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">            path: str (optional)</span>
+<span class="sd">        </span>
+<span class="sd">        path: str (optional)</span>
 <span class="sd">                default $DATASET_path), the path to look for the data and</span>
 <span class="sd">                where the data will be downloaded if not present</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        wavs: array</span>
+<span class="sd">            the wavs as a numpy array (matrix) with first dimension the data</span>
+<span class="sd">            and second dimension time</span>
+<span class="sd">        </span>
+<span class="sd">        fine_labels: array</span>
+<span class="sd">            the labels of the final classes (50 different ones) as a integer</span>
+<span class="sd">            vector</span>
+<span class="sd">        </span>
+<span class="sd">        coarse_labels: array</span>
+<span class="sd">            the labels of the classes big cateogry (5 of them)</span>
+<span class="sd">        </span>
+<span class="sd">        folds: array</span>
+<span class="sd">            the fold as an integer from 1 to 5 specifying how to split the data</span>
+<span class="sd">            one should not split a fold into train and set as it would</span>
+<span class="sd">            make the same recording (but different subparts) be present in train</span>
+<span class="sd">            and test, biasing optimistically the results.</span>
+<span class="sd">        </span>
+<span class="sd">        esc10: array</span>
+<span class="sd">            the boolean vector specifying if the corresponding datum (wav, label,</span>
+<span class="sd">            ...) is in the ESC-10 dataset or not. That is, to load the ESC-10</span>
+<span class="sd">            dataset simply load ESC-50 and use this boolean vector to extract</span>
+<span class="sd">            only the ESC-10 data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
     
         <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DATASET_PATH&#39;</span><span class="p">]</span>
-        <span class="n">esc50</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">esc</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     
         <span class="n">f</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;esc50/master.zip&#39;</span><span class="p">)</span>
     
-        <span class="n">meta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;ESC-50-master/meta/esc50.csv&#39;</span><span class="p">)),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span>
-                          <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;str&#39;</span><span class="p">)</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;ESC-50-master/meta/esc50.csv&#39;</span><span class="p">)),</span>
+                          <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;str&#39;</span><span class="p">)</span>
         <span class="n">filenames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">meta</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
         <span class="n">folds</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
         <span class="n">fine_labels</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
         <span class="n">categories</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
-        <span class="n">coarse_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">esc50</span><span class="o">.</span><span class="n">fine_to_coarse</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+        <span class="n">esc10</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;bool&#39;</span><span class="p">)</span>
+        <span class="n">coarse_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">esc50</span><span class="o">.</span><span class="n">fine_to_coarse</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">])</span>
+        <span class="n">coarse_labels</span> <span class="o">=</span> <span class="n">coarse_labels</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
     
         <span class="n">wavs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="n">order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -256,7 +294,7 @@
                 <span class="k">continue</span>
             <span class="n">wavfile</span>   <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
             <span class="n">byt</span>       <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">wavfile</span><span class="p">)</span>
-            <span class="n">wavs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wav_read</span><span class="p">(</span><span class="n">byt</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)[::</span><span class="n">subsample</span><span class="p">])</span>
+            <span class="n">wavs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wav_read</span><span class="p">(</span><span class="n">byt</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span>
             <span class="n">order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filenames</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
             <span class="n">N</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">wavs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
     
@@ -264,7 +302,7 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wavs</span><span class="p">)):</span>
             <span class="n">left</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">wavs</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="o">//</span> <span class="mi">2</span>
             <span class="n">all_wavs</span><span class="p">[</span><span class="n">order</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">wavs</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span> <span class="o">=</span> <span class="n">wavs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">all_wavs</span><span class="p">,</span> <span class="n">fine_labels</span><span class="p">,</span> <span class="n">coarse_labels</span><span class="p">,</span> <span class="n">categories</span></div></div>
+        <span class="k">return</span> <span class="n">all_wavs</span><span class="p">,</span> <span class="n">fine_labels</span><span class="p">,</span> <span class="n">coarse_labels</span><span class="p">,</span> <span class="n">folds</span><span class="p">,</span> <span class="n">esc10</span></div></div>
 </pre></div>
 
            </div>

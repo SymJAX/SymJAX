@@ -105,6 +105,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="initializers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.initializers</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="layers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.layers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimizers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.optimizers</span></code></a></li>
 </ul>
 
             
@@ -197,7 +198,16 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.cifar100" title="symjax.datasets.cifar100"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.cifar100</span></code></a></p></td>
 <td><p>Image classification.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.tinyimagenet" title="symjax.datasets.tinyimagenet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.tinyimagenet</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.ibeans" title="symjax.datasets.ibeans"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.ibeans</span></code></a></p></td>
+<td><p>Plant images classification.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.cassava" title="symjax.datasets.cassava"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.cassava</span></code></a></p></td>
+<td><p>Plant images classification.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.stl10" title="symjax.datasets.stl10"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.stl10</span></code></a></p></td>
+<td><p>Image classification with extra unlabeled images.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.tinyimagenet" title="symjax.datasets.tinyimagenet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.tinyimagenet</span></code></a></p></td>
 <td><p>Tiny Imagenet has 200 classes.</p></td>
 </tr>
 </tbody>
@@ -214,8 +224,8 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.audiomnist" title="symjax.datasets.audiomnist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.audiomnist</span></code></a></p></td>
 <td><p>digit recognition</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.esc50" title="symjax.datasets.esc50"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.esc50</span></code></a></p></td>
-<td><p><a class="reference external" href="https://github.com/karolpiczak/ESC-50#download">https://github.com/karolpiczak/ESC-50#download</a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.esc" title="symjax.datasets.esc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.esc</span></code></a></p></td>
+<td><p>ESC-10/50: Environmental Sound Classification</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.warblr" title="symjax.datasets.warblr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.warblr</span></code></a></p></td>
 <td><p>Binary audio classification, presence or absence of a bird.</p></td>
@@ -234,6 +244,12 @@
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.freefield1010" title="symjax.datasets.freefield1010"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.freefield1010</span></code></a></p></td>
 <td><p>Audio binary classification, presence or absence of bird songs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.birdvox_70k" title="symjax.datasets.birdvox_70k"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.birdvox_70k</span></code></a></p></td>
+<td><p>BirdVox-70k: a dataset for avian flight call detection in half-second clips</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.birdvox_dcase_20k" title="symjax.datasets.birdvox_dcase_20k"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.birdvox_dcase_20k</span></code></a></p></td>
+<td><p>Binary bird detection classification</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.dcase</span></code></p></td>
 <td><p></p></td>
@@ -511,6 +527,168 @@ directory does not exist, it is created.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="symjax.datasets.ibeans">
+<em class="property">class </em><code class="sig-prename descclassname">symjax.datasets.</code><code class="sig-name descname">ibeans</code><a class="reference internal" href="../_modules/symjax/datasets/ibeans.html#ibeans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.ibeans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plant images classification.</p>
+<p>This dataset is of leaf images taken in the field in different
+districts in Uganda by the Makerere AI lab in collaboration with the
+National Crops Resources Research Institute (NaCRRI), the national
+body in charge of research in agriculture in Uganda.</p>
+<p>The goal is to build a robust machine learning model that is able
+to distinguish between diseases in the Bean plants. Beans are an
+important cereal food crop for Africa grown by many small-holder
+farmers - they are a significant source of proteins for school-age
+going children in East Africa.</p>
+<p>The data is of leaf images representing 3 classes: the healthy class of
+images, and two disease classes including Angular Leaf Spot and Bean
+Rust diseases. The model should be able to distinguish between these 3
+classes with high accuracy. The end goal is to build a robust, model
+that can be deployed on a mobile device and used in the field by a
+farmer.</p>
+<p>The data includes leaf images taken in the field. The figure above
+depicts examples of the types of images per class. Images were taken
+from the field/garden a basic smartphone.</p>
+<p>The images were then annotated by experts from NaCRRI who determined
+for each image which disease was manifested. The experts were part of
+the data collection team and images were annotated directly during the
+data collection process in the field.</p>
+<p>Class   Examples
+Healthy class   428
+Angular Leaf Spot   432
+Bean Rust   436
+Total:  1,296</p>
+<p>Data Released   20-January-2020
+License     MIT
+Credits     Makerere AI Lab</p>
+<dl class="method">
+<dt id="symjax.datasets.ibeans.download">
+<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/ibeans.html#ibeans.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.ibeans.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the ibeans dataset and store the result into the given
+path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – the path where the downloaded files will be stored. If the
+directory does not exist, it is created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="symjax.datasets.ibeans.load">
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/ibeans.html#ibeans.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.ibeans.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>train_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>train_labels</strong> (<em>array</em>)</p></li>
+<li><p><strong>valid_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>valid_labels</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_labels</strong> (<em>array</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="symjax.datasets.cassava">
+<em class="property">class </em><code class="sig-prename descclassname">symjax.datasets.</code><code class="sig-name descname">cassava</code><a class="reference internal" href="../_modules/symjax/datasets/cassava.html#cassava"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cassava" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plant images classification.</p>
+<p>The data consists of two folders, a training folder that contains 5
+subfolders that contain the respective images for the different 5 classes
+and a test folder containing test images.</p>
+<p>Participants are to train their models using the images in the training
+folder and provide a submission file like the sample provided which contains
+the image name exactly matching the image name in the test folder and the
+corresponding class prediction with labels corresponding to the disease
+categories, cmd, healthy, cgm, cbsd, cbb.</p>
+<p>Please cite this paper if you use the dataset for your project:
+<a class="reference external" href="https://arxiv.org/pdf/1908.02900.pdf">https://arxiv.org/pdf/1908.02900.pdf</a></p>
+<dl class="method">
+<dt id="symjax.datasets.cassava.download">
+<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/cassava.html#cassava.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cassava.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the cassava dataset and store the result into the given
+path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – the path where the downloaded files will be stored. If the
+directory does not exist, it is created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="symjax.datasets.cassava.load">
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/cassava.html#cassava.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cassava.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>train_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>train_labels</strong> (<em>array</em>)</p></li>
+<li><p><strong>valid_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>valid_labels</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_labels</strong> (<em>array</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="symjax.datasets.stl10">
+<em class="property">class </em><code class="sig-prename descclassname">symjax.datasets.</code><code class="sig-name descname">stl10</code><a class="reference internal" href="../_modules/symjax/datasets/stl10.html#stl10"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.stl10" title="Permalink to this definition">¶</a></dt>
+<dd><p>Image classification with extra unlabeled images.</p>
+<p>The <a class="reference external" href="https://cs.stanford.edu/~acoates/stl10/">STL-10</a> dataset is an image
+recognition dataset for developing unsupervised feature learning,
+deep learning, self-taught learning algorithms. It is inspired by the
+CIFAR-10 dataset but with
+some modifications. In particular, each class has fewer labeled
+training examples than in CIFAR-10, but a very
+large set of unlabeled examples is provided to learn image models prior
+to supervised training. The primary challenge is to make use of the
+unlabeled data (which comes from a similar but different distribution from
+the labeled data) to build a useful prior. We also expect that the higher
+resolution of this dataset (96x96) will make it a challenging benchmark
+for developing more scalable unsupervised learning methods.</p>
+<dl class="method">
+<dt id="symjax.datasets.stl10.load">
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/stl10.html#stl10.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.stl10.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>load the data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – the path to look for the data and where it will be downloaded if
+not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>train_images</strong> (<em>array</em>) – the training images</p></li>
+<li><p><strong>train_labels</strong> (<em>array</em>) – the training labels</p></li>
+<li><p><strong>test_images</strong> (<em>array</em>) – the test images</p></li>
+<li><p><strong>test_labels</strong> (<em>array</em>) – the test labels</p></li>
+<li><p><strong>extra_images</strong> (<em>array</em>) – the unlabeled additional images</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="symjax.datasets.tinyimagenet">
 <em class="property">class </em><code class="sig-prename descclassname">symjax.datasets.</code><code class="sig-name descname">tinyimagenet</code><a class="reference internal" href="../_modules/symjax/datasets/tinyimagenet.html#tinyimagenet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.tinyimagenet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tiny Imagenet has 200 classes. Each class has 500 training images, 50
@@ -547,28 +725,55 @@ English pronunciations</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="symjax.datasets.esc50">
-<em class="property">class </em><code class="sig-prename descclassname">symjax.datasets.</code><code class="sig-name descname">esc50</code><a class="reference internal" href="../_modules/symjax/datasets/esc50.html#esc50"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.esc50" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference external" href="https://github.com/karolpiczak/ESC-50#download">https://github.com/karolpiczak/ESC-50#download</a></p>
+<dt id="symjax.datasets.esc">
+<em class="property">class </em><code class="sig-prename descclassname">symjax.datasets.</code><code class="sig-name descname">esc</code><a class="reference internal" href="../_modules/symjax/datasets/esc.html#esc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.esc" title="Permalink to this definition">¶</a></dt>
+<dd><p>ESC-10/50: Environmental Sound Classification</p>
+<p><a class="reference external" href="https://github.com/karolpiczak/ESC-50#download">https://github.com/karolpiczak/ESC-50#download</a></p>
 <p>The ESC-50 dataset is a labeled collection of 2000 environmental audio
 recordings suitable for benchmarking methods of environmental sound
 classification.</p>
 <p>The dataset consists of 5-second-long recordings organized into 50
 semantical classes (with 40 examples per class) loosely arranged into 5
 major categories:</p>
+<blockquote>
+<div><p>Animals
+Natural soundscapes &amp; water sounds
+Human, non-speech sounds
+Interior/domestic sounds
+Exterior/urban noises</p>
+</div></blockquote>
 <p>Clips in this dataset have been manually extracted from public field
 recordings gathered by the Freesound.org project. The dataset has been
-prearranged into 5 folds for comparable cross-validation, making sure that
-fragments from the same original source file are contained in a single fold.</p>
+prearranged into 5 folds for comparable cross-validation, making sure
+that fragments from the same original source file are contained in a
+single fold.</p>
 <dl class="method">
-<dt id="symjax.datasets.esc50.load">
-<code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/esc50.html#esc50.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.esc50.load" title="Permalink to this definition">¶</a></dt>
+<dt id="symjax.datasets.esc.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/esc.html#esc.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.esc.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>ESC 50.</p>
 <p><a class="reference external" href="https://github.com/karolpiczak/ESC-50#download">https://github.com/karolpiczak/ESC-50#download</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default $DATASET_path), the path to look for the data and
 where the data will be downloaded if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>wavs</strong> (<em>array</em>) – the wavs as a numpy array (matrix) with first dimension the data
+and second dimension time</p></li>
+<li><p><strong>fine_labels</strong> (<em>array</em>) – the labels of the final classes (50 different ones) as a integer
+vector</p></li>
+<li><p><strong>coarse_labels</strong> (<em>array</em>) – the labels of the classes big cateogry (5 of them)</p></li>
+<li><p><strong>folds</strong> (<em>array</em>) – the fold as an integer from 1 to 5 specifying how to split the data
+one should not split a fold into train and set as it would
+make the same recording (but different subparts) be present in train
+and test, biasing optimistically the results.</p></li>
+<li><p><strong>esc10</strong> (<em>array</em>) – the boolean vector specifying if the corresponding datum (wav, label,
+…) is in the ESC-10 dataset or not. That is, to load the ESC-10
+dataset simply load ESC-50 and use this boolean vector to extract
+only the ESC-10 data.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -661,6 +866,182 @@ around the world, gathered by the FreeSound project, and then standardised
 for research. This collection is very diverse in location and environment,
 and for the BAD Challenge we have newly annotated it for the
 presence/absence of birds.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="symjax.datasets.birdvox_70k">
+<em class="property">class </em><code class="sig-prename descclassname">symjax.datasets.</code><code class="sig-name descname">birdvox_70k</code><a class="reference internal" href="../_modules/symjax/datasets/birdvox_70k.html#birdvox_70k"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_70k" title="Permalink to this definition">¶</a></dt>
+<dd><p>Version 1.0, April 2018.</p>
+<p>Vincent Lostanlen (1, 2, 3), Justin Salamon (2, 3), Andrew Farnsworth (1),
+Steve Kelling (1), and Juan Pablo Bello (2, 3).</p>
+<p>(1): Cornell Lab of Ornithology (CLO)
+(2): Center for Urban Science and Progress, New York University
+(3): Music and Audio Research Lab, New York University</p>
+<p><a class="reference external" href="https://wp.nyu.edu/birdvox">https://wp.nyu.edu/birdvox</a></p>
+<p>The BirdVox-70k dataset contains 70k half-second clips from 6 audio
+recordings in the BirdVox-full-night dataset, each about ten hours in
+duration. These recordings come from ROBIN autonomous recording units,
+placed near Ithaca, NY, USA during the fall 2015. They were captured on the
+night of September 23rd, 2015, by six different sensors, originally
+numbered 1, 2, 3, 5, 7, and 10.</p>
+<p>Andrew Farnsworth used the Raven software to pinpoint every avian flight
+call in time and frequency. He found 35402 flight calls in total.
+He estimates that about 25 different species of passerines (thrushes,
+warblers, and sparrows) are present in this recording. Species are not
+labeled in BirdVox-70k, but it is possible to tell apart thrushes from
+warblers and sparrows by looking at the center frequencies of their calls.
+The annotation process took 102 hours.</p>
+<p>The dataset can be used, among other things, for the research,development
+and testing of bioacoustic classification models, including the
+reproduction of the results reported in [1].</p>
+<p>For details on the hardware of ROBIN recording units, we refer the reader
+to [2].</p>
+<p>[1] V. Lostanlen, J. Salamon, A. Farnsworth, S. Kelling, J. Bello. BirdVox-full-night: a dataset and benchmark for avian flight call detection. Proc. IEEE ICASSP, 2018.</p>
+<p>[2] J. Salamon, J. P. Bello, A. Farnsworth, M. Robbins, S. Keen, H. Klinck, and S. Kelling. Towards the Automatic Classification of Avian Flight Calls for Bioacoustic Monitoring. PLoS One, 2016.</p>
+<p>&#64;inproceedings{lostanlen2018icassp,
+title = {BirdVox-full-night: a dataset and benchmark for avian flight call detection},
+author = {Lostanlen, Vincent and Salamon, Justin and Farnsworth, Andrew and Kelling, Steve and Bello, Juan Pablo},
+booktitle = {Proc. IEEE ICASSP},
+year = {2018},
+published = {IEEE},
+venue = {Calgary, Canada},
+month = {April},
+}</p>
+<dl class="method">
+<dt id="symjax.datasets.birdvox_70k.download">
+<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_70k.html#birdvox_70k.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_70k.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the Birdvox dataset and store the result into the given
+path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – the path where the downloaded files will be stored. If the
+directory does not exist, it is created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="symjax.datasets.birdvox_70k.load">
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_70k.html#birdvox_70k.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_70k.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>wavs</strong> (<em>array(70804, 12000)</em>) – the waveforms in the time amplitude domain</p></li>
+<li><p><strong>labels</strong> (<em>array(70804,)</em>) – binary values representing the presence or not of an avian</p></li>
+<li><p><strong>recording</strong> (<em>array(70804,)</em>) – the file number from which the sample has been extracted</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="symjax.datasets.birdvox_dcase_20k">
+<em class="property">class </em><code class="sig-prename descclassname">symjax.datasets.</code><code class="sig-name descname">birdvox_dcase_20k</code><a class="reference internal" href="../_modules/symjax/datasets/birdvox_dcase_20k.html#birdvox_dcase_20k"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_dcase_20k" title="Permalink to this definition">¶</a></dt>
+<dd><p>Binary bird detection classification</p>
+<p>Dataset is 16.5Go compressed.</p>
+<p>BirdVox-DCASE-20k: a dataset for bird audio detection in 10-second
+clips
+=====================================================</p>
+<p>Version 2.0, March 2018.</p>
+<p>Vincent Lostanlen (1, 2, 3), Justin Salamon (2, 3), Andrew Farnsworth
+(1), Steve Kelling (1), and Juan Pablo Bello (2, 3).</p>
+<p>(1): Cornell Lab of Ornithology (CLO)
+(2): Center for Urban Science and Progress, New York University
+(3): Music and Audio Research Lab, New York University</p>
+<p><a class="reference external" href="https://wp.nyu.edu/birdvox">https://wp.nyu.edu/birdvox</a></p>
+<p>The BirdVox-DCASE-20k dataset contains 20,000 ten-second audio
+recordings. These recordings come from ROBIN autonomous recording
+units, placed near Ithaca, NY, USA during the fall 2015. They were
+captured on the night of September 23rd, 2015, by six different
+sensors, originally numbered 1, 2, 3, 5, 7, and 10.</p>
+<p>Out of these 20,000 recording, 10,017 (50.09%) contain at least one
+bird vocalization (either song, call, or chatter).</p>
+<p>The dataset is a derivative work of the BirdVox-full-night dataset
+[1], containing almost as much data but formatted into ten-second
+excerpts rather than ten-hour full night recordings.</p>
+<p>In addition, the BirdVox-DCASE-20k dataset is provided as a
+development set in the context of the “Bird Audio Detection”
+challenge, organized by DCASE (Detection and Classification of
+Acoustic Scenes and Events) and the IEEE Signal Processing Society.</p>
+<p>The dataset can be used, among other things, for the development and
+evaluation of bioacoustic classification models.</p>
+<p>We refer the reader to [1] for details on the distribution of the
+data and [2] for details on the hardware of ROBIN recording units.</p>
+<p>[1] V. Lostanlen, J. Salamon, A. Farnsworth, S. Kelling, J.P. Bello.
+“BirdVox-full-night: a dataset and benchmark for avian flight call
+detection”, Proc. IEEE ICASSP, 2018.</p>
+<p>[2] J. Salamon, J. P. Bello, A. Farnsworth, M. Robbins, S. Keen,
+H. Klinck, and S. Kelling. Towards the Automatic Classification of
+Avian Flight Calls for Bioacoustic Monitoring. PLoS One, 2016.</p>
+<p>The wav folder contains the recordings as WAV files, sampled at
+44,1 kHz, with a single channel (mono). The original sample rate
+was 24 kHz.</p>
+<p>The name of each wav file is a random 128-bit UUID (Universal
+Unique IDentifier) string, which is randomized with respect to the
+origin of the recording in BirdVox-full-night, both in terms of
+time (UTC hour at the start of the excerpt) and space (location of
+the sensor).</p>
+<p>The origin of each 10-second excerpt is known by the challenge
+organizers, but not disclosed to the participants.</p>
+<p>When BirdVox-70k is used for academic research, we would highly
+appreciate it if  scientific publications of works partly based on
+this dataset cite the following publication:</p>
+<p>V. Lostanlen, J. Salamon, A. Farnsworth, S. Kelling, J. Bello.
+“BirdVox-full-night: a dataset and benchmark for avian flight call
+detection”, Proc. IEEE ICASSP, 2018.</p>
+<p>&#64;inproceedings{lostanlen2018icassp,
+title = {BirdVox-full-night: a dataset and benchmark for avian
+flight call detection},
+author = {Lostanlen, Vincent and Salamon, Justin and Farnsworth,
+Andrew and Kelling, Steve and Bello, Juan Pablo},
+booktitle = {Proc. IEEE ICASSP},
+year = {2018},
+published = {IEEE},
+venue = {Calgary, Canada},
+month = {April},
+}</p>
+<p>The creation of this dataset was supported by NSF grants 1125098
+(BIRDCAST) and 1633259 (BIRDVOX), a Google Faculty Award, the Leon
+Levy Foundation, and two anonymous donors.</p>
+<dl class="method">
+<dt id="symjax.datasets.birdvox_dcase_20k.download">
+<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_dcase_20k.html#birdvox_dcase_20k.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_dcase_20k.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the Birdvox dataset and store the result into the given
+path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – the path where the downloaded files will be stored. If the
+directory does not exist, it is created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="symjax.datasets.birdvox_dcase_20k.load">
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_dcase_20k.html#birdvox_dcase_20k.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_dcase_20k.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>wavs</strong> (<em>array</em>) – the waveforms in the time amplitude domain</p></li>
+<li><p><strong>labels</strong> (<em>array</em>) – binary values representing the presence or not of an avian</p></li>
+<li><p><strong>recording</strong> (<em>array</em>) – the file number from which the sample has been extracted</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </div>

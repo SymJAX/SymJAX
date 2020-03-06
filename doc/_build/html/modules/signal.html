@@ -105,6 +105,7 @@
 <li class="toctree-l1"><a class="reference internal" href="datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="initializers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.initializers</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="layers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.layers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimizers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.optimizers</span></code></a></li>
 </ul>
 
             
@@ -278,22 +279,24 @@
 <dd><p>Return the Blackman window.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.blackman" title="symjax.tensor.signal.blackman"><code class="xref py py-func docutils literal notranslate"><span class="pre">blackman()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.blackman" title="symjax.tensor.signal.blackman"><code class="xref py py-func docutils literal notranslate"><span class="pre">blackman()</span></code></a>.
-Original docstring below.</p>
-<blockquote>
-<div><blockquote>
-<div><p>The Blackman window is a taper formed by using the first three
+<p>The Blackman window is a taper formed by using the first three
 terms of a summation of cosines. It was designed to have close to the
 minimal leakage possible.  It is close to optimal, only slightly worse
 than a Kaiser window.</p>
-</div></blockquote>
-<dl>
-<dt>Returns</dt><dd><dl class="simple">
-<dt>out<span class="classifier">ndarray</span></dt><dd><p>The window, with the maximum value normalized to one (the value one
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The window, with the maximum value normalized to one (the value one
 appears only if the number of samples is odd).</p>
 </dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
 </dl>
-<p>bartlett, hamming, hanning, kaiser</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#symjax.tensor.signal.bartlett" title="symjax.tensor.signal.bartlett"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartlett()</span></code></a>, <a class="reference internal" href="#symjax.tensor.signal.hamming" title="symjax.tensor.signal.hamming"><code class="xref py py-func docutils literal notranslate"><span class="pre">hamming()</span></code></a>, <a class="reference internal" href="#symjax.tensor.signal.hanning" title="symjax.tensor.signal.hanning"><code class="xref py py-func docutils literal notranslate"><span class="pre">hanning()</span></code></a>, <a class="reference internal" href="#symjax.tensor.signal.kaiser" title="symjax.tensor.signal.kaiser"><code class="xref py py-func docutils literal notranslate"><span class="pre">kaiser()</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
 <p>The Blackman window is defined as</p>
 <div class="math notranslate nohighlight">
 \[w(n) = 0.42 - 0.5 \cos(2\pi n/M) + 0.08 \cos(4\pi n/M)\]</div>
@@ -304,10 +307,12 @@ smoothing values.  It is also known as an apodization (which means
 and end of the sampled signal) or tapering function. It is known as a
 “near optimal” tapering function, almost as good (by some measures)
 as the kaiser window.</p>
+<p class="rubric">References</p>
 <p>Blackman, R.B. and Tukey, J.W., (1958) The measurement of power spectra,
 Dover Publications, New York.</p>
 <p>Oppenheim, A.V., and R.W. Schafer. Discrete-Time Signal Processing.
 Upper Saddle River, NJ: Prentice-Hall, 1999, pp. 468-471.</p>
+<p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">blackman</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
 <span class="go">array([-1.38777878e-17,   3.26064346e-02,   1.59903635e-01, # may vary</span>
@@ -351,9 +356,6 @@ Upper Saddle River, NJ: Prentice-Hall, 1999, pp. 468-471.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-</dd>
-</dl>
-</div></blockquote>
 </dd></dl>
 
 <dl class="function">
@@ -362,23 +364,25 @@ Upper Saddle River, NJ: Prentice-Hall, 1999, pp. 468-471.</p>
 <dd><p>Return the Bartlett window.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.bartlett" title="symjax.tensor.signal.bartlett"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartlett()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.bartlett" title="symjax.tensor.signal.bartlett"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartlett()</span></code></a>.
-Original docstring below.</p>
-<blockquote>
-<div><blockquote>
-<div><p>The Bartlett window is very similar to a triangular window, except
+<p>The Bartlett window is very similar to a triangular window, except
 that the end points are at zero.  It is often used in signal
 processing for tapering a signal, without generating too much
 ripple in the frequency domain.</p>
-</div></blockquote>
-<dl>
-<dt>Returns</dt><dd><dl class="simple">
-<dt>out<span class="classifier">array</span></dt><dd><p>The triangular window, with the maximum value normalized to one
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The triangular window, with the maximum value normalized to one
 (the value one appears only if the number of samples is odd), with
 the first and last samples equal to zero.</p>
 </dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>array</p>
+</dd>
 </dl>
-<p>blackman, hamming, hanning, kaiser</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#symjax.tensor.signal.blackman" title="symjax.tensor.signal.blackman"><code class="xref py py-func docutils literal notranslate"><span class="pre">blackman()</span></code></a>, <a class="reference internal" href="#symjax.tensor.signal.hamming" title="symjax.tensor.signal.hamming"><code class="xref py py-func docutils literal notranslate"><span class="pre">hamming()</span></code></a>, <a class="reference internal" href="#symjax.tensor.signal.hanning" title="symjax.tensor.signal.hanning"><code class="xref py py-func docutils literal notranslate"><span class="pre">hanning()</span></code></a>, <a class="reference internal" href="#symjax.tensor.signal.kaiser" title="symjax.tensor.signal.kaiser"><code class="xref py py-func docutils literal notranslate"><span class="pre">kaiser()</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
 <p>The Bartlett window is defined as</p>
 <div class="math notranslate nohighlight">
 \[w(n) = \frac{2}{M-1} \left(
@@ -393,6 +397,7 @@ discontinuities at the beginning and end of the sampled signal) or
 tapering function. The fourier transform of the Bartlett is the product
 of two sinc functions.
 Note the excellent discussion in Kanasewich.</p>
+<p class="rubric">References</p>
 <dl class="footnote brackets">
 <dt class="label" id="id1"><span class="brackets">1</span></dt>
 <dd><p>M.S. Bartlett, “Periodogram Analysis and Continuous Spectra”,
@@ -415,6 +420,7 @@ Processing”, Prentice-Hall, 1999, pp. 468-471.</p>
 “Numerical Recipes”, Cambridge University Press, 1986, page 429.</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">bartlett</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
 <span class="go">array([ 0.        ,  0.18181818,  0.36363636,  0.54545455,  0.72727273, # may vary</span>
@@ -457,9 +463,6 @@ Processing”, Prentice-Hall, 1999, pp. 468-471.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-</dd>
-</dl>
-</div></blockquote>
 </dd></dl>
 
 <dl class="function">
@@ -468,19 +471,21 @@ Processing”, Prentice-Hall, 1999, pp. 468-471.</p>
 <dd><p>Return the Hamming window.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hamming" title="symjax.tensor.signal.hamming"><code class="xref py py-func docutils literal notranslate"><span class="pre">hamming()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hamming" title="symjax.tensor.signal.hamming"><code class="xref py py-func docutils literal notranslate"><span class="pre">hamming()</span></code></a>.
-Original docstring below.</p>
-<blockquote>
-<div><blockquote>
-<div><p>The Hamming window is a taper formed by using a weighted cosine.</p>
-</div></blockquote>
-<dl>
-<dt>Returns</dt><dd><dl class="simple">
-<dt>out<span class="classifier">ndarray</span></dt><dd><p>The window, with the maximum value normalized to one (the value
+<p>The Hamming window is a taper formed by using a weighted cosine.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The window, with the maximum value normalized to one (the value
 one appears only if the number of samples is odd).</p>
 </dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
 </dl>
-<p>bartlett, blackman, hanning, kaiser</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#symjax.tensor.signal.bartlett" title="symjax.tensor.signal.bartlett"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartlett()</span></code></a>, <a class="reference internal" href="#symjax.tensor.signal.blackman" title="symjax.tensor.signal.blackman"><code class="xref py py-func docutils literal notranslate"><span class="pre">blackman()</span></code></a>, <a class="reference internal" href="#symjax.tensor.signal.hanning" title="symjax.tensor.signal.hanning"><code class="xref py py-func docutils literal notranslate"><span class="pre">hanning()</span></code></a>, <a class="reference internal" href="#symjax.tensor.signal.kaiser" title="symjax.tensor.signal.kaiser"><code class="xref py py-func docutils literal notranslate"><span class="pre">kaiser()</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
 <p>The Hamming window is defined as</p>
 <div class="math notranslate nohighlight">
 \[w(n) = 0.54 - 0.46cos\left(\frac{2\pi{n}}{M-1}\right)
@@ -493,6 +498,7 @@ literature, where it is used as one of many windowing functions for
 smoothing values.  It is also known as an apodization (which means
 “removing the foot”, i.e. smoothing discontinuities at the beginning
 and end of the sampled signal) or tapering function.</p>
+<p class="rubric">References</p>
 <dl class="footnote brackets">
 <dt class="label" id="id6"><span class="brackets">1</span></dt>
 <dd><p>Blackman, R.B. and Tukey, J.W., (1958) The measurement of power
@@ -511,6 +517,7 @@ University of Alberta Press, 1975, pp. 109-110.</p>
 “Numerical Recipes”, Cambridge University Press, 1986, page 425.</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">hamming</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
 <span class="go">array([ 0.08      ,  0.15302337,  0.34890909,  0.60546483,  0.84123594, # may vary</span>
 <span class="go">        0.98136677,  0.98136677,  0.84123594,  0.60546483,  0.34890909,</span>
@@ -552,9 +559,6 @@ University of Alberta Press, 1975, pp. 109-110.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-</dd>
-</dl>
-</div></blockquote>
 </dd></dl>
 
 <dl class="function">
@@ -563,19 +567,21 @@ University of Alberta Press, 1975, pp. 109-110.</p>
 <dd><p>Return the Hanning window.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hanning" title="symjax.tensor.signal.hanning"><code class="xref py py-func docutils literal notranslate"><span class="pre">hanning()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hanning" title="symjax.tensor.signal.hanning"><code class="xref py py-func docutils literal notranslate"><span class="pre">hanning()</span></code></a>.
-Original docstring below.</p>
-<blockquote>
-<div><blockquote>
-<div><p>The Hanning window is a taper formed by using a weighted cosine.</p>
-</div></blockquote>
-<dl>
-<dt>Returns</dt><dd><dl class="simple">
-<dt>out<span class="classifier">ndarray, shape(M,)</span></dt><dd><p>The window, with the maximum value normalized to one (the value
+<p>The Hanning window is a taper formed by using a weighted cosine.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The window, with the maximum value normalized to one (the value
 one appears only if <cite>M</cite> is odd).</p>
 </dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray, shape(M,)</p>
+</dd>
 </dl>
-<p>bartlett, blackman, hamming, kaiser</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#symjax.tensor.signal.bartlett" title="symjax.tensor.signal.bartlett"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartlett()</span></code></a>, <a class="reference internal" href="#symjax.tensor.signal.blackman" title="symjax.tensor.signal.blackman"><code class="xref py py-func docutils literal notranslate"><span class="pre">blackman()</span></code></a>, <a class="reference internal" href="#symjax.tensor.signal.hamming" title="symjax.tensor.signal.hamming"><code class="xref py py-func docutils literal notranslate"><span class="pre">hamming()</span></code></a>, <a class="reference internal" href="#symjax.tensor.signal.kaiser" title="symjax.tensor.signal.kaiser"><code class="xref py py-func docutils literal notranslate"><span class="pre">kaiser()</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
 <p>The Hanning window is defined as</p>
 <div class="math notranslate nohighlight">
 \[w(n) = 0.5 - 0.5cos\left(\frac{2\pi{n}}{M-1}\right)
@@ -589,6 +595,7 @@ literature, where it is used as one of many windowing functions for
 smoothing values.  It is also known as an apodization (which means
 “removing the foot”, i.e. smoothing discontinuities at the beginning
 and end of the sampled signal) or tapering function.</p>
+<p class="rubric">References</p>
 <dl class="footnote brackets">
 <dt class="label" id="id10"><span class="brackets">1</span></dt>
 <dd><p>Blackman, R.B. and Tukey, J.W., (1958) The measurement of power
@@ -607,6 +614,7 @@ The University of Alberta Press, 1975, pp. 106-108.</p>
 “Numerical Recipes”, Cambridge University Press, 1986, page 425.</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">hanning</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
 <span class="go">array([0.        , 0.07937323, 0.29229249, 0.57115742, 0.82743037,</span>
 <span class="go">       0.97974649, 0.97974649, 0.82743037, 0.57115742, 0.29229249,</span>
@@ -650,9 +658,6 @@ The University of Alberta Press, 1975, pp. 106-108.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-</dd>
-</dl>
-</div></blockquote>
 </dd></dl>
 
 <dl class="function">
@@ -661,19 +666,21 @@ The University of Alberta Press, 1975, pp. 106-108.</p>
 <dd><p>Return the Kaiser window.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.kaiser" title="symjax.tensor.signal.kaiser"><code class="xref py py-func docutils literal notranslate"><span class="pre">kaiser()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.kaiser" title="symjax.tensor.signal.kaiser"><code class="xref py py-func docutils literal notranslate"><span class="pre">kaiser()</span></code></a>.
-Original docstring below.</p>
-<blockquote>
-<div><blockquote>
-<div><p>The Kaiser window is a taper formed by using a Bessel function.</p>
-</div></blockquote>
-<dl>
-<dt>Returns</dt><dd><dl class="simple">
-<dt>out<span class="classifier">array</span></dt><dd><p>The window, with the maximum value normalized to one (the value
+<p>The Kaiser window is a taper formed by using a Bessel function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The window, with the maximum value normalized to one (the value
 one appears only if the number of samples is odd).</p>
 </dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>array</p>
+</dd>
 </dl>
-<p>bartlett, blackman, hamming, hanning</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#symjax.tensor.signal.bartlett" title="symjax.tensor.signal.bartlett"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartlett()</span></code></a>, <a class="reference internal" href="#symjax.tensor.signal.blackman" title="symjax.tensor.signal.blackman"><code class="xref py py-func docutils literal notranslate"><span class="pre">blackman()</span></code></a>, <a class="reference internal" href="#symjax.tensor.signal.hamming" title="symjax.tensor.signal.hamming"><code class="xref py py-func docutils literal notranslate"><span class="pre">hamming()</span></code></a>, <a class="reference internal" href="#symjax.tensor.signal.hanning" title="symjax.tensor.signal.hanning"><code class="xref py py-func docutils literal notranslate"><span class="pre">hanning()</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
 <p>The Kaiser window is defined as</p>
 <div class="math notranslate nohighlight">
 \[w(n) = I_0\left( \beta \sqrt{1-\frac{4n^2}{(M-1)^2}}
@@ -723,6 +730,7 @@ literature, where it is used as one of many windowing functions for
 smoothing values.  It is also known as an apodization (which means
 “removing the foot”, i.e. smoothing discontinuities at the beginning
 and end of the sampled signal) or tapering function.</p>
+<p class="rubric">References</p>
 <dl class="footnote brackets">
 <dt class="label" id="id14"><span class="brackets">1</span></dt>
 <dd><p>J. F. Kaiser, “Digital Filters” - Ch 7 in “Systems analysis by
@@ -738,6 +746,7 @@ University of Alberta Press, 1975, pp. 177-178.</p>
 <a class="reference external" href="https://en.wikipedia.org/wiki/Window_function">https://en.wikipedia.org/wiki/Window_function</a></p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">kaiser</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
 <span class="go"> array([7.72686684e-06, 3.46009194e-03, 4.65200189e-02, # may vary</span>
@@ -780,9 +789,6 @@ University of Alberta Press, 1975, pp. 177-178.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-</dd>
-</dl>
-</div></blockquote>
 </dd></dl>
 
 <dl class="function">

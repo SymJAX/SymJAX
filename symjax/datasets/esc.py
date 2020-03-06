@@ -10,8 +10,9 @@ from scipy.io.wavfile import read as wav_read
 import io
 
 
-class esc50:
-    """
+class esc:
+    """ESC-10/50: Environmental Sound Classification
+
     https://github.com/karolpiczak/ESC-50#download
 
     The ESC-50 dataset is a labeled collection of 2000 environmental audio
@@ -32,6 +33,7 @@ class esc50:
     prearranged into 5 folds for comparable cross-validation, making sure
     that fragments from the same original source file are contained in a
     single fold.
+
     """
     fine_to_coarse = {'dog': 0, 'rooster': 0, 'pig': 0, 'cow': 0, 'frog': 0,
                           'cat': 0, 'hen': 0, 'insects': 0, 'sheep': 0, 'crow': 0,
@@ -55,12 +57,12 @@ class esc50:
     
         # Check if directory exists
         if not os.path.isdir(path+'esc50'):
-            print('Creating esc50 Directory')
+            print('\tCreating esc50 Directory')
             os.mkdir(path +'esc50')
         url = 'https://github.com/karoldvl/ESC-50/archive/master.zip'
         # Check if file exists
         if not os.path.exists(path+'esc50/master.zip'):
-            td  = time.time()
+            print('\tDownloading esc50')
             urllib.request.urlretrieve(url, path+'esc50/master.zip')
     
     
@@ -72,25 +74,54 @@ class esc50:
     
         Parameters
         ----------
-            path: str (optional)
+        
+        path: str (optional)
                 default $DATASET_path), the path to look for the data and
                 where the data will be downloaded if not present
+
+        Returns
+        -------
+
+        wavs: array
+            the wavs as a numpy array (matrix) with first dimension the data
+            and second dimension time
+        
+        fine_labels: array
+            the labels of the final classes (50 different ones) as a integer
+            vector
+        
+        coarse_labels: array
+            the labels of the classes big cateogry (5 of them)
+        
+        folds: array
+            the fold as an integer from 1 to 5 specifying how to split the data
+            one should not split a fold into train and set as it would
+            make the same recording (but different subparts) be present in train
+            and test, biasing optimistically the results.
+        
+        esc10: array
+            the boolean vector specifying if the corresponding datum (wav, label,
+            ...) is in the ESC-10 dataset or not. That is, to load the ESC-10
+            dataset simply load ESC-50 and use this boolean vector to extract
+            only the ESC-10 data.
         """
     
         if path is None:
             path = os.environ['DATASET_PATH']
-        esc50.download(path)
+        esc.download(path)
         t0 = time.time()
     
         f = zipfile.ZipFile(path+'esc50/master.zip')
     
-        meta = np.loadtxt(io.BytesIO(f.read('ESC-50-master/meta/esc50.csv')), delimiter=',',
-                          skiprows=1, dtype='str')
+        meta = np.loadtxt(io.BytesIO(f.read('ESC-50-master/meta/esc50.csv')),
+                          delimiter=',', skiprows=1, dtype='str')
         filenames = list(meta[:, 0])
         folds = meta[:, 1].astype('int32')
         fine_labels = meta[:, 2].astype('int32')
         categories = meta[:, 3]
-        coarse_labels = np.array([esc50.fine_to_coarse[c] for c in categories]).astype('int32')
+        esc10 = meta[:, 4].astype('bool')
+        coarse_labels = np.array([esc50.fine_to_coarse[c] for c in categories])
+        coarse_labels = coarse_labels.astype('int32')
     
         wavs = list()
         order = list()
@@ -108,4 +139,4 @@ class esc50:
         for i in range(len(wavs)):
             left = (N-len(wavs[i])) // 2
             all_wavs[order[i], left: left + len(wavs[i])] = wavs[i]
-        return all_wavs, fine_labels, coarse_labels
+        return all_wavs, fine_labels, coarse_labels, folds, esc10

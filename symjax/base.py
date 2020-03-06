@@ -262,7 +262,11 @@ class function:
             jitoutputs, jitupdates = self.jitfn(*fnargs, *extra_values)
             for key, update in zip(self.updates_keys, jitupdates):
                 key.value = update
-            return jitoutputs
+            if isinstance(jitoutputs, jax.interpreters.xla.DeviceArray):
+                return jax.api.device_get(jitoutputs)
+            else:
+                npy_jitoutputs= [jax.api.device_get(arr) for arr in jitoutputs]
+                return npy_jitoutputs
 
         self.meta = meta
 

@@ -11,14 +11,14 @@ from .cifar100 import cifar100
 from .tinyimagenet import tinyimagenet
 from .ibeans import ibeans
 from .cassava import cassava
-
+from .stl10 import stl10
 
 # audio
 from .TUTacousticscences2017 import TUTacousticscences2017
 from .gtzan import gtzan
 from .sonycust import sonycust
 from .audiomnist import audiomnist
-from .esc50 import esc50
+from .esc import esc
 from .irmas import irmas
 from .freefield1010 import freefield1010
 from .warblr import warblr

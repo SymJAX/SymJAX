@@ -12,6 +12,9 @@ Images
    symjax.datasets.svhn
    symjax.datasets.cifar10
    symjax.datasets.cifar100
+   symjax.datasets.ibeans
+   symjax.datasets.cassava
+   symjax.datasets.stl10
    symjax.datasets.tinyimagenet
 
 Audio
@@ -20,13 +23,15 @@ Audio
 .. autosummary::
 
    symjax.datasets.audiomnist
-   symjax.datasets.esc50
+   symjax.datasets.esc
    symjax.datasets.warblr
    symjax.datasets.urban
    symjax.datasets.gtzan
    symjax.datasets.dclde
    symjax.datasets.irmas
    symjax.datasets.freefield1010
+   symjax.datasets.birdvox_70k
+   symjax.datasets.birdvox_dcase_20k
    symjax.datasets.dcase
 
 
@@ -51,6 +56,15 @@ Detailed description (Image)
 .. autoclass:: symjax.datasets.cifar100
    :members:
 
+.. autoclass:: symjax.datasets.ibeans
+   :members:
+
+.. autoclass:: symjax.datasets.cassava
+   :members:
+
+.. autoclass:: symjax.datasets.stl10
+   :members:
+ 
 .. autoclass:: symjax.datasets.tinyimagenet
    :members:
   
@@ -61,7 +75,7 @@ Detailed description (Audio)
 .. autoclass:: symjax.datasets.audiomnist
    :members:
 
-.. autoclass:: symjax.datasets.esc50
+.. autoclass:: symjax.datasets.esc
    :members:
 
 .. autoclass:: symjax.datasets.warblr
@@ -81,3 +95,14 @@ Detailed description (Audio)
 
 .. autoclass:: symjax.datasets.freefield1010 
    :members:
+
+.. autoclass:: symjax.datasets.birdvox_70k
+   :members:
+
+.. autoclass:: symjax.datasets.birdvox_dcase_20k
+   :members:
+ 
+.. autoclass:: symjax.datasets.dcase
+   :members:
+
+
