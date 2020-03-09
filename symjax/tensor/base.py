@@ -103,7 +103,7 @@ def isvar(item):
 
 
 class Tensor:
-
+    __array_priority__ = 1000
     def __init__(self, shape, dtype, roots=[], copyof=None):
         self.copyof = copyof
         self.roots = roots
@@ -127,10 +127,6 @@ class Tensor:
     @property
     def ndim(self):
         return len(self.shape)
-
-    @property
-    def T(self):
-        pass
 
     def get(self, tracker=None):
         """ this method implements only the case where the tensor is a copy

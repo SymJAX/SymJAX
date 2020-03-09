@@ -46,6 +46,12 @@ _add_method(Tensor)(ops_math.argmin, 'argmin')
 
 
 ## additional operators
+
+_add_method(Tensor)(ops_math.real, 'real')
+_add_method(Tensor)(ops_math.imag, 'imag')
+
+_add_method(Tensor)(ops_math.conjugate, 'conj')
+_add_method(Tensor)(ops_math.conjugate, 'conjugate')
 _add_method(Tensor)(ops_math.cast, 'cast')
 _add_method(Tensor)(ops_math.cast, 'astype')
 _add_method(Tensor)(ops_math.squeeze, 'squeeze')
