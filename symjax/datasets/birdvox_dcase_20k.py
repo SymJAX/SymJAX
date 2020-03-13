@@ -20,13 +20,10 @@ class birdvox_dcase_20k:
 
     BirdVox-DCASE-20k: a dataset for bird audio detection in 10-second
     clips
-    =====================================================
     
     Version 2.0, March 2018.
 
-
     Created By
-    -------------
 
     Vincent Lostanlen (1, 2, 3), Justin Salamon (2, 3), Andrew Farnsworth
     (1), Steve Kelling (1), and Juan Pablo Bello (2, 3).
@@ -36,11 +33,8 @@ class birdvox_dcase_20k:
     (3): Music and Audio Research Lab, New York University
 
     https://wp.nyu.edu/birdvox
-
      
-
     Description
-    --------------
 
     The BirdVox-DCASE-20k dataset contains 20,000 ten-second audio
     recordings. These recordings come from ROBIN autonomous recording
@@ -76,7 +70,6 @@ class birdvox_dcase_20k:
     Avian Flight Calls for Bioacoustic Monitoring. PLoS One, 2016.
 
     Data Files
-    ------------
 
     The wav folder contains the recordings as WAV files, sampled at
     44,1 kHz, with a single channel (mono). The original sample rate
@@ -92,7 +85,6 @@ class birdvox_dcase_20k:
     organizers, but not disclosed to the participants.
 
     Please Acknowledge BirdVox-DCASE-20k in Academic Research
-    ---------------------------------------------------------
 
     When BirdVox-70k is used for academic research, we would highly
     appreciate it if  scientific publications of works partly based on

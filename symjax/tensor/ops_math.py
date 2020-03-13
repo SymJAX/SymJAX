@@ -8,33 +8,36 @@ import ast
 import inspect
 import sys
 from .ops_activations import relu
+
 module = sys.modules[__name__]
 
 
+index = jax.ops.index
+
 def hat_1D(x, t_left, t_center, t_right):
-    """
-    Hat function, continuous piecewise linear, such that::
-        f(x) = \begin{cases}
-                    0 \iff x \not \in (t_left,t_right)\\
-                    1 \iff x = t_center\\
-                    \frac{x - t_left}{t_center - t_left} \iff x \in (t_left, t]\\
-                    \frac{x - t_center}{t_center - t_right} \iff x \in (t_left, t]
-                \end{cases}
+    """hat basis function in 1-D
+
+    Hat function, continuous piecewise linear
+
     Parameters
     ----------
 
-    x :: array-like
+    x: array-like
         the sampled input space
-    t_left :: scalar
+
+    t_left: scalar
         the position of the left knot
-   t_center :: scalar
+
+    t_center: scalar
         the position of the center knot
-    t_right :: scalar
+
+    t_right: scalar
         the position of the right knot
 
     Returns
     -------
-    output :: array
+
+    output : array
         same shape as x with applied hat function
     """
     eps = 1e-6
@@ -59,7 +62,7 @@ def _extract_signal_patches(signal, window_length, hop=1, data_format='NCW'):
     else:
         error
 
-extract_signal_patches = jax_wrap(_extract_signal_patches)
+extract_signal_patches = jax_wrap(_extract_signal_patches, module)
 
 
 def _extract_image_patches(image, window_shape, hop=1, data_format='NCHW',
@@ -106,29 +109,21 @@ def _extract_image_patches(image, window_shape, hop=1, data_format='NCHW',
 extract_image_patches = jax_wrap(_extract_image_patches)
 
 
-class add_n(Op):
-    @staticmethod
-    def fn(args):
-        start = args[0]
-        for arg in args:
-            start = jnp.add(start, arg)
-        return start
+def _add_n(args):
+    start = args[0]
+    for arg in args:
+        start = jnp.add(start, arg)
+    return start
 
+add_n = jax_wrap(_add_n)
 
-class one_hot(Op):
-    @staticmethod
-    def fn(i, N, dtype='float32'):
-        """Create a one-hot encoding of x of size k."""
-        z = jnp.zeros((N,), dtype)
-        z = jax.ops.index_add(z, i, 1)
-        return z
-
-
-class to_one_hot(Op):
-    @staticmethod
-    def fn(x, k, dtype='float32'):
-        """Create a one-hot encoding of x of size k."""
-        return jnp.array(x[:, None] == jnp.arange(k), dtype)
+def one_hot(i, N, dtype='float32'):
+    """Create a one-hot encoding of x of size k."""
+    if hasattr(i, 'shape'):
+        return (x[:, None] == arange(k)).astype(dtype)
+    else:
+        z = zeros((N,), dtype)
+        return index_add(z, i, 1)
 
 
 def upsample(x, factors, mode='zeros'):
@@ -150,8 +145,8 @@ def upsample(x, factors, mode='zeros'):
         raise ValueError('Not Implemented upsample')
 
 
-JNP_NAMES = [c[0] for c in inspect.getmembers(jnp, inspect.isfunction)]
-TO_SKIP = [
+_JNP_NAMES = [c[0] for c in inspect.getmembers(jnp, inspect.isfunction)]
+_TO_SKIP = [
     '<lambda>',
     'blackman',
     'bartlett',
@@ -163,7 +158,6 @@ TO_SKIP = [
     'alen',
     'apply_along_axis',
     'apply_over_axes',
-    'array',
     'array2string',
     'array_equal',
     'array_equiv',
@@ -171,13 +165,10 @@ TO_SKIP = [
     'array_split',
     'array_str',
     'asanyarray',
-    'asarray',
     'asarray_chkfinite',
     'ascontiguousarray',
     'asfarray',
     'asfortranarray',
-    'asmatrix',
-    'asscalar',
     'broadcast_arrays',
     'broadcast_to',
     'copy',
@@ -278,10 +269,15 @@ TO_SKIP = [
 ]
 
 
-for name in JNP_NAMES:
-    if name in TO_SKIP:
+for name in _JNP_NAMES:
+    if name in _TO_SKIP:
         continue
     module.__dict__.update({name: jax_wrap(jnp.__dict__[name])})
+
+for name in ['index_update', 'index_min', 'index_add', 'index_max']:
+    module.__dict__.update({name: jax_wrap(jax.ops.__dict__[name])})
+
+
 
 cast = jax_wrap(jla.convert_element_type)
 complex = jax_wrap(jla.complex)
@@ -303,3 +299,4 @@ def flatten2d(input):
 def logsumexp(x, axis):
     x_max = stop_gradient(x.max(axis, keepdims=True))
     return log(exp(x - x_max).sum(axis)) + squeeze(x_max)
+

@@ -175,9 +175,6 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">onp</span>
 <span class="kn">import</span> <span class="nn">scipy.special</span> <span class="k">as</span> <span class="nn">osp_special</span>
@@ -202,10 +199,28 @@
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">lgamma</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">lax</span><span class="o">.</span><span class="n">lgamma</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">lax</span><span class="o">.</span><span class="n">lgamma</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span>
 
 
+<span class="nd">@_wraps</span><span class="p">(</span><span class="n">osp_special</span><span class="o">.</span><span class="n">betainc</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">betainc</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+  <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">_promote_args_inexact</span><span class="p">(</span><span class="s2">&quot;betainc&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">betainc</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+
 <span class="nd">@_wraps</span><span class="p">(</span><span class="n">osp_special</span><span class="o">.</span><span class="n">digamma</span><span class="p">,</span> <span class="n">update_doc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">digamma</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
   <span class="n">x</span><span class="p">,</span> <span class="o">=</span> <span class="n">_promote_args_inexact</span><span class="p">(</span><span class="s2">&quot;digamma&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">digamma</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+
+<span class="nd">@_wraps</span><span class="p">(</span><span class="n">osp_special</span><span class="o">.</span><span class="n">gammainc</span><span class="p">,</span> <span class="n">update_doc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">gammainc</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+  <span class="n">a</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">_promote_args_inexact</span><span class="p">(</span><span class="s2">&quot;gammainc&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">igamma</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+
+<span class="nd">@_wraps</span><span class="p">(</span><span class="n">osp_special</span><span class="o">.</span><span class="n">gammaincc</span><span class="p">,</span> <span class="n">update_doc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">gammaincc</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+  <span class="n">a</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">_promote_args_inexact</span><span class="p">(</span><span class="s2">&quot;gammaincc&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">igammac</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 
 
 <span class="nd">@_wraps</span><span class="p">(</span><span class="n">osp_special</span><span class="o">.</span><span class="n">erf</span><span class="p">)</span>

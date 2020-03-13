@@ -182,9 +182,6 @@
 <span class="c1"># b) the set of supported types (e.g., bfloat16),</span>
 <span class="c1"># so we need our own implementation that deviates from NumPy in places.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
 <span class="kn">from</span> <span class="nn">distutils.util</span> <span class="kn">import</span> <span class="n">strtobool</span>
 <span class="kn">import</span> <span class="nn">functools</span>
@@ -273,7 +270,7 @@
     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid scalar value </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">coerce_to_array</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Coreces a scalar or NumPy array to an onp.array.</span>
+  <span class="sd">&quot;&quot;&quot;Coerces a scalar or NumPy array to an onp.array.</span>
 
 <span class="sd">  Handles Python scalar type promotion according to JAX&#39;s rules, not NumPy&#39;s</span>
 <span class="sd">  rules.</span>

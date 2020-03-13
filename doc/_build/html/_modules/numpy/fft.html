@@ -283,8 +283,16 @@
 <span class="sd">It differs from the forward transform by the sign of the exponential</span>
 <span class="sd">argument and the default normalization by :math:`1/n`.</span>
 
+<span class="sd">Type Promotion</span>
+<span class="sd">--------------</span>
+
+<span class="sd">`numpy.fft` promotes ``float32`` and ``complex64`` arrays to ``float64`` and</span>
+<span class="sd">``complex128`` arrays respectively. For an FFT implementation that does not</span>
+<span class="sd">promote input arrays, see `scipy.fftpack`.</span>
+
 <span class="sd">Normalization</span>
 <span class="sd">-------------</span>
+
 <span class="sd">The default normalization has the direct transforms unscaled and the inverse</span>
 <span class="sd">transforms are scaled by :math:`1/n`. It is possible to obtain unitary</span>
 <span class="sd">transforms by setting the keyword argument ``norm`` to ``&quot;ortho&quot;`` (default is</span>

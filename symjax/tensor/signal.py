@@ -577,3 +577,13 @@ def istft(stft_matrix, hop_length=None, win_length=None, window='hann',
         y = util.fix_length(y[start:], length)
 
     return y
+
+def hilbert_transform(signal):
+    """
+    the time should be the last dimension
+    return the analytical signal
+    """
+    M = signal.shape[-1]
+    heavyside = T.array([1, 0], dtype='float32').repeat(M // 2)
+    mask = T.index_add(T.ones(M), T.index[...,1:M//2], 1)
+    return T.signal.ifft(T.signal.fft(signal) * mask * heavyside)

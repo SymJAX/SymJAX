@@ -6,6 +6,7 @@ __all__ = [
         "datasets",
         "tensor",
         "losses",
+        "interpolation",
         "utils",
         "initializers",
         "layers",

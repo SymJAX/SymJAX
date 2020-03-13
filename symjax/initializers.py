@@ -7,16 +7,20 @@ def constant(shape, value):
 def uniform(shape, range=0.01, std=None, mean=0.):
     """Sample initial weights from the uniform distribution.
     Parameters are sampled from U(a, b).
+
     Parameters
     ----------
-    range : float or tuple
+
+    range: float or tuple
         When std is None then range determines a, b. If range is a float the
         weights are sampled from U(-range, range). If range is a tuple the
         weights are sampled from U(range[0], range[1]).
-    std : float or None
+
+    std: float or None
         If std is a float then the weights are sampled from
         U(mean - numpy.sqrt(3) * std, mean + numpy.sqrt(3) * std).
-    mean : float
+
+    mean: float
         see std for description.
     """
     if std is not None:
@@ -31,12 +35,16 @@ def uniform(shape, range=0.01, std=None, mean=0.):
 def normal(shape, mean=0., std=1.):
     """Sample initial weights from the Gaussian distribution.
     Initial weight parameters are sampled from N(mean, std).
+
     Parameters
     ----------
-    std : float
+    
+    std: float
         Std of initial parameters.
-    mean : float
+    
+    mean: float
         Mean of initial parameters.
+    
     """
     return numpy.random.randn(*shape)*std + mean
 
@@ -54,30 +62,38 @@ def orthogonal(shape, gain=1, seed=None):
 def glorot(shape, gain=1, distribution=normal):
     """Glorot weight initialization.
     This is also known as Xavier initialization [1]_.
+
     Parameters
     ----------
+    
     initializer : lasagne.init.Initializer
         Initializer used to sample the weights, must accept `std` in its
         constructor to sample from a distribution with a given standard
         deviation.
+    
     gain : float or 'relu'
         Scaling factor for the weights. Set this to ``1.0`` for linear and
         sigmoid units, to 'relu' or ``sqrt(2)`` for rectified linear units, and
         to ``sqrt(2/(1+alpha**2))`` for leaky rectified linear units with
         leakiness ``alpha``. Other transfer functions may need different
         factors.
+    
     c01b : bool
         For a :class:`lasagne.layers.cuda_convnet.Conv2DCCLayer` constructed
         with ``dimshuffle=False``, `c01b` must be set to ``True`` to compute
         the correct fan-in and fan-out.
+    
     References
     ----------
+    
     .. [1] Xavier Glorot and Yoshua Bengio (2010):
            Understanding the difficulty of training deep feedforward neural
            networks. International conference on artificial intelligence and
            statistics.
+    
     Notes
     -----
+    
     For a :class:`DenseLayer <lasagne.layers.DenseLayer>`, if ``gain='relu'``
     and ``initializer=Uniform``, the weights are initialized as
     .. math::
@@ -102,29 +118,37 @@ def he(shape, gain=numpy.sqrt(2), distribution=normal):
     """He weight initialization.
     Weights are initialized with a standard deviation of
     :math:`\\sigma = gain \\sqrt{\\frac{1}{fan_{in}}}` [1]_.
+    
     Parameters
     ----------
+    
     initializer : lasagne.init.Initializer
         Initializer used to sample the weights, must accept `std` in its
         constructor to sample from a distribution with a given standard
         deviation.
+    
     gain : float or 'relu'
         Scaling factor for the weights. Set this to ``1.0`` for linear and
         sigmoid units, to 'relu' or ``sqrt(2)`` for rectified linear units, and
         to ``sqrt(2/(1+alpha**2))`` for leaky rectified linear units with
         leakiness ``alpha``. Other transfer functions may need different
         factors.
+    
     c01b : bool
         For a :class:`lasagne.layers.cuda_convnet.Conv2DCCLayer` constructed
         with ``dimshuffle=False``, `c01b` must be set to ``True`` to compute
         the correct fan-in and fan-out.
+    
     References
     ----------
+    
     .. [1] Kaiming He et al. (2015):
            Delving deep into rectifiers: Surpassing human-level performance on
            imagenet classification. arXiv preprint arXiv:1502.01852.
+    
     See Also
     ----------
+    
     HeNormal  : Shortcut with Gaussian initializer.
     HeUniform : Shortcut with uniform initializer.
     """

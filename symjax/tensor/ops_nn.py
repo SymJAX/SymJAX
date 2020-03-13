@@ -3,7 +3,7 @@ import jax.lax as jla
 
 from .base import Op, Tensor, Variable, jax_wrap
 from .control_flow import cond
-from .ops_math import dynamic_slice_in_dim, equal, where, dynamic_slice, greater
+from .ops_math import dynamic_slice_in_dim, equal, where, dynamic_slice, greater, concatenate, full, expand_dims
 import numpy
 
 
@@ -230,3 +230,24 @@ def PiecewiseConstant(init, values, step=None):
     v = Variable(values, trainable=False, name='PiecewiseConstant_values')
     return dynamic_slice_in_dim(v, index-1, 1, 0), step
 
+
+
+def constant_upsample(tensor, repeat, axis=-1, constant=0.):
+
+    if axis == -1:
+        axis = tensor.ndim - 1
+
+    if repeat == 0:
+        return tensor
+
+    shape = sum([[s, 1] if k==axis else [s] for k, s in enumerate(tensor.shape)],
+                [])
+    
+    zshape = shape.copy()
+    zshape[axis+1] = repeat
+
+    nshape = list(tensor.shape).copy()
+    nshape[axis] *= (1 + repeat)
+    tensor_aug = concatenate([expand_dims(tensor, axis+1),
+                             full(zshape, constant, dtype=tensor.dtype)], axis+1)
+    return tensor_aug.reshape(nshape)

@@ -168,7 +168,7 @@
 <h1><a class="reference internal" href="#module-symjax" title="symjax"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a><a class="headerlink" href="#symjax" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="symjax.function">
-<em class="property">class </em><code class="sig-prename descclassname">symjax.</code><code class="sig-name descname">function</code><span class="sig-paren">(</span><em class="sig-param">*classargs</em>, <em class="sig-param">outputs=[]</em>, <em class="sig-param">updates=None</em>, <em class="sig-param">device=None</em>, <em class="sig-param">backend=None</em>, <em class="sig-param">default_value=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/base.html#function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.function" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">function</code><span class="sig-paren">(</span><em class="sig-param">*classargs</em>, <em class="sig-param">outputs=[]</em>, <em class="sig-param">updates=None</em>, <em class="sig-param">device=None</em>, <em class="sig-param">backend=None</em>, <em class="sig-param">default_value=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/base.html#function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.function" title="Permalink to this definition">¶</a></dt>
 <dd><p>generates a user function that compiles a computational graph
 based on given inputs, outputs and update policy of variables. This
 function internally jit compile the underlying jax computational
@@ -219,7 +219,7 @@ updates</p>
 
 <span class="target" id="module-symjax"></span><dl class="function">
 <dt id="symjax.gradients">
-<code class="sig-prename descclassname">symjax.</code><code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param">scalar</em>, <em class="sig-param">variables</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/base.html#gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.gradients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param">scalar</em>, <em class="sig-param">variables</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/base.html#gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.gradients" title="Permalink to this definition">¶</a></dt>
 <dd><p>computes the gradients of a scalar w.r.t to a given list of variables.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -239,7 +239,7 @@ updates</p>
 
 <dl class="function">
 <dt id="symjax.jacobians">
-<code class="sig-prename descclassname">symjax.</code><code class="sig-name descname">jacobians</code><span class="sig-paren">(</span><em class="sig-param">tensor</em>, <em class="sig-param">variables</em>, <em class="sig-param">mode='forward'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/base.html#jacobians"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.jacobians" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">jacobians</code><span class="sig-paren">(</span><em class="sig-param">tensor</em>, <em class="sig-param">variables</em>, <em class="sig-param">mode='forward'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/base.html#jacobians"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.jacobians" title="Permalink to this definition">¶</a></dt>
 <dd><p>computes the jacobians of a tensor w.r.t to a given list of variables.
 The tensor needs not to be a vector, but will be treated as such. For
 example if tensor.shape is (10, 3, 3) and a variable shape if (10, 10)

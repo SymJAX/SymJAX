@@ -30,7 +30,7 @@ def train_test_split(*args, train_size=0.8, stratify=None, seed=None):
 
 class batchify:
 
-    def __init__(self, *args, batch_size, option='continuous', load_func=None,
+    def __init__(self, *args, batch_size, option='random', load_func=None,
                  extra_process=0):
         """
 

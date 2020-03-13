@@ -7,7 +7,11 @@ __all__ = ["random",
         "pdfs"]
 
 from .base import *
-from .ops_math import *
+from .numpy import *
+from .control_flow import *
+from .index_ops import *
+from .other import *
+
 from .ops_methods import *
 from .ops_activations import *
 from .ops_nn import *

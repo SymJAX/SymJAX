@@ -180,17 +180,6 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None):
         from . import random
         random_func = func in random._RANDOM_FUNCTIONS
 
-        # now get the function signature
-#        signature = list(inspect.signature(doc_func).parameters.items())
-#
-#        # second we add the default values to the kwargs in case not
-#        # given. This would be taken care by the wraps for the output
-#        # function but we need it here to infer the correct shape and
-#        # because we manually instantiate the output in this function
-#        if insert_default_kwargs:
-#            for name, parameter in signature[len(args) + int(random_func):]:
-#                if name not in kwargs:
-#                    kwargs[name] = parameter.default
         # we need to remove the static arguments first
         # we first do it for the kwars
         static_kwargs = {}
@@ -333,11 +322,6 @@ class Op(Tensor):
             kwargs.update({name: get(var, tracker)})
         args = [get(var, tracker) for var in self.args]
         tracker[self] = self.jax_function(*args, **kwargs)
-#        if tracker[self].shape != self.shape:
-#            print(self.args, self.jax_function)
-#            print(args, kwargs)
-#            print([a.shape for a in args if hasattr(a, 'shape')])
-#            input('sdf')
         return tracker[self]
 
 
@@ -506,15 +490,11 @@ class Variable(Tensor):
             attribute and can be accessed.
     """
 
-    def __init__(self, value_or_fn, shape=None, dtype=None,
-                 name='', trainable=True):
+    def __init__(self, tensor, name='', trainable=True):
 
         self.trainable = trainable
         self.name = name
-        self.value_or_fn = value_or_fn
-        self._shape = shape
-        self._dtype = dtype
-
+        self.tensor = tensor
         self.value = jnp.array(copy.deepcopy(self._get_value()))
 
         if hasattr(self.value, 'shape'):
@@ -524,6 +504,9 @@ class Variable(Tensor):
             shape = ()
             dtype = type(value)
 
+        self._shape = shape
+        self._dtype = dtype
+
         super().__init__(shape, dtype, roots=[self])
 
     def _get_value(self):
@@ -532,23 +515,10 @@ class Variable(Tensor):
             was a function or not etc
         """
 
-        if not callable(self.value_or_fn):
-            if isinstance(self.value_or_fn, Tensor):
-                return numpy.array(self.value_or_fn.get({}))
-            else:
-                return self.value_or_fn
-
-        # we get the actual value
-        value = self.value_or_fn(self._shape)
-
-        # we cast the value
-        if isinstance(value, numpy.ndarray) and self._dtype is not None:
-            value = value.astype(self._dtype)
-        elif isinstance(value, Tensor):
-            value = numpy.array(value.get({}))
-            if self._dtype is not None:
-                value = value.astype(self._dtype)
-        return value
+        if isinstance(self.tensor, Tensor):
+            return numpy.array(self.tensor.get({}))
+        else:
+            return self.tensor
 
     def reset(self):
         """reset the value of the variable based on the initial one, whether
@@ -602,22 +572,30 @@ class Placeholder(Tensor):
 
 
 def placeholder_like(item, name=''):
-    return Placeholder(item.shape, item.dtype, name=name)
+    if item is None:
+        return None
+    elif type(item) == list or type(item) == tuple:
+        return type(item)([placeholder_like(i) for i in item])
+    else:
+        return Placeholder(item.shape, item.dtype, name=name)
 
+def match(l1, l2, output):
+    if output is None:
+        output = dict()
+    if type(l1) == list or type(l1) == tuple:
+        for a, b in zip(l1, l2):
+            match(a, b, output)
+    else:
+        output.update({l1: l2})
 
-def theanofn_to_jaxfn(*args, _fn, **kwargs):
-
-    # treat the args
-    pargs = list()
-    for arg in args:
-        pargs.append(placeholder_like(arg))
-
-    # treat the kwargs
-    pkwargs = dict()
-    for name, var in kwargs.items():
-        pkwargs[name] = placeholder_like(var)
-    output = _fn(*pargs, **pkwargs)
-    feed_dict = list(zip(pargs, args)) + list(zip(pkwargs.values(),
-                                                  kwargs.values()))
-    return output.get(dict(feed_dict))
-
+def symjax_to_jax_fn(func):
+    def newfn(*args, fn=func):
+        pholders = placeholder_like(args)
+        symjax_outputs = fn(*pholders)
+        feed_dict = {}
+        match(pholders, args, feed_dict)
+        if None in feed_dict:
+            del feed_dict[None]
+        outputs = [o.get(feed_dict) if hasattr(o, 'get') else o for o in symjax_outputs]
+        return outputs
+    return newfn

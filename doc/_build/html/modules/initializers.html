@@ -168,23 +168,21 @@
 <h1><a class="reference internal" href="#module-symjax.initializers" title="symjax.initializers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.initializers</span></code></a><a class="headerlink" href="#symjax-initializers" title="Permalink to this headline">¶</a></h1>
 <dl class="attribute">
 <dt id="symjax.initializers">
-<code class="sig-prename descclassname">symjax.</code><code class="sig-name descname">initializers</code><a class="headerlink" href="#symjax.initializers" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">initializers</code><a class="headerlink" href="#symjax.initializers" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#module-symjax.initializers" title="symjax.initializers"><code class="xref py py-class docutils literal notranslate"><span class="pre">symjax.initializers</span></code></a></p>
 </dd></dl>
 
 <span class="target" id="module-symjax.initializers"></span><dl class="function">
 <dt id="symjax.initializers.glorot">
-<code class="sig-prename descclassname">symjax.initializers.</code><code class="sig-name descname">glorot</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">gain=1</em>, <em class="sig-param">distribution=&lt;function normal&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#glorot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.glorot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">glorot</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">gain=1</em>, <em class="sig-param">distribution=&lt;function normal&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#glorot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.glorot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Glorot weight initialization.
-This is also known as Xavier initialization <a href="#id5"><span class="problematic" id="id1">[1]_</span></a>.
-:param initializer: Initializer used to sample the weights, must accept <cite>std</cite> in its</p>
-<blockquote>
-<div><p>constructor to sample from a distribution with a given standard
-deviation.</p>
-</div></blockquote>
+This is also known as Xavier initialization <a href="#id5"><span class="problematic" id="id1">[1]_</span></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>initializer</strong> (<em>lasagne.init.Initializer</em>) – Initializer used to sample the weights, must accept <cite>std</cite> in its
+constructor to sample from a distribution with a given standard
+deviation.</p></li>
 <li><p><strong>gain</strong> (<em>float</em><em> or </em><em>'relu'</em>) – Scaling factor for the weights. Set this to <code class="docutils literal notranslate"><span class="pre">1.0</span></code> for linear and
 sigmoid units, to ‘relu’ or <code class="docutils literal notranslate"><span class="pre">sqrt(2)</span></code> for rectified linear units, and
 to <code class="docutils literal notranslate"><span class="pre">sqrt(2/(1+alpha**2))</span></code> for leaky rectified linear units with
@@ -223,18 +221,16 @@ and <code class="docutils literal notranslate"><span class="pre">initializer=Uni
 
 <dl class="function">
 <dt id="symjax.initializers.he">
-<code class="sig-prename descclassname">symjax.initializers.</code><code class="sig-name descname">he</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">gain=1.4142135623730951</em>, <em class="sig-param">distribution=&lt;function normal&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#he"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.he" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">he</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">gain=1.4142135623730951</em>, <em class="sig-param">distribution=&lt;function normal&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#he"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.he" title="Permalink to this definition">¶</a></dt>
 <dd><p>He weight initialization.
 Weights are initialized with a standard deviation of
-<span class="math notranslate nohighlight">\(\sigma = gain \sqrt{\frac{1}{fan_{in}}}\)</span> <a href="#id6"><span class="problematic" id="id3">[1]_</span></a>.
-:param initializer: Initializer used to sample the weights, must accept <cite>std</cite> in its</p>
-<blockquote>
-<div><p>constructor to sample from a distribution with a given standard
-deviation.</p>
-</div></blockquote>
+<span class="math notranslate nohighlight">\(\sigma = gain \sqrt{\frac{1}{fan_{in}}}\)</span> <a href="#id6"><span class="problematic" id="id3">[1]_</span></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>initializer</strong> (<em>lasagne.init.Initializer</em>) – Initializer used to sample the weights, must accept <cite>std</cite> in its
+constructor to sample from a distribution with a given standard
+deviation.</p></li>
 <li><p><strong>gain</strong> (<em>float</em><em> or </em><em>'relu'</em>) – Scaling factor for the weights. Set this to <code class="docutils literal notranslate"><span class="pre">1.0</span></code> for linear and
 sigmoid units, to ‘relu’ or <code class="docutils literal notranslate"><span class="pre">sqrt(2)</span></code> for rectified linear units, and
 to <code class="docutils literal notranslate"><span class="pre">sqrt(2/(1+alpha**2))</span></code> for leaky rectified linear units with
@@ -267,28 +263,30 @@ imagenet classification. arXiv preprint arXiv:1502.01852.</p>
 
 <dl class="function">
 <dt id="symjax.initializers.normal">
-<code class="sig-prename descclassname">symjax.initializers.</code><code class="sig-name descname">normal</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">mean=0.0</em>, <em class="sig-param">std=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#normal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.normal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">normal</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">mean=0.0</em>, <em class="sig-param">std=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#normal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.normal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample initial weights from the Gaussian distribution.
-Initial weight parameters are sampled from N(mean, std).
-:param std: Std of initial parameters.
-:type std: float
-:param mean: Mean of initial parameters.
-:type mean: float</p>
+Initial weight parameters are sampled from N(mean, std).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>std</strong> (<em>float</em>) – Std of initial parameters.</p></li>
+<li><p><strong>mean</strong> (<em>float</em>) – Mean of initial parameters.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="symjax.initializers.uniform">
-<code class="sig-prename descclassname">symjax.initializers.</code><code class="sig-name descname">uniform</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">range=0.01</em>, <em class="sig-param">std=None</em>, <em class="sig-param">mean=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#uniform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.uniform" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">uniform</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">range=0.01</em>, <em class="sig-param">std=None</em>, <em class="sig-param">mean=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#uniform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.uniform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample initial weights from the uniform distribution.
-Parameters are sampled from U(a, b).
-:param range: When std is None then range determines a, b. If range is a float the</p>
-<blockquote>
-<div><p>weights are sampled from U(-range, range). If range is a tuple the
-weights are sampled from U(range[0], range[1]).</p>
-</div></blockquote>
+Parameters are sampled from U(a, b).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>range</strong> (<em>float</em><em> or </em><em>tuple</em>) – When std is None then range determines a, b. If range is a float the
+weights are sampled from U(-range, range). If range is a tuple the
+weights are sampled from U(range[0], range[1]).</p></li>
 <li><p><strong>std</strong> (<em>float</em><em> or </em><em>None</em>) – If std is a float then the weights are sampled from
 U(mean - numpy.sqrt(3) * std, mean + numpy.sqrt(3) * std).</p></li>
 <li><p><strong>mean</strong> (<em>float</em>) – see std for description.</p></li>

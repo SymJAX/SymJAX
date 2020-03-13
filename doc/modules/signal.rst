@@ -44,7 +44,7 @@ Additional Time-Frequency Representations
   mfcc
   dct
   wvd
-
+  hilbert_transform
 
 Detailed Descritpions
 =====================
@@ -74,3 +74,4 @@ Detailed Descritpions
 .. autofunction:: mfcc
 .. autofunction:: dct
 .. autofunction:: wvd
+.. autofunction:: hilbert_transform

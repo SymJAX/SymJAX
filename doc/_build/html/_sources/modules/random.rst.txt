@@ -18,10 +18,8 @@
    pareto
    randint
    shuffle
-   threefry_2x32
    truncated_normal
    uniform
-
 
 
 
@@ -41,7 +39,6 @@ Detailed Description
 .. autofunction:: pareto
 .. autofunction:: randint
 .. autofunction:: shuffle
-.. autofunction:: threefry_2x32
 .. autofunction:: truncated_normal
 .. autofunction:: uniform
 

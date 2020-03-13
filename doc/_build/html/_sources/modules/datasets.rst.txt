@@ -25,14 +25,12 @@ Audio
    symjax.datasets.audiomnist
    symjax.datasets.esc
    symjax.datasets.warblr
-   symjax.datasets.urban
    symjax.datasets.gtzan
    symjax.datasets.dclde
    symjax.datasets.irmas
    symjax.datasets.freefield1010
    symjax.datasets.birdvox_70k
    symjax.datasets.birdvox_dcase_20k
-   symjax.datasets.dcase
 
 
 Detailed description (Image)
@@ -81,9 +79,6 @@ Detailed description (Audio)
 .. autoclass:: symjax.datasets.warblr
    :members:
 
-.. autoclass:: symjax.datasets.urban
-   :members:
-
 .. autoclass:: symjax.datasets.gtzan
    :members:
 
@@ -102,7 +97,3 @@ Detailed description (Audio)
 .. autoclass:: symjax.datasets.birdvox_dcase_20k
    :members:
  
-.. autoclass:: symjax.datasets.dcase
-   :members:
-
-

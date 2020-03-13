@@ -425,7 +425,11 @@
             <span class="n">jitoutputs</span><span class="p">,</span> <span class="n">jitupdates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jitfn</span><span class="p">(</span><span class="o">*</span><span class="n">fnargs</span><span class="p">,</span> <span class="o">*</span><span class="n">extra_values</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">update</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span><span class="p">,</span> <span class="n">jitupdates</span><span class="p">):</span>
                 <span class="n">key</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">update</span>
-            <span class="k">return</span> <span class="n">jitoutputs</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">jitoutputs</span><span class="p">,</span> <span class="n">jax</span><span class="o">.</span><span class="n">interpreters</span><span class="o">.</span><span class="n">xla</span><span class="o">.</span><span class="n">DeviceArray</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">jax</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">device_get</span><span class="p">(</span><span class="n">jitoutputs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">npy_jitoutputs</span><span class="o">=</span> <span class="p">[</span><span class="n">jax</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">device_get</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">jitoutputs</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">npy_jitoutputs</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="n">meta</span>
 

@@ -183,9 +183,6 @@
 <span class="sd">https://github.com/google/jax/blob/master/design_notes/prng.md</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
@@ -484,6 +481,7 @@
 <span class="sd">    A random array with the specified shape and dtype.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_uniform</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">minval</span><span class="p">,</span> <span class="n">maxval</span><span class="p">)</span></div>
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
@@ -532,6 +530,7 @@
 <span class="sd">    A random array with the specified shape and dtype.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_randint</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">minval</span><span class="p">,</span> <span class="n">maxval</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
@@ -630,6 +629,7 @@
 <span class="sd">    A random array with the specified shape and dtype.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_normal</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
@@ -663,6 +663,8 @@
 <span class="sd">    ``broadcast_shapes(mean.shape[:-1], cov.shape[:-2]) + mean.shape[-1:]``.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_multivariate_normal</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
@@ -710,6 +712,8 @@
 <span class="sd">    ``shape`` is not None, or else by broadcasting ``lower`` and ``upper``.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_truncated_normal</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
@@ -744,6 +748,8 @@
 <span class="sd">    is not None, or else ``p.shape``.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+  <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
     <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;bernoulli probability `p` must have a floating dtype, got </span><span class="si">{}</span><span class="s2">.&quot;</span>
     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dtype</span><span class="p">))</span>
@@ -780,6 +786,8 @@
 <span class="sd">    ``shape`` is not None, or else by broadcasting ``a`` and ``b``.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_beta</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
 
 <span class="k">def</span> <span class="nf">_beta</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
@@ -812,6 +820,7 @@
 <span class="sd">    A random array with the specified shape and dtype.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_cauchy</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
@@ -843,6 +852,8 @@
 <span class="sd">    ``alpha.shape``.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_dirichlet</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
@@ -875,6 +886,7 @@
 <span class="sd">    A random array with the specified shape and dtype.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_exponential</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
@@ -948,99 +960,99 @@
                     <span class="mf">0.017050642</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.0021309345</span><span class="p">,</span> <span class="mf">0.00085092385</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.5248239e-07</span><span class="p">]]</span>
 
 <span class="k">def</span> <span class="nf">_gamma_grad_one</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
-    <span class="c1"># Ref 1: Pathwise Derivatives Beyond the Reparameterization Trick, Martin &amp; Fritz</span>
-    <span class="c1"># Ref 2: Case 4 follows https://github.com/fritzo/notebooks/blob/master/gamma-reparameterized.ipynb</span>
+  <span class="c1"># Ref 1: Pathwise Derivatives Beyond the Reparameterization Trick, Martin &amp; Fritz</span>
+  <span class="c1"># Ref 2: Case 4 follows https://github.com/fritzo/notebooks/blob/master/gamma-reparameterized.ipynb</span>
 
-    <span class="c1"># TODO: use lax.cond instead of lax.while_loop when its batching rule is available</span>
-    <span class="c1"># See https://github.com/google/jax/issues/490</span>
-    <span class="k">def</span> <span class="nf">_case1</span><span class="p">(</span><span class="n">zagf</span><span class="p">):</span>
-        <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">zagf</span>
+  <span class="c1"># TODO: use lax.cond instead of lax.while_loop when its batching rule is available</span>
+  <span class="c1"># See https://github.com/google/jax/issues/490</span>
+  <span class="k">def</span> <span class="nf">_case1</span><span class="p">(</span><span class="n">zagf</span><span class="p">):</span>
+    <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">zagf</span>
 
-        <span class="c1"># dz = - dCDF(z; a) / pdf(z; a)</span>
-        <span class="c1"># pdf = z^(a-1) * e^(-z) / Gamma(a)</span>
-        <span class="c1"># CDF(z; a) = IncompleteGamma(a, z) / Gamma(a)</span>
-        <span class="c1"># dCDF(z; a) = (dIncompleteGamma - IncompleteGamma * Digamma(a)) / Gamma(a)</span>
-        <span class="c1">#            =: unnormalized_dCDF / Gamma(a)</span>
-        <span class="c1"># IncompleteGamma ~ z^a [ 1/a - z/(a+1) + z^2/2!(a+2) - z^3/3!(a+3) + z^4/4!(a+4) - z^5/5!(a+5) ]</span>
-        <span class="c1">#                 =: z^a * term1</span>
-        <span class="c1"># dIncompleteGamma ~ z^a * log(z) * term1 - z^a [1/a^2 - z/(a+1)^2 + z^2/2!(a+2)^2</span>
-        <span class="c1">#                                                - z^3/3!(a+3)^2 + z^4/4!(a+4)^2 - z^5/5!(a+5)^2 ]</span>
-        <span class="c1">#                  =: z^a * log(z) * term1 - z^a * term2</span>
-        <span class="c1"># unnormalized_dCDF = z^a { [log(z) - Digamma(a)] * term1 - term2 }</span>
-        <span class="n">zi</span> <span class="o">=</span> <span class="mf">1.0</span>
-        <span class="n">update</span> <span class="o">=</span> <span class="n">zi</span> <span class="o">/</span> <span class="n">alpha</span>
-        <span class="n">term1</span> <span class="o">=</span> <span class="n">update</span>
-        <span class="n">term2</span> <span class="o">=</span> <span class="n">update</span> <span class="o">/</span> <span class="n">alpha</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span>
-            <span class="n">zi</span> <span class="o">=</span> <span class="o">-</span><span class="n">zi</span> <span class="o">*</span> <span class="n">z</span> <span class="o">/</span> <span class="n">i</span>
-            <span class="n">update</span> <span class="o">=</span> <span class="n">zi</span> <span class="o">/</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
-            <span class="n">term1</span> <span class="o">=</span> <span class="n">term1</span> <span class="o">+</span> <span class="n">update</span>
-            <span class="n">term2</span> <span class="o">=</span> <span class="n">term2</span> <span class="o">+</span> <span class="n">update</span> <span class="o">/</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+    <span class="c1"># dz = - dCDF(z; a) / pdf(z; a)</span>
+    <span class="c1"># pdf = z^(a-1) * e^(-z) / Gamma(a)</span>
+    <span class="c1"># CDF(z; a) = IncompleteGamma(a, z) / Gamma(a)</span>
+    <span class="c1"># dCDF(z; a) = (dIncompleteGamma - IncompleteGamma * Digamma(a)) / Gamma(a)</span>
+    <span class="c1">#            =: unnormalized_dCDF / Gamma(a)</span>
+    <span class="c1"># IncompleteGamma ~ z^a [ 1/a - z/(a+1) + z^2/2!(a+2) - z^3/3!(a+3) + z^4/4!(a+4) - z^5/5!(a+5) ]</span>
+    <span class="c1">#                 =: z^a * term1</span>
+    <span class="c1"># dIncompleteGamma ~ z^a * log(z) * term1 - z^a [1/a^2 - z/(a+1)^2 + z^2/2!(a+2)^2</span>
+    <span class="c1">#                                                - z^3/3!(a+3)^2 + z^4/4!(a+4)^2 - z^5/5!(a+5)^2 ]</span>
+    <span class="c1">#                  =: z^a * log(z) * term1 - z^a * term2</span>
+    <span class="c1"># unnormalized_dCDF = z^a { [log(z) - Digamma(a)] * term1 - term2 }</span>
+    <span class="n">zi</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">update</span> <span class="o">=</span> <span class="n">zi</span> <span class="o">/</span> <span class="n">alpha</span>
+    <span class="n">term1</span> <span class="o">=</span> <span class="n">update</span>
+    <span class="n">term2</span> <span class="o">=</span> <span class="n">update</span> <span class="o">/</span> <span class="n">alpha</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span>
+        <span class="n">zi</span> <span class="o">=</span> <span class="o">-</span><span class="n">zi</span> <span class="o">*</span> <span class="n">z</span> <span class="o">/</span> <span class="n">i</span>
+        <span class="n">update</span> <span class="o">=</span> <span class="n">zi</span> <span class="o">/</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+        <span class="n">term1</span> <span class="o">=</span> <span class="n">term1</span> <span class="o">+</span> <span class="n">update</span>
+        <span class="n">term2</span> <span class="o">=</span> <span class="n">term2</span> <span class="o">+</span> <span class="n">update</span> <span class="o">/</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
 
-        <span class="n">unnormalized_cdf_dot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">-</span> <span class="n">lax</span><span class="o">.</span><span class="n">digamma</span><span class="p">(</span><span class="n">alpha</span><span class="p">))</span> <span class="o">*</span> <span class="n">term1</span> <span class="o">-</span> <span class="n">term2</span><span class="p">)</span>
-        <span class="n">unnormalized_pdf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">z</span><span class="p">)</span>
-        <span class="n">grad</span> <span class="o">=</span> <span class="o">-</span><span class="n">unnormalized_cdf_dot</span> <span class="o">/</span> <span class="n">unnormalized_pdf</span>
+    <span class="n">unnormalized_cdf_dot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">-</span> <span class="n">lax</span><span class="o">.</span><span class="n">digamma</span><span class="p">(</span><span class="n">alpha</span><span class="p">))</span> <span class="o">*</span> <span class="n">term1</span> <span class="o">-</span> <span class="n">term2</span><span class="p">)</span>
+    <span class="n">unnormalized_pdf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">z</span><span class="p">)</span>
+    <span class="n">grad</span> <span class="o">=</span> <span class="o">-</span><span class="n">unnormalized_cdf_dot</span> <span class="o">/</span> <span class="n">unnormalized_pdf</span>
 
-        <span class="k">return</span> <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="o">~</span><span class="n">flag</span>
+    <span class="k">return</span> <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="o">~</span><span class="n">flag</span>
 
-    <span class="k">def</span> <span class="nf">_cond2</span><span class="p">(</span><span class="n">zagf</span><span class="p">):</span>
-        <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">zagf</span>
-        <span class="k">return</span> <span class="p">(</span><span class="o">~</span><span class="n">flag</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">&gt;</span> <span class="mf">8.0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">((</span><span class="n">z</span> <span class="o">&lt;</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">z</span> <span class="o">&gt;</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">))</span>
+  <span class="k">def</span> <span class="nf">_cond2</span><span class="p">(</span><span class="n">zagf</span><span class="p">):</span>
+    <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">zagf</span>
+    <span class="k">return</span> <span class="p">(</span><span class="o">~</span><span class="n">flag</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">&gt;</span> <span class="mf">8.0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">((</span><span class="n">z</span> <span class="o">&lt;</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">z</span> <span class="o">&gt;</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_case2</span><span class="p">(</span><span class="n">zagf</span><span class="p">):</span>
-        <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">zagf</span>
+  <span class="k">def</span> <span class="nf">_case2</span><span class="p">(</span><span class="n">zagf</span><span class="p">):</span>
+    <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">zagf</span>
 
-        <span class="c1"># Formula 58 of [1]</span>
-        <span class="n">sqrt_8a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span>
-        <span class="n">z_minus_a</span> <span class="o">=</span> <span class="n">z</span> <span class="o">-</span> <span class="n">alpha</span>
-        <span class="n">log_z_div_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">z</span> <span class="o">/</span> <span class="n">alpha</span><span class="p">)</span>
-        <span class="n">sign</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">z</span> <span class="o">&lt;</span> <span class="n">alpha</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
-        <span class="n">term1</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="n">z</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">sqrt_8a</span> <span class="o">*</span> <span class="n">z_minus_a</span> <span class="o">*</span> <span class="n">z_minus_a</span><span class="p">)</span>
-        <span class="n">term2</span> <span class="o">=</span> <span class="n">log_z_div_a</span> <span class="o">*</span> <span class="p">(</span><span class="n">sqrt_8a</span> <span class="o">/</span> <span class="n">z_minus_a</span> <span class="o">+</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">z_minus_a</span> <span class="o">-</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">log_z_div_a</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.5</span><span class="p">))</span>
-        <span class="n">term3</span> <span class="o">=</span> <span class="n">z</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">12</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">288</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">))</span> <span class="o">/</span> <span class="n">sqrt_8a</span>
-        <span class="n">grad</span> <span class="o">=</span> <span class="p">(</span><span class="n">term1</span> <span class="o">+</span> <span class="n">term2</span><span class="p">)</span> <span class="o">*</span> <span class="n">term3</span>
+    <span class="c1"># Formula 58 of [1]</span>
+    <span class="n">sqrt_8a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span>
+    <span class="n">z_minus_a</span> <span class="o">=</span> <span class="n">z</span> <span class="o">-</span> <span class="n">alpha</span>
+    <span class="n">log_z_div_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">z</span> <span class="o">/</span> <span class="n">alpha</span><span class="p">)</span>
+    <span class="n">sign</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">z</span> <span class="o">&lt;</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">_const</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">lax</span><span class="o">.</span><span class="n">_const</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">))</span>
+    <span class="n">term1</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="n">z</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">sqrt_8a</span> <span class="o">*</span> <span class="n">z_minus_a</span> <span class="o">*</span> <span class="n">z_minus_a</span><span class="p">)</span>
+    <span class="n">term2</span> <span class="o">=</span> <span class="n">log_z_div_a</span> <span class="o">*</span> <span class="p">(</span><span class="n">sqrt_8a</span> <span class="o">/</span> <span class="n">z_minus_a</span> <span class="o">+</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">z_minus_a</span> <span class="o">-</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">log_z_div_a</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.5</span><span class="p">))</span>
+    <span class="n">term3</span> <span class="o">=</span> <span class="n">z</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">12</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">288</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">))</span> <span class="o">/</span> <span class="n">sqrt_8a</span>
+    <span class="n">grad</span> <span class="o">=</span> <span class="p">(</span><span class="n">term1</span> <span class="o">+</span> <span class="n">term2</span><span class="p">)</span> <span class="o">*</span> <span class="n">term3</span>
 
-        <span class="k">return</span> <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="o">~</span><span class="n">flag</span>
+    <span class="k">return</span> <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="o">~</span><span class="n">flag</span>
 
-    <span class="k">def</span> <span class="nf">_cond3</span><span class="p">(</span><span class="n">zagf</span><span class="p">):</span>
-        <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">zagf</span>
-        <span class="k">return</span> <span class="p">(</span><span class="o">~</span><span class="n">flag</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">&gt;</span> <span class="mf">8.0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">z</span> <span class="o">&lt;=</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">_cond3</span><span class="p">(</span><span class="n">zagf</span><span class="p">):</span>
+    <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">zagf</span>
+    <span class="k">return</span> <span class="p">(</span><span class="o">~</span><span class="n">flag</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">&gt;</span> <span class="mf">8.0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">z</span> <span class="o">&lt;=</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_case3</span><span class="p">(</span><span class="n">zagf</span><span class="p">):</span>
-        <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">zagf</span>
+  <span class="k">def</span> <span class="nf">_case3</span><span class="p">(</span><span class="n">zagf</span><span class="p">):</span>
+    <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">zagf</span>
 
-        <span class="c1"># Formula 59 of [1]</span>
-        <span class="n">z_div_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
-        <span class="n">aa</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">alpha</span>
-        <span class="n">term1</span> <span class="o">=</span> <span class="mi">1440</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">+</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">z_div_a</span> <span class="o">*</span> <span class="p">(</span><span class="mi">53</span> <span class="o">-</span> <span class="mi">120</span> <span class="o">*</span> <span class="n">z</span><span class="p">)</span> <span class="o">-</span> <span class="mi">65</span> <span class="o">*</span> <span class="n">z_div_a</span> <span class="o">*</span> <span class="n">z_div_a</span> <span class="o">+</span> <span class="mi">3600</span> <span class="o">*</span> <span class="n">z</span> <span class="o">+</span> <span class="mi">107</span>
-        <span class="n">term2</span> <span class="o">=</span> <span class="mi">1244160</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">aa</span>
-        <span class="n">term3</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">24</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">+</span> <span class="mi">288</span> <span class="o">*</span> <span class="n">aa</span>
-        <span class="n">grad</span> <span class="o">=</span> <span class="n">term1</span> <span class="o">*</span> <span class="n">term3</span> <span class="o">/</span> <span class="n">term2</span>
+    <span class="c1"># Formula 59 of [1]</span>
+    <span class="n">z_div_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+    <span class="n">aa</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">alpha</span>
+    <span class="n">term1</span> <span class="o">=</span> <span class="mi">1440</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">+</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">z_div_a</span> <span class="o">*</span> <span class="p">(</span><span class="mi">53</span> <span class="o">-</span> <span class="mi">120</span> <span class="o">*</span> <span class="n">z</span><span class="p">)</span> <span class="o">-</span> <span class="mi">65</span> <span class="o">*</span> <span class="n">z_div_a</span> <span class="o">*</span> <span class="n">z_div_a</span> <span class="o">+</span> <span class="mi">3600</span> <span class="o">*</span> <span class="n">z</span> <span class="o">+</span> <span class="mi">107</span>
+    <span class="n">term2</span> <span class="o">=</span> <span class="mi">1244160</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">aa</span>
+    <span class="n">term3</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">24</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">+</span> <span class="mi">288</span> <span class="o">*</span> <span class="n">aa</span>
+    <span class="n">grad</span> <span class="o">=</span> <span class="n">term1</span> <span class="o">*</span> <span class="n">term3</span> <span class="o">/</span> <span class="n">term2</span>
 
-        <span class="k">return</span> <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="o">~</span><span class="n">flag</span>
+    <span class="k">return</span> <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="o">~</span><span class="n">flag</span>
 
-    <span class="k">def</span> <span class="nf">_case4</span><span class="p">(</span><span class="n">zagf</span><span class="p">):</span>
-        <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">zagf</span>
+  <span class="k">def</span> <span class="nf">_case4</span><span class="p">(</span><span class="n">zagf</span><span class="p">):</span>
+    <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">zagf</span>
 
-        <span class="c1"># Ref [2]</span>
-        <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">z</span> <span class="o">/</span> <span class="n">alpha</span><span class="p">)</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_bivariate_coef</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="p">(</span><span class="n">_bivariate_coef</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="n">_bivariate_coef</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="n">c</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
-        <span class="n">q</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="n">c</span><span class="p">[</span><span class="mi">7</span><span class="p">]))</span>
-        <span class="n">grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">))</span>
+    <span class="c1"># Ref [2]</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">z</span> <span class="o">/</span> <span class="n">alpha</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_bivariate_coef</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="p">(</span><span class="n">_bivariate_coef</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="n">_bivariate_coef</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="n">c</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="n">c</span><span class="p">[</span><span class="mi">7</span><span class="p">]))</span>
+    <span class="n">grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="o">~</span><span class="n">flag</span>
+    <span class="k">return</span> <span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="o">~</span><span class="n">flag</span>
 
-    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span><span class="k">lambda</span> <span class="n">zagf</span><span class="p">:</span> <span class="p">(</span><span class="o">~</span><span class="n">zagf</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">zagf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.8</span><span class="p">),</span>
-                                      <span class="n">_case1</span><span class="p">,</span>
-                                      <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">_const</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="kc">False</span><span class="p">))</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span><span class="n">_cond2</span><span class="p">,</span> <span class="n">_case2</span><span class="p">,</span> <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">flag</span><span class="p">))</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span><span class="n">_cond3</span><span class="p">,</span> <span class="n">_case3</span><span class="p">,</span> <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">flag</span><span class="p">))</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span><span class="k">lambda</span> <span class="n">zagf</span><span class="p">:</span> <span class="o">~</span><span class="n">zagf</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">_case4</span><span class="p">,</span> <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">flag</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">grad</span>
+  <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span><span class="k">lambda</span> <span class="n">zagf</span><span class="p">:</span> <span class="p">(</span><span class="o">~</span><span class="n">zagf</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">zagf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.8</span><span class="p">),</span>
+                                    <span class="n">_case1</span><span class="p">,</span>
+                                    <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">_const</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="kc">False</span><span class="p">))</span>
+  <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span><span class="n">_cond2</span><span class="p">,</span> <span class="n">_case2</span><span class="p">,</span> <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">flag</span><span class="p">))</span>
+  <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span><span class="n">_cond3</span><span class="p">,</span> <span class="n">_case3</span><span class="p">,</span> <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">flag</span><span class="p">))</span>
+  <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span><span class="k">lambda</span> <span class="n">zagf</span><span class="p">:</span> <span class="o">~</span><span class="n">zagf</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">_case4</span><span class="p">,</span> <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">flag</span><span class="p">))</span>
+  <span class="k">return</span> <span class="n">grad</span>
 
 <span class="k">def</span> <span class="nf">_gamma_grad</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
   <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
@@ -1099,6 +1111,8 @@
 <span class="sd">    ``shape`` is not None, or else by ``a.shape``.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_gamma</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
@@ -1128,6 +1142,7 @@
 <span class="sd">    A random array with the specified shape and dtype.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_gumbel</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
@@ -1136,6 +1151,34 @@
   <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
       <span class="n">uniform</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">minval</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mf">1.</span><span class="p">)))</span>
 
+<span class="k">def</span> <span class="nf">categorical</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Sample random values from categorical distributions.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    key: a PRNGKey used as the random key.</span>
+<span class="sd">    logits: Unnormalized log probabilities of the categorical distribution(s) to sample from,</span>
+<span class="sd">      so that `softmax(logits, axis)` gives the corresponding probabilities.</span>
+<span class="sd">    axis: Axis along which logits belong to the same categorical distribution.</span>
+<span class="sd">    shape: Optional, a tuple of nonnegative integers representing the result shape.</span>
+<span class="sd">      Must be broadcast-compatible with ``onp.delete(logits.shape, axis)``.</span>
+<span class="sd">      The default (None) produces a result shape equal to ``onp.delete(logits.shape, axis)``.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A random array with int dtype and shape given by ``shape`` if ``shape``</span>
+<span class="sd">    is not None, or else ``onp.delete(logits.shape, axis)``.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">if</span> <span class="n">axis</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">axis</span> <span class="o">-=</span> <span class="nb">len</span><span class="p">(</span><span class="n">logits</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+  <span class="n">batch_shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">logits</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">axis</span><span class="p">))</span>
+  <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">batch_shape</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">_check_shape</span><span class="p">(</span><span class="s2">&quot;categorical&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">batch_shape</span><span class="p">)</span>
+
+  <span class="n">sample_shape</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">batch_shape</span><span class="p">)]</span>
+  <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">gumbel</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sample_shape</span> <span class="o">+</span> <span class="n">logits</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">logits</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="o">+</span> <span class="n">logits</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
 
 <div class="viewcode-block" id="laplace"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.laplace">[docs]</a><span class="k">def</span> <span class="nf">laplace</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Sample Laplace random values with given shape and float dtype.</span>
@@ -1151,6 +1194,7 @@
 <span class="sd">    A random array with the specified shape and dtype.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_laplace</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
@@ -1175,6 +1219,7 @@
 <span class="sd">    A random array with the specified shape and dtype.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_logistic</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
@@ -1201,6 +1246,8 @@
 <span class="sd">    ``shape`` is not None, or else by ``b.shape``.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_pareto</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
@@ -1233,6 +1280,7 @@
 <span class="sd">    ``shape`` is not None, or else by ``df.shape``.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_t</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>

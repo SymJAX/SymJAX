@@ -25,6 +25,27 @@ of the input data.
 
 Not every function in NumPy is implemented; contributions are welcome!
 
+Control Flow
+============
+
+.. automodule:: symjax.tensor.control_flow
+   :members:
+
+
+Index Operations
+================
+
+.. automodule:: symjax.tensor.index_ops
+   :members: index_update, index_add, index_max, index_min
+
+Numpy Like
+==========
+
+.. automodule:: symjax.tensor.ops_math
+   :members:
+
+Other
+=====
 
 .. autofunction:: symjax.tensor.abs
 .. autofunction:: symjax.tensor.absolute

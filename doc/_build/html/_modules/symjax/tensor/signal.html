@@ -234,7 +234,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">limit</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">limit</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span>
-    <span class="n">sine</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">x</span><span class="p">),</span> <span class="n">T</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">x</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">w</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">sine</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span><span class="o">+</span><span class="n">T</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span><span class="c1">#T.complex(T.cos(w * x).astype(&#39;float32&#39;),</span>
+           <span class="c1"># T.sin(w * x).astype(&#39;float32&#39;))</span>
     <span class="n">envelop</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
 
     <span class="c1"># apply correction term for admissibility</span>
@@ -737,6 +740,16 @@
         <span class="n">y</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">fix_length</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">start</span><span class="p">:],</span> <span class="n">length</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">y</span>
+
+<div class="viewcode-block" id="hilbert_transform"><a class="viewcode-back" href="../../../modules/signal.html#symjax.tensor.signal.hilbert_transform">[docs]</a><span class="k">def</span> <span class="nf">hilbert_transform</span><span class="p">(</span><span class="n">signal</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    the time should be the last dimension</span>
+<span class="sd">    return the analytical signal</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">heavyside</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">M</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">index_add</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">M</span><span class="p">),</span> <span class="n">T</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">M</span><span class="o">//</span><span class="mi">2</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">T</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span> <span class="o">*</span> <span class="n">mask</span> <span class="o">*</span> <span class="n">heavyside</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
