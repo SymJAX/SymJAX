@@ -54,6 +54,7 @@ General
   modules/pdfs
   modules/signal
   modules/random
+  modules/utils
 
 Deep Learning
 -------------

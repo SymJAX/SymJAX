@@ -206,6 +206,8 @@ class Conv1D(Layer):
                  input_dilations=None, filter_dilations=None):
 
         self.init_input(input_or_shape)
+        if numpy.isscalar(input_dilations):
+            input_dilations = (input_dilations,) * 2
         self.input_dilation = input_dilations
         self.filter_dilation = filter_dilations
         self.stride = stride
@@ -222,6 +224,37 @@ class Conv1D(Layer):
                         input_dilation=self.input_dilation,
                         filter_dilation=self.filter_dilation)
         return conv + self.b[:, None]
+
+
+class Conv2DTranspose(Layer):
+    """2-D (spatial) convolution
+
+    """
+    def __init__(self, input_or_shape, n_filters, filter_shape, pad='VALID',
+                 strides=1, W=initializers.he, b=numpy.zeros,
+                 trainable_W=True, trainable_b=True, transpose_W=True,
+                 filter_dilations=None):
+
+        self.init_input(input_or_shape)
+        self.transpose_W = transpose_W
+        self.filter_dilation = filter_dilations
+        self.strides = strides
+        self.pad = pad
+
+        self.create_variable('W', W,
+                        (self.input.shape[1], n_filters) + tuple(filter_shape),
+                            trainable=trainable_W)
+        self.create_variable('b', b, (n_filters,), trainable=trainable_b)
+
+        super().__init__(self.forward(self.input))
+
+    def forward(self, input):
+        conv = T.convNd_transpose(input, self.W, strides=self.strides, padding=self.pad,
+                        transpose_kernel=self.transpose_W,
+                        filter_dilation=self.filter_dilation)
+
+        return conv + self.b.reshape((-1, 1, 1))
+
 
 
 class Conv2D(Layer):

@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../modules/pdfs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.pdfs</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.utils</span></code></a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
@@ -414,7 +415,7 @@
             <span class="k">for</span> <span class="n">fnarg</span><span class="p">,</span> <span class="n">classarg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">fnargs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">classargs</span><span class="p">):</span>
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">fnarg</span><span class="p">,</span> <span class="s1">&#39;shape&#39;</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">fnarg</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">classarg</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;wrong input given for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">classarg</span><span class="p">))</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;wrong input given for </span><span class="si">{}</span><span class="s2">, given is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">classarg</span><span class="p">,</span> <span class="n">fnarg</span><span class="p">))</span>
 
             <span class="c1"># get the addition inputs to the function (the values to be</span>
             <span class="c1"># updated)</span>

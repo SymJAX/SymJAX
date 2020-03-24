@@ -3,6 +3,7 @@ import numpy
 import jax
 import jax.lax as jla
 from .base import Op, Tuple, jax_wrap
+from .other import stop_gradient
 from .control_flow import cond
 import ast
 import inspect

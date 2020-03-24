@@ -3,6 +3,51 @@ from multiprocessing import Pool, Queue, Lock, Process
 
 
 def train_test_split(*args, train_size=0.8, stratify=None, seed=None):
+    """split given data into two non overlapping sets
+
+    Parameters
+    ----------
+
+    *args: inputs
+        the sets to be split by the function
+
+    train_size: scalar
+        the amount of data to put in the first set, either an integer value
+        being the actual number of data to keep, or a ratio (0 to 1 number)
+
+    stratify: array (optional)
+        the optimal stratify guide to spit the array s.t. the same proportion
+        based on the stratify array is kep in both set based on the proportion
+        of the split
+
+    seed: integer (optional)
+        the seed for the random number generator for reproducibility
+
+    Returns
+    -------
+
+    train_set: list
+        returns the train data, the list has the members of *args split
+
+    test_set: list
+        returns the test data, the list has the members of *args split
+
+    Example
+    -------
+
+    .. code-block:: python
+
+       x = numpy.random.randn(100, 4)
+       y = numpy.random.randn(100)
+
+       train, test = train_test_split(x, y, train_size=0.5)
+       print(train[0].shape, train[1].shape)
+       # (50, 4) (50,)
+       print(test[0].shape, test[1].shape)
+       # (50, 4) (50,)
+
+
+    """
     if stratify is not None:
         train_indices = list()
         test_indices = list()
@@ -25,8 +70,10 @@ def train_test_split(*args, train_size=0.8, stratify=None, seed=None):
             cutoff = int(len(args[0])*train_size)
         train_indices = indices[:cutoff]
         test_indices = indices[cutoff:]
-    output = sum([[arg[train_indices], arg[test_indices]] for arg in args], [])
-    return output
+    train_set = [arg[train_indices] for arg in args]
+    test_set = [arg[test_indices] for arg in args]
+    return train_set, test_set
+
 
 class batchify:
 
@@ -43,7 +90,24 @@ class batchify:
             goal is to load files if the args were list of filenames
 
         extra_processes: int (optional)
-            if there is no load_func then extra process is useless"""
+            if there is no load_func then extra process is useless
+        
+        Returns
+        -------
+        
+        *batch_args: list
+            the iterator containing the batch values
+            of each arg in args
+        
+        Example
+        -------
+        
+        .. code-block:: python
+        
+        for x, y in batchify(X, Y):
+            train(x, y)
+        
+        """
 
         self.args = args
         self.start_index = 0

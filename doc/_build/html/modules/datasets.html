@@ -37,7 +37,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="symjax.initializers" href="initializers.html" />
-    <link rel="prev" title="symjax.tensor.random" href="random.html" /> 
+    <link rel="prev" title="symjax.utils" href="utils.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -94,6 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="pdfs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.pdfs</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.utils</span></code></a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a><ul>
@@ -239,13 +240,16 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.irmas" title="symjax.datasets.irmas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.irmas</span></code></a></p></td>
 <td><p>music instrument classification</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.freefield1010" title="symjax.datasets.freefield1010"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.freefield1010</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.vocalset" title="symjax.datasets.vocalset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.vocalset</span></code></a></p></td>
+<td><p>singer/technique/vowel of singing voices</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.freefield1010" title="symjax.datasets.freefield1010"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.freefield1010</span></code></a></p></td>
 <td><p>Audio binary classification, presence or absence of bird songs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.birdvox_70k" title="symjax.datasets.birdvox_70k"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.birdvox_70k</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.birdvox_70k" title="symjax.datasets.birdvox_70k"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.birdvox_70k</span></code></a></p></td>
 <td><p>a dataset for avian flight call detection in half-second clips</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.birdvox_dcase_20k" title="symjax.datasets.birdvox_dcase_20k"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.birdvox_dcase_20k</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.birdvox_dcase_20k" title="symjax.datasets.birdvox_dcase_20k"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.birdvox_dcase_20k</span></code></a></p></td>
 <td><p>Binary bird detection classification</p></td>
 </tr>
 </tbody>
@@ -851,6 +855,44 @@ pitched instruments, and there is a different amount and lenght of excerpts.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="symjax.datasets.vocalset">
+<em class="property">class </em><code class="sig-name descname">vocalset</code><a class="reference internal" href="../_modules/symjax/datasets/vocalset.html#vocalset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.vocalset" title="Permalink to this definition">¶</a></dt>
+<dd><p>singer/technique/vowel of singing voices</p>
+<p>source: <a class="reference external" href="https://zenodo.org/record/1442513#.W7OaFBNKjx4">https://zenodo.org/record/1442513#.W7OaFBNKjx4</a></p>
+<p>We present VocalSet, a singing voice dataset consisting of 10.1 hours
+of monophonic recorded audio of professional singers demonstrating both
+standard and extended vocal techniques on all 5 vowels. Existing
+singing voice datasets aim to capture a focused subset of singing
+voice characteristics, and generally consist of just a few singers.
+VocalSet contains recordings from 20 different singers (9 male, 11
+female) and a range of voice types.  VocalSet aims to improve the
+state of existing singing voice datasets and singing voice research by
+capturing not only a range of vowels, but also a diverse set of voices
+on many different vocal techniques, sung in contexts of scales,
+arpeggios, long tones, and excerpts.</p>
+<dl class="method">
+<dt id="symjax.datasets.vocalset.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/vocalset.html#vocalset.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.vocalset.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – a string where to load the data and download if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>singers</strong> (<em>list</em>) – the list of singers as strings, 11 males and 9 females as in male1,
+male2, …</p></li>
+<li><p><strong>genders</strong> (<em>list</em>) – the list of genders of the singers as in male, male, female, …</p></li>
+<li><p><strong>vowels</strong> (<em>list</em>) – the vowels being pronunced</p></li>
+<li><p><strong>data</strong> (<em>list</em>) – the list of waveforms, not all equal length</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="symjax.datasets.freefield1010">
 <em class="property">class </em><code class="sig-name descname">freefield1010</code><a class="reference internal" href="../_modules/symjax/datasets/freefield1010.html#freefield1010"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.freefield1010" title="Permalink to this definition">¶</a></dt>
 <dd><p>Audio binary classification, presence or absence of bird songs.
@@ -1058,7 +1100,7 @@ where the data will be downloaded if not present</p>
         <a href="initializers.html" class="btn btn-neutral float-right" title="symjax.initializers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="random.html" class="btn btn-neutral float-left" title="symjax.tensor.random" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="utils.html" class="btn btn-neutral float-left" title="symjax.utils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

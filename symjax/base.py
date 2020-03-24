@@ -251,7 +251,7 @@ class function:
             for fnarg, classarg in zip(fnargs, self.classargs):
                 if hasattr(fnarg, 'shape'):
                     if fnarg.shape != classarg.shape:
-                        raise RuntimeError("wrong input given for {}".format(classarg))
+                        raise RuntimeError("wrong input given for {}, given is {}".format(classarg, fnarg))
 
             # get the addition inputs to the function (the values to be
             # updated)

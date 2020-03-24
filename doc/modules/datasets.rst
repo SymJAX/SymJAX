@@ -28,6 +28,7 @@ Audio
    symjax.datasets.gtzan
    symjax.datasets.dclde
    symjax.datasets.irmas
+   symjax.datasets.vocalset
    symjax.datasets.freefield1010
    symjax.datasets.birdvox_70k
    symjax.datasets.birdvox_dcase_20k
@@ -86,6 +87,9 @@ Detailed description (Audio)
    :members:
 
 .. autoclass:: symjax.datasets.irmas
+   :members:
+
+.. autoclass:: symjax.datasets.vocalset
    :members:
 
 .. autoclass:: symjax.datasets.freefield1010 

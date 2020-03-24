@@ -14,6 +14,7 @@ from .cassava import cassava
 from .stl10 import stl10
 
 # audio
+from .vocalset import vocalset
 from .TUTacousticscences2017 import TUTacousticscences2017
 from .gtzan import gtzan
 from .sonycust import sonycust
@@ -24,4 +25,4 @@ from .freefield1010 import freefield1010
 from .warblr import warblr
 from .birdvox_70k import birdvox_70k
 from .birdvox_dcase_20k import birdvox_dcase_20k
-
+from .seizures_neonatal import seizures_neonatal

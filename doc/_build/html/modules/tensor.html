@@ -100,6 +100,7 @@
 <li class="toctree-l1"><a class="reference internal" href="pdfs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.pdfs</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.utils</span></code></a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
@@ -206,7 +207,7 @@ ADDITIONOriginal docstring below.</p>
 
 <dl class="function">
 <dt id="symjax.tensor.control_flow.scan">
-<code class="sig-name descname">scan</code><span class="sig-paren">(</span><em class="sig-param">fn</em>, <em class="sig-param">init</em>, <em class="sig-param">xs</em>, <em class="sig-param">length=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/control_flow.html#scan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.control_flow.scan" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scan</code><span class="sig-paren">(</span><em class="sig-param">fn</em>, <em class="sig-param">init</em>, <em class="sig-param">xs</em>, <em class="sig-param">constants=()</em>, <em class="sig-param">length=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/control_flow.html#scan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.control_flow.scan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scan a function over leading array axes while carrying along state.</p>
 <p>The type signature in brief is</p>
 <div class="highlight-haskell notranslate"><div class="highlight"><pre><span></span><span class="nf">scan</span> <span class="ow">::</span> <span class="p">(</span><span class="n">c</span> <span class="ow">-&gt;</span> <span class="n">a</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span> <span class="ow">-&gt;</span> <span class="n">c</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">[</span><span class="n">b</span><span class="p">])</span>

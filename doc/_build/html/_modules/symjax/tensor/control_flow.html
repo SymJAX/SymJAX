@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/pdfs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.pdfs</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.utils</span></code></a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
@@ -169,10 +170,17 @@
 
 
 
-<span class="n">_scan</span> <span class="o">=</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">jla</span><span class="o">.</span><span class="n">scan</span><span class="p">)</span>
-<div class="viewcode-block" id="scan"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.control_flow.scan">[docs]</a><span class="k">def</span> <span class="nf">scan</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">_scan</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="p">(),</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">new_fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">*</span><span class="n">constants</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jla</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">new_fn</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+        
+<span class="n">_scan2</span><span class="o">=</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">_scan</span><span class="p">)</span>
+
+<div class="viewcode-block" id="scan"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.control_flow.scan">[docs]</a><span class="k">def</span> <span class="nf">scan</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="p">(),</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">newfn</span> <span class="o">=</span> <span class="n">symjax_to_jax_fn</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">_scan</span><span class="p">(</span><span class="n">newfn</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_scan2</span><span class="p">(</span><span class="n">newfn</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">constants</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span></div>
 
 <span class="n">scan</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">jla</span><span class="o">.</span><span class="n">scan</span><span class="o">.</span><span class="vm">__doc__</span>
 
