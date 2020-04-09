@@ -2,7 +2,7 @@ import jax
 import jax.numpy as np
 from . import tensor as t
 from jax import jacfwd, jacrev
-
+import warnings
 
 def gradients(scalar, variables):
     """computes the gradients of a scalar w.r.t to a given list of variables.
@@ -187,13 +187,15 @@ class function:
         for update in updates.keys():
             if not isinstance(update, t.Variable):
                 raise RuntimeError(
-                    "{} is not a Variable, it can not be updated".format(update))
+                   "{} is not a Variable, it can not be updated".format(update))
 
         # ensure that all inputs are actual placeholders or variables
         for arg in classargs:
             if not isinstance(arg, t.Tensor):
                 raise RuntimeError(
-                    "{} is not a Tensor type. Only tensor types can be function inputs".format(arg))
+                    "{} is not a Tensor type. Only tensor types can be"\
+                            + "function inputs".format(arg))
+
         # gather all roots, they need to be explicit as inputs of the
         # underlying functions otherwise they are treated as constants
         # and any change in their value will not appear when running the
@@ -203,41 +205,53 @@ class function:
         self.all_roots = set(t.getroots(all_roots))
         self.classargs = classargs
         self.outputs = outputs
+
         items = list(updates.items())
         self.updates_keys = [item[0] for item in items]
         self.updates_values = [item[1] for item in items]
+        for i in range(len(items)):
+            if self.updates_keys[i].shape != self.updates_values[i].shape:
+                warnings.warn(
+                'Variable and update {} {}'.format(self.updates_keys[i],
+                                                   self.updates_values[i])\
+                   + "are not the same shape... attempting to reshape")
+                self.updates_values[i] = t.reshape(self.updates_values[i],
+                                                   self.updates_keys[i].shape)
+            if self.updates_keys[i].dtype != self.updates_values[i].dtype:
+                warnings.warn(
+                'Variable and update {} {}'.format(self.updates_keys[i],
+                                                   self.updates_values[i])\
+                   + "are not the same dtype... attempting to cast")
+                self.updates_values[i] = t.cast(self.updates_values[i],
+                                                   self.updates_keys[i].dtype)
+            
 
         # check the function inputs, they must be at least contain all the
         # placeholders needed to compute the outputs values
-        placeholders = filter(
-            lambda x: isinstance(x, t.Placeholder),
-            self.all_roots)
-        non_givens = set(placeholders) - set(self.classargs)
+        placeholders_in_root = filter(lambda x: isinstance(x, t.Placeholder),
+                                      self.all_roots)
+
+        # check for 
+        non_givens = set(placeholders_in_root) - set(self.classargs)
         if len(non_givens) > 0:
             raise RuntimeError(
-                "Missing placeholders form the function inputs: {}".format(non_givens))
+                "Missing placeholders form the function "\
+                        + "inputs: {}".format(non_givens))
 
         # the roots are made of variables, random tensors, placeholders. We
         # already ensured that all placeholders are given as inputs to the
         # function. Now we must ensure that the other ones will also be given
         # as inputs to not be treated as constants by jax.
-        self.extra_inputs = set(self.all_roots)
-        self.extra_inputs -= set(self.classargs)
-        self.extra_inputs -= set(self.updates_keys)
+        # we also remove update keys because we will expicitly feed them
+        self.extra_inputs = set(self.all_roots)\
+                                - (set(self.classargs).union(self.updates_keys))
         self.extra_inputs = list(self.extra_inputs)
 
         def jitfn(*jitargs):
             allargs = list(self.classargs) + self.updates_keys +\
                                             self.extra_inputs
-            kwargs = dict(zip(allargs, jitargs))
-
-            # compute the outputs
-            jit_outputs = t.get(self.outputs, kwargs)
-
-            # compute the values of the updates
-            jit_updates = t.get(self.updates_values, kwargs)
-
-            return jit_outputs, jit_updates
+            return t.get([self.outputs, self.updates_values],
+                         dict(zip(allargs, jitargs)))
 
         # we compile our underlying function using jit for performances
         self.jitfn = jax.jit(jitfn, device=device, backend=backend)
@@ -251,15 +265,15 @@ class function:
             for fnarg, classarg in zip(fnargs, self.classargs):
                 if hasattr(fnarg, 'shape'):
                     if fnarg.shape != classarg.shape:
-                        raise RuntimeError("wrong input given for {}, given is {}".format(classarg, fnarg))
+                        raise RuntimeError(
+                                "wrong input given for {}".format(classarg)\
+                                + ", given is {}".format(classarg, fnarg))
 
-            # get the addition inputs to the function (the values to be
-            # updated)
-            extra_values = t.get(self.updates_keys + self.extra_inputs,
-                                 {'rng': rng})
 
             # retreive the function outputs, updated values and apply them
-            jitoutputs, jitupdates = self.jitfn(*fnargs, *extra_values)
+            jitoutputs, jitupdates = self.jitfn(*fnargs,
+                                *t.get(self.updates_keys + self.extra_inputs,
+                                    {'rng': rng}))
             for key, update in zip(self.updates_keys, jitupdates):
                 key.value = update
             if isinstance(jitoutputs, jax.interpreters.xla.DeviceArray):

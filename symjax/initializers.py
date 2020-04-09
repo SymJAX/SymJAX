@@ -152,7 +152,7 @@ def he(shape, gain=numpy.sqrt(2), distribution=normal):
     HeNormal  : Shortcut with Gaussian initializer.
     HeUniform : Shortcut with uniform initializer.
     """
-    if len(shape) == 2:
+    if len(shape) <= 2:
         fan_in = shape[0]
     elif len(shape) > 2:
         fan_in = numpy.prod(shape[1:])

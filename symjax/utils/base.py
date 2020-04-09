@@ -1,6 +1,16 @@
 import numpy as np
 from multiprocessing import Pool, Queue, Lock, Process
 
+def create_cmap(values, colors):
+
+    from matplotlib.pyplot import Normalize
+    import matplotlib
+    
+    norm = Normalize(min(values), max(values))
+    tuples = list(zip(map(norm, values), colors))
+    cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", tuples)
+    return cmap, norm
+
 
 def train_test_split(*args, train_size=0.8, stratify=None, seed=None):
     """split given data into two non overlapping sets
