@@ -200,9 +200,9 @@ class function:
         # underlying functions otherwise they are treated as constants
         # and any change in their value will not appear when running the
         # function
-        all_roots = list(updates.values())
-        all_roots += [outputs] if isinstance(outputs, t.Tensor) else outputs
-        self.all_roots = set(t.getroots(all_roots))
+        outs = list(updates.values())
+        outs += [outputs] if isinstance(outputs, t.Tensor) else outputs
+        self.all_roots = set(t.getroots(outs))
         self.classargs = classargs
         self.outputs = outputs
 
@@ -267,7 +267,8 @@ class function:
                     if fnarg.shape != classarg.shape:
                         raise RuntimeError(
                                 "wrong input given for {}".format(classarg)\
-                                + ", given is {}".format(classarg, fnarg))
+                                + ", given is {}".format(fnarg)\
+                                + ", shape={}".format(fnarg.shape))
 
 
             # retreive the function outputs, updated values and apply them
