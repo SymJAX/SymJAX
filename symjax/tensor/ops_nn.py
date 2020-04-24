@@ -382,6 +382,6 @@ def constant_upsample(tensor, repeat, axis=-1, constant=0.):
 
     nshape = list(tensor.shape).copy()
     nshape[axis] *= (1 + repeat)
-    tensor_aug = concatenate([expand_dims(tensor, axis+1),
+    tensor_aug = concatenate([expand_dims(tensor, axis + 1),
                              full(zshape, constant, dtype=tensor.dtype)], axis+1)
     return tensor_aug.reshape(nshape)

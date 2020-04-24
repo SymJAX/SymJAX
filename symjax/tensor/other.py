@@ -8,7 +8,7 @@ from .control_flow import cond
 import sys
 from .index_ops import index_add
 from . import numpy as snp
-#from .ops_activations import relu
+from .ops_activations import relu
 
 module = sys.modules[__name__]
 

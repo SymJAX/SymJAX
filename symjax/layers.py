@@ -35,12 +35,13 @@ def forward(input, layers):
     return outputs
 
 def get_variables(layers, trainable=True):
-    return sum([l.variables(trainable) for l in layers], [])
+    return sum([l.variables(trainable) for l in layers if hasattr(l, 'variables')], [])
 
 def get_updates(layers):
     updates = dict()
     for l in layers:
-        updates.update(l.updates)
+        if hasattr(l, 'updates'):
+            updates.update(l.updates)
     return updates
 
 
@@ -285,6 +286,28 @@ class Conv2D(Layer):
                         filter_dilation=self.filter_dilation)
 
         return conv + self.b.reshape((-1, 1, 1))
+
+
+class Pool1D(Layer):
+    """2-D (spatial) pooling
+
+    """
+    def __init__(self, input_or_shape, pool_shape, pool_type='MAX',
+                 strides=None):
+
+        self.init_input(input_or_shape)
+        self.pool_type = pool_type
+        self.pool_shape = (1, 1, pool_shape)
+        if strides is None:
+            self.strides = self.pool_shape
+        else:
+            self.strides = (1, 1, strides)
+
+        super().__init__(self.forward(self.input))
+
+    def forward(self, input):
+        return T.poolNd(input, self.pool_shape, strides=self.strides,
+                        reducer=self.pool_type)
 
 
 class Pool2D(Layer):
