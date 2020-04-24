@@ -82,6 +82,8 @@ def train_test_split(*args, train_size=0.8, stratify=None, seed=None):
         test_indices = indices[cutoff:]
     train_set = [arg[train_indices] for arg in args]
     test_set = [arg[test_indices] for arg in args]
+    if len(args) == 1:
+        return train_set[0], test_set[0]
     return train_set, test_set
 
 

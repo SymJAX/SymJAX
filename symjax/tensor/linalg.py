@@ -9,7 +9,7 @@ import inspect
 import sys
 
 
-names = ['det', 'inv', 'norm', 'eigh', 'eig', 'qr', 'svd', 'cholesky']
+names = ['det', 'inv', 'norm', 'eigh', 'eig', 'qr', 'svd', 'cholesky', 'solve']
 module = sys.modules[__name__]
 for name in names:
     module.__dict__.update(

@@ -113,13 +113,20 @@ extract_image_patches = jax_wrap(_extract_image_patches)
 
 
 
-def one_hot(i, N, dtype='float32'):
+def _one_hot(i, N, dtype='float32'):
     """Create a one-hot encoding of x of size k."""
-    if hasattr(i, 'shape'):
-        return (x[:, None] == snp.arange(k)).astype(dtype)
+    if not hasattr(i, 'shape'):
+        s = ()
     else:
-        z = snp.zeros((N,), dtype)
-        return index_add(z, i, 1)
+        s = i.shape
+
+    if len(s) == 0:
+        z = jnp.zeros((N,), dtype)
+        return jax.ops.index_add(z, i, 1)
+    else:
+        return (i[:, None] == jnp.arange(N)).astype(dtype)
+
+one_hot = jax_wrap(_one_hot)
 
 
 

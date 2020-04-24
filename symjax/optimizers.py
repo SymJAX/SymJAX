@@ -81,6 +81,54 @@ class SGD(Optimizer):
         self.variables = []
 
 
+class NesterovMomentum(Optimizer):
+    """Nesterov momentum Optimization
+
+    Parameters
+    ----------
+
+    grads_or_loss: scalar tensor or list of gradients
+        either the loss (scalar of Tensor type) to be differentied
+        or the list of gradients already computed and possibly altered
+        manually (such as clipping)
+
+    params: list of parameters to update
+        if grads_or_loss is al list then it should be ordered w.r.t. the
+        given parameters
+
+    learning_rate: constant or Tensor
+        the learning rate use to update the parameters
+
+    Attributes
+    ----------
+
+    updates: list of updates
+
+    variables: list of variables
+
+    """
+ 
+    def __init__(self, grads_or_loss, params, learning_rate, momentum):
+
+        grads = self._get_grads(grads_or_loss, params)
+
+        if not numpy.isscalar(learning_rate) and not isinstance(
+                learning_rate, tensor.Placeholder):
+            learning_rate = learning_rate()
+
+        updates = dict()
+        for param, grad in zip(params, grads):
+            velocity = tensor.Variable(numpy.zeros(param.shape, dtype=param.dtype),
+                                    trainable=False)
+            update = param - learning_rate * grad
+            x = momentum * velocity + update - param
+            updates[velocity] = x
+            updates[param] = momentum * x + update
+
+        self.updates = updates
+        self.variables = []
+
+
 class Adam(Optimizer):
     """Adaptive Gradient Based Optimization with renormalization
 

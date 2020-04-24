@@ -122,7 +122,8 @@ def one_hot(i, N, dtype='float32'):
     if hasattr(i, 'shape'):
         return (x[:, None] == arange(k)).astype(dtype)
     else:
-        z = zeros((N,), dtype)
+        z = zeros(N, dtype)
+        print(i, N)
         return index_add(z, i, 1)
 
 

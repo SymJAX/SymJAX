@@ -3,7 +3,7 @@ from zipfile import ZipFile
 import urllib.request
 import numpy as np
 import scipy.misc
-from PIL import Image
+#from PIL import Image
 
 
 
