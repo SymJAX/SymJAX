@@ -9,9 +9,9 @@ import inspect
 import sys
 
 
-names = ['det', 'inv', 'norm', 'eigh', 'eig', 'qr', 'svd', 'cholesky', 'solve']
+NAMES = [c[0] for c in inspect.getmembers(jnpl, inspect.isfunction)]
 module = sys.modules[__name__]
-for name in names:
+for name in NAMES:
     module.__dict__.update(
         {name: jax_wrap(jnpl.__dict__[name])})
 

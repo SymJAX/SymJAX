@@ -311,10 +311,6 @@ def poolNd(input, window_shape, reducer='MAX', strides=None, padding='VALID',
               'as window_shape {}'.format(window_shape)
         raise ValueError(msg)
 
-#    out_shape = jla.reduce_window_shape_tuple(input.shape, window_shape,
-#                                              strides, padding)
-#    out_dtype = input.dtype
-
     out = reduce_window(operand=input*rescalor, init_value=init_val,
                   computation=reducer, window_dimensions=window_shape,
                   window_strides=strides, padding=padding)
@@ -338,11 +334,6 @@ def ExponentialMovingAverage(value, alpha, step=None, init=None):
     else:
         updates = {var: new_value}
     return var, updates, _step
-
-# con
-
-def relu(x):
-    return where(greater(x, 0), x, 0)
 
 
 def PiecewiseConstant(init, values, step=None):
@@ -385,3 +376,12 @@ def constant_upsample(tensor, repeat, axis=-1, constant=0.):
     tensor_aug = concatenate([expand_dims(tensor, axis + 1),
                              full(zshape, constant, dtype=tensor.dtype)], axis+1)
     return tensor_aug.reshape(nshape)
+
+
+
+NAMES = [c[0] for c in inspect.getmembers(jnpl, inspect.isfunction)]                                                    
+module = sys.modules[__name__]                                                                                          
+for name in NAMES:                                                                                                      
+    if name == 'one_hot':
+        continue
+    module.__dict__.update({name: jax_wrap(jnpl.__dict__[name])})
