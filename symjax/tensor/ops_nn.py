@@ -1,10 +1,21 @@
 import jax.numpy as jnp
 import jax.lax as jla
+import jax
 
 from .base import Op, Tensor, Variable, jax_wrap
 from .control_flow import cond
-from .ops_math import dynamic_slice_in_dim, equal, where, dynamic_slice, greater, concatenate, full, expand_dims
 import numpy
+import inspect
+import sys
+
+NAMES = [c[0] for c in inspect.getmembers(jax.nn, inspect.isfunction)]                                                    
+module = sys.modules[__name__]                                                                                          
+for name in NAMES:
+    if name == 'one_hot':
+        continue
+    module.__dict__.update({name: jax_wrap(jax.nn.__dict__[name])})
+
+from .ops_math import dynamic_slice_in_dim, equal, where, dynamic_slice, greater, concatenate, full, expand_dims
 
 
 # conv
@@ -377,11 +388,3 @@ def constant_upsample(tensor, repeat, axis=-1, constant=0.):
                              full(zshape, constant, dtype=tensor.dtype)], axis+1)
     return tensor_aug.reshape(nshape)
 
-
-
-NAMES = [c[0] for c in inspect.getmembers(jnpl, inspect.isfunction)]                                                    
-module = sys.modules[__name__]                                                                                          
-for name in NAMES:                                                                                                      
-    if name == 'one_hot':
-        continue
-    module.__dict__.update({name: jax_wrap(jnpl.__dict__[name])})

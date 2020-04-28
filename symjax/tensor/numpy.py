@@ -8,7 +8,7 @@ from .control_flow import cond
 import ast
 import inspect
 import sys
-from .ops_activations import relu
+from .ops_nn import relu
 
 module = sys.modules[__name__]
 

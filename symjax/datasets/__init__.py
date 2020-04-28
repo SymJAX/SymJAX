@@ -3,6 +3,7 @@
 
 # images
 from .mnist import mnist
+from .emnist import emnist
 from .fashionmnist import fashionmnist
 from .svhn import svhn
 from .dsprites import dsprites

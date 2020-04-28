@@ -13,7 +13,6 @@ from .index_ops import *
 from .other import *
 
 from .ops_methods import *
-from .ops_activations import *
 from .ops_nn import *
 
 from . import random
