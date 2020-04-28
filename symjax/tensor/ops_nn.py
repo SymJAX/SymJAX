@@ -8,7 +8,7 @@ import numpy
 import inspect
 import sys
 
-NAMES = [c[0] for c in inspect.getmembers(jax.nn, inspect.isfunction)]                                                    
+NAMES = [c[0] for c in inspect.getmembers(jax.nn, callable)]
 module = sys.modules[__name__]                                                                                          
 for name in NAMES:
     if name == 'one_hot':
