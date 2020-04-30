@@ -1,3 +1,4 @@
 *.pyc
 *.npz
 *.pkl
+*egg-info
