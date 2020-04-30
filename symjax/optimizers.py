@@ -1,6 +1,6 @@
 import numpy
 from . import tensor
-from .base import gradients, function
+from .base import gradients, function, get_graph
 
 
 class Optimizer:
@@ -67,7 +67,11 @@ class SGD(Optimizer):
 
     """
  
-    def __init__(self, grads_or_loss, params, learning_rate):
+    def __init__(self, grads_or_loss, learning_rate, params=None):
+
+        if params is None:
+            params = [v for k, v in get_graph().variables.items() if v.trainable]
+
         grads = self._get_grads(grads_or_loss, params)
 
         if not numpy.isscalar(learning_rate) and not isinstance(
@@ -77,8 +81,8 @@ class SGD(Optimizer):
         updates = dict()
         for param, grad in zip(params, grads):
             updates[param] = param - learning_rate * grad
-        self.updates = updates
-        self.variables = []
+
+        get_graph().updates.update(updates)
 
 
 class NesterovMomentum(Optimizer):
@@ -108,7 +112,10 @@ class NesterovMomentum(Optimizer):
 
     """
  
-    def __init__(self, grads_or_loss, params, learning_rate, momentum):
+    def __init__(self, grads_or_loss, learning_rate, momentum, params=None):
+
+        if params is None:
+            params = [v for k, v in get_graph().variables.items() if v.trainable]
 
         grads = self._get_grads(grads_or_loss, params)
 
@@ -125,8 +132,7 @@ class NesterovMomentum(Optimizer):
             updates[velocity] = x
             updates[param] = momentum * x + update
 
-        self.updates = updates
-        self.variables = []
+        get_graph().updates.update(updates)
 
 
 class Adam(Optimizer):
@@ -163,8 +169,11 @@ class Adam(Optimizer):
     variables: list of variables
 
     """
-    def __init__(self, grads_or_loss, params, learning_rate, beta1=0.9,
-                 beta2=0.999, epsilon=1e-6):
+    def __init__(self, grads_or_loss, learning_rate, beta1=0.9,
+                 beta2=0.999, epsilon=1e-6, params=None):
+
+        if params is None:
+            params = [v for k, v in get_graph().variables.items() if v.trainable]
 
         grads = self._get_grads(grads_or_loss, params)
         step = tensor.Variable([[0.]], trainable=False, name='step')
@@ -186,5 +195,5 @@ class Adam(Optimizer):
             update = updates[m] / (tensor.sqrt(updates[v]) + epsilon)
             updates[param] = param - learning_rate * update
         updates[step] = step + 1
-        self.updates = updates
-        self.variables = variables
+
+        get_graph().updates.update(updates)

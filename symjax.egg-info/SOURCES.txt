@@ -4,6 +4,7 @@ setup.py
 symjax/__init__.py
 symjax/base.py
 symjax/initializers.py
+symjax/interpolation.py
 symjax/layers.py
 symjax/losses.py
 symjax/optimizers.py
@@ -27,7 +28,8 @@ symjax/datasets/cifar100.py
 symjax/datasets/cub200.py
 symjax/datasets/dclde.py
 symjax/datasets/dsprites.py
-symjax/datasets/esc50.py
+symjax/datasets/emnist.py
+symjax/datasets/esc.py
 symjax/datasets/fashionmnist.py
 symjax/datasets/freefield1010.py
 symjax/datasets/gtzan.py
@@ -39,11 +41,13 @@ symjax/datasets/mini.py
 symjax/datasets/mnist.py
 symjax/datasets/places365_small.py
 symjax/datasets/preprocess.py
+symjax/datasets/seizures_neonatal.py
 symjax/datasets/sonycust.py
 symjax/datasets/stl10.py
 symjax/datasets/svhn.py
 symjax/datasets/tinyimagenet.py
 symjax/datasets/utils.py
+symjax/datasets/vocalset.py
 symjax/datasets/warblr.py
 symjax/datasets/wavfile.py
 symjax/nn/__init__.py
@@ -62,11 +66,13 @@ symjax/nn/ops/special.py
 symjax/tensor/__init__.py
 symjax/tensor/base.py
 symjax/tensor/control_flow.py
+symjax/tensor/index_ops.py
 symjax/tensor/linalg.py
-symjax/tensor/ops_activations.py
+symjax/tensor/numpy.py
 symjax/tensor/ops_math.py
 symjax/tensor/ops_methods.py
 symjax/tensor/ops_nn.py
+symjax/tensor/other.py
 symjax/tensor/pdfs.py
 symjax/tensor/random.py
 symjax/tensor/signal.py

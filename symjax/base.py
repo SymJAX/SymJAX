@@ -1,8 +1,41 @@
 import jax
 import jax.numpy as np
-from . import tensor as t
+from symjax import tensor as t
 from jax import jacfwd, jacrev
 import warnings
+import numpy
+
+global current_graph
+current_graph = None
+
+def get_graph():
+    return current_graph
+
+class Graph:
+    def __init__(self, name, seed=None,):
+        self.name = name
+        self.variables = {}
+        self.updates = {}
+
+    def __enter__(self):
+        globals()['current_graph'] = self
+
+
+    def __exit__(self,*a):
+        globals()['current_graph'] = None
+
+    def save(self, path):
+        ####
+        numpy.savez(path, **dict([(name, v.get())
+            for name, v in self.variables.items()]))
+
+    def load(self, path):
+        ####
+        data = numpy.load(path)
+        for name, value in data.items():
+            self.variables[name].assign(value)
+
+
 
 def gradients(scalar, variables):
     """computes the gradients of a scalar w.r.t to a given list of variables.

@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 
+from .base import *
+
 __all__ = [
         "datasets",
         "tensor",
@@ -15,5 +17,4 @@ __all__ = [
 
 __version__ = 'alpha.1'
 
-from .base import gradients, jacobians, function
 from . import *

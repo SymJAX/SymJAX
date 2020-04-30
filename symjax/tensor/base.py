@@ -7,6 +7,9 @@ import inspect
 import copy
 from functools import wraps
 import re
+#from ..base import gradients
+#print(base.gradient)
+#asdf
 
 def _add_method(cls):
     # important we keep the self inside the function call !
@@ -491,9 +494,11 @@ class Variable(Tensor):
     """
 
     def __init__(self, tensor, name='', trainable=True):
-
+        
         self.trainable = trainable
-        self.name = name
+        from symjax import get_graph
+        self.name = self.generate_name(name)
+        get_graph().variables[self.name] = self
         self.tensor = tensor
         self.value = jnp.array(copy.deepcopy(self._get_value()))
 
@@ -508,6 +513,22 @@ class Variable(Tensor):
         self._dtype = dtype
 
         super().__init__(shape, dtype, roots=[self])
+
+    def generate_name(self, name):
+
+        if name == '':
+            name = 'unnamed'
+        from symjax import get_graph
+        if name not in get_graph().variables:
+            return name
+
+        count = 1
+        while True:
+            if name + '_' + str(count) in get_graph().variables:
+                count += 1
+            else:
+                break
+        return name + '_' + str(count)
 
     def _get_value(self):
         """ utility function that takes the input and return
@@ -528,11 +549,18 @@ class Variable(Tensor):
         """
         self.value = jnp.asarray(self._get_value())
 
+    def assign(self, value):
+        """assign a new value ot the variable"""
+        self.value = jnp.asarray(value)
+
+
     def __repr__(self):
         name = 'Variable(name={}, shape={}, dtype={}, train.={})'
         return name.format(self.name, self.shape, self.dtype, self.trainable)
 
-    def get(self, tracker):
+    def get(self, tracker=None):
+        if tracker is None:
+            tracker = {}
         if self not in tracker:
             tracker[self] = self.value
         return tracker[self]

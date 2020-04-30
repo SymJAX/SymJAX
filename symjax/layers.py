@@ -1,6 +1,7 @@
-from .tensor import ops_methods
-from . import tensor as T
-from . import initializers
+from symjax.tensor import ops_methods
+from symjax import tensor as T
+from symjax import initializers
+from symjax import get_graph
 import numpy
 import inspect
 
@@ -99,6 +100,7 @@ class Layer(T.Tensor):
 
     def add_update(self, update):
         self.updates.update(update)
+        get_graph().updates.update(update)
 
     def add_variable(self, variable):
         if not hasattr(self, '_variables'):
