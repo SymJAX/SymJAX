@@ -1,0 +1,280 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>symjax.datasets.freefield1010 &mdash; symjax 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/installation.html">Installation (GPU)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/pdfs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.pdfs</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.utils</span></code></a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/initializers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.initializers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/layers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.layers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/optimizers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.optimizers</span></code></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">symjax</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>symjax.datasets.freefield1010</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for symjax.datasets.freefield1010</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">gzip</span>
+<span class="kn">import</span> <span class="nn">urllib.request</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">from</span> <span class="nn">scipy.io.wavfile</span> <span class="kn">import</span> <span class="n">read</span> <span class="k">as</span> <span class="n">wav_read</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+
+<div class="viewcode-block" id="freefield1010"><a class="viewcode-back" href="../../../modules/datasets.html#symjax.datasets.freefield1010">[docs]</a><span class="k">class</span> <span class="nc">freefield1010</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Audio binary classification, presence or absence of bird songs.</span>
+<span class="sd">    `freefield1010 &lt;http://machine-listening.eecs.qmul.ac.uk/bird-audio-detection-challenge/#downloads&gt;`_. </span>
+<span class="sd">    is a collection of over 7,000 excerpts from field recordings </span>
+<span class="sd">    around the world, gathered by the FreeSound project, and then standardised </span>
+<span class="sd">    for research. This collection is very diverse in location and environment, </span>
+<span class="sd">    and for the BAD Challenge we have newly annotated it for the </span>
+<span class="sd">    presence/absence of birds.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+ 
+    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DATASET_path&#39;</span><span class="p">]</span>
+    
+        <span class="c1"># Load the dataset (download if necessary) and set</span>
+        <span class="c1"># the class attributes.</span>
+    
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Downloading freefield1010&quot;</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;freefield1010&#39;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Creating Directory&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;freefield1010&#39;</span><span class="p">)</span>
+    
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;freefield1010/ff1010bird_wav.zip&#39;</span><span class="p">):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://archive.org/download/ff1010bird/ff1010bird_wav.zip&#39;</span>
+            <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="n">path</span><span class="o">+</span>
+                        <span class="s1">&#39;freefield1010/ff1010bird_wav.zip&#39;</span><span class="p">)</span>  
+    
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;freefield1010/ff1010bird_metadata.csv&#39;</span><span class="p">):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://ndownloader.figshare.com/files/6035814&#39;</span>
+            <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="n">path</span><span class="o">+</span>
+                                <span class="s1">&#39;freefield1010/ff1010bird_metadata.csv&#39;</span><span class="p">)</span>  
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;freefield1010 downloaded in </span><span class="si">{}</span><span class="s2"> sec.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t</span><span class="p">))</span>
+
+    
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DATASET_path&#39;</span><span class="p">]</span>
+    
+        <span class="n">freefield1010</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    
+        <span class="c1"># load labels</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;freefield1010/ff1010bird_metadata.csv&#39;</span><span class="p">,</span>
+                <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+        <span class="c1"># load wavs</span>
+        <span class="n">f</span>       <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;freefield1010/ff1010bird_wav.zip&#39;</span><span class="p">)</span>
+        <span class="c1"># init. the data array</span>
+        <span class="n">N</span>       <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">wavs</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="mi">441000</span><span class="o">//</span><span class="n">subsample</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">files_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">labels</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]),</span><span class="n">ascii</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">N</span><span class="p">):</span>
+            <span class="n">wavfile</span>   <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;wav/&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">files_</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;.wav&#39;</span><span class="p">)</span>
+            <span class="n">byt</span>       <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">wavfile</span><span class="p">)</span>
+            <span class="n">wavs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>   <span class="o">=</span> <span class="n">wav_read</span><span class="p">(</span><span class="n">byt</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)[::</span><span class="n">subsample</span><span class="p">]</span>
+    
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+    
+        <span class="k">return</span> <span class="n">wavs</span><span class="p">,</span> <span class="n">labels</span></div>
+    
+    
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Randall Balestriero
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
