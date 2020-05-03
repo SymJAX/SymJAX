@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to SymJAX’s documentation! &mdash; symjax 0.0.1 documentation</title>
+  <title>Welcome to SymJAX’s documents &mdash; symjax 0.0.1 documentation</title>
   
 
   
@@ -34,9 +34,10 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Examples" href="user/examples.html" /> 
+    <link rel="next" title="Installation" href="user/installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -84,8 +85,8 @@
             
             
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="user/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user/examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user/installation.html">Installation (GPU)</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -145,7 +146,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>Welcome to SymJAX’s documentation!</li>
+      <li>Welcome to SymJAX’s documents</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -164,39 +165,30 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="welcome-to-symjax-s-documentation">
-<h1>Welcome to SymJAX’s documentation!<a class="headerlink" href="#welcome-to-symjax-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="https://www.tensorflow.org/xla">XLA</a> + <a class="reference external" href="https://github.com/hips/autograd">Autograd</a> = <a class="reference external" href="https://github.com/google/jax">JAX</a></p>
-<p><a class="reference external" href="https://github.com/google/jax">JAX</a> + Symbolic programming + Deep Learning = <a class="reference external" href="https://github.com/RandallBalestriero/SymJAX">SymJAX</a></p>
-<p><a class="reference external" href="https://www.tensorflow.org/xla">XLA</a>: compiler that optimizes a computational graph fusing multiple kernels
-into one preventing intermediate computation, reducing memory operations
-and increasing performances.</p>
-<p><a class="reference external" href="https://github.com/google/jax">JAX</a>: python interface providing a numpy-like software on top of XLA and
-providing just-in-time compilation a well as advanced automatic
-differenciation.</p>
-<p><a class="reference external" href="https://github.com/RandallBalestriero/SymJAX">SymJAX</a>: symbolic programming version of <a class="reference external" href="https://github.com/google/jax">JAX</a> simplifying graph
-input/output/updates and providing additional functionalities for general
-machine learning and deep learning applications. From an user perspective
-<a class="reference external" href="https://github.com/RandallBalestriero/SymJAX">SymJAX</a> apparents to <a class="reference external" href="https://github.com/Theano/Theano">Theano</a> with fast graph optimization/compilation
-and broad hardware support, along with <a class="reference external" href="https://github.com/Lasagne/Lasagne">Lasagne</a>-like deep learning
-functionalities</p>
-<p>This is an under development research project, not an official product,
-expect bugs and sharp edges; please help by trying it out, reporting bugs.</p>
+  <div class="section" id="welcome-to-symjax-s-documents">
+<h1>Welcome to SymJAX’s documents<a class="headerlink" href="#welcome-to-symjax-s-documents" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/google/jax">JAX</a> = <a class="reference external" href="https://www.tensorflow.org/xla">XLA</a> + <a class="reference external" href="https://github.com/hips/autograd">Autograd</a></p></li>
+<li><p><a class="reference external" href="https://github.com/RandallBalestriero/SymJAX">SymJAX</a> =  <a class="reference external" href="https://github.com/google/jax">JAX</a> + symbolic programming + deep Learning</p></li>
+</ul>
+<p><a class="reference external" href="https://www.tensorflow.org/xla">XLA</a> is a compiler that optimizes a computational graph by fusing multiple kernels into one preventing intermediate computation, reducing memory operations and increasing performances.</p>
+<p><a class="reference external" href="https://github.com/google/jax">JAX</a> is a python interface that provides a <a class="reference external" href="https://numpy.org">Numpy</a>-like software on top of XLA and providing just-in-time compilation a well as advanced automatic differenciation.</p>
+<p><a class="reference external" href="https://github.com/RandallBalestriero/SymJAX">SymJAX</a> is a symbolic programming version of <a class="reference external" href="https://github.com/google/jax">JAX</a> simplifying graph input, output and updates and providing additional functionalities for general machine learning and deep learning applications. From an user perspective <a class="reference external" href="https://github.com/RandallBalestriero/SymJAX">SymJAX</a> apparents to <a class="reference external" href="https://github.com/Theano/Theano">Theano</a> with fast graph optimization/compilation and broad hardware support, along with <a class="reference external" href="https://github.com/Lasagne/Lasagne">Lasagne</a>-like deep learning functionalities</p>
+<p>This is an under development research project, not an official product, expect bugs and sharp edges; please help by trying it out, reporting bugs.</p>
 </div>
-<div class="section" id="table-of-contents">
-<h1>Table Of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="contents">
+<h1>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="user/installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user/installation.html#installation-with-pip">Installation with pip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user/installation.html#manual-installation">Manual installation</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="user/examples.html">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="user/examples.html#multivariate-gaussian">Multivariate Gaussian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user/examples.html#stochastic-gradient-descent">Stochastic Gradient Descent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user/examples.html#cifar-10-classification">CIFAR-10 Classification</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="user/installation.html">Installation (GPU)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="user/installation.html#preriquisites">Preriquisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/installation.html#jax-installation">JAX installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/installation.html#symjax-installation">SymJAX installation</a></li>
 </ul>
 </li>
 </ul>
@@ -246,7 +238,7 @@ expect bugs and sharp edges; please help by trying it out, reporting bugs.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="user/examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="user/installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>

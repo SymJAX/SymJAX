@@ -34,6 +34,7 @@
   
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
@@ -83,8 +84,8 @@
             
             
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../user/examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../user/installation.html">Installation (GPU)</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -246,7 +247,9 @@
         <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">grad</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">grads</span><span class="p">):</span>
             <span class="n">updates</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span> <span class="o">-</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">grad</span>
 
-        <span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">updates</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">=</span> <span class="n">updates</span>
+        <span class="k">if</span> <span class="n">get_graph</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">updates</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="NesterovMomentum"><a class="viewcode-back" href="../../modules/optimizers.html#symjax.optimizers.NesterovMomentum">[docs]</a><span class="k">class</span> <span class="nc">NesterovMomentum</span><span class="p">(</span><span class="n">Optimizer</span><span class="p">):</span>
@@ -295,8 +298,10 @@
             <span class="n">x</span> <span class="o">=</span> <span class="n">momentum</span> <span class="o">*</span> <span class="n">velocity</span> <span class="o">+</span> <span class="n">update</span> <span class="o">-</span> <span class="n">param</span>
             <span class="n">updates</span><span class="p">[</span><span class="n">velocity</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
             <span class="n">updates</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">momentum</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">update</span>
-
-        <span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">updates</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span></div>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">=</span> <span class="n">updates</span>
+        <span class="k">if</span> <span class="n">get_graph</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">updates</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Adam"><a class="viewcode-back" href="../../modules/optimizers.html#symjax.optimizers.Adam">[docs]</a><span class="k">class</span> <span class="nc">Adam</span><span class="p">(</span><span class="n">Optimizer</span><span class="p">):</span>
@@ -360,7 +365,9 @@
             <span class="n">updates</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span> <span class="o">-</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">update</span>
         <span class="n">updates</span><span class="p">[</span><span class="n">step</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span>
 
-        <span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">updates</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">=</span> <span class="n">updates</span>
+        <span class="k">if</span> <span class="n">get_graph</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">updates</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

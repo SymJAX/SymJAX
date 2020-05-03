@@ -2,8 +2,8 @@
    sphinx-quickstart on Wed Jan 29 09:29:10 2020.
 
 
-Home
-====
+Welcome to SymJAX's documentation!
+==================================
 
 - `JAX`_ = `XLA`_ + `Autograd`_
 - `SymJAX`_ =  `JAX`_ + symbolic programming + deep Learning
