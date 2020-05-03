@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/RandallBalestriero/SymJAX/master/doc/img/logo.png" alt="logo"></img>
+<img src="docs/img/symjax_logo.png" alt="logo"></img>
 </div>
 
 # SymJAX: symbolic CPU/GPU/TPU programming [![Test status](https://travis-ci.org/google/jax.svg?branch=master)](https://travis-ci.org/google/jax)
@@ -63,15 +63,15 @@ Then simply install SymJAX as follows:
     pip install symjax
 
 once this is done, to leverage the dataset please set up the environment variable
-    
+
     export DATASET_PATH=/path/to/default/location/
-    
+
 this path will be used as the default path where to download the various datasets in case no explicit path is given.
 Additionally, the following options are standard to be set up to link with the CUDA library and deactivate the memory preallocation (example below for CUDA10.1, change for desired version)
 
     export CUDA_DIR="/usr/local/cuda-10.1"
-    export LD_LIBRARY_PATH=$CUDA_DIR/lib64:$LD_LIBRARY_PATH 
-    export LIBRARY_PATH=$CUDA_DIR/lib64:$LIBRARY_PATH                               
-    export XLA_PYTHON_CLIENT_PREALLOCATE='false'                                
-    export XLA_FLAGS="--xla_gpu_cuda_data_dir=$CUDA_DIR"             
-    
+    export LD_LIBRARY_PATH=$CUDA_DIR/lib64:$LD_LIBRARY_PATH
+    export LIBRARY_PATH=$CUDA_DIR/lib64:$LIBRARY_PATH
+    export XLA_PYTHON_CLIENT_PREALLOCATE='false'
+    export XLA_FLAGS="--xla_gpu_cuda_data_dir=$CUDA_DIR"
+
