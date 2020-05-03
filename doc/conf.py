@@ -78,5 +78,7 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ['_static']
 
 # https://www.freelogodesign.org/preview?lang=en&name=SymJAX&logo=63cb0e66-1cfe-4204-a865-418af1550e09
-html_logo = 'img/logo.png'
-html_theme_options = {'logo_only': True}
+html_logo = 'img/symjax_logo.png'
+html_theme_options = {
+    'logo_only': True,
+}
