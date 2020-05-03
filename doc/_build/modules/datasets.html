@@ -1,0 +1,1110 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>symjax.datasets &mdash; symjax 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/symjax_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/installation.html">Installation (GPU)</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">symjax</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/modules/datasets.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="symjax-datasets">
+<h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.datasets</span></code><a class="headerlink" href="#symjax-datasets" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="images">
+<h2>Images<a class="headerlink" href="#images" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.mnist" title="symjax.datasets.mnist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.mnist</span></code></a></p></td>
+<td><p>Grayscale digit classification.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.fashionmnist" title="symjax.datasets.fashionmnist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.fashionmnist</span></code></a></p></td>
+<td><p>Grayscale image classification</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.dsprites" title="symjax.datasets.dsprites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.dsprites</span></code></a></p></td>
+<td><p>greyscale image classification and disentanglement</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.svhn" title="symjax.datasets.svhn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.svhn</span></code></a></p></td>
+<td><p>Street number classification.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.cifar10" title="symjax.datasets.cifar10"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.cifar10</span></code></a></p></td>
+<td><p>Image classification.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.cifar100" title="symjax.datasets.cifar100"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.cifar100</span></code></a></p></td>
+<td><p>Image classification.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.ibeans" title="symjax.datasets.ibeans"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.ibeans</span></code></a></p></td>
+<td><p>Plant images classification.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.cassava" title="symjax.datasets.cassava"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.cassava</span></code></a></p></td>
+<td><p>Plant images classification.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.stl10" title="symjax.datasets.stl10"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.stl10</span></code></a></p></td>
+<td><p>Image classification with extra unlabeled images.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.tinyimagenet" title="symjax.datasets.tinyimagenet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.tinyimagenet</span></code></a></p></td>
+<td><p>Tiny Imagenet has 200 classes.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="audio">
+<h2>Audio<a class="headerlink" href="#audio" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.audiomnist" title="symjax.datasets.audiomnist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.audiomnist</span></code></a></p></td>
+<td><p>digit recognition</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.esc" title="symjax.datasets.esc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.esc</span></code></a></p></td>
+<td><p>ESC-10/50: Environmental Sound Classification</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.warblr" title="symjax.datasets.warblr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.warblr</span></code></a></p></td>
+<td><p>Binary audio classification, presence or absence of a bird.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.gtzan" title="symjax.datasets.gtzan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.gtzan</span></code></a></p></td>
+<td><p>music genre classification</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.dclde" title="symjax.datasets.dclde"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.dclde</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.irmas" title="symjax.datasets.irmas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.irmas</span></code></a></p></td>
+<td><p>music instrument classification</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.vocalset" title="symjax.datasets.vocalset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.vocalset</span></code></a></p></td>
+<td><p>singer/technique/vowel of singing voices</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.freefield1010" title="symjax.datasets.freefield1010"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.freefield1010</span></code></a></p></td>
+<td><p>Audio binary classification, presence or absence of bird songs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.datasets.birdvox_70k" title="symjax.datasets.birdvox_70k"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.birdvox_70k</span></code></a></p></td>
+<td><p>a dataset for avian flight call detection in half-second clips</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.datasets.birdvox_dcase_20k" title="symjax.datasets.birdvox_dcase_20k"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.datasets.birdvox_dcase_20k</span></code></a></p></td>
+<td><p>Binary bird detection classification</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="detailed-description-image">
+<h2>Detailed description (Image)<a class="headerlink" href="#detailed-description-image" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="symjax.datasets.mnist">
+<em class="property">class </em><code class="sig-name descname">mnist</code><a class="reference internal" href="../_modules/symjax/datasets/mnist.html#mnist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.mnist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grayscale digit classification.</p>
+<p>The <a class="reference external" href="http://yann.lecun.com/exdb/mnist/">MNIST</a> database of handwritten
+digits, available from this page, has a training set of 60,000 examples,
+and a test set of 10,000 examples. It is a subset of a larger set available
+from NIST. The digits have been size-normalized and centered in a
+fixed-size image. It is a good database for people who want to try learning
+techniques and pattern recognition methods on real-world data while
+spending minimal efforts on preprocessing and formatting.</p>
+<dl class="py method">
+<dt id="symjax.datasets.mnist.download">
+<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/mnist.html#mnist.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.mnist.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the MNIST dataset and store the result into the given
+path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – the path where the downloaded files will be stored. If the
+directory does not exist, it is created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="symjax.datasets.mnist.load">
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/mnist.html#mnist.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.mnist.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>train_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>train_labels</strong> (<em>array</em>)</p></li>
+<li><p><strong>valid_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>valid_labels</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_labels</strong> (<em>array</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.fashionmnist">
+<em class="property">class </em><code class="sig-name descname">fashionmnist</code><a class="reference internal" href="../_modules/symjax/datasets/fashionmnist.html#fashionmnist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.fashionmnist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grayscale image classification</p>
+<p><a class="reference external" href="https://jobs.zalando.com/tech/">Zalando</a> ‘s article image classification.
+<a class="reference external" href="https://github.com/zalandoresearch/fashion-mnist">Fashion-MNIST</a> is
+a dataset of <a class="reference external" href="https://jobs.zalando.com/tech/">Zalando</a> ‘s article
+images consisting of a training set of 60,000 examples and a test set
+of 10,000 examples. Each example is a 28x28 grayscale image, associated
+with a label from 10 classes. We intend Fashion-MNIST to serve as a direct
+drop-in replacement for the original MNIST dataset for benchmarking
+machine learning algorithms. It shares the same image size and structure
+of training and testing splits.</p>
+<dl class="py method">
+<dt id="symjax.datasets.fashionmnist.download">
+<code class="sig-name descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/fashionmnist.html#fashionmnist.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.fashionmnist.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the fashion-MNIST dataset and store the result into the given
+path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – the path where the downloaded files will be stored. If the
+directory does not exist, it is created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="symjax.datasets.fashionmnist.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/fashionmnist.html#fashionmnist.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.fashionmnist.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>train_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>train_labels</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_labels</strong> (<em>array</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.dsprites">
+<em class="property">class </em><code class="sig-name descname">dsprites</code><a class="reference internal" href="../_modules/symjax/datasets/dsprites.html#dsprites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.dsprites" title="Permalink to this definition">¶</a></dt>
+<dd><p>greyscale image classification and disentanglement</p>
+<p>This dataset consists of 737,280 images of 2D shapes, procedurally generated
+from 5 ground truth independent latent factors, controlling the shape, scale,
+rotation and position of a sprite. This data can be used to assess the
+disentanglement properties of unsupervised learning methods.</p>
+<p>dSprites is a dataset of 2D shapes procedurally generated from 6 ground
+truth independent latent factors. These factors are color, shape, scale,
+rotation, x and y positions of a sprite.</p>
+<p>All possible combinations of these latents are present exactly once,
+generating N = 737280 total images.</p>
+<dl class="py method">
+<dt id="symjax.datasets.dsprites.download">
+<code class="sig-name descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/dsprites.html#dsprites.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.dsprites.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the MNIST dataset and store the result into the given
+path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – the path where the downloaded files will be stored. If the
+directory does not exist, it is created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="symjax.datasets.dsprites.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/dsprites.html#dsprites.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.dsprites.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>images</strong> (<em>array</em>)</p></li>
+<li><p><strong>latent</strong> (<em>array</em>)</p></li>
+<li><p><strong>classes</strong> (<em>array</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.svhn">
+<em class="property">class </em><code class="sig-name descname">svhn</code><a class="reference internal" href="../_modules/symjax/datasets/svhn.html#svhn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.svhn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Street number classification.</p>
+<p>The <a class="reference external" href="http://ufldl.stanford.edu/housenumbers/">SVHN</a>
+dataset is a real-world
+image dataset for developing machine learning and object
+recognition algorithms with minimal requirement on data
+preprocessing and formatting. It can be seen as similar in flavor
+to MNIST (e.g., the images are of small cropped digits), but
+incorporates an order of magnitude more labeled data (over 600,000
+digit images) and comes from a significantly harder, unsolved,
+real world problem (recognizing digits and numbers in natural
+scene images). SVHN is obtained from house numbers in Google
+Street View images.</p>
+<dl class="py method">
+<dt id="symjax.datasets.svhn.download">
+<code class="sig-name descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/svhn.html#svhn.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.svhn.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the SVHN dataset and store the result into the given
+path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – the path where the downloaded files will be stored. If the
+directory does not exist, it is created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="symjax.datasets.svhn.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/svhn.html#svhn.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.svhn.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default $DATASET_PATH, the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>train_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>train_labels</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_labels</strong> (<em>array</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.cifar10">
+<em class="property">class </em><code class="sig-name descname">cifar10</code><a class="reference internal" href="../_modules/symjax/datasets/cifar10.html#cifar10"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cifar10" title="Permalink to this definition">¶</a></dt>
+<dd><p>Image classification.</p>
+<p>The <a class="reference external" href="https://www.cs.toronto.edu/~kriz/cifar.html">CIFAR-10</a> dataset
+was collected by Alex Krizhevsky, Vinod Nair, and Geoffrey
+Hinton. It consists of 60000 32x32 colour images in 10 classes, with
+6000 images per class. There are 50000 training images and 10000 test images.
+The dataset is divided into five training batches and one test batch,
+each with 10000 images. The test batch contains exactly 1000 randomly
+selected images from each class. The training batches contain the
+remaining images in random order, but some training batches may
+contain more images from one class than another. Between them, the
+training batches contain exactly 5000 images from each class.</p>
+<dl class="py method">
+<dt id="symjax.datasets.cifar10.download">
+<code class="sig-name descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/cifar10.html#cifar10.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cifar10.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the MNIST dataset and store the result into the given
+path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – the path where the downloaded files will be stored. If the
+directory does not exist, it is created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="symjax.datasets.cifar10.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/cifar10.html#cifar10.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cifar10.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>train_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>train_labels</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_labels</strong> (<em>array</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.cifar100">
+<em class="property">class </em><code class="sig-name descname">cifar100</code><a class="reference internal" href="../_modules/symjax/datasets/cifar100.html#cifar100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cifar100" title="Permalink to this definition">¶</a></dt>
+<dd><p>Image classification.</p>
+<p>The <a class="reference external" href="https://www.cs.toronto.edu/~kriz/cifar.html">CIFAR-100</a> dataset is
+just like the CIFAR-10, except it has 100 classes containing 600 images
+each. There are 500 training images and 100 testing images per class.
+The 100 classes in the CIFAR-100 are grouped into 20 superclasses. Each
+image comes with a “fine” label (the class to which it belongs) and a
+“coarse” label (the superclass to which it belongs).</p>
+<dl class="py method">
+<dt id="symjax.datasets.cifar100.download">
+<code class="sig-name descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/cifar100.html#cifar100.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cifar100.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the CIFAR100 dataset and store the result into the given
+path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – the path where the downloaded files will be stored. If the
+directory does not exist, it is created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.ibeans">
+<em class="property">class </em><code class="sig-name descname">ibeans</code><a class="reference internal" href="../_modules/symjax/datasets/ibeans.html#ibeans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.ibeans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plant images classification.</p>
+<p>This dataset is of leaf images taken in the field in different
+districts in Uganda by the Makerere AI lab in collaboration with the
+National Crops Resources Research Institute (NaCRRI), the national
+body in charge of research in agriculture in Uganda.</p>
+<p>The goal is to build a robust machine learning model that is able
+to distinguish between diseases in the Bean plants. Beans are an
+important cereal food crop for Africa grown by many small-holder
+farmers - they are a significant source of proteins for school-age
+going children in East Africa.</p>
+<p>The data is of leaf images representing 3 classes: the healthy class of
+images, and two disease classes including Angular Leaf Spot and Bean
+Rust diseases. The model should be able to distinguish between these 3
+classes with high accuracy. The end goal is to build a robust, model
+that can be deployed on a mobile device and used in the field by a
+farmer.</p>
+<p>The data includes leaf images taken in the field. The figure above
+depicts examples of the types of images per class. Images were taken
+from the field/garden a basic smartphone.</p>
+<p>The images were then annotated by experts from NaCRRI who determined
+for each image which disease was manifested. The experts were part of
+the data collection team and images were annotated directly during the
+data collection process in the field.</p>
+<p>Class   Examples
+Healthy class   428
+Angular Leaf Spot   432
+Bean Rust   436
+Total:  1,296</p>
+<p>Data Released   20-January-2020
+License     MIT
+Credits     Makerere AI Lab</p>
+<dl class="py method">
+<dt id="symjax.datasets.ibeans.download">
+<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/ibeans.html#ibeans.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.ibeans.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the ibeans dataset and store the result into the given
+path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – the path where the downloaded files will be stored. If the
+directory does not exist, it is created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="symjax.datasets.ibeans.load">
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/ibeans.html#ibeans.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.ibeans.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>train_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>train_labels</strong> (<em>array</em>)</p></li>
+<li><p><strong>valid_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>valid_labels</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_labels</strong> (<em>array</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.cassava">
+<em class="property">class </em><code class="sig-name descname">cassava</code><a class="reference internal" href="../_modules/symjax/datasets/cassava.html#cassava"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cassava" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plant images classification.</p>
+<p>The data consists of two folders, a training folder that contains 5
+subfolders that contain the respective images for the different 5 classes
+and a test folder containing test images.</p>
+<p>Participants are to train their models using the images in the training
+folder and provide a submission file like the sample provided which contains
+the image name exactly matching the image name in the test folder and the
+corresponding class prediction with labels corresponding to the disease
+categories, cmd, healthy, cgm, cbsd, cbb.</p>
+<p>Please cite this paper if you use the dataset for your project:
+<a class="reference external" href="https://arxiv.org/pdf/1908.02900.pdf">https://arxiv.org/pdf/1908.02900.pdf</a></p>
+<dl class="py method">
+<dt id="symjax.datasets.cassava.download">
+<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/cassava.html#cassava.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cassava.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the cassava dataset and store the result into the given
+path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – the path where the downloaded files will be stored. If the
+directory does not exist, it is created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="symjax.datasets.cassava.load">
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/cassava.html#cassava.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cassava.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>train_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>train_labels</strong> (<em>array</em>)</p></li>
+<li><p><strong>valid_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>valid_labels</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_images</strong> (<em>array</em>)</p></li>
+<li><p><strong>test_labels</strong> (<em>array</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.stl10">
+<em class="property">class </em><code class="sig-name descname">stl10</code><a class="reference internal" href="../_modules/symjax/datasets/stl10.html#stl10"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.stl10" title="Permalink to this definition">¶</a></dt>
+<dd><p>Image classification with extra unlabeled images.</p>
+<p>The <a class="reference external" href="https://cs.stanford.edu/~acoates/stl10/">STL-10</a> dataset is an image
+recognition dataset for developing unsupervised feature learning,
+deep learning, self-taught learning algorithms. It is inspired by the
+CIFAR-10 dataset but with
+some modifications. In particular, each class has fewer labeled
+training examples than in CIFAR-10, but a very
+large set of unlabeled examples is provided to learn image models prior
+to supervised training. The primary challenge is to make use of the
+unlabeled data (which comes from a similar but different distribution from
+the labeled data) to build a useful prior. We also expect that the higher
+resolution of this dataset (96x96) will make it a challenging benchmark
+for developing more scalable unsupervised learning methods.</p>
+<dl class="py method">
+<dt id="symjax.datasets.stl10.load">
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/stl10.html#stl10.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.stl10.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>load the data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – the path to look for the data and where it will be downloaded if
+not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>train_images</strong> (<em>array</em>) – the training images</p></li>
+<li><p><strong>train_labels</strong> (<em>array</em>) – the training labels</p></li>
+<li><p><strong>test_images</strong> (<em>array</em>) – the test images</p></li>
+<li><p><strong>test_labels</strong> (<em>array</em>) – the test labels</p></li>
+<li><p><strong>extra_images</strong> (<em>array</em>) – the unlabeled additional images</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.tinyimagenet">
+<em class="property">class </em><code class="sig-name descname">tinyimagenet</code><a class="reference internal" href="../_modules/symjax/datasets/tinyimagenet.html#tinyimagenet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.tinyimagenet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tiny Imagenet has 200 classes. Each class has 500 training images, 50
+validation images, and 50 test images. We have released the training and
+validation sets with images and annotations. We provide both class labels an
+bounding boxes as annotations; however, you are asked only to predict the
+class label of each image without localizing the objects. The test set is
+released without labels. You can download the whole tiny ImageNet dataset
+here.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="detailed-description-audio">
+<h2>Detailed description (Audio)<a class="headerlink" href="#detailed-description-audio" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="symjax.datasets.audiomnist">
+<em class="property">class </em><code class="sig-name descname">audiomnist</code><a class="reference internal" href="../_modules/symjax/datasets/audiomnist.html#audiomnist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.audiomnist" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>digit recognition</dt><dd><p><a class="reference external" href="https://github.com/soerenab/AudioMNIST">https://github.com/soerenab/AudioMNIST</a></p>
+</dd>
+</dl>
+<p>A simple audio/speech dataset consisting of recordings of spoken digits in
+wav files at 8kHz. The recordings are trimmed so that they have near
+minimal silence at the beginnings and ends.</p>
+<p>FSDD is an open dataset, which means it will grow over time as data is
+contributed. In order to enable reproducibility and accurate citation the
+dataset is versioned using Zenodo DOI as well as git tags.</p>
+<p>Current status</p>
+<blockquote>
+<div><p>4 speakers
+2,000 recordings (50 of each digit per speaker)
+English pronunciations</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.esc">
+<em class="property">class </em><code class="sig-name descname">esc</code><a class="reference internal" href="../_modules/symjax/datasets/esc.html#esc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.esc" title="Permalink to this definition">¶</a></dt>
+<dd><p>ESC-10/50: Environmental Sound Classification</p>
+<p><a class="reference external" href="https://github.com/karolpiczak/ESC-50#download">https://github.com/karolpiczak/ESC-50#download</a></p>
+<p>The ESC-50 dataset is a labeled collection of 2000 environmental audio
+recordings suitable for benchmarking methods of environmental sound
+classification.</p>
+<p>The dataset consists of 5-second-long recordings organized into 50
+semantical classes (with 40 examples per class) loosely arranged into 5
+major categories:</p>
+<blockquote>
+<div><p>Animals
+Natural soundscapes &amp; water sounds
+Human, non-speech sounds
+Interior/domestic sounds
+Exterior/urban noises</p>
+</div></blockquote>
+<p>Clips in this dataset have been manually extracted from public field
+recordings gathered by the Freesound.org project. The dataset has been
+prearranged into 5 folds for comparable cross-validation, making sure
+that fragments from the same original source file are contained in a
+single fold.</p>
+<dl class="py method">
+<dt id="symjax.datasets.esc.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/esc.html#esc.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.esc.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>ESC 50.</p>
+<p><a class="reference external" href="https://github.com/karolpiczak/ESC-50#download">https://github.com/karolpiczak/ESC-50#download</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default $DATASET_path), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>wavs</strong> (<em>array</em>) – the wavs as a numpy array (matrix) with first dimension the data
+and second dimension time</p></li>
+<li><p><strong>fine_labels</strong> (<em>array</em>) – the labels of the final classes (50 different ones) as a integer
+vector</p></li>
+<li><p><strong>coarse_labels</strong> (<em>array</em>) – the labels of the classes big cateogry (5 of them)</p></li>
+<li><p><strong>folds</strong> (<em>array</em>) – the fold as an integer from 1 to 5 specifying how to split the data
+one should not split a fold into train and set as it would
+make the same recording (but different subparts) be present in train
+and test, biasing optimistically the results.</p></li>
+<li><p><strong>esc10</strong> (<em>array</em>) – the boolean vector specifying if the corresponding datum (wav, label,
+…) is in the ESC-10 dataset or not. That is, to load the ESC-10
+dataset simply load ESC-50 and use this boolean vector to extract
+only the ESC-10 data.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.warblr">
+<em class="property">class </em><code class="sig-name descname">warblr</code><a class="reference internal" href="../_modules/symjax/datasets/warblr.html#warblr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.warblr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Binary audio classification, presence or absence of a bird.</p>
+<p><a class="reference external" href="http://machine-listening.eecs.qmul.ac.uk/bird-audio-detection-challenge/#downloads">Warblr</a>
+comes from a UK bird-sound crowdsourcing
+research spinout called Warblr. From this initiative we have
+10,000 ten-second smartphone audio recordings from around the UK.
+The audio totals around 44 hours duration. The audio will be
+published by Warblr under a Creative Commons licence. The audio
+covers a wide distribution of UK locations and environments, and
+includes weather noise, traffic noise, human speech and even human
+bird imitations. It is directly representative of the data that is
+collected from a mobile crowdsourcing initiative.</p>
+<dl class="py method">
+<dt id="symjax.datasets.warblr.download">
+<code class="sig-name descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/warblr.html#warblr.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.warblr.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="symjax.datasets.warblr.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/warblr.html#warblr.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.warblr.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the data given a path</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.gtzan">
+<em class="property">class </em><code class="sig-name descname">gtzan</code><a class="reference internal" href="../_modules/symjax/datasets/gtzan.html#gtzan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.gtzan" title="Permalink to this definition">¶</a></dt>
+<dd><p>music genre classification</p>
+<p>This dataset was used for the well known paper in genre classification
+“Musical genre classification of audio signals” by G. Tzanetakis
+and P. Cook in IEEE Transactions on Audio and Speech Processing 2002.</p>
+<p>Unfortunately the database was collected gradually and very early on in my
+research so I have no titles (and obviously no copyright permission etc).
+The files were collected in 2000-2001 from a variety of sources including
+personal CDs, radio, microphone recordings, in order to represent a variety
+of recording conditions. Nevetheless I have been providing it to researchers
+upon request mainly for comparison purposes etc. Please contact George
+Tzanetakis (<a class="reference external" href="mailto:gtzan&#37;&#52;&#48;cs&#46;uvic&#46;ca">gtzan<span>&#64;</span>cs<span>&#46;</span>uvic<span>&#46;</span>ca</a>) if you intend to publish experimental results
+using this dataset.</p>
+<p>There are some practical and conceptual issues with this dataset, described
+in “The GTZAN dataset: Its contents, its faults, their effects on
+evaluation, and its future use” by B. Sturm on arXiv 2013.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="symjax.datasets.dclde">
+<code class="sig-name descname">dclde</code><a class="headerlink" href="#symjax.datasets.dclde" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#symjax.datasets.dclde" title="symjax.datasets.dclde"><code class="xref py py-class docutils literal notranslate"><span class="pre">symjax.datasets.dclde</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.irmas">
+<em class="property">class </em><code class="sig-name descname">irmas</code><a class="reference internal" href="../_modules/symjax/datasets/irmas.html#irmas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.irmas" title="Permalink to this definition">¶</a></dt>
+<dd><p>music instrument classification</p>
+<p>ref <a class="reference external" href="https://zenodo.org/record/1290750#.WzCwSRyxXMU">https://zenodo.org/record/1290750#.WzCwSRyxXMU</a></p>
+<p>This dataset includes musical audio excerpts with annotations of the
+predominant instrument(s) present. It was used for the evaluation in the
+following article:</p>
+<p>Bosch, J. J., Janer, J., Fuhrmann, F., &amp; Herrera, P. “A Comparison of Sound
+Segregation Techniques for Predominant Instrument Recognition in Musical
+Audio Signals”, in Proc. ISMIR (pp. 559-564), 2012</p>
+<p>Please Acknowledge IRMAS in Academic Research</p>
+<p>IRMAS is intended to be used for training and testing methods for the
+automatic recognition of predominant instruments in musical audio. The
+instruments considered are: cello, clarinet, flute, acoustic guitar,
+electric guitar, organ, piano, saxophone, trumpet, violin, and human singing
+voice. This dataset is derived from the one compiled by Ferdinand Fuhrmann
+in his PhD thesis, with the difference that we provide audio data in stereo
+format, the annotations in the testing dataset are limited to specific
+pitched instruments, and there is a different amount and lenght of excerpts.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.vocalset">
+<em class="property">class </em><code class="sig-name descname">vocalset</code><a class="reference internal" href="../_modules/symjax/datasets/vocalset.html#vocalset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.vocalset" title="Permalink to this definition">¶</a></dt>
+<dd><p>singer/technique/vowel of singing voices</p>
+<p>source: <a class="reference external" href="https://zenodo.org/record/1442513#.W7OaFBNKjx4">https://zenodo.org/record/1442513#.W7OaFBNKjx4</a></p>
+<p>We present VocalSet, a singing voice dataset consisting of 10.1 hours
+of monophonic recorded audio of professional singers demonstrating both
+standard and extended vocal techniques on all 5 vowels. Existing
+singing voice datasets aim to capture a focused subset of singing
+voice characteristics, and generally consist of just a few singers.
+VocalSet contains recordings from 20 different singers (9 male, 11
+female) and a range of voice types.  VocalSet aims to improve the
+state of existing singing voice datasets and singing voice research by
+capturing not only a range of vowels, but also a diverse set of voices
+on many different vocal techniques, sung in contexts of scales,
+arpeggios, long tones, and excerpts.</p>
+<dl class="py method">
+<dt id="symjax.datasets.vocalset.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/vocalset.html#vocalset.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.vocalset.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – a string where to load the data and download if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>singers</strong> (<em>list</em>) – the list of singers as strings, 11 males and 9 females as in male1,
+male2, …</p></li>
+<li><p><strong>genders</strong> (<em>list</em>) – the list of genders of the singers as in male, male, female, …</p></li>
+<li><p><strong>vowels</strong> (<em>list</em>) – the vowels being pronunced</p></li>
+<li><p><strong>data</strong> (<em>list</em>) – the list of waveforms, not all equal length</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.freefield1010">
+<em class="property">class </em><code class="sig-name descname">freefield1010</code><a class="reference internal" href="../_modules/symjax/datasets/freefield1010.html#freefield1010"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.freefield1010" title="Permalink to this definition">¶</a></dt>
+<dd><p>Audio binary classification, presence or absence of bird songs.
+<a class="reference external" href="http://machine-listening.eecs.qmul.ac.uk/bird-audio-detection-challenge/#downloads">freefield1010</a>.
+is a collection of over 7,000 excerpts from field recordings
+around the world, gathered by the FreeSound project, and then standardised
+for research. This collection is very diverse in location and environment,
+and for the BAD Challenge we have newly annotated it for the
+presence/absence of birds.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.birdvox_70k">
+<em class="property">class </em><code class="sig-name descname">birdvox_70k</code><a class="reference internal" href="../_modules/symjax/datasets/birdvox_70k.html#birdvox_70k"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_70k" title="Permalink to this definition">¶</a></dt>
+<dd><p>a dataset for avian flight call detection in half-second clips</p>
+<p>Version 1.0, April 2018.</p>
+<p>Created By</p>
+<p>Vincent Lostanlen (1, 2, 3), Justin Salamon (2, 3), Andrew Farnsworth (1),
+Steve Kelling (1), and Juan Pablo Bello (2, 3).</p>
+<p>(1): Cornell Lab of Ornithology (CLO)
+(2): Center for Urban Science and Progress, New York University
+(3): Music and Audio Research Lab, New York University</p>
+<p><a class="reference external" href="https://wp.nyu.edu/birdvox">https://wp.nyu.edu/birdvox</a></p>
+<p>Description</p>
+<p>The BirdVox-70k dataset contains 70k half-second clips from 6 audio
+recordings in the BirdVox-full-night dataset, each about ten hours in
+duration. These recordings come from ROBIN autonomous recording units,
+placed near Ithaca, NY, USA during the fall 2015. They were captured on the
+night of September 23rd, 2015, by six different sensors, originally
+numbered 1, 2, 3, 5, 7, and 10.</p>
+<p>Andrew Farnsworth used the Raven software to pinpoint every avian flight
+call in time and frequency. He found 35402 flight calls in total.
+He estimates that about 25 different species of passerines (thrushes,
+warblers, and sparrows) are present in this recording. Species are not
+labeled in BirdVox-70k, but it is possible to tell apart thrushes from
+warblers and sparrows by looking at the center frequencies of their calls.
+The annotation process took 102 hours.</p>
+<p>The dataset can be used, among other things, for the research,development
+and testing of bioacoustic classification models, including the
+reproduction of the results reported in [1].</p>
+<p>For details on the hardware of ROBIN recording units, we refer the reader
+to [2].</p>
+<p>[1] V. Lostanlen, J. Salamon, A. Farnsworth, S. Kelling, J. Bello. BirdVox-full-night: a dataset and benchmark for avian flight call detection. Proc. IEEE ICASSP, 2018.</p>
+<p>[2] J. Salamon, J. P. Bello, A. Farnsworth, M. Robbins, S. Keen, H. Klinck, and S. Kelling. Towards the Automatic Classification of Avian Flight Calls for Bioacoustic Monitoring. PLoS One, 2016.</p>
+<p>&#64;inproceedings{lostanlen2018icassp,
+title = {BirdVox-full-night: a dataset and benchmark for avian flight call detection},
+author = {Lostanlen, Vincent and Salamon, Justin and Farnsworth, Andrew and Kelling, Steve and Bello, Juan Pablo},
+booktitle = {Proc. IEEE ICASSP},
+year = {2018},
+published = {IEEE},
+venue = {Calgary, Canada},
+month = {April},
+}</p>
+<dl class="py method">
+<dt id="symjax.datasets.birdvox_70k.download">
+<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_70k.html#birdvox_70k.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_70k.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the Birdvox dataset and store the result into the given
+path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – the path where the downloaded files will be stored. If the
+directory does not exist, it is created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="symjax.datasets.birdvox_70k.load">
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_70k.html#birdvox_70k.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_70k.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>wavs</strong> (<em>array(70804, 12000)</em>) – the waveforms in the time amplitude domain</p></li>
+<li><p><strong>labels</strong> (<em>array(70804,)</em>) – binary values representing the presence or not of an avian</p></li>
+<li><p><strong>recording</strong> (<em>array(70804,)</em>) – the file number from which the sample has been extracted</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="symjax.datasets.birdvox_dcase_20k">
+<em class="property">class </em><code class="sig-name descname">birdvox_dcase_20k</code><a class="reference internal" href="../_modules/symjax/datasets/birdvox_dcase_20k.html#birdvox_dcase_20k"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_dcase_20k" title="Permalink to this definition">¶</a></dt>
+<dd><p>Binary bird detection classification</p>
+<p>Dataset is 16.5Go compressed.</p>
+<p>BirdVox-DCASE-20k: a dataset for bird audio detection in 10-second
+clips</p>
+<p>Version 2.0, March 2018.</p>
+<p>Created By</p>
+<p>Vincent Lostanlen (1, 2, 3), Justin Salamon (2, 3), Andrew Farnsworth
+(1), Steve Kelling (1), and Juan Pablo Bello (2, 3).</p>
+<p>(1): Cornell Lab of Ornithology (CLO)
+(2): Center for Urban Science and Progress, New York University
+(3): Music and Audio Research Lab, New York University</p>
+<p><a class="reference external" href="https://wp.nyu.edu/birdvox">https://wp.nyu.edu/birdvox</a></p>
+<p>Description</p>
+<p>The BirdVox-DCASE-20k dataset contains 20,000 ten-second audio
+recordings. These recordings come from ROBIN autonomous recording
+units, placed near Ithaca, NY, USA during the fall 2015. They were
+captured on the night of September 23rd, 2015, by six different
+sensors, originally numbered 1, 2, 3, 5, 7, and 10.</p>
+<p>Out of these 20,000 recording, 10,017 (50.09%) contain at least one
+bird vocalization (either song, call, or chatter).</p>
+<p>The dataset is a derivative work of the BirdVox-full-night dataset
+[1], containing almost as much data but formatted into ten-second
+excerpts rather than ten-hour full night recordings.</p>
+<p>In addition, the BirdVox-DCASE-20k dataset is provided as a
+development set in the context of the “Bird Audio Detection”
+challenge, organized by DCASE (Detection and Classification of
+Acoustic Scenes and Events) and the IEEE Signal Processing Society.</p>
+<p>The dataset can be used, among other things, for the development and
+evaluation of bioacoustic classification models.</p>
+<p>We refer the reader to [1] for details on the distribution of the
+data and [2] for details on the hardware of ROBIN recording units.</p>
+<p>[1] V. Lostanlen, J. Salamon, A. Farnsworth, S. Kelling, J.P. Bello.
+“BirdVox-full-night: a dataset and benchmark for avian flight call
+detection”, Proc. IEEE ICASSP, 2018.</p>
+<p>[2] J. Salamon, J. P. Bello, A. Farnsworth, M. Robbins, S. Keen,
+H. Klinck, and S. Kelling. Towards the Automatic Classification of
+Avian Flight Calls for Bioacoustic Monitoring. PLoS One, 2016.</p>
+<p>Data Files</p>
+<p>The wav folder contains the recordings as WAV files, sampled at
+44,1 kHz, with a single channel (mono). The original sample rate
+was 24 kHz.</p>
+<p>The name of each wav file is a random 128-bit UUID (Universal
+Unique IDentifier) string, which is randomized with respect to the
+origin of the recording in BirdVox-full-night, both in terms of
+time (UTC hour at the start of the excerpt) and space (location of
+the sensor).</p>
+<p>The origin of each 10-second excerpt is known by the challenge
+organizers, but not disclosed to the participants.</p>
+<p>Please Acknowledge BirdVox-DCASE-20k in Academic Research</p>
+<p>When BirdVox-70k is used for academic research, we would highly
+appreciate it if  scientific publications of works partly based on
+this dataset cite the following publication:</p>
+<p>V. Lostanlen, J. Salamon, A. Farnsworth, S. Kelling, J. Bello.
+“BirdVox-full-night: a dataset and benchmark for avian flight call
+detection”, Proc. IEEE ICASSP, 2018.</p>
+<p>&#64;inproceedings{lostanlen2018icassp,
+title = {BirdVox-full-night: a dataset and benchmark for avian
+flight call detection},
+author = {Lostanlen, Vincent and Salamon, Justin and Farnsworth,
+Andrew and Kelling, Steve and Bello, Juan Pablo},
+booktitle = {Proc. IEEE ICASSP},
+year = {2018},
+published = {IEEE},
+venue = {Calgary, Canada},
+month = {April},
+}</p>
+<p>The creation of this dataset was supported by NSF grants 1125098
+(BIRDCAST) and 1633259 (BIRDVOX), a Google Faculty Award, the Leon
+Levy Foundation, and two anonymous donors.</p>
+<dl class="py method">
+<dt id="symjax.datasets.birdvox_dcase_20k.download">
+<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_dcase_20k.html#birdvox_dcase_20k.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_dcase_20k.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the Birdvox dataset and store the result into the given
+path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – the path where the downloaded files will be stored. If the
+directory does not exist, it is created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="symjax.datasets.birdvox_dcase_20k.load">
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_dcase_20k.html#birdvox_dcase_20k.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_dcase_20k.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
+where the data will be downloaded if not present</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>wavs</strong> (<em>array</em>) – the waveforms in the time amplitude domain</p></li>
+<li><p><strong>labels</strong> (<em>array</em>) – binary values representing the presence or not of an avian</p></li>
+<li><p><strong>recording</strong> (<em>array</em>) – the file number from which the sample has been extracted</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Randall Balestriero
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
