@@ -44,10 +44,7 @@ def crossentropy_logits(p, q, p_sparse=True):
     """see sparse cross entropy"""
     linear = (p * q).sum(1)
     logsumexp = T.logsumexp(q, 1)
-    if weights is not None:
-        return weights * (-linear + logsumexp)
-    else:
-        return -linear + logsumexp
+    return -linear + logsumexp
 
 
 def sigmoid_crossentropy_logits(labels, logits):
