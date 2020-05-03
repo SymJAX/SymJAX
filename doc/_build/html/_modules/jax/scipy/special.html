@@ -34,6 +34,7 @@
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -54,7 +55,7 @@
 
           
             
-            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+            <img src="../../../_static/symjax_logo.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -83,8 +84,8 @@
             
             
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user/installation.html">Installation (GPU)</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -176,14 +177,15 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">onp</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.special</span> <span class="k">as</span> <span class="nn">osp_special</span>
 
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">lax</span>
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">util</span>
-<span class="kn">from</span> <span class="nn">..api</span> <span class="kn">import</span> <span class="n">custom_transforms</span><span class="p">,</span> <span class="n">defjvp</span>
-<span class="kn">from</span> <span class="nn">..numpy</span> <span class="kn">import</span> <span class="n">lax_numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">lax</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">api</span>
+<span class="kn">from</span> <span class="nn">..numpy</span> <span class="kn">import</span> <span class="n">lax_numpy</span> <span class="k">as</span> <span class="n">jnp</span>
 <span class="kn">from</span> <span class="nn">..numpy.lax_numpy</span> <span class="kn">import</span> <span class="p">(</span><span class="n">_wraps</span><span class="p">,</span> <span class="n">asarray</span><span class="p">,</span> <span class="n">_reduction_dims</span><span class="p">,</span> <span class="n">_constant_like</span><span class="p">,</span>
                                <span class="n">_promote_args_inexact</span><span class="p">)</span>
 
@@ -242,21 +244,22 @@
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">erf_inv</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="logit"><a class="viewcode-back" href="../../../modules/random.html#symjax.tensor.random.logit">[docs]</a><span class="nd">@_wraps</span><span class="p">(</span><span class="n">osp_special</span><span class="o">.</span><span class="n">logit</span><span class="p">,</span> <span class="n">update_doc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="nd">@custom_transforms</span>
+<div class="viewcode-block" id="logit"><a class="viewcode-back" href="../../../modules/random.html#symjax.tensor.random.logit">[docs]</a><span class="nd">@api</span><span class="o">.</span><span class="n">custom_jvp</span>
+<span class="nd">@_wraps</span><span class="p">(</span><span class="n">osp_special</span><span class="o">.</span><span class="n">logit</span><span class="p">,</span> <span class="n">update_doc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">logit</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
   <span class="n">x</span> <span class="o">=</span> <span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">_const</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">x</span><span class="p">)))</span></div>
-<span class="n">defjvp</span><span class="p">(</span><span class="n">logit</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">g</span><span class="p">,</span> <span class="n">ans</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">g</span> <span class="o">/</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="p">)))</span>
+<span class="n">logit</span><span class="o">.</span><span class="n">defjvps</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">g</span><span class="p">,</span> <span class="n">ans</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">lax</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">_const</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">x</span><span class="p">))))</span>
 
 
+<span class="nd">@api</span><span class="o">.</span><span class="n">custom_jvp</span>
 <span class="nd">@_wraps</span><span class="p">(</span><span class="n">osp_special</span><span class="o">.</span><span class="n">expit</span><span class="p">,</span> <span class="n">update_doc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="nd">@custom_transforms</span>
 <span class="k">def</span> <span class="nf">expit</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
   <span class="n">x</span> <span class="o">=</span> <span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
   <span class="n">one</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">_const</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">neg</span><span class="p">(</span><span class="n">x</span><span class="p">))))</span>
-<span class="n">defjvp</span><span class="p">(</span><span class="n">expit</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">g</span><span class="p">,</span> <span class="n">ans</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">g</span> <span class="o">*</span> <span class="n">ans</span> <span class="o">*</span> <span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">_const</span><span class="p">(</span><span class="n">ans</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">ans</span><span class="p">))</span>
+<span class="n">expit</span><span class="o">.</span><span class="n">defjvps</span><span class="p">(</span><span class="k">lambda</span> <span class="n">g</span><span class="p">,</span> <span class="n">ans</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">g</span> <span class="o">*</span> <span class="n">ans</span> <span class="o">*</span> <span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">_const</span><span class="p">(</span><span class="n">ans</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">ans</span><span class="p">))</span>
 
 
 <span class="nd">@_wraps</span><span class="p">(</span><span class="n">osp_special</span><span class="o">.</span><span class="n">logsumexp</span><span class="p">)</span>
@@ -264,9 +267,9 @@
   <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">return_sign</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Only implemented for b=None, return_sign=False&quot;</span><span class="p">)</span>
   <span class="n">dims</span> <span class="o">=</span> <span class="n">_reduction_dims</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
-  <span class="n">shape</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">subvals</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">)))</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">subvals</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">)))</span>
   <span class="n">dimadd</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">lax</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
-  <span class="n">amax</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">_constant_like</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">-</span><span class="n">onp</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span> <span class="n">lax</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="n">dims</span><span class="p">)</span>
+  <span class="n">amax</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">_constant_like</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span> <span class="n">lax</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="n">dims</span><span class="p">)</span>
   <span class="n">amax</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">is_finite</span><span class="p">(</span><span class="n">amax</span><span class="p">),</span> <span class="n">amax</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">amax</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
   <span class="n">amax_singletons</span> <span class="o">=</span> <span class="n">dimadd</span><span class="p">(</span><span class="n">amax</span><span class="p">)</span>
   <span class="n">out</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">amax_singletons</span><span class="p">)),</span>
@@ -277,20 +280,26 @@
 <span class="nd">@_wraps</span><span class="p">(</span><span class="n">osp_special</span><span class="o">.</span><span class="n">xlogy</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">xlogy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
   <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">_promote_args_inexact</span><span class="p">(</span><span class="s2">&quot;xlogy&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">_safe_mul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+  <span class="n">x_ok</span> <span class="o">=</span> <span class="n">x</span> <span class="o">!=</span> <span class="mf">0.</span>
+  <span class="n">safe_x</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x_ok</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+  <span class="n">safe_y</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x_ok</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x_ok</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">safe_x</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">safe_y</span><span class="p">)),</span> <span class="n">jnp</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 
 
 <span class="nd">@_wraps</span><span class="p">(</span><span class="n">osp_special</span><span class="o">.</span><span class="n">xlog1py</span><span class="p">,</span> <span class="n">update_doc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">xlog1py</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
   <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">_promote_args_inexact</span><span class="p">(</span><span class="s2">&quot;xlog1py&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">_safe_mul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+  <span class="n">x_ok</span> <span class="o">=</span> <span class="n">x</span> <span class="o">!=</span> <span class="mf">0.</span>
+  <span class="n">safe_x</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x_ok</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+  <span class="n">safe_y</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x_ok</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x_ok</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">safe_x</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">safe_y</span><span class="p">)),</span> <span class="n">jnp</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 
 
 <span class="nd">@_wraps</span><span class="p">(</span><span class="n">osp_special</span><span class="o">.</span><span class="n">entr</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">entr</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
   <span class="n">x</span><span class="p">,</span> <span class="o">=</span> <span class="n">_promote_args_inexact</span><span class="p">(</span><span class="s2">&quot;entr&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">lt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">_constant_like</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
-                    <span class="n">lax</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">onp</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span>
+                    <span class="n">lax</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span>
                     <span class="n">lax</span><span class="o">.</span><span class="n">neg</span><span class="p">(</span><span class="n">xlogy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)))</span>
 
 
@@ -300,9 +309,9 @@
   <span class="n">d</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">convert_element_type</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
   <span class="n">constant</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">_constant_like</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">),</span> <span class="n">d</span><span class="p">),</span>
                              <span class="n">lax</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">_constant_like</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="p">))),</span>
-                     <span class="n">lax</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">_constant_like</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">pi</span><span class="p">)))</span>
-  <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">gammaln</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span>
-                       <span class="n">lax</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">_constant_like</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">2</span><span class="p">))),</span>
+                     <span class="n">lax</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">_constant_like</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)))</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">gammaln</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span>
+                        <span class="n">lax</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">_constant_like</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">2</span><span class="p">))),</span>
                <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">res</span> <span class="o">+</span> <span class="n">constant</span>
 
@@ -370,15 +379,15 @@
 <span class="c1"># appears to be zero, relative to scipy&#39;s (which is always 64bit). They were</span>
 <span class="c1"># then made more conservative just to be safe. (Conservative means use the</span>
 <span class="c1"># expansion more than we probably need to.)</span>
-<span class="n">_LOGNDTR_FLOAT64_LOWER</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-<span class="n">_LOGNDTR_FLOAT32_LOWER</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">_LOGNDTR_FLOAT64_LOWER</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+<span class="n">_LOGNDTR_FLOAT32_LOWER</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
 <span class="c1"># Upper bound values were chosen by examining for which values of &#39;x&#39;</span>
 <span class="c1"># Log[cdf(x)] is 0, after which point we need to use the approximation</span>
 <span class="c1"># Log[cdf(x)] = Log[1 - cdf(-x)] approx -cdf(-x). We chose a value slightly</span>
 <span class="c1"># conservative, meaning we use the approximation earlier than needed.</span>
-<span class="n">_LOGNDTR_FLOAT64_UPPER</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-<span class="n">_LOGNDTR_FLOAT32_UPPER</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">_LOGNDTR_FLOAT64_UPPER</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+<span class="n">_LOGNDTR_FLOAT32_UPPER</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">ndtr</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
@@ -404,9 +413,9 @@
 <span class="sd">  Raises:</span>
 <span class="sd">    TypeError: if `x` is not floating-type.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+  <span class="n">x</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">dtype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">dtype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
         <span class="s2">&quot;x.dtype=</span><span class="si">{}</span><span class="s2"> is not supported, see docstring for supported types.&quot;</span>
         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dtype</span><span class="p">))</span>
@@ -416,7 +425,7 @@
 <span class="k">def</span> <span class="nf">_ndtr</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Implements ndtr core logic.&quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">type</span>
-  <span class="n">half_sqrt_2</span> <span class="o">=</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">onp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="n">half_sqrt_2</span> <span class="o">=</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
   <span class="n">w</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">half_sqrt_2</span>
   <span class="n">z</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
   <span class="n">y</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">lt</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">half_sqrt_2</span><span class="p">),</span>
@@ -445,9 +454,9 @@
 <span class="sd">  Raises:</span>
 <span class="sd">    TypeError: if `p` is not floating-type.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+  <span class="n">x</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">dtype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">dtype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
         <span class="s2">&quot;x.dtype=</span><span class="si">{}</span><span class="s2"> is not supported, see docstring for supported types.&quot;</span>
         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dtype</span><span class="p">))</span>
@@ -512,23 +521,23 @@
                       <span class="mf">6.79019408009981274425E-9</span><span class="p">]))</span>
 
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">type</span>
-  <span class="n">shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_create_polynomial</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Compute n_th order polynomial via Horner&#39;s method.&quot;&quot;&quot;</span>
-    <span class="n">coeffs</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">coeffs</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
-      <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">coeffs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">_create_polynomial</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">*</span> <span class="n">var</span>
 
 
-  <span class="n">maybe_complement_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">p</span> <span class="o">&gt;</span> <span class="n">dtype</span><span class="p">(</span><span class="o">-</span><span class="n">onp</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="o">-</span><span class="mf">2.</span><span class="p">)),</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span> <span class="o">-</span> <span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+  <span class="n">maybe_complement_p</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">p</span> <span class="o">&gt;</span> <span class="n">dtype</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="o">-</span><span class="mf">2.</span><span class="p">)),</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span> <span class="o">-</span> <span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
   <span class="c1"># Write in an arbitrary value in place of 0 for p since 0 will cause NaNs</span>
   <span class="c1"># later on. The result from the computation when p == 0 is not used so any</span>
   <span class="c1"># number that doesn&#39;t result in NaNs is fine.</span>
-  <span class="n">sanitized_mcp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+  <span class="n">sanitized_mcp</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
       <span class="n">maybe_complement_p</span> <span class="o">&lt;=</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">0.</span><span class="p">),</span>
-      <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)),</span>
+      <span class="n">jnp</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)),</span>
       <span class="n">maybe_complement_p</span><span class="p">)</span>
 
   <span class="c1"># Compute x for p &gt; exp(-2): x/sqrt(2pi) = w + w**3 P0(w**2)/Q0(w**2).</span>
@@ -536,7 +545,7 @@
   <span class="n">ww</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
   <span class="n">x_for_big_p</span> <span class="o">=</span> <span class="n">w</span> <span class="o">+</span> <span class="n">w</span> <span class="o">*</span> <span class="n">ww</span> <span class="o">*</span> <span class="p">(</span><span class="n">_create_polynomial</span><span class="p">(</span><span class="n">ww</span><span class="p">,</span> <span class="n">p0</span><span class="p">)</span>
                               <span class="o">/</span> <span class="n">_create_polynomial</span><span class="p">(</span><span class="n">ww</span><span class="p">,</span> <span class="n">q0</span><span class="p">))</span>
-  <span class="n">x_for_big_p</span> <span class="o">*=</span> <span class="o">-</span><span class="n">dtype</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">onp</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+  <span class="n">x_for_big_p</span> <span class="o">*=</span> <span class="o">-</span><span class="n">dtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
 
   <span class="c1"># Compute x for p &lt;= exp(-2): x = z - log(z)/z - (1/z) P(1/z) / Q(1/z),</span>
   <span class="c1"># where z = sqrt(-2. * log(p)), and P/Q are chosen between two different</span>
@@ -552,18 +561,18 @@
   <span class="n">x_for_small_p</span> <span class="o">=</span> <span class="n">first_term</span> <span class="o">-</span> <span class="n">second_term_small_p</span>
   <span class="n">x_otherwise</span> <span class="o">=</span> <span class="n">first_term</span> <span class="o">-</span> <span class="n">second_term_otherwise</span>
 
-  <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sanitized_mcp</span> <span class="o">&gt;</span> <span class="n">dtype</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">2.</span><span class="p">)),</span>
-                      <span class="n">x_for_big_p</span><span class="p">,</span>
-                      <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">8.0</span><span class="p">),</span> <span class="n">x_for_small_p</span><span class="p">,</span> <span class="n">x_otherwise</span><span class="p">))</span>
+  <span class="n">x</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sanitized_mcp</span> <span class="o">&gt;</span> <span class="n">dtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">2.</span><span class="p">)),</span>
+                <span class="n">x_for_big_p</span><span class="p">,</span>
+                <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">8.0</span><span class="p">),</span> <span class="n">x_for_small_p</span><span class="p">,</span> <span class="n">x_otherwise</span><span class="p">))</span>
 
-  <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">p</span> <span class="o">&gt;</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">onp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">2.</span><span class="p">)),</span> <span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">x</span><span class="p">)</span>
-  <span class="n">infinity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">inf</span><span class="p">))</span>
-  <span class="n">x_nan_replaced</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-      <span class="n">p</span> <span class="o">&lt;=</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span> <span class="o">-</span><span class="n">infinity</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">p</span> <span class="o">&gt;=</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">infinity</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+  <span class="n">x</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">p</span> <span class="o">&gt;</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">2.</span><span class="p">)),</span> <span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">x</span><span class="p">)</span>
+  <span class="n">infinity</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">))</span>
+  <span class="n">x_nan_replaced</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+      <span class="n">p</span> <span class="o">&lt;=</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span> <span class="o">-</span><span class="n">infinity</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">p</span> <span class="o">&gt;=</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">infinity</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
   <span class="k">return</span> <span class="n">x_nan_replaced</span>
 
 
-<span class="nd">@custom_transforms</span>
+<span class="nd">@partial</span><span class="p">(</span><span class="n">api</span><span class="o">.</span><span class="n">custom_jvp</span><span class="p">,</span> <span class="n">nondiff_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
 <span class="k">def</span> <span class="nf">log_ndtr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">series_order</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
   <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Log Normal distribution function.</span>
 
@@ -631,17 +640,17 @@
   <span class="k">if</span> <span class="n">series_order</span> <span class="o">&gt;</span> <span class="mi">30</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;series_order must be &lt;= 30.&quot;</span><span class="p">)</span>
 
-  <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+  <span class="n">x</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-  <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span>
+  <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="n">jnp</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span>
     <span class="n">lower_segment</span> <span class="o">=</span> <span class="n">_LOGNDTR_FLOAT64_LOWER</span>
     <span class="n">upper_segment</span> <span class="o">=</span> <span class="n">_LOGNDTR_FLOAT64_UPPER</span>
-  <span class="k">elif</span> <span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
+  <span class="k">elif</span> <span class="n">dtype</span> <span class="o">==</span> <span class="n">jnp</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
     <span class="n">lower_segment</span> <span class="o">=</span> <span class="n">_LOGNDTR_FLOAT32_LOWER</span>
     <span class="n">upper_segment</span> <span class="o">=</span> <span class="n">_LOGNDTR_FLOAT32_UPPER</span>
   <span class="k">else</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;x.dtype=</span><span class="si">{}</span><span class="s2"> is not supported.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)))</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;x.dtype=</span><span class="si">{}</span><span class="s2"> is not supported.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)))</span>
 
   <span class="c1"># The basic idea here was ported from:</span>
   <span class="c1">#   https://root.cern.ch/doc/v608/SpecFuncCephesInv_8cxx_source.html</span>
@@ -657,21 +666,26 @@
   <span class="c1">#   the gradient of a select involves the calculation 1*dy+0*(-inf)=nan</span>
   <span class="c1">#   regardless of whether dy is finite. Note that the minimum is a NOP if</span>
   <span class="c1">#   the branch is chosen.</span>
-  <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+  <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
       <span class="n">lax</span><span class="o">.</span><span class="n">gt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">upper_segment</span><span class="p">),</span>
       <span class="o">-</span><span class="n">_ndtr</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">),</span>  <span class="c1"># log(1-x) ~= -x, x &lt;&lt; 1</span>
-      <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">gt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lower_segment</span><span class="p">),</span>
-                      <span class="n">lax</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">_ndtr</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lower_segment</span><span class="p">))),</span>
-                      <span class="n">_log_ndtr_lower</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lower_segment</span><span class="p">),</span>
-                                      <span class="n">series_order</span><span class="p">)))</span>
-
+      <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">gt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lower_segment</span><span class="p">),</span>
+                       <span class="n">lax</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">_ndtr</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lower_segment</span><span class="p">))),</span>
+                       <span class="n">_log_ndtr_lower</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lower_segment</span><span class="p">),</span>
+                                       <span class="n">series_order</span><span class="p">)))</span>
+<span class="k">def</span> <span class="nf">_log_ndtr_jvp</span><span class="p">(</span><span class="n">series_order</span><span class="p">,</span> <span class="n">primals</span><span class="p">,</span> <span class="n">tangents</span><span class="p">):</span>
+  <span class="p">(</span><span class="n">x</span><span class="p">,),</span> <span class="p">(</span><span class="n">t</span><span class="p">,)</span> <span class="o">=</span> <span class="n">primals</span><span class="p">,</span> <span class="n">tangents</span>
+  <span class="n">ans</span> <span class="o">=</span> <span class="n">log_ndtr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">series_order</span><span class="o">=</span><span class="n">series_order</span><span class="p">)</span>
+  <span class="n">t_out</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">_norm_logpdf</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">ans</span><span class="p">)))</span>
+  <span class="k">return</span> <span class="n">ans</span><span class="p">,</span> <span class="n">t_out</span>
+<span class="n">log_ndtr</span><span class="o">.</span><span class="n">defjvp</span><span class="p">(</span><span class="n">_log_ndtr_jvp</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">_log_ndtr_lower</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">series_order</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Asymptotic expansion version of `Log[cdf(x)]`, appropriate for `x&lt;&lt;-1`.&quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">type</span>
   <span class="n">x_2</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
   <span class="c1"># Log of the term multiplying (1 + sum)</span>
-  <span class="n">log_scale</span> <span class="o">=</span> <span class="o">-</span><span class="n">dtype</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">x_2</span> <span class="o">-</span> <span class="n">lax</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">onp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">onp</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+  <span class="n">log_scale</span> <span class="o">=</span> <span class="o">-</span><span class="n">dtype</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">x_2</span> <span class="o">-</span> <span class="n">lax</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">dtype</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
   <span class="k">return</span> <span class="n">log_scale</span> <span class="o">+</span> <span class="n">lax</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">_log_ndtr_asymptotic_series</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">series_order</span><span class="p">))</span>
 
 
@@ -679,13 +693,13 @@
   <span class="sd">&quot;&quot;&quot;Calculates the asymptotic series used in log_ndtr.&quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">type</span>
   <span class="k">if</span> <span class="n">series_order</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
   <span class="n">x_2</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-  <span class="n">even_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-  <span class="n">odd_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+  <span class="n">even_sum</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+  <span class="n">odd_sum</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
   <span class="n">x_2n</span> <span class="o">=</span> <span class="n">x_2</span>  <span class="c1"># Start with x^{2*1} = x^{2*n} with n = 1.</span>
   <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">series_order</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_double_factorial</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="p">)</span> <span class="o">/</span> <span class="n">x_2n</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_double_factorial</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="p">)</span> <span class="o">/</span> <span class="n">x_2n</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span><span class="p">:</span>
       <span class="n">odd_sum</span> <span class="o">+=</span> <span class="n">y</span>
     <span class="k">else</span><span class="p">:</span>
@@ -696,18 +710,15 @@
 
 <span class="k">def</span> <span class="nf">_double_factorial</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;The double factorial function for small Python integer `n`.&quot;&quot;&quot;</span>
-  <span class="k">return</span> <span class="n">onp</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">))</span>
+  <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">))</span>
 
 
-<span class="n">_norm_logpdf_constant</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">onp</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+<span class="n">_norm_logpdf_constant</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">_norm_logpdf</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
   <span class="n">neg_half</span> <span class="o">=</span> <span class="n">_constant_like</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
   <span class="n">log_normalizer</span> <span class="o">=</span> <span class="n">_constant_like</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">_norm_logpdf_constant</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">neg_half</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">log_normalizer</span><span class="p">)</span>
-
-<span class="n">defjvp</span><span class="p">(</span><span class="n">log_ndtr</span><span class="p">,</span>
-       <span class="k">lambda</span> <span class="n">g</span><span class="p">,</span> <span class="n">ans</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">lax</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">_norm_logpdf</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">ans</span><span class="p">))))</span>
 
 <span class="nd">@_wraps</span><span class="p">(</span><span class="n">osp_special</span><span class="o">.</span><span class="n">i0e</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">i0e</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>

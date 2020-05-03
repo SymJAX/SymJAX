@@ -34,6 +34,7 @@
   
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
@@ -54,7 +55,7 @@
 
           
             
-            <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+            <img src="../../_static/symjax_logo.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -83,8 +84,8 @@
             
             
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../user/examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../user/installation.html">Installation (GPU)</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -186,17 +187,17 @@
 
 
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">onp</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">lax</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">tree_util</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">dtypes</span>
-<span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">custom_transforms</span><span class="p">,</span> <span class="n">defjvp</span><span class="p">,</span> <span class="n">jit</span><span class="p">,</span> <span class="n">vmap</span>
-<span class="kn">from</span> <span class="nn">.numpy.lax_numpy</span> <span class="kn">import</span> <span class="n">_constant_like</span><span class="p">,</span> <span class="n">asarray</span><span class="p">,</span> <span class="n">stack</span>
+<span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">jit</span><span class="p">,</span> <span class="n">vmap</span>
+<span class="kn">from</span> <span class="nn">.numpy.lax_numpy</span> <span class="kn">import</span> <span class="n">_constant_like</span><span class="p">,</span> <span class="n">asarray</span>
 <span class="kn">from</span> <span class="nn">jax.lib</span> <span class="kn">import</span> <span class="n">xla_bridge</span>
+<span class="kn">from</span> <span class="nn">jax.lib</span> <span class="kn">import</span> <span class="n">xla_client</span>
 <span class="kn">from</span> <span class="nn">jax.lib</span> <span class="kn">import</span> <span class="n">cuda_prng</span>
 <span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">core</span>
 <span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">abstract_arrays</span>
@@ -204,12 +205,11 @@
 <span class="kn">from</span> <span class="nn">jax.scipy.special</span> <span class="kn">import</span> <span class="n">logit</span>
 <span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="kn">import</span> <span class="n">ad</span>
 <span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="kn">import</span> <span class="n">batching</span>
-<span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="kn">import</span> <span class="n">partial_eval</span> <span class="k">as</span> <span class="n">pe</span>
 <span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="kn">import</span> <span class="n">xla</span>
 <span class="kn">from</span> <span class="nn">jax.util</span> <span class="kn">import</span> <span class="n">prod</span>
 
 
-<span class="k">def</span> <span class="nf">PRNGKey</span><span class="p">(</span><span class="n">seed</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">PRNGKey</span><span class="p">(</span><span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
   <span class="sd">&quot;&quot;&quot;Create a pseudo-random number generator (PRNG) key given an integer seed.</span>
 
 <span class="sd">  Args:</span>
@@ -232,7 +232,7 @@
   <span class="n">k2</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="mh">0xFFFFFFFF</span><span class="p">))</span>
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">k1</span><span class="p">,</span> <span class="n">k2</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">_is_prng_key</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_is_prng_key</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
   <span class="k">try</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">key</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">2</span><span class="p">,)</span> <span class="ow">and</span> <span class="n">key</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">onp</span><span class="o">.</span><span class="n">uint32</span>
   <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -346,9 +346,11 @@
   <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">def</span> <span class="nf">_broadcast</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="n">ndims</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">GetShape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">BroadcastInDim</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">rank</span> <span class="o">-</span> <span class="n">ndims</span><span class="p">,</span> <span class="n">rank</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">xla_client</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">BroadcastInDim</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span>
+                                         <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">rank</span> <span class="o">-</span> <span class="n">ndims</span><span class="p">,</span> <span class="n">rank</span><span class="p">)))</span>
   <span class="k">return</span> <span class="n">cuda_prng</span><span class="o">.</span><span class="n">threefry2x32</span><span class="p">(</span>
-      <span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">_broadcast</span><span class="p">(</span><span class="n">k1</span><span class="p">),</span> <span class="n">_broadcast</span><span class="p">(</span><span class="n">k2</span><span class="p">)),</span> <span class="p">(</span><span class="n">_broadcast</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span> <span class="n">_broadcast</span><span class="p">(</span><span class="n">x2</span><span class="p">)))</span>
+      <span class="n">xla_bridge</span><span class="o">.</span><span class="n">computation_builder_shim</span><span class="p">(</span><span class="n">c</span><span class="p">),</span>
+      <span class="p">(</span><span class="n">_broadcast</span><span class="p">(</span><span class="n">k1</span><span class="p">),</span> <span class="n">_broadcast</span><span class="p">(</span><span class="n">k2</span><span class="p">)),</span> <span class="p">(</span><span class="n">_broadcast</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span> <span class="n">_broadcast</span><span class="p">(</span><span class="n">x2</span><span class="p">)))</span>
 
 <span class="n">threefry2x32_p</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">Primitive</span><span class="p">(</span><span class="s2">&quot;threefry2x32&quot;</span><span class="p">)</span>
 <span class="n">threefry2x32_p</span><span class="o">.</span><span class="n">multiple_results</span> <span class="o">=</span> <span class="kc">True</span>
@@ -356,9 +358,9 @@
 <span class="n">threefry2x32_p</span><span class="o">.</span><span class="n">def_abstract_eval</span><span class="p">(</span><span class="n">_threefry2x32_abstract_eval</span><span class="p">)</span>
 <span class="n">batching</span><span class="o">.</span><span class="n">defbroadcasting</span><span class="p">(</span><span class="n">threefry2x32_p</span><span class="p">)</span>
 <span class="n">xla</span><span class="o">.</span><span class="n">translations</span><span class="p">[</span><span class="n">threefry2x32_p</span><span class="p">]</span> <span class="o">=</span> <span class="n">xla</span><span class="o">.</span><span class="n">lower_fun</span><span class="p">(</span>
-    <span class="n">partial</span><span class="p">(</span><span class="n">_threefry2x32_lowering</span><span class="p">,</span> <span class="n">use_rolled_loops</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">instantiate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">partial</span><span class="p">(</span><span class="n">_threefry2x32_lowering</span><span class="p">,</span> <span class="n">use_rolled_loops</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 <span class="n">xla</span><span class="o">.</span><span class="n">backend_specific_translations</span><span class="p">[</span><span class="s1">&#39;cpu&#39;</span><span class="p">][</span><span class="n">threefry2x32_p</span><span class="p">]</span> <span class="o">=</span> <span class="n">xla</span><span class="o">.</span><span class="n">lower_fun</span><span class="p">(</span>
-    <span class="n">partial</span><span class="p">(</span><span class="n">_threefry2x32_lowering</span><span class="p">,</span> <span class="n">use_rolled_loops</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">instantiate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">partial</span><span class="p">(</span><span class="n">_threefry2x32_lowering</span><span class="p">,</span> <span class="n">use_rolled_loops</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 <span class="k">if</span> <span class="n">cuda_prng</span><span class="p">:</span>
   <span class="n">xla</span><span class="o">.</span><span class="n">backend_specific_translations</span><span class="p">[</span><span class="s1">&#39;gpu&#39;</span><span class="p">][</span><span class="n">threefry2x32_p</span><span class="p">]</span> <span class="o">=</span> \
       <span class="n">_threefry2x32_gpu_translation_rule</span>
@@ -391,7 +393,7 @@
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">out</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">odd_size</span> <span class="k">else</span> <span class="n">out</span><span class="p">,</span> <span class="n">count</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
   <span class="sd">&quot;&quot;&quot;Splits a PRNG key into `num` new keys by adding a leading axis.</span>
 
 <span class="sd">  Args:</span>
@@ -454,9 +456,9 @@
 <span class="k">def</span> <span class="nf">_check_shape</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="o">*</span><span class="n">param_shapes</span><span class="p">):</span>
   <span class="k">try</span><span class="p">:</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">shape</span><span class="p">))</span>
-  <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+  <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
     <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> requires a concrete tuple of integers as shape argument, got </span><span class="si">{}</span><span class="s2">.&quot;</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">))</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">))</span> <span class="kn">from</span> <span class="nn">err</span>
   <span class="k">if</span> <span class="n">param_shapes</span><span class="p">:</span>
     <span class="n">shape_</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">broadcast_shapes</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="o">*</span><span class="n">param_shapes</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">shape</span> <span class="o">!=</span> <span class="n">shape_</span><span class="p">:</span>
@@ -466,7 +468,11 @@
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape_</span><span class="p">,</span> <span class="n">shape</span><span class="p">))</span>
 
 
-<div class="viewcode-block" id="uniform"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.uniform">[docs]</a><span class="k">def</span> <span class="nf">uniform</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">minval</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+<div class="viewcode-block" id="uniform"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.uniform">[docs]</a><span class="k">def</span> <span class="nf">uniform</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+            <span class="n">shape</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+            <span class="n">dtype</span><span class="p">:</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+            <span class="n">minval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span>
+            <span class="n">maxval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
   <span class="sd">&quot;&quot;&quot;Sample uniform random values in [minval, maxval) with given shape/dtype.</span>
 
 <span class="sd">  Args:</span>
@@ -514,7 +520,11 @@
       <span class="n">lax</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">floats</span> <span class="o">*</span> <span class="p">(</span><span class="n">maxval</span> <span class="o">-</span> <span class="n">minval</span><span class="p">)</span> <span class="o">+</span> <span class="n">minval</span><span class="p">,</span> <span class="n">shape</span><span class="p">))</span>
 
 
-<div class="viewcode-block" id="randint"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.randint">[docs]</a><span class="k">def</span> <span class="nf">randint</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">minval</span><span class="p">,</span> <span class="n">maxval</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">int64</span><span class="p">):</span>
+<div class="viewcode-block" id="randint"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.randint">[docs]</a><span class="k">def</span> <span class="nf">randint</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+            <span class="n">shape</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+            <span class="n">minval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+            <span class="n">maxval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+            <span class="n">dtype</span><span class="p">:</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">int64</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Sample uniform random values in [minval, maxval) with given shape/dtype.</span>
 
 <span class="sd">  Args:</span>
@@ -575,7 +585,7 @@
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">minval</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">convert_element_type</span><span class="p">(</span><span class="n">random_offset</span><span class="p">,</span> <span class="n">dtype</span><span class="p">))</span>
 
 
-<div class="viewcode-block" id="shuffle"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.shuffle">[docs]</a><span class="k">def</span> <span class="nf">shuffle</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="shuffle"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.shuffle">[docs]</a><span class="k">def</span> <span class="nf">shuffle</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
   <span class="sd">&quot;&quot;&quot;Shuffle the elements of an array uniformly at random along an axis.</span>
 
 <span class="sd">  Args:</span>
@@ -587,6 +597,32 @@
 <span class="sd">    A shuffled version of x.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">return</span> <span class="n">_shuffle</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">permutation</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Permute elements of an array along its first axis or return a permuted range.</span>
+
+<span class="sd">  Args:n</span>
+<span class="sd">    key: a PRNGKey used as the random key.</span>
+<span class="sd">    x: the array or integer range to be shuffled.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A shuffled version of x or array range</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">onp</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="c1"># scalar case, must be a concrete integer</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">onp</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">onp</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;x must be an integer or at least 1-dimensional&quot;</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_shuffle</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="k">elif</span> <span class="n">onp</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">_shuffle</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;permutation for &gt;1d inputs x not yet implemented, see &quot;</span>
+           <span class="s2">&quot;https://github.com/google/jax/issues/2066 for updates.&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,))</span>
 <span class="k">def</span> <span class="nf">_shuffle</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
@@ -616,7 +652,9 @@
   <span class="k">return</span> <span class="n">x</span>
 
 
-<div class="viewcode-block" id="normal"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.normal">[docs]</a><span class="k">def</span> <span class="nf">normal</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
+<div class="viewcode-block" id="normal"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.normal">[docs]</a><span class="k">def</span> <span class="nf">normal</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+           <span class="n">shape</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+           <span class="n">dtype</span><span class="p">:</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
   <span class="sd">&quot;&quot;&quot;Sample standard normal random values with given shape and float dtype.</span>
 
 <span class="sd">  Args:</span>
@@ -642,7 +680,11 @@
   <span class="k">return</span> <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="p">)</span> <span class="o">*</span> <span class="n">lax</span><span class="o">.</span><span class="n">erf_inv</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="multivariate_normal"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.multivariate_normal">[docs]</a><span class="k">def</span> <span class="nf">multivariate_normal</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
+<div class="viewcode-block" id="multivariate_normal"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.multivariate_normal">[docs]</a><span class="k">def</span> <span class="nf">multivariate_normal</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                        <span class="n">mean</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                        <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                        <span class="n">shape</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">dtype</span><span class="p">:</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
   <span class="sd">&quot;&quot;&quot;Sample multivariate normal random values with given mean and covariance.</span>
 
 <span class="sd">  Args:</span>
@@ -692,7 +734,11 @@
   <span class="k">return</span> <span class="n">mean</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">normal_samples</span><span class="p">,</span> <span class="n">chol_factor</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 
 
-<div class="viewcode-block" id="truncated_normal"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.truncated_normal">[docs]</a><span class="k">def</span> <span class="nf">truncated_normal</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
+<div class="viewcode-block" id="truncated_normal"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.truncated_normal">[docs]</a><span class="k">def</span> <span class="nf">truncated_normal</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                    <span class="n">lower</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+                    <span class="n">upper</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+                    <span class="n">shape</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">dtype</span><span class="p">:</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
   <span class="sd">&quot;&quot;&quot;Sample truncated standard normal random values with given shape and dtype.</span>
 
 <span class="sd">  Args:</span>
@@ -733,7 +779,9 @@
   <span class="k">return</span> <span class="n">sqrt2</span> <span class="o">*</span> <span class="n">lax</span><span class="o">.</span><span class="n">erf_inv</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">a</span><span class="p">))</span>
 
 
-<div class="viewcode-block" id="bernoulli"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.bernoulli">[docs]</a><span class="k">def</span> <span class="nf">bernoulli</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="bernoulli"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.bernoulli">[docs]</a><span class="k">def</span> <span class="nf">bernoulli</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+              <span class="n">p</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span>
+              <span class="n">shape</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
   <span class="sd">&quot;&quot;&quot;Sample Bernoulli random values with given shape and mean.</span>
 
 <span class="sd">  Args:</span>
@@ -767,8 +815,12 @@
   <span class="k">return</span> <span class="n">uniform</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">p</span>
 
 
-<div class="viewcode-block" id="beta"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.beta">[docs]</a><span class="k">def</span> <span class="nf">beta</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Sample Bernoulli random values with given shape and mean.</span>
+<div class="viewcode-block" id="beta"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.beta">[docs]</a><span class="k">def</span> <span class="nf">beta</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+         <span class="n">a</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+         <span class="n">b</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+         <span class="n">shape</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+         <span class="n">dtype</span><span class="p">:</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+  <span class="sd">&quot;&quot;&quot;Sample Beta random values with given shape and float dtype.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    key: a PRNGKey used as the random key.</span>
@@ -833,7 +885,7 @@
 
 
 <div class="viewcode-block" id="dirichlet"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.dirichlet">[docs]</a><span class="k">def</span> <span class="nf">dirichlet</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Sample Cauchy random values with given shape and float dtype.</span>
+  <span class="sd">&quot;&quot;&quot;Sample Dirichlet random values with given shape and float dtype.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    key: a PRNGKey used as the random key.</span>
@@ -1091,7 +1143,7 @@
 <span class="n">random_gamma_p</span><span class="o">.</span><span class="n">def_impl</span><span class="p">(</span><span class="n">_gamma_impl</span><span class="p">)</span>
 <span class="n">random_gamma_p</span><span class="o">.</span><span class="n">def_abstract_eval</span><span class="p">(</span><span class="k">lambda</span> <span class="n">key</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="p">(</span><span class="n">abstract_arrays</span><span class="o">.</span><span class="n">raise_to_shaped</span><span class="p">(</span><span class="n">a</span><span class="p">),))</span>
 <span class="n">ad</span><span class="o">.</span><span class="n">defjvp2</span><span class="p">(</span><span class="n">random_gamma_p</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">tangent</span><span class="p">,</span> <span class="n">ans</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="p">(</span><span class="n">tangent</span> <span class="o">*</span> <span class="n">_gamma_grad</span><span class="p">(</span><span class="n">ans</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">),))</span>
-<span class="n">xla</span><span class="o">.</span><span class="n">translations</span><span class="p">[</span><span class="n">random_gamma_p</span><span class="p">]</span> <span class="o">=</span> <span class="n">xla</span><span class="o">.</span><span class="n">lower_fun</span><span class="p">(</span><span class="n">_gamma_impl</span><span class="p">,</span> <span class="n">instantiate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">xla</span><span class="o">.</span><span class="n">translations</span><span class="p">[</span><span class="n">random_gamma_p</span><span class="p">]</span> <span class="o">=</span> <span class="n">xla</span><span class="o">.</span><span class="n">lower_fun</span><span class="p">(</span><span class="n">_gamma_impl</span><span class="p">)</span>
 <span class="n">batching</span><span class="o">.</span><span class="n">primitive_batchers</span><span class="p">[</span><span class="n">random_gamma_p</span><span class="p">]</span> <span class="o">=</span> <span class="n">_gamma_batching_rule</span>
 
 <div class="viewcode-block" id="gamma"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.gamma">[docs]</a><span class="k">def</span> <span class="nf">gamma</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>

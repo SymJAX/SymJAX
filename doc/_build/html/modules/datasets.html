@@ -34,6 +34,7 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="symjax.initializers" href="initializers.html" />
@@ -56,7 +57,7 @@
 
           
             
-            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+            <img src="../_static/symjax_logo.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -85,8 +86,8 @@
             
             
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user/examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user/installation.html">Installation (GPU)</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -257,7 +258,7 @@
 </div>
 <div class="section" id="detailed-description-image">
 <h2>Detailed description (Image)<a class="headerlink" href="#detailed-description-image" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.mnist">
 <em class="property">class </em><code class="sig-name descname">mnist</code><a class="reference internal" href="../_modules/symjax/datasets/mnist.html#mnist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.mnist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Grayscale digit classification.</p>
@@ -268,9 +269,9 @@ from NIST. The digits have been size-normalized and centered in a
 fixed-size image. It is a good database for people who want to try learning
 techniques and pattern recognition methods on real-world data while
 spending minimal efforts on preprocessing and formatting.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.mnist.download">
-<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/mnist.html#mnist.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.mnist.download" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/mnist.html#mnist.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.mnist.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download the MNIST dataset and store the result into the given
 path</p>
 <dl class="field-list simple">
@@ -281,9 +282,9 @@ directory does not exist, it is created.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.mnist.load">
-<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/mnist.html#mnist.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.mnist.load" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/mnist.html#mnist.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.mnist.load" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
@@ -305,7 +306,7 @@ where the data will be downloaded if not present</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.fashionmnist">
 <em class="property">class </em><code class="sig-name descname">fashionmnist</code><a class="reference internal" href="../_modules/symjax/datasets/fashionmnist.html#fashionmnist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.fashionmnist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Grayscale image classification</p>
@@ -318,7 +319,7 @@ with a label from 10 classes. We intend Fashion-MNIST to serve as a direct
 drop-in replacement for the original MNIST dataset for benchmarking
 machine learning algorithms. It shares the same image size and structure
 of training and testing splits.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.fashionmnist.download">
 <code class="sig-name descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/fashionmnist.html#fashionmnist.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.fashionmnist.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download the fashion-MNIST dataset and store the result into the given
@@ -331,7 +332,7 @@ directory does not exist, it is created.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.fashionmnist.load">
 <code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/fashionmnist.html#fashionmnist.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.fashionmnist.load" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -353,7 +354,7 @@ where the data will be downloaded if not present</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.dsprites">
 <em class="property">class </em><code class="sig-name descname">dsprites</code><a class="reference internal" href="../_modules/symjax/datasets/dsprites.html#dsprites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.dsprites" title="Permalink to this definition">¶</a></dt>
 <dd><p>greyscale image classification and disentanglement</p>
@@ -366,7 +367,7 @@ truth independent latent factors. These factors are color, shape, scale,
 rotation, x and y positions of a sprite.</p>
 <p>All possible combinations of these latents are present exactly once,
 generating N = 737280 total images.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.dsprites.download">
 <code class="sig-name descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/dsprites.html#dsprites.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.dsprites.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download the MNIST dataset and store the result into the given
@@ -379,7 +380,7 @@ directory does not exist, it is created.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.dsprites.load">
 <code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/dsprites.html#dsprites.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.dsprites.load" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -400,7 +401,7 @@ where the data will be downloaded if not present</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.svhn">
 <em class="property">class </em><code class="sig-name descname">svhn</code><a class="reference internal" href="../_modules/symjax/datasets/svhn.html#svhn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.svhn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Street number classification.</p>
@@ -415,7 +416,7 @@ digit images) and comes from a significantly harder, unsolved,
 real world problem (recognizing digits and numbers in natural
 scene images). SVHN is obtained from house numbers in Google
 Street View images.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.svhn.download">
 <code class="sig-name descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/svhn.html#svhn.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.svhn.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download the SVHN dataset and store the result into the given
@@ -428,7 +429,7 @@ directory does not exist, it is created.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.svhn.load">
 <code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/svhn.html#svhn.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.svhn.load" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -450,7 +451,7 @@ where the data will be downloaded if not present</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.cifar10">
 <em class="property">class </em><code class="sig-name descname">cifar10</code><a class="reference internal" href="../_modules/symjax/datasets/cifar10.html#cifar10"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cifar10" title="Permalink to this definition">¶</a></dt>
 <dd><p>Image classification.</p>
@@ -464,7 +465,7 @@ selected images from each class. The training batches contain the
 remaining images in random order, but some training batches may
 contain more images from one class than another. Between them, the
 training batches contain exactly 5000 images from each class.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.cifar10.download">
 <code class="sig-name descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/cifar10.html#cifar10.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cifar10.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download the MNIST dataset and store the result into the given
@@ -477,7 +478,7 @@ directory does not exist, it is created.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.cifar10.load">
 <code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/cifar10.html#cifar10.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cifar10.load" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -499,7 +500,7 @@ where the data will be downloaded if not present</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.cifar100">
 <em class="property">class </em><code class="sig-name descname">cifar100</code><a class="reference internal" href="../_modules/symjax/datasets/cifar100.html#cifar100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cifar100" title="Permalink to this definition">¶</a></dt>
 <dd><p>Image classification.</p>
@@ -509,7 +510,7 @@ each. There are 500 training images and 100 testing images per class.
 The 100 classes in the CIFAR-100 are grouped into 20 superclasses. Each
 image comes with a “fine” label (the class to which it belongs) and a
 “coarse” label (the superclass to which it belongs).</p>
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.cifar100.download">
 <code class="sig-name descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/cifar100.html#cifar100.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cifar100.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download the CIFAR100 dataset and store the result into the given
@@ -524,7 +525,7 @@ directory does not exist, it is created.</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.ibeans">
 <em class="property">class </em><code class="sig-name descname">ibeans</code><a class="reference internal" href="../_modules/symjax/datasets/ibeans.html#ibeans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.ibeans" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plant images classification.</p>
@@ -558,9 +559,9 @@ Total:  1,296</p>
 <p>Data Released   20-January-2020
 License     MIT
 Credits     Makerere AI Lab</p>
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.ibeans.download">
-<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/ibeans.html#ibeans.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.ibeans.download" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/ibeans.html#ibeans.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.ibeans.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download the ibeans dataset and store the result into the given
 path</p>
 <dl class="field-list simple">
@@ -571,9 +572,9 @@ directory does not exist, it is created.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.ibeans.load">
-<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/ibeans.html#ibeans.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.ibeans.load" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/ibeans.html#ibeans.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.ibeans.load" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
@@ -595,7 +596,7 @@ where the data will be downloaded if not present</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.cassava">
 <em class="property">class </em><code class="sig-name descname">cassava</code><a class="reference internal" href="../_modules/symjax/datasets/cassava.html#cassava"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cassava" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plant images classification.</p>
@@ -609,9 +610,9 @@ corresponding class prediction with labels corresponding to the disease
 categories, cmd, healthy, cgm, cbsd, cbb.</p>
 <p>Please cite this paper if you use the dataset for your project:
 <a class="reference external" href="https://arxiv.org/pdf/1908.02900.pdf">https://arxiv.org/pdf/1908.02900.pdf</a></p>
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.cassava.download">
-<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/cassava.html#cassava.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cassava.download" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/cassava.html#cassava.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cassava.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download the cassava dataset and store the result into the given
 path</p>
 <dl class="field-list simple">
@@ -622,9 +623,9 @@ directory does not exist, it is created.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.cassava.load">
-<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/cassava.html#cassava.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cassava.load" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/cassava.html#cassava.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.cassava.load" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
@@ -646,7 +647,7 @@ where the data will be downloaded if not present</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.stl10">
 <em class="property">class </em><code class="sig-name descname">stl10</code><a class="reference internal" href="../_modules/symjax/datasets/stl10.html#stl10"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.stl10" title="Permalink to this definition">¶</a></dt>
 <dd><p>Image classification with extra unlabeled images.</p>
@@ -662,9 +663,9 @@ unlabeled data (which comes from a similar but different distribution from
 the labeled data) to build a useful prior. We also expect that the higher
 resolution of this dataset (96x96) will make it a challenging benchmark
 for developing more scalable unsupervised learning methods.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.stl10.load">
-<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/stl10.html#stl10.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.stl10.load" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/stl10.html#stl10.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.stl10.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>load the data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -686,7 +687,7 @@ not present</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.tinyimagenet">
 <em class="property">class </em><code class="sig-name descname">tinyimagenet</code><a class="reference internal" href="../_modules/symjax/datasets/tinyimagenet.html#tinyimagenet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.tinyimagenet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tiny Imagenet has 200 classes. Each class has 500 training images, 50
@@ -701,7 +702,7 @@ here.</p>
 </div>
 <div class="section" id="detailed-description-audio">
 <h2>Detailed description (Audio)<a class="headerlink" href="#detailed-description-audio" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.audiomnist">
 <em class="property">class </em><code class="sig-name descname">audiomnist</code><a class="reference internal" href="../_modules/symjax/datasets/audiomnist.html#audiomnist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.audiomnist" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
@@ -722,7 +723,7 @@ English pronunciations</p>
 </div></blockquote>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.esc">
 <em class="property">class </em><code class="sig-name descname">esc</code><a class="reference internal" href="../_modules/symjax/datasets/esc.html#esc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.esc" title="Permalink to this definition">¶</a></dt>
 <dd><p>ESC-10/50: Environmental Sound Classification</p>
@@ -745,7 +746,7 @@ recordings gathered by the Freesound.org project. The dataset has been
 prearranged into 5 folds for comparable cross-validation, making sure
 that fragments from the same original source file are contained in a
 single fold.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.esc.load">
 <code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/esc.html#esc.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.esc.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>ESC 50.</p>
@@ -778,7 +779,7 @@ only the ESC-10 data.</p></li>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.warblr">
 <em class="property">class </em><code class="sig-name descname">warblr</code><a class="reference internal" href="../_modules/symjax/datasets/warblr.html#warblr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.warblr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Binary audio classification, presence or absence of a bird.</p>
@@ -792,13 +793,13 @@ covers a wide distribution of UK locations and environments, and
 includes weather noise, traffic noise, human speech and even human
 bird imitations. It is directly representative of the data that is
 collected from a mobile crowdsourcing initiative.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.warblr.download">
 <code class="sig-name descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/warblr.html#warblr.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.warblr.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download the data</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.warblr.load">
 <code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/warblr.html#warblr.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.warblr.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load the data given a path</p>
@@ -806,7 +807,7 @@ collected from a mobile crowdsourcing initiative.</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.gtzan">
 <em class="property">class </em><code class="sig-name descname">gtzan</code><a class="reference internal" href="../_modules/symjax/datasets/gtzan.html#gtzan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.gtzan" title="Permalink to this definition">¶</a></dt>
 <dd><p>music genre classification</p>
@@ -826,13 +827,13 @@ in “The GTZAN dataset: Its contents, its faults, their effects on
 evaluation, and its future use” by B. Sturm on arXiv 2013.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="symjax.datasets.dclde">
 <code class="sig-name descname">dclde</code><a class="headerlink" href="#symjax.datasets.dclde" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#symjax.datasets.dclde" title="symjax.datasets.dclde"><code class="xref py py-class docutils literal notranslate"><span class="pre">symjax.datasets.dclde</span></code></a></p>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.irmas">
 <em class="property">class </em><code class="sig-name descname">irmas</code><a class="reference internal" href="../_modules/symjax/datasets/irmas.html#irmas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.irmas" title="Permalink to this definition">¶</a></dt>
 <dd><p>music instrument classification</p>
@@ -854,7 +855,7 @@ format, the annotations in the testing dataset are limited to specific
 pitched instruments, and there is a different amount and lenght of excerpts.</p>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.vocalset">
 <em class="property">class </em><code class="sig-name descname">vocalset</code><a class="reference internal" href="../_modules/symjax/datasets/vocalset.html#vocalset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.vocalset" title="Permalink to this definition">¶</a></dt>
 <dd><p>singer/technique/vowel of singing voices</p>
@@ -870,7 +871,7 @@ state of existing singing voice datasets and singing voice research by
 capturing not only a range of vowels, but also a diverse set of voices
 on many different vocal techniques, sung in contexts of scales,
 arpeggios, long tones, and excerpts.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.vocalset.load">
 <code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/vocalset.html#vocalset.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.vocalset.load" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -892,7 +893,7 @@ male2, …</p></li>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.freefield1010">
 <em class="property">class </em><code class="sig-name descname">freefield1010</code><a class="reference internal" href="../_modules/symjax/datasets/freefield1010.html#freefield1010"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.freefield1010" title="Permalink to this definition">¶</a></dt>
 <dd><p>Audio binary classification, presence or absence of bird songs.
@@ -904,7 +905,7 @@ and for the BAD Challenge we have newly annotated it for the
 presence/absence of birds.</p>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.birdvox_70k">
 <em class="property">class </em><code class="sig-name descname">birdvox_70k</code><a class="reference internal" href="../_modules/symjax/datasets/birdvox_70k.html#birdvox_70k"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_70k" title="Permalink to this definition">¶</a></dt>
 <dd><p>a dataset for avian flight call detection in half-second clips</p>
@@ -946,9 +947,9 @@ published = {IEEE},
 venue = {Calgary, Canada},
 month = {April},
 }</p>
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.birdvox_70k.download">
-<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_70k.html#birdvox_70k.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_70k.download" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_70k.html#birdvox_70k.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_70k.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download the Birdvox dataset and store the result into the given
 path</p>
 <dl class="field-list simple">
@@ -959,9 +960,9 @@ directory does not exist, it is created.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.birdvox_70k.load">
-<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_70k.html#birdvox_70k.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_70k.load" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_70k.html#birdvox_70k.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_70k.load" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and
@@ -980,7 +981,7 @@ where the data will be downloaded if not present</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.datasets.birdvox_dcase_20k">
 <em class="property">class </em><code class="sig-name descname">birdvox_dcase_20k</code><a class="reference internal" href="../_modules/symjax/datasets/birdvox_dcase_20k.html#birdvox_dcase_20k"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_dcase_20k" title="Permalink to this definition">¶</a></dt>
 <dd><p>Binary bird detection classification</p>
@@ -1052,9 +1053,9 @@ month = {April},
 <p>The creation of this dataset was supported by NSF grants 1125098
 (BIRDCAST) and 1633259 (BIRDVOX), a Google Faculty Award, the Leon
 Levy Foundation, and two anonymous donors.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.birdvox_dcase_20k.download">
-<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_dcase_20k.html#birdvox_dcase_20k.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_dcase_20k.download" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_dcase_20k.html#birdvox_dcase_20k.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_dcase_20k.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download the Birdvox dataset and store the result into the given
 path</p>
 <dl class="field-list simple">
@@ -1065,9 +1066,9 @@ directory does not exist, it is created.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.datasets.birdvox_dcase_20k.load">
-<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_dcase_20k.html#birdvox_dcase_20k.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_dcase_20k.load" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/datasets/birdvox_dcase_20k.html#birdvox_dcase_20k.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.datasets.birdvox_dcase_20k.load" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – default ($DATASET_PATH), the path to look for the data and

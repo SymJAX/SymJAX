@@ -34,6 +34,7 @@
   
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
@@ -54,7 +55,7 @@
 
           
             
-            <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+            <img src="../../_static/symjax_logo.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -83,8 +84,8 @@
             
             
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../user/examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../user/installation.html">Installation (GPU)</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -164,7 +165,7 @@
   <h1>Source code for symjax.optimizers</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">tensor</span>
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">gradients</span><span class="p">,</span> <span class="n">function</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">gradients</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">get_graph</span>
 
 
 <span class="k">class</span> <span class="nc">Optimizer</span><span class="p">:</span>
@@ -231,7 +232,11 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
  
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grads_or_loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grads_or_loss</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">trainable</span><span class="p">]</span>
+
         <span class="n">grads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_grads</span><span class="p">(</span><span class="n">grads_or_loss</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
@@ -241,8 +246,62 @@
         <span class="n">updates</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">grad</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">grads</span><span class="p">):</span>
             <span class="n">updates</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span> <span class="o">-</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">grad</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">=</span> <span class="n">updates</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span></div>
+        <span class="k">if</span> <span class="n">get_graph</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">updates</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NesterovMomentum"><a class="viewcode-back" href="../../modules/optimizers.html#symjax.optimizers.NesterovMomentum">[docs]</a><span class="k">class</span> <span class="nc">NesterovMomentum</span><span class="p">(</span><span class="n">Optimizer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Nesterov momentum Optimization</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    grads_or_loss: scalar tensor or list of gradients</span>
+<span class="sd">        either the loss (scalar of Tensor type) to be differentied</span>
+<span class="sd">        or the list of gradients already computed and possibly altered</span>
+<span class="sd">        manually (such as clipping)</span>
+
+<span class="sd">    params: list of parameters to update</span>
+<span class="sd">        if grads_or_loss is al list then it should be ordered w.r.t. the</span>
+<span class="sd">        given parameters</span>
+
+<span class="sd">    learning_rate: constant or Tensor</span>
+<span class="sd">        the learning rate use to update the parameters</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    updates: list of updates</span>
+
+<span class="sd">    variables: list of variables</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+ 
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grads_or_loss</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="n">momentum</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">trainable</span><span class="p">]</span>
+
+        <span class="n">grads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_grads</span><span class="p">(</span><span class="n">grads_or_loss</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">learning_rate</span><span class="p">,</span> <span class="n">tensor</span><span class="o">.</span><span class="n">Placeholder</span><span class="p">):</span>
+            <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">learning_rate</span><span class="p">()</span>
+
+        <span class="n">updates</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">grad</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">grads</span><span class="p">):</span>
+            <span class="n">velocity</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">param</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+                                    <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">update</span> <span class="o">=</span> <span class="n">param</span> <span class="o">-</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">grad</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">momentum</span> <span class="o">*</span> <span class="n">velocity</span> <span class="o">+</span> <span class="n">update</span> <span class="o">-</span> <span class="n">param</span>
+            <span class="n">updates</span><span class="p">[</span><span class="n">velocity</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="n">updates</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">momentum</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">update</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">=</span> <span class="n">updates</span>
+        <span class="k">if</span> <span class="n">get_graph</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">updates</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Adam"><a class="viewcode-back" href="../../modules/optimizers.html#symjax.optimizers.Adam">[docs]</a><span class="k">class</span> <span class="nc">Adam</span><span class="p">(</span><span class="n">Optimizer</span><span class="p">):</span>
@@ -279,8 +338,11 @@
 <span class="sd">    variables: list of variables</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grads_or_loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="n">beta1</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
-                 <span class="n">beta2</span><span class="o">=</span><span class="mf">0.999</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grads_or_loss</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="n">beta1</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                 <span class="n">beta2</span><span class="o">=</span><span class="mf">0.999</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">trainable</span><span class="p">]</span>
 
         <span class="n">grads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_grads</span><span class="p">(</span><span class="n">grads_or_loss</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
         <span class="n">step</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">Variable</span><span class="p">([[</span><span class="mf">0.</span><span class="p">]],</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;step&#39;</span><span class="p">)</span>
@@ -302,8 +364,10 @@
             <span class="n">update</span> <span class="o">=</span> <span class="n">updates</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">updates</span><span class="p">[</span><span class="n">v</span><span class="p">])</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">)</span>
             <span class="n">updates</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span> <span class="o">-</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">update</span>
         <span class="n">updates</span><span class="p">[</span><span class="n">step</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">=</span> <span class="n">updates</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="n">variables</span></div>
+        <span class="k">if</span> <span class="n">get_graph</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">updates</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

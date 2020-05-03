@@ -34,6 +34,7 @@
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -54,7 +55,7 @@
 
           
             
-            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+            <img src="../../../_static/symjax_logo.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -83,8 +84,8 @@
             
             
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user/installation.html">Installation (GPU)</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -179,13 +180,7 @@
 <span class="c1"># Helpers for indexed updates.</span>
 
 
-<span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
-
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">onp</span>
-
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">lax</span>
-<span class="kn">from</span> <span class="nn">..api</span> <span class="kn">import</span> <span class="n">jit</span>
 <span class="kn">from</span> <span class="nn">..numpy</span> <span class="kn">import</span> <span class="n">lax_numpy</span> <span class="k">as</span> <span class="n">np</span>
 
 
@@ -211,7 +206,6 @@
 
   <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
   <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-
   <span class="c1"># XLA gathers and scatters are very similar in structure; the scatter logic</span>
   <span class="c1"># is more or less a transpose of the gather equivalent.</span>
   <span class="n">treedef</span><span class="p">,</span> <span class="n">static_idx</span><span class="p">,</span> <span class="n">dynamic_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">_split_index_for_jit</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
@@ -222,7 +216,8 @@
 <span class="c1"># slice indexes (e.g., slice(0, 5, None), slice(10, 15, None), etc.).</span>
 <span class="c1"># @partial(jit, static_argnums=(2, 3, 4))</span>
 <span class="k">def</span> <span class="nf">_scatter_impl</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">scatter_op</span><span class="p">,</span> <span class="n">treedef</span><span class="p">,</span> <span class="n">static_idx</span><span class="p">,</span> <span class="n">dynamic_idx</span><span class="p">):</span>
-  <span class="n">y</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">convert_element_type</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+  <span class="n">dtype</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+  <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">_promote_dtypes</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
   <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">_merge_static_and_dynamic_indices</span><span class="p">(</span><span class="n">treedef</span><span class="p">,</span> <span class="n">static_idx</span><span class="p">,</span> <span class="n">dynamic_idx</span><span class="p">)</span>
   <span class="n">indexer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">_index_to_gather</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">idx</span><span class="p">)</span>
@@ -241,7 +236,8 @@
     <span class="n">inserted_window_dims</span><span class="o">=</span><span class="n">indexer</span><span class="o">.</span><span class="n">dnums</span><span class="o">.</span><span class="n">collapsed_slice_dims</span><span class="p">,</span>
     <span class="n">scatter_dims_to_operand_dims</span><span class="o">=</span><span class="n">indexer</span><span class="o">.</span><span class="n">dnums</span><span class="o">.</span><span class="n">start_index_map</span>
   <span class="p">)</span>
-  <span class="k">return</span> <span class="n">scatter_op</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">indexer</span><span class="o">.</span><span class="n">gather_indices</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">dnums</span><span class="p">)</span>
+  <span class="n">out</span> <span class="o">=</span> <span class="n">scatter_op</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">indexer</span><span class="o">.</span><span class="n">gather_indices</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">dnums</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">convert_element_type</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">_Indexable</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -299,6 +295,46 @@
 <span class="sd">         [1., 1., 1., 1., 1., 1.]], dtype=float32)</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">return</span> <span class="n">_scatter_update</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">scatter_add</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">index_mul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Pure equivalent of :code:`x[idx] *= y`.</span>
+
+<span class="sd">  Returns the value of `x` that would result from the</span>
+<span class="sd">  NumPy-style :mod:`indexed assignment &lt;numpy.doc.indexing&gt;`::</span>
+<span class="sd">    x[idx] *= y</span>
+
+<span class="sd">  Note the `index_mul` operator is pure; `x` itself is</span>
+<span class="sd">  not modified, instead the new value that `x` would have taken is returned.</span>
+
+<span class="sd">  Unlike the NumPy code :code:`x[idx] *= y`, if multiple indices refer to the</span>
+<span class="sd">  same location the updates will be multiplied. (NumPy would only apply the last</span>
+<span class="sd">  update, rather than multiplying the updates.) The order in which conflicting</span>
+<span class="sd">  updates are applied is implementation-defined and may be nondeterministic</span>
+<span class="sd">  (e.g., due to concurrency on some hardware platforms).</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    x: an array with the values to be updated.</span>
+<span class="sd">    idx: a Numpy-style index, consisting of `None`, integers, `slice` objects,</span>
+<span class="sd">      ellipses, ndarrays with integer dtypes, or a tuple of the above. A</span>
+<span class="sd">      convenient syntactic sugar for forming indices is via the</span>
+<span class="sd">      :data:`jax.ops.index` object.</span>
+<span class="sd">    y: the array of updates. `y` must be broadcastable to the shape of the</span>
+<span class="sd">      array that would be returned by `x[idx]`.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    An array.</span>
+
+<span class="sd">  &gt;&gt;&gt; x = jax.numpy.ones((5, 6))</span>
+<span class="sd">  &gt;&gt;&gt; jax.ops.index_mul(x, jax.ops.index[2:4, 3:], 6.)</span>
+<span class="sd">  array([[1., 1., 1., 1., 1., 1.],</span>
+<span class="sd">         [1., 1., 1., 1., 1., 1.],</span>
+<span class="sd">         [1., 1., 1., 6., 6., 6.],</span>
+<span class="sd">         [1., 1., 1., 6., 6., 6.],</span>
+<span class="sd">         [1., 1., 1., 1., 1., 1.]], dtype=float32)</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">return</span> <span class="n">_scatter_update</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">scatter_mul</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="index_min"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.index_ops.index_min">[docs]</a><span class="k">def</span> <span class="nf">index_min</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Pure equivalent of :code:`x[idx] = minimum(x[idx], y)`.</span>

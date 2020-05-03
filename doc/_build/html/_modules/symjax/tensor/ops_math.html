@@ -34,6 +34,7 @@
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -54,7 +55,7 @@
 
           
             
-            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+            <img src="../../../_static/symjax_logo.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -83,8 +84,8 @@
             
             
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user/installation.html">Installation (GPU)</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -171,7 +172,7 @@
 <span class="kn">import</span> <span class="nn">ast</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">.ops_activations</span> <span class="kn">import</span> <span class="n">relu</span>
+<span class="kn">from</span> <span class="nn">.ops_nn</span> <span class="kn">import</span> <span class="n">relu</span>
 
 <span class="n">module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">]</span>
 
@@ -286,7 +287,8 @@
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;shape&#39;</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">==</span> <span class="n">arange</span><span class="p">(</span><span class="n">k</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">z</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,),</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">index_add</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
 
 

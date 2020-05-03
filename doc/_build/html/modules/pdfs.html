@@ -34,6 +34,7 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="symjax.tensor.signal" href="signal.html" />
@@ -56,7 +57,7 @@
 
           
             
-            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+            <img src="../_static/symjax_logo.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -85,8 +86,8 @@
             
             
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user/examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user/installation.html">Installation (GPU)</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -172,12 +173,12 @@
 <span id="symjax-tensor-pdfs"></span><h1><a class="reference internal" href="#module-symjax.tensor.pdfs" title="symjax.tensor.pdfs"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.pdfs</span></code></a><a class="headerlink" href="#module-symjax.tensor.pdfs" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="multivariate-normal">
 <h2>Multivariate Normal<a class="headerlink" href="#multivariate-normal" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="symjax.tensor.pdfs.multivariate_normal">
 <em class="property">class </em><code class="sig-name descname">multivariate_normal</code><a class="reference internal" href="../_modules/symjax/tensor/pdfs.html#multivariate_normal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.pdfs.multivariate_normal" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><dl class="py method">
 <dt id="symjax.tensor.pdfs.multivariate_normal.logpdf">
-<code class="sig-name descname">logpdf</code><span class="sig-paren">(</span><em class="sig-param">mean</em>, <em class="sig-param">cov</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/pdfs.html#multivariate_normal.logpdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.pdfs.multivariate_normal.logpdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">logpdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mean</span></em>, <em class="sig-param"><span class="n">cov</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/pdfs.html#multivariate_normal.logpdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.pdfs.multivariate_normal.logpdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log of the multivariate normal probability density function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -192,9 +193,9 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="symjax.tensor.pdfs.multivariate_normal.pdf">
-<code class="sig-name descname">pdf</code><span class="sig-paren">(</span><em class="sig-param">mean</em>, <em class="sig-param">cov</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/pdfs.html#multivariate_normal.pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.pdfs.multivariate_normal.pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mean</span></em>, <em class="sig-param"><span class="n">cov</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/pdfs.html#multivariate_normal.pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.pdfs.multivariate_normal.pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Multivariate normal probability density function.
 :param x: Quantiles, with the last axis of <cite>x</cite> denoting the components.
 :type x: array_like</p>

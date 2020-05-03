@@ -1,36 +1,48 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""Base of symjax."""
+
 import jax
 import jax.numpy as np
-from symjax import tensor as t
-from jax import jacfwd, jacrev
 import warnings
 import numpy
+
+from symjax import tensor as t
+from jax import jacfwd, jacrev
 
 global current_graph
 current_graph = None
 
+
 def get_graph():
+    """Current graph."""
     return current_graph
 
+
 class Graph:
+    """Graph."""
+
     def __init__(self, name, seed=None,):
+        """Constructor."""
         self.name = name
         self.variables = {}
         self.updates = {}
 
     def __enter__(self):
+        """Set global variables."""
         globals()['current_graph'] = self
 
-
-    def __exit__(self,*a):
+    def __exit__(self, *a):
+        """Delete globals."""
         globals()['current_graph'] = None
 
     def save(self, path):
-        ####
+        """Save graph."""
         numpy.savez(path, **dict([(name, v.get())
-            for name, v in self.variables.items()]))
+                                  for name, v in self.variables.items()]))
 
     def load(self, path):
-        ####
+        """Load graph."""
         data = numpy.load(path)
         for name, value in data.items():
             self.variables[name].assign(value)
@@ -40,18 +52,16 @@ class Graph:
         for var in self.variables:
             var.reset()
 
-
 def gradients(scalar, variables):
-    """computes the gradients of a scalar w.r.t to a given list of variables.
+    """Compute the gradients of a scalar w.r.t to a given list of variables.
 
     Arguments
     ---------
+    scalar: :class:`symjax.tensor.base.Tensor`
+        the variable to differentiate
 
-        scalar: Tensor
-            the variable to differentiate
-
-        variables: List or Tuple
-            the variables used to compute the derivative.
+    variables: List or Tuple
+        the variables used to compute the derivative.
 
     Returns
     -------
@@ -59,14 +69,11 @@ def gradients(scalar, variables):
         gradients: Tuple
             the sequency of gradients ordered as given in the input variables
     """
-
-
     if scalar.shape != ():
         raise RuntimeError("the variable to differentiate is not a scalar")
     elif not isinstance(scalar, t.Tensor):
         raise RuntimeError(
             "the variable used in gradients should be a Tensor type")
-
 
     if isinstance(variables, t.Tensor):
         input_variables = [variables]
@@ -85,7 +92,8 @@ def gradients(scalar, variables):
     argnums = [all_roots.index(var) for var in input_variables]
 
     # create a dummy function that is needed for jax to compute a gradient func
-    # this function is the one that builds the graph of computation from all roots
+    # this function is the one that builds the graph of computation from all
+    # roots
     # to the scalar varible s.t. automatic diffenrentiation can be applied
     def fn(*args):
         return scalar.get(dict(zip(all_roots, list(args))))
@@ -102,7 +110,8 @@ def gradients(scalar, variables):
 
 
 def jacobians(tensor, variables, mode='forward'):
-    """computes the jacobians of a tensor w.r.t to a given list of variables.
+    """Compute the jacobians of a tensor w.r.t to a given list of variables.
+
     The tensor needs not to be a vector, but will be treated as such. For
     example if tensor.shape is (10, 3, 3) and a variable shape if (10, 10)
     the resulting jacobian has shape (10, 3, 3, 10, 10). It is possible
@@ -124,7 +133,6 @@ def jacobians(tensor, variables, mode='forward'):
         jacobians: Tuple
             the sequency of gradients ordered as given in the input variables
     """
-
     # get all the roots of the scalar, this is needed as otherwise they are not
     # as the input of the gradient function and thus a change of
     # their value will not change the gradient computation, we also ensure
@@ -135,7 +143,8 @@ def jacobians(tensor, variables, mode='forward'):
     argnums = [all_roots.index(var) for var in variables]
 
     # create a dummy function that is needed for jax to compute a gradient func
-    # this function is the one that builds the graph of computation from all roots
+    # this function is the one that builds the graph of computation from
+    # all roots
     # to the scalar varible s.t. automatic diffenrentiation can be applied
     def fn(*args):
         return tensor.get(dict(zip(all_roots, list(args))))
@@ -149,15 +158,15 @@ def jacobians(tensor, variables, mode='forward'):
         jacob_fn = jacrev(fn, argnums)
     else:
         raise RuntimeError(
-            "given mode {} is not recognized, use forward or backward".format(mode))
+            "mode {} not recognized, use forward or backward".format(mode))
     wrap_fn = t.jax_wrap(jacob_fn, False)
     return wrap_fn(*all_roots)
 
 
 class function:
+    """Generate a user function that compiles a computational graph.
 
-    """generates a user function that compiles a computational graph
-    based on given inputs, outputs and update policy of variables. This
+    Based on given inputs, outputs and update policy of variables. This
     function internally jit compile the underlying jax computational
     graph for performances and thus should be favored to the get
     method of tensors.
@@ -213,9 +222,10 @@ class function:
 
     """
 
-    def __init__(self, *classargs, outputs=[], updates=None, device=None,
+    def __init__(self, *classargs, outputs=[], updates=None,   # noqa
+                 device=None,
                  backend=None, default_value=None):
-
+        """Initialize."""
         # check the given updates (if any) and ensure that they only
         # update Variable objects
         if updates is None:
@@ -224,14 +234,15 @@ class function:
         for update in updates.keys():
             if not isinstance(update, t.Variable):
                 raise RuntimeError(
-                   "{} is not a Variable, it can not be updated".format(update))
+                    "{} is not a Variable and cannot be updated".format(
+                        update))
 
         # ensure that all inputs are actual placeholders or variables
         for arg in classargs:
             if not isinstance(arg, t.Tensor):
                 raise RuntimeError(
-                    "{} is not a Tensor type. Only tensor types can be"\
-                            + "function inputs".format(arg))
+                    "{} is not a Tensor type. Only tensor types can be" +
+                    "function inputs".format(arg))
 
         # gather all roots, they need to be explicit as inputs of the
         # underlying functions otherwise they are treated as constants
@@ -249,31 +260,32 @@ class function:
         for i in range(len(items)):
             if self.updates_keys[i].shape != self.updates_values[i].shape:
                 warnings.warn(
-                'Variable and update {} {}'.format(self.updates_keys[i],
-                                                   self.updates_values[i])\
-                   + "are not the same shape... attempting to reshape")
+                    'Variable and update {} {}'.format(
+                        self.updates_keys[i],
+                        self.updates_values[i]) +
+                    "are not the same shape... attempting to reshape")
                 self.updates_values[i] = t.reshape(self.updates_values[i],
                                                    self.updates_keys[i].shape)
             if self.updates_keys[i].dtype != self.updates_values[i].dtype:
                 warnings.warn(
-                'Variable and update {} {}'.format(self.updates_keys[i],
-                                                   self.updates_values[i])\
-                   + "are not the same dtype... attempting to cast")
+                    'Variable and update {} {}'.format(
+                        self.updates_keys[i],
+                        self.updates_values[i]) +
+                    "are not the same dtype... attempting to cast")
                 self.updates_values[i] = t.cast(self.updates_values[i],
-                                                   self.updates_keys[i].dtype)
-            
+                                                self.updates_keys[i].dtype)
 
         # check the function inputs, they must be at least contain all the
         # placeholders needed to compute the outputs values
         placeholders_in_root = filter(lambda x: isinstance(x, t.Placeholder),
                                       self.all_roots)
 
-        # check for 
+        # check for
         non_givens = set(placeholders_in_root) - set(self.classargs)
         if len(non_givens) > 0:
             raise RuntimeError(
-                "Missing placeholders form the function "\
-                        + "inputs: {}".format(non_givens))
+                "Missing placeholders form the function inputs: {}".format(
+                    non_givens))
 
         # the roots are made of variables, random tensors, placeholders. We
         # already ensured that all placeholders are given as inputs to the
@@ -281,12 +293,12 @@ class function:
         # as inputs to not be treated as constants by jax.
         # we also remove update keys because we will expicitly feed them
         self.extra_inputs = set(self.all_roots)\
-                                - (set(self.classargs).union(self.updates_keys))
+            - (set(self.classargs).union(self.updates_keys))
         self.extra_inputs = list(self.extra_inputs)
 
         def jitfn(*jitargs):
             allargs = list(self.classargs) + self.updates_keys +\
-                                            self.extra_inputs
+                self.extra_inputs
             return t.get([self.outputs, self.updates_values],
                          dict(zip(allargs, jitargs)))
 
@@ -303,27 +315,28 @@ class function:
                 if hasattr(fnarg, 'shape'):
                     if fnarg.shape != classarg.shape:
                         raise RuntimeError(
-                                "wrong input given for {}".format(classarg)\
-                                + ", given is {}".format(fnarg)\
-                                + ", shape={}".format(fnarg.shape))
-
+                            "wrong input given for {}".format(classarg) +
+                            ", given is {}".format(fnarg) +
+                            ", shape={}".format(fnarg.shape))
 
             # retreive the function outputs, updated values and apply them
-            jitoutputs, jitupdates = self.jitfn(*fnargs,
-                                *t.get(self.updates_keys + self.extra_inputs,
-                                    {'rng': rng}))
+            jitoutputs, jitupdates = self.jitfn(
+                *fnargs,
+                *t.get(self.updates_keys + self.extra_inputs,
+                       {'rng': rng}))
             for key, update in zip(self.updates_keys, jitupdates):
                 key.value = update
             if isinstance(jitoutputs, jax.interpreters.xla.DeviceArray):
                 return jax.api.device_get(jitoutputs)
             else:
-                npy_jitoutputs= [jax.api.device_get(arr) for arr in jitoutputs]
+                npy_jitoutputs = [jax.api.device_get(
+                    arr) for arr in jitoutputs]
                 return npy_jitoutputs
 
         self.meta = meta
 
     def __call__(self, *args, rng=None):
-
+        """Callable fn."""
         # in the presence of RandomTensor(s) in the graph, we keep track of the
         # number of functions calls to keep accumulating the PRNGKey of the jax
         # key, otherwise each function call returns the same realisation
