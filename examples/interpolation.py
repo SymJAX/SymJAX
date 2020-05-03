@@ -1,39 +1,19 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import sys
-sys.path.insert(0, "../")      
-import symjax as sj
-import symjax.tensor as T
-import matplotlib.pyplot as plt
+import jax
 import numpy as np
+import sys
+sys.path.insert(0, "../")
 
-__author__ = "Randall Balestriero"
+import symjax
+import symjax.tensor as T
 
-J = 8
-Q = 1
-K = 9
-M = K * 2 ** (J - 1)
-
-scales = T.power(2,T.arange(J*Q) / Q)
-time = T.arange(M) - M // 2
-knots = (T.arange(K) - K // 2) * scales.reshape((-1, 1))
- 
-values = T.cos(np.pi * T.range(K)) * T.signal.hamming(K)
-derivatives = T.cos(np.pi * T.range(K)) * T.diff(T.signal.hamming(K+1))
-
-mask = T.ones((K,)) * (1-T.one_hot(0, K)-T.one_hot(K-1, K))
-spline = sj.interpolation.hermite(time, knots, values * mask,
-        derivatives * mask)
-
-spline = T.signal.hilbert_transform(spline)
-
-spline_r = spline/T.linalg.norm(spline, 2, 1, keepdims=True)
-
-f = sj.function(outputs=spline_r)
-
-for filt in f()[[-1]]:
-    plt.plot(np.real(filt))
-    plt.plot(np.imag(filt))
+w = T.Placeholder((3,), 'float32', name='w')
+w_interp1 = T.upsample_1d(w, repeat=4, axis=0, mode='nearest')
+w_interp2 = T.upsample_1d(w, repeat=4, axis=0, mode='linear')
+w_interp3 = T.upsample_1d(w, repeat=4, axis=0)
 
 
-plt.show()
+
+f = symjax.function(w, outputs=[w_interp1, w_interp2, w_interp3])
+
+
+print(f([1,2,3]))

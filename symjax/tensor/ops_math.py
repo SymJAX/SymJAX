@@ -127,23 +127,33 @@ def one_hot(i, N, dtype='float32'):
         return index_add(z, i, 1)
 
 
-def upsample(x, factors, mode='zeros'):
-    if mode == 'repeat':
-        vs = [x]
-        for ax, f in enumerate(factors):
-            vs.append(repeat(vs[-1], f, ax))
-        return vs[-1]
-    elif mode == 'zeros':
-        masks = [1]
-        for ax, f in enumerate(factors):
-            v = tile(one_hot(0, f), x.shape[ax])
-            shape = (one_hot(ax, len(factors), 'int32') * (-2) + 1).get({})
-            print(shape)
-            masks.append(masks[-1] * v.reshape(shape))
-        x_repeat = upsample(x, factors, mode='repeat')
-        return x_repeat * masks[-1]
-    else:
-        raise ValueError('Not Implemented upsample')
+#def upsample_1d(x, factors, mode='zeros'):
+#    """
+#
+#    Parameters
+#    ----------
+#
+#    x : array-like
+#        the input tensor
+#
+#    factors
+#
+#    """
+#    if mode == 'repeat':
+#        vs = [x]
+#        for ax, f in enumerate(factors):
+#            vs.append(repeat(vs[-1], f, ax))
+#        return vs[-1]
+#    elif mode == 'zeros':
+#        masks = [1]
+#        for ax, f in enumerate(factors):
+#            v = tile(one_hot(0, f), x.shape[ax])
+#            shape = (one_hot(ax, len(factors), 'int32') * (-2) + 1).get({})
+#            masks.append(masks[-1] * v.reshape(shape))
+#        x_repeat = upsample(x, factors, mode='repeat')
+#        return x_repeat * masks[-1]
+#    else:
+#        raise ValueError('Not Implemented upsample')
 
 
 _JNP_NAMES = [c[0] for c in inspect.getmembers(jnp, inspect.isfunction)]

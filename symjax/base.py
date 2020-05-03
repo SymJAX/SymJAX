@@ -347,4 +347,5 @@ class function:
             _rng = globals()['_rng']
         else:
             _rng = rng
-        return self.meta(*args, rng=_rng)
+        pargs = [numpy.array(arg) if type(arg) == list else arg for arg in args]
+        return self.meta(*pargs, rng=_rng)

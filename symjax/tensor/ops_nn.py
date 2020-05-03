@@ -16,7 +16,7 @@ for name in NAMES:
     module.__dict__.update({name: jax_wrap(jax.nn.__dict__[name])})
 
 from .ops_math import dynamic_slice_in_dim, equal, where, dynamic_slice, greater, concatenate, full, expand_dims
-
+from . import ops_math as T
 
 # conv
 conv_general_dilated = jax_wrap(jla.conv_general_dilated)
@@ -368,7 +368,31 @@ def PiecewiseConstant(init, values, step=None):
 
 
 
-def constant_upsample(tensor, repeat, axis=-1, constant=0.):
+def upsample_1d(tensor, repeat, axis=-1, mode='constant', value=0.):
+    """1-d upsampling of tensor
+
+    allow to upsample a tensor by an arbitrary (integer) amount on a given
+    axis by applying a univariate upsampling strategy.
+
+    Parameters
+    ----------
+
+    tensor: tensor
+        the input tensor to upsample
+
+    repeat: int
+        the amount of new values ot insert between each value
+
+    axis: int
+        the axis to upsample
+
+    mode: str
+        the type of upsample to perform (linear, constant, nearest)
+
+    value: float (default=0)
+        the value ot use for the case of constant upsampling
+
+    """
 
     if axis == -1:
         axis = tensor.ndim - 1
@@ -376,15 +400,28 @@ def constant_upsample(tensor, repeat, axis=-1, constant=0.):
     if repeat == 0:
         return tensor
 
-    shape = sum([[s, 1] if k==axis else [s] for k, s in enumerate(tensor.shape)],
-                [])
-    
-    zshape = shape.copy()
-    zshape[axis+1] = repeat
+    out_shape = list(tensor.shape)
+    out_shape[axis] *= (1 + repeat)
 
-    nshape = list(tensor.shape).copy()
-    nshape[axis] *= (1 + repeat)
-    tensor_aug = concatenate([expand_dims(tensor, axis + 1),
-                             full(zshape, constant, dtype=tensor.dtype)], axis+1)
-    return tensor_aug.reshape(nshape)
+    if mode == 'constant':
+        zshape = list(tensor.shape)
+        zshape.insert(axis+1, repeat)
+        tensor_aug = concatenate([expand_dims(tensor, axis + 1),
+                             full(zshape, value, dtype=tensor.dtype)], axis+1)
+
+    elif mode == 'nearest':
+        assert tensor.shape[axis] > 1
+        tensor_aug = T.repeat(T.expand_dims(tensor, axis + 1), repeat + 1, axis + 1)
+ 
+    elif mode == 'linear':
+        assert tensor.shape[axis] > 1
+        zshape = [1] * (tensor.ndim + 1)
+        zshape[axis + 1] = repeat
+        coefficients = T.linspace(0, 1, repeat + 2)[1:-1].reshape(zshape)
+        augmented_tensor = T.expand_dims(tensor, axis + 1)
+        interpolated = augmented_tensor * (1 - coefficients)\
+                        + T.roll(augmented_tensor, -1, axis) * coefficients
+        tensor_aug = concatenate([augmented_tensor, interpolated], axis+1)
+ 
+    return tensor_aug.reshape(out_shape)
 
