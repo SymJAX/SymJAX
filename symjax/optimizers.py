@@ -82,7 +82,9 @@ class SGD(Optimizer):
         for param, grad in zip(params, grads):
             updates[param] = param - learning_rate * grad
 
-        get_graph().updates.update(updates)
+        self.updates = updates
+        if get_graph() is not None:
+            get_graph().updates.update(updates)
 
 
 class NesterovMomentum(Optimizer):
@@ -131,8 +133,10 @@ class NesterovMomentum(Optimizer):
             x = momentum * velocity + update - param
             updates[velocity] = x
             updates[param] = momentum * x + update
-
-        get_graph().updates.update(updates)
+        
+        self.updates = updates
+        if get_graph() is not None:
+            get_graph().updates.update(updates)
 
 
 class Adam(Optimizer):
@@ -196,4 +200,6 @@ class Adam(Optimizer):
             updates[param] = param - learning_rate * update
         updates[step] = step + 1
 
-        get_graph().updates.update(updates)
+        self.updates = updates
+        if get_graph() is not None:
+            get_graph().updates.update(updates)

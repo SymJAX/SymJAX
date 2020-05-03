@@ -498,7 +498,8 @@ class Variable(Tensor):
         self.trainable = trainable
         from symjax import get_graph
         self.name = self.generate_name(name)
-        get_graph().variables[self.name] = self
+        if get_graph() is not None:
+            get_graph().variables[self.name] = self
         self.tensor = tensor
         self.value = jnp.array(copy.deepcopy(self._get_value()))
 
@@ -519,6 +520,8 @@ class Variable(Tensor):
         if name == '':
             name = 'unnamed'
         from symjax import get_graph
+        if get_graph() is None:
+            return name
         if name not in get_graph().variables:
             return name
 
