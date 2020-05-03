@@ -122,17 +122,21 @@ class Identity(Layer):
         return input
 
 
-class ConstantUpsample(Layer):
+class Upsample1D(Layer):
 
-    def __init__(self, input_or_shape, repeat, axis=-1):
+    def __init__(self, input_or_shape, repeat, axis=-1, mode='constant',
+                 value=0.):
 
         self.init_input(input_or_shape)
         self.repeat = repeat
+        self.mode = mode
+        self.value = value
         self.axis = axis
         super().__init__(self.forward(self.input))
 
     def forward(self, input):
-        return T.constant_upsample(input, self.repeat, self.axis)
+        return T.upsample_1d(input, repeat=self.repeat, axis=self.axis,
+                             mode=self.mode, value=self.value)
 
 
 class Reshape(Layer):
