@@ -35,6 +35,10 @@ class Graph:
         for name, value in data.items():
             self.variables[name].assign(value)
 
+    def reset(self):
+
+        for var in self.variables:
+            var.reset()
 
 
 def gradients(scalar, variables):
