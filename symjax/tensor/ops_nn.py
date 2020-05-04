@@ -410,8 +410,7 @@ def upsample_1d(tensor, repeat, axis=-1, mode='constant', value=0.):
                              full(zshape, value, dtype=tensor.dtype)], axis+1)
 
     elif mode == 'nearest':
-        assert tensor.shape[axis] > 1
-        tensor_aug = T.repeat(T.expand_dims(tensor, axis + 1), repeat + 1, axis + 1)
+        return T.repeat(tensor, repeat +1, axis)
  
     elif mode == 'linear':
         assert tensor.shape[axis] > 1
