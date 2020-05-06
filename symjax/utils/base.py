@@ -12,6 +12,35 @@ def create_cmap(values, colors):
     return cmap, norm
 
 
+def patchify_1d(x, window_length, stride):
+    """extract patches from a numpy array
+    
+    Parameters
+    ----------
+
+    x: array-like
+        the input data to extract patches from, any shape, the last dimension
+        is the one being patched
+
+    window_length: int
+        the length of the patches
+
+    stride: int
+        the amount of stride (bins separating two consecutive patches
+
+    Returns
+    -------
+
+    x_patches: array-like
+        the number of patches is put in the pre-last dimension (-2)
+    """
+
+    n_windows = (x.shape[-1] - window_length) // stride + 1
+    new_x = np.empty(x.shape[:-1] + (n_windows, window_length))
+    for n in range(n_windows):
+        new_x[...,n, :] = x[...,n * stride: n * stride + window_length]
+    return new_x
+
 def train_test_split(*args, train_size=0.8, stratify=None, seed=None):
     """split given data into two non overlapping sets
 
