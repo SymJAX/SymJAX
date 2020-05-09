@@ -6,8 +6,9 @@ from .base import gradients, function, get_graph
 class Optimizer:
 
     def reset(self):
-        for var in self.variables:
-            var.reset()
+        if hasattr(self, 'variables'):
+            for var in self.variables:
+                var.reset()
 
     def update(self):
         if '_update' in self.__dict__:
@@ -126,14 +127,17 @@ class NesterovMomentum(Optimizer):
             learning_rate = learning_rate()
 
         updates = dict()
+        variables = []
         for param, grad in zip(params, grads):
             velocity = tensor.Variable(numpy.zeros(param.shape, dtype=param.dtype),
                                     trainable=False)
+            variables.append(velocity)
             update = param - learning_rate * grad
             x = momentum * velocity + update - param
             updates[velocity] = x
             updates[param] = momentum * x + update
         
+        self.variables = variables
         self.updates = updates
         if get_graph() is not None:
             get_graph().updates.update(updates)
@@ -200,6 +204,7 @@ class Adam(Optimizer):
             updates[param] = param - learning_rate * update
         updates[step] = step + 1
 
+        self.variables = variables
         self.updates = updates
         if get_graph() is not None:
             get_graph().updates.update(updates)
