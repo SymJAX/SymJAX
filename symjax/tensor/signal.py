@@ -71,10 +71,7 @@ def morlet(M, s, w=5):
     """
     limit = 2 * numpy.pi
     x = T.linspace(-limit, limit, M) * s
-    print(w, x.shape)
-    print(w*x)
-    sine = T.cos(w * x)+T.sin(w * x)#T.complex(T.cos(w * x).astype('float32'),
-           # T.sin(w * x).astype('float32'))
+    sine = T.cos(w * x)+1j * T.sin(w * x)
     envelop = T.exp(-0.5 * (x**2))
 
     # apply correction term for admissibility
