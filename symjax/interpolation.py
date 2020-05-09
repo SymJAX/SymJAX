@@ -71,5 +71,3 @@ def hermite(samples, knots, values, derivatives):
 
     # linearly combine to produce interpolation
     return (T.expand_dims(yh, -2) * mask_polynome).sum(axis=(-3, -1))
-
-
