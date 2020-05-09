@@ -61,7 +61,7 @@ def hermite(samples, knots, values, derivatives):
     end = T.expand_dims(knots[..., 1:], -1)
     pos = (samples_ - start) / (end - start)
     mask = ((pos >= 0.) * (pos <= 1.0)).astype('float32')
-    mask = mask / mask.sum(-2, keepdims=True)
+    mask = mask / T.maximum(1, mask.sum(-2, keepdims=True))
 
     # create the polynomial basis (..., N_KNOTS - 1, TIME, 4)
     polynome = T.expand_dims(pos, -1) ** T.arange(4)
