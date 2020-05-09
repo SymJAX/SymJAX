@@ -56,20 +56,18 @@ def hermite(samples, knots, values, derivatives):
     else:
         samples_ = T.expand_dims(samples, -2)
 
+    # we keep left and right and they will coincide for adjacent regions
     start = T.expand_dims(knots[..., :-1], -1)
     end = T.expand_dims(knots[..., 1:], -1)
     pos = (samples_ - start) / (end - start)
-    mask = (pos >= 0.) * (pos < 1.)
-    # then we need to take care of the last boundary condition of the last
-    # on the right, for this we artificially set the mask to 1
-    mask_ = T.index_add(mask.astype('float32'), T.index[...,-1, -1],
-            T.equal(pos[..., -1, -1], 1.).astype('float32'))
+    mask = ((pos >= 0.) * (pos <= 1.0)).astype('float32')
+    mask = mask / mask.sum(-2, keepdims=True)
 
     # create the polynomial basis (..., N_KNOTS - 1, TIME, 4)
-    polynome = T.expand_dims(pos, -1) ** np.arange(4, dtype='float32')
+    polynome = T.expand_dims(pos, -1) ** T.arange(4)
 
     # apply mask
-    mask_polynome = polynome * T.expand_dims(mask_, -1)
+    mask_polynome = polynome * T.expand_dims(mask, -1)
 
     # linearly combine to produce interpolation
     return (T.expand_dims(yh, -2) * mask_polynome).sum(axis=(-3, -1))
