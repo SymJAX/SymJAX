@@ -41,6 +41,10 @@ class Graph:
         numpy.savez(path, **dict([(name, v.get())
                                   for name, v in self.variables.items()]))
 
+    def variable(self, name):
+        if name in self.variables:
+            return self.variables[name]
+
     def load(self, path):
         """Load graph."""
         data = numpy.load(path)

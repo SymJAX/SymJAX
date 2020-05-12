@@ -29,7 +29,71 @@ for name in names:
         {name: jax_wrap(jnp.__dict__[name], doc_func=numpy.fft.__dict__[name])})
 
 
+
 # Add some utility functions
+
+def fourier_complex_morlet(bandwidths, centers, N):
+    """Complex Morlet wavelet in Fourier
+
+    Parameters
+    ----------
+
+    bandwidths: array
+        the bandwidth of the wavelet
+
+    centers: array
+        the centers of the wavelet
+
+    freqs: array (optional)
+        the frequency sampling in radion going from 0 to pi and back to 0
+
+    """
+    freqs = T.linspace(-numpy.pi, numpy.pi, N)
+    envelop = T.exp(- (freqs - numpy.pi * centers) ** 2  * bandwidths ** 2)
+    H = (freqs>0).astype('float32')
+    wavelet = H * envelop
+    return T.roll(wavelet, N // 2, -1)
+
+
+
+
+def complex_morlet(bandwidths, centers, time=None):
+    """Complex Morlet wavelet
+
+    It corresponds to with (B, C)::
+
+        \phi(t) = \frac{1}{\pi B} e^{-\frac{t^2}{B}}e^{j2\pi C t}
+
+    For a filter bank do
+    
+    J = 8
+    Q = 1
+    scales = T.power(2,T.linspace(0, J, J*Q))
+    scales = scales[:, None]
+    complex_morlet(scales, 1/scales)
+
+    Parameters
+    ----------
+
+    bandwidths: array
+        the bandwidth of the wavelet
+
+    centers: array
+        the centers of the wavelet
+
+    time: array (optional)
+        the time sampling
+
+    """
+    if time is None:
+        B = 15 * bandwidths.max()
+        time = T.linspace(-(B // 2), B // 2, int(B.get()) + 1)
+    envelop = T.exp(- time ** 2 / (5 * bandwidths ** 2))
+    wave = T.exp(1j * numpy.pi * centers * time)
+    return envelop * wave
+
+
+
 
 def morlet(M, s, w=5):
     """
@@ -71,10 +135,7 @@ def morlet(M, s, w=5):
     """
     limit = 2 * numpy.pi
     x = T.linspace(-limit, limit, M) * s
-    print(w, x.shape)
-    print(w*x)
-    sine = T.cos(w * x)+T.sin(w * x)#T.complex(T.cos(w * x).astype('float32'),
-           # T.sin(w * x).astype('float32'))
+    sine = T.cos(w * x)+1j * T.sin(w * x)
     envelop = T.exp(-0.5 * (x**2))
 
     # apply correction term for admissibility

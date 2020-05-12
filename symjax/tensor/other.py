@@ -74,6 +74,13 @@ def _extract_image_patches(image, window_shape, hop=1, data_format='NCHW',
                                 (p2 // 2, p2 - p2 // 2)])
     if not hasattr(hop, '__len__'):
         hop = (hop, hop)
+
+    if image.ndim == 3:
+        image = image[:, None, :, :]
+        input_dim = 3
+    elif image.ndim == 2:
+        image = image[None, None, :, :]
+        input_dim = 2
     if data_format == 'NCHW':
 
         # compute the number of windows in both dimensions
@@ -104,8 +111,11 @@ def _extract_image_patches(image, window_shape, hop=1, data_format='NCHW',
             image, (image.shape[0], image.shape[1], -1))
         # shape is now (N, C)
         patches = jnp.take_along_axis(flat_image, flat_indices, 2)
-        return jnp.reshape(patches,
-                           image.shape[:2] + N + tuple(window_shape))
+        patches = jnp.reshape(patches, image.shape[:2] + N + tuple(window_shape))
+        if input_dim == 2:
+            return patches[0, 0]
+        elif input_dim == 3:
+            return patches[0]
     else:
         error
 
