@@ -113,7 +113,13 @@ class picidae:
                 wavs.append(wav_read(byt)[1].astype('float32'))
                 labels.append(item.split('/')[1])
                 XC.append(item.split('/')[2].split('-')[0])
-    
+
+        labels = np.array(labels)
+        unique = np.unique(labels)
+        y = np.zeros(len(labels), dtype='int32')
+        for k, name in enumerate(np.sort(unique)):
+            y[labels == name] = k
+
         print('Dataset picidae loaded in {0:.2f}s.'.format(time.time()-t0))
     
-        return wavs, labels, XC
+        return wavs, y, labels, XC
