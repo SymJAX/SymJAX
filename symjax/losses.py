@@ -1,4 +1,230 @@
 from . import tensor as T
+import numpy as np
+
+def vae(x, x_hat, z_mu, z_logvar, mu, logvar, logvar_x=0., eps=1e-8):
+    """N samples of dimension D to latent space in K dimension
+
+    Parameters
+    ----------
+
+    x: array
+        should be of shape (N, D)
+
+    x_hat: array
+        should be of shape (N, D)
+
+    z_mu: array
+        should be of shape (N, K), infered mean of variational Gaussian
+
+    z_logvar: array
+        should be of shape (N, K), infered log-variance of variational Gaussian
+
+    mu: array
+        should be of shape (K,), parameter (centroids)
+
+    logvar: array
+        should be of shape (K,), parameter (logvar of clusters)
+
+    """
+
+    var = T.exp(logvar)
+
+    # E_{q(z,c|x)}[log(p(x|z))]
+    px_z = - 0.5 * ((x - x_hat) ** 2 / T.exp(logvar_x) + logvar_x).sum(1)
+
+    # - E_{q(z,c|x)}[log(q(z|x))] : entropy of normal
+    h_z = 0.5 * z_logvar.sum(1)
+
+    # E_{q(z,c|x)}[log(p(z|c)]
+    ll_z = - 0.5 * (logvar + z_var / var - 1 + (z_mu - mu) ** 2 / var).sum(-1)
+
+    loss = - (px_z + ll_z + h_z)
+
+    return loss
+
+
+
+def vae_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0., eps=1e-8):
+    """N samples of dimension D to latent space of C sluters in K dimension
+
+    Parameters
+    ----------
+
+    x: array
+        should be of shape (N, D)
+
+    x_hat: array
+        should be of shape (N, D)
+
+    z_mu: array
+        should be of shape (N, K), infered mean of variational Gaussian
+
+    z_logvar: array
+        should be of shape (N, K), infered log-variance of variational Gaussian
+
+    mu: array
+        should be of shape (C, K), parameter (centroids)
+
+    logvar: array
+        should be of shape (C, K), parameter (logvar of clusters)
+
+    logpi: array
+        should be of shape (C,), parameter (prior of clusters)
+
+    """
+
+    var = T.exp(logvar)
+    z_var = T.exp(z_logvar)
+
+    # predict the log probability of clusters, shape will be (N, C)
+    # and compute compute p(t|z) = p(z|t)p(t)/(\sum_t p(z|t)p(t))
+    logprob = (logpi[:, None] - .5 * (T.log(2 * np.pi) + logvar)\
+                    - (z_mu[:, None, :] - mu) ** 2 / (2 * var)).sum(2)
+    pt_z = T.softmax(logprob)
+
+    # E_{q(z,c|x)}[log(p(x|z))]
+    px_z = - 0.5 * ((x - x_hat) ** 2 / T.exp(logvar_x)+ logvar_x ).sum(1)
+
+    # - E_{q(z,c|x)}[log(q(c|x))] entropy of categorical
+    h_c = - (pt_z * T.log_softmax(logprob)).sum(1)
+
+    # - E_{q(z,c|x)}[log(q(z|x))] : entropy of normal
+    h_z = 0.5 * z_logvar.sum(1)
+
+    # E_{q(z,c|x)}[log(p(z|c)]
+    ll_z = - 0.5 * (pt_z * (logvar + z_var[:, None, :] / var - 1\
+            + (z_mu[:, None, :] - mu) ** 2 / var).sum(-1)).sum(-1)
+
+    # E_{q(z,c|x)}[log(p(c)]
+    p_c = (pt_z * logpi).sum(1)
+
+    loss = -(px_z + ll_z + p_c + h_c + h_z)
+
+    return loss, px_z + p_c, pt_z
+
+ 
+def vae_comp_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0., eps=1e-8):
+    """N samples of dimension D to latent space of I pieces each of C sluters
+    in K dimension
+
+    Parameters
+    ----------
+
+    x: array
+        should be of shape (N, D)
+
+    x_hat: array
+        should be of shape (N, D)
+
+    z_mu: array
+        should be of shape (N, I, K), infered mean of variational Gaussian
+
+    z_logvar: array
+        should be of shape (N, I, K), infered log-variance of variational Gaussian
+
+    mu: array
+        should be of shape (I, C, K), parameter (centroids)
+
+    logvar: array
+        should be of shape (I, C, K), parameter (logvar of clusters)
+
+    logpi: array
+        should be of shape (I, C), parameter (prior of clusters)
+
+    """
+
+    var = T.exp(logvar)
+
+    # predict the log probability of clusters, shape will be (N, I, C)
+    # and compute compute p(t_i|z_i) = p(z_i|t_i)p(t_i)/(\sum_t_i p(z_i|t_i)p(t_i))
+    logprob = (logpi[:, :, None] - .5 * (T.log(2 * np.pi) + logvar)\
+                - (z_mu[:, :, None, :] - mu) ** 2 / (2 * var)).sum(3)
+    pt_z = T.softmax(logprob)
+
+    # E_{q(z,c|x)}[log(p(x|z))]
+    px_z = ((x - x_hat)**2).sum(1)
+
+    # - E_{q(z,c|x)}[log(q(c|x))] entropy of categorical
+    h_c = - (pt_z * T.log_softmax(logprob)).sum((1, 2))
+
+    # - E_{q(z,c|x)}[log(q(z|x))] : entropy of normal
+    h_z = 0.5 * z_logvar.sum((1, 2))
+
+    # E_{q(z,c|x)}[log(p(z|c)]
+    ll_z = - 0.5 * (pt_z * (logvar + z_var[:, :, None, :] / var - 1\
+            + (z_mu[:, :, None, :] - mu) ** 2 / var).sum(-1)).sum((1, 2))
+
+    # E_{q(z,c|x)}[log(p(c)]
+    p_c = (pt_z * logpi[:, :, None]).sum((1, 2))
+
+    loss = - (px_z + ll_z + p_c + h_c + h_z)
+
+    return loss
+
+  
+def vae_fact_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, eps=1e-8):
+    """N samples of dimension D to latent space of I pieces each of C sluters
+    in K dimension
+
+    Parameters
+    ----------
+
+    x: array
+        should be of shape (N, D)
+
+    x_hat: array
+        should be of shape (N, D)
+
+    z_mu: array
+        should be of shape (N, K), infered mean of variational Gaussian
+
+    z_logvar: array
+        should be of shape (N, K), infered log-variance of variational Gaussian
+
+    mu: array
+        should be of shape (I, C, K), parameter (centroids)
+
+    logvar: array
+        should be of shape (K,), parameter (logvar of clusters)
+
+    logpi: array
+        should be of shape (I, C), parameter (prior of clusters)
+
+    """
+
+    var = T.exp(logvar)
+
+    # predict the log probability of clusters, shape will be (N, I, C)
+    # and compute compute p(t_i|z_i) = p(z_i|t_i)p(t_i)/(\sum_t_i p(z_i|t_i)p(t_i))
+    logprob = (logpi[:, :, None] - .5 * (T.log(2 * np.pi) + logvar)\
+                - (z_mu[:, :, None, :] - mu) ** 2 / (2 * var)).sum(3)
+    pt_z = T.softmax(logprob)
+
+    # E_{q(z,c|x)}[log(p(x|z))]
+    px_z = ((x - x_hat)**2).sum(1)
+
+    # - E_{q(z,c|x)}[log(q(c|x))] entropy of categorical
+    h_c = - (pt_z * T.log_softmax(logprob)).sum((1, 2))
+
+    # - E_{q(z,c|x)}[log(q(z|x))] : entropy of normal
+    h_z = 0.5 * z_logvar.sum((1, 2))
+
+    # E_{q(z,c|x)}[log(p(z|c)]
+    ll_z = - 0.5 * (logvar + z_var / var - 1\
+            + ((z_mu ** 2 - 2 * z_mu * (mu * pt_z[...,None]).sum((1, 2))\
+                + (mu * pt_z[...,None]).sum((1, 2)) ** 2\
+                - (mu* pt_z[...,None]**2).sum((1, 2))\
+                + (mu* pt_z[...,None]).sum((1, 2)))/ var).sum(-1))
+
+    # E_{q(z,c|x)}[log(p(c)]
+    p_c = (pt_z * logpi[:, :, None]).sum((1, 2))
+
+    loss = - (px_z + ll_z + p_c + h_c + h_z)
+
+    return loss
+
+
+
 
 
 def sparse_crossentropy_logits(p, q, weights=None):
