@@ -16,6 +16,7 @@ from .stl10 import stl10
 
 # audio
 from .vocalset import vocalset
+from .picidae import picidae
 from .TUTacousticscences2017 import TUTacousticscences2017
 from .gtzan import gtzan
 from .sonycust import sonycust
