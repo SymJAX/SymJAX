@@ -48,11 +48,10 @@ def fourier_complex_morlet(bandwidths, centers, N):
         the frequency sampling in radion going from 0 to pi and back to 0
 
     """
-    freqs = T.linspace(-numpy.pi, numpy.pi, N)
-    envelop = T.exp(- (freqs - numpy.pi * centers) ** 2  * bandwidths ** 2)
-    H = (freqs>0).astype('float32')
-    wavelet = H * envelop
-    return T.roll(wavelet, N // 2, -1)
+    freqs = T.linspace(0, 2 * numpy.pi, N)
+    envelop = T.exp(- 0.25 * (freqs - centers) ** 2  * bandwidths ** 2)
+    H = (freqs <= numpy.pi).astype('float32')
+    return envelop * H
 
 
 
@@ -84,16 +83,27 @@ def complex_morlet(bandwidths, centers, time=None):
     time: array (optional)
         the time sampling
 
+    Returns
+    -------
+
+    wavelet: array like
+        the wavelet centered at 0
+
     """
     if time is None:
-        B = 15 * bandwidths.max()
-        time = T.linspace(-(B // 2), B // 2, int(B.get()) + 1)
-    envelop = T.exp(- time ** 2 / (5 * bandwidths ** 2))
-    wave = T.exp(1j * numpy.pi * centers * time)
+        B = 6 * bandwidths.max() + 1
+        time = T.roll(T.linspace(-(B // 2), B // 2, int(B.get())), int(B.get()) // 2 + 1)
+    envelop = T.exp(- (time / bandwidths) ** 2)
+    wave = T.exp(1j * centers * time)
     return envelop * wave
 
-
-
+def littewood_paley_normalization(filter_bank, down=None, up=None):
+    lp = T.abs(filter_bank).sum(0)
+    freq = T.linspace(0, 2 * numpy.pi, lp.shape[0])
+    down = 0 or down
+    up = numpy.pi or up
+    lp = T.where(T.logical_and(freq >= down, freq <= up), lp, 1)
+    return filter_bank / lp
 
 def morlet(M, s, w=5):
     """

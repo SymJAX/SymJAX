@@ -15,6 +15,7 @@ from .cassava import cassava
 from .stl10 import stl10
 
 # audio
+from .speech_commands import speech_commands
 from .vocalset import vocalset
 from .picidae import picidae
 from .TUTacousticscences2017 import TUTacousticscences2017
