@@ -81,6 +81,8 @@ def _extract_image_patches(image, window_shape, hop=1, data_format='NCHW',
     elif image.ndim == 2:
         image = image[None, None, :, :]
         input_dim = 2
+    else:
+        input_dim = 4
     if data_format == 'NCHW':
 
         # compute the number of windows in both dimensions
@@ -116,6 +118,8 @@ def _extract_image_patches(image, window_shape, hop=1, data_format='NCHW',
             return patches[0, 0]
         elif input_dim == 3:
             return patches[0]
+        else:
+            return patches
     else:
         error
 

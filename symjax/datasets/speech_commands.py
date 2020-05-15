@@ -9,24 +9,23 @@ from scipy.io.wavfile import read as wav_read
 
 
 class speech_commands:
-    """music genre classification
+    """speech commands classification
 
-    This dataset was used for the well known paper in genre classification
-    "Musical genre classification of audio signals" by G. Tzanetakis
-    and P. Cook in IEEE Transactions on Audio and Speech Processing 2002.
+    source: https://ai.googleblog.com/2017/08/launching-speech-commands-dataset.html
 
-    Unfortunately the database was collected gradually and very early on in my
-    research so I have no titles (and obviously no copyright permission etc).
-    The files were collected in 2000-2001 from a variety of sources including
-    personal CDs, radio, microphone recordings, in order to represent a variety
-    of recording conditions. Nevetheless I have been providing it to researchers
-    upon request mainly for comparison purposes etc. Please contact George
-    Tzanetakis (gtzan@cs.uvic.ca) if you intend to publish experimental results
-    using this dataset.
+    The dataset has 65,000 one-second long utterances of 30 short
+    words, by thousands of different people, contributed by
+    members of the public through the AIY website. It’s released
+    under a Creative Commons BY 4.0 license, and will continue to
+    grow in future releases as more contributions are received.
+    The dataset is designed to let you build basic but useful
+    voice interfaces for applications, with common words like
+    “Yes”, “No”, digits, and directions included. The
+    infrastructure we used to create the data has been open
+    sourced too, and we hope to see it used by the wider community
+    to create their own versions, especially to cover underserved
+    languages and applications.
 
-    There are some practical and conceptual issues with this dataset, described
-    in "The GTZAN dataset: Its contents, its faults, their effects on
-    evaluation, and its future use" by B. Sturm on arXiv 2013.
     """
 
     name2class = {'blues':0, 'classical':1, 'country': 2,
@@ -70,7 +69,7 @@ class speech_commands:
         noises = list()
         noise_labels = list()
         names = tar.getmembers()
-        for name in tqdm(names, ascii=True, total=1000):
+        for name in tqdm(names, ascii=True):
             if 'wav' not in name.name:
                 continue
             f = tar.extractfile(name.name)#.read()
@@ -82,12 +81,12 @@ class speech_commands:
                 left = 16000 - len(wav)
                 to_pad = left // 2
                 wavs.append(np.pad(wav, [[to_pad, left - to_pad]]))
-                labels.append(name.name.split('/')[-1])
+                labels.append(name.name.split('/')[-2])
         labels = np.array(labels)
         unique_labels = np.unique(labels)
-        y = np.array([np.nonzero(label == unique_labels)
-                        for label in labels])
+        y = np.squeeze(np.array([np.nonzero(label == unique_labels)[0]
+                        for label in labels]).astype('int32'))
     
         print('Dataset speech commands loaded in{0:.2f}s.'.format(time.time()-t0))
     
-        return np.array(wavs), y, labels, noises, noise_labels
+        return np.array(wavs).astype('float32'), y, labels, noises, noise_labels
