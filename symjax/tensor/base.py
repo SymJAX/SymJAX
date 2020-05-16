@@ -360,10 +360,10 @@ class RandomOp(Tensor):
         self.kwargs = kwargs
         self.args = args
         self.jax_function = _jax_function
-        if _seed is None:
-            self.seed = numpy.random.randint(0, 1000000)
-        else:
-            self.seed = _seed
+#        if _seed is None:
+#            self.seed = numpy.random.randint(0, 1000000)
+#        else:
+        self.seed = _seed
 
         # set roots
         roots = getroots([i for i in kwargs.values()] + list(args))
@@ -381,10 +381,11 @@ class RandomOp(Tensor):
         elif self in tracker:
             return tracker[self]
         # argument list
+        seed = self.seed or numpy.random.randint(0, 1000000)
         if 'rng' in tracker:
-            key = jax.random.PRNGKey(self.seed + tracker['rng'])
+            key = jax.random.PRNGKey(seed + tracker['rng'])
         else:
-            key = jax.random.PRNGKey(self.seed)
+            key = jax.random.PRNGKey(seed)
 
         # evaluate the function kwargs as explicit jax arrays
         kwargs = dict()

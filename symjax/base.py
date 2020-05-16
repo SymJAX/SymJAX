@@ -73,12 +73,14 @@ def gradients(scalar, variables):
         gradients: Tuple
             the sequency of gradients ordered as given in the input variables
     """
-    if scalar.shape != ():
+    if numpy.prod(scalar.shape) != 1:
         raise RuntimeError("the variable to differentiate is not a scalar")
-    elif not isinstance(scalar, t.Tensor):
+    if not isinstance(scalar, t.Tensor):
         raise RuntimeError(
             "the variable used in gradients should be a Tensor type")
 
+    if scalar.shape != ():
+        scalar = scalar.sum()
     if isinstance(variables, t.Tensor):
         input_variables = [variables]
         input_list = False
