@@ -23,7 +23,8 @@ for name in names:
 # Add the fft functions into signal
 
 names = ['fft', 'ifft', 'fft2', 'ifft2', 'fftn', 'ifftn', 'rfft', 'irfft',
-         'rfft2', 'irfft2', 'rfftn', 'irfftn', 'fftfreq', 'rfftfreq']
+         'rfft2', 'irfft2', 'rfftn', 'irfftn', 'fftfreq', 'rfftfreq', 'ifftshift',
+         'fftshift']
 for name in names:
     module.__dict__.update(
         {name: jax_wrap(jnp.__dict__[name], doc_func=numpy.fft.__dict__[name])})
@@ -92,7 +93,7 @@ def complex_morlet(bandwidths, centers, time=None):
     """
     if time is None:
         B = 6 * bandwidths.max() + 1
-        time = T.roll(T.linspace(-(B // 2), B // 2, int(B.get())), int(B.get()) // 2 + 1)
+        time = T.linspace(-(B // 2), B // 2, int(B.get()))#, int(B.get()) // 2 + 1)
     envelop = T.exp(- (time / bandwidths) ** 2)
     wave = T.exp(1j * centers * time)
     return envelop * wave
@@ -100,10 +101,54 @@ def complex_morlet(bandwidths, centers, time=None):
 def littewood_paley_normalization(filter_bank, down=None, up=None):
     lp = T.abs(filter_bank).sum(0)
     freq = T.linspace(0, 2 * numpy.pi, lp.shape[0])
-    down = 0 or down
+    down = 0 if down is None else down
     up = numpy.pi or up
     lp = T.where(T.logical_and(freq >= down, freq <= up), lp, 1)
     return filter_bank / lp
+
+
+
+def tukey(M, alpha=0.5):
+    r"""Return a Tukey window, also known as a tapered cosine window.
+    Parameters
+    ----------
+    M : int
+        Number of points in the output window. If zero or less, an empty
+        array is returned.
+    alpha : float, optional
+        Shape parameter of the Tukey window, representing the fraction of the
+        window inside the cosine tapered region.
+        If zero, the Tukey window is equivalent to a rectangular window.
+        If one, the Tukey window is equivalent to a Hann window.
+    Returns
+    -------
+    w : ndarray
+        The window, with the maximum value normalized to 1 (though the value 1
+        does not appear if `M` is even and `sym` is True).
+    References
+    ----------
+    .. [1] Harris, Fredric J. (Jan 1978). "On the use of Windows for Harmonic
+           Analysis with the Discrete Fourier Transform". Proceedings of the
+           IEEE 66 (1): 51-83. :doi:`10.1109/PROC.1978.10837`
+    .. [2] Wikipedia, "Window function",
+           https://en.wikipedia.org/wiki/Window_function#Tukey_window
+    """
+
+    n = T.arange(0, M)
+    width = int(numpy.floor(alpha*(M-1)/2.0))
+    n1 = n[0:width+1]
+    n2 = n[width+1:M-width-1]
+    n3 = n[M-width-1:]
+
+    w1 = 0.5 * (1 + T.cos(numpy.pi * (-1 + 2.0*n1/alpha/(M-1))))
+    w2 = T.ones(n2.shape)
+    w3 = 0.5 * (1 + T.cos(numpy.pi * (-2.0/alpha + 1 + 2.0*n3/alpha/(M-1))))
+
+    w = T.concatenate((w1, w2, w3))
+
+    return w
+
+
 
 def morlet(M, s, w=5):
     """
