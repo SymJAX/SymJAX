@@ -99,7 +99,7 @@ class Layer(T.Tensor):
         return self._updates
 
     def add_update(self, update):
-        self.updates.update(update)
+        self._updates.update(update)
         if get_graph() is not None:
             get_graph().updates.update(update)
 
