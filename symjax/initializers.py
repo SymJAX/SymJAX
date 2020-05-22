@@ -59,7 +59,7 @@ def orthogonal(shape, gain=1, seed=None):
      return gain * q
 
 def _compute_fans(shape, in_axis=0, out_axis=1):
-  receptive_field_size = jnp.prod(shape) / (shape[in_axis] * shape[out_axis])
+  receptive_field_size = numpy.prod(shape) / (shape[in_axis] * shape[out_axis])
   fan_in = shape[in_axis] * receptive_field_size
   fan_out = shape[out_axis] * receptive_field_size
   return fan_in, fan_out
@@ -81,7 +81,7 @@ def variance_scaling(mode, shape, gain, distribution=normal):
     else:
         raise ValueError(
             f"mode most be fan_in, fan_out or fan_avg, value passed was {mode}")
-    std = gain * jnp.sqrt(1. / den)
+    std = gain * numpy.sqrt(1. / den)
     return distribution(shape, std=std)
 
 def glorot(shape, gain=1, distribution=normal):
@@ -178,4 +178,8 @@ def he(shape, gain=numpy.sqrt(2), distribution=normal):
 
 
 def lecun(shape, gain=1.0, distribution=normal):
+    """LeCun weight initialization.
+    Weights are initialized with a standard deviation of
+    :math:`\\sigma = gain \\sqrt{\\frac{1}{fan_{in}}}`.
+   """
     return variance_scaling("fan_in", shape, gain, distribution)
