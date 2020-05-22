@@ -608,7 +608,7 @@ class BatchNormalization(Layer):
 
         self.mean = T.mean(input, self.axis, keepdims=True)
         self.var = T.var(input, self.axis, keepdims=True)
-        if len(self.updates.keys()) == 0:
+        if len(self.updates) == 0:
             self.avgmean, upm, step = T.ExponentialMovingAverage(
                 self.mean, self.beta1)
             self.avgvar, upv, step = T.ExponentialMovingAverage(

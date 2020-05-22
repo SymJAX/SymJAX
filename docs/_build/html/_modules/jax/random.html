@@ -85,6 +85,7 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user/wrap.html">Wrap Jax computation into SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../user/examples.html">Examples</a></li>
 </ul>
 <ul>
@@ -197,7 +198,6 @@
 <span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">jit</span><span class="p">,</span> <span class="n">vmap</span>
 <span class="kn">from</span> <span class="nn">.numpy.lax_numpy</span> <span class="kn">import</span> <span class="n">_constant_like</span><span class="p">,</span> <span class="n">asarray</span>
 <span class="kn">from</span> <span class="nn">jax.lib</span> <span class="kn">import</span> <span class="n">xla_bridge</span>
-<span class="kn">from</span> <span class="nn">jax.lib</span> <span class="kn">import</span> <span class="n">xla_client</span>
 <span class="kn">from</span> <span class="nn">jax.lib</span> <span class="kn">import</span> <span class="n">cuda_prng</span>
 <span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">core</span>
 <span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">abstract_arrays</span>
@@ -346,11 +346,9 @@
   <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">def</span> <span class="nf">_broadcast</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="n">ndims</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">GetShape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">xla_client</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">BroadcastInDim</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span>
-                                         <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">rank</span> <span class="o">-</span> <span class="n">ndims</span><span class="p">,</span> <span class="n">rank</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">BroadcastInDim</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">rank</span> <span class="o">-</span> <span class="n">ndims</span><span class="p">,</span> <span class="n">rank</span><span class="p">)))</span>
   <span class="k">return</span> <span class="n">cuda_prng</span><span class="o">.</span><span class="n">threefry2x32</span><span class="p">(</span>
-      <span class="n">xla_bridge</span><span class="o">.</span><span class="n">computation_builder_shim</span><span class="p">(</span><span class="n">c</span><span class="p">),</span>
-      <span class="p">(</span><span class="n">_broadcast</span><span class="p">(</span><span class="n">k1</span><span class="p">),</span> <span class="n">_broadcast</span><span class="p">(</span><span class="n">k2</span><span class="p">)),</span> <span class="p">(</span><span class="n">_broadcast</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span> <span class="n">_broadcast</span><span class="p">(</span><span class="n">x2</span><span class="p">)))</span>
+      <span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">_broadcast</span><span class="p">(</span><span class="n">k1</span><span class="p">),</span> <span class="n">_broadcast</span><span class="p">(</span><span class="n">k2</span><span class="p">)),</span> <span class="p">(</span><span class="n">_broadcast</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span> <span class="n">_broadcast</span><span class="p">(</span><span class="n">x2</span><span class="p">)))</span>
 
 <span class="n">threefry2x32_p</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">Primitive</span><span class="p">(</span><span class="s2">&quot;threefry2x32&quot;</span><span class="p">)</span>
 <span class="n">threefry2x32_p</span><span class="o">.</span><span class="n">multiple_results</span> <span class="o">=</span> <span class="kc">True</span>
@@ -597,32 +595,6 @@
 <span class="sd">    A shuffled version of x.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">return</span> <span class="n">_shuffle</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span></div>
-
-
-<span class="k">def</span> <span class="nf">permutation</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Permute elements of an array along its first axis or return a permuted range.</span>
-
-<span class="sd">  Args:n</span>
-<span class="sd">    key: a PRNGKey used as the random key.</span>
-<span class="sd">    x: the array or integer range to be shuffled.</span>
-
-<span class="sd">  Returns:</span>
-<span class="sd">    A shuffled version of x or array range</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="ow">not</span> <span class="n">onp</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="c1"># scalar case, must be a concrete integer</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">onp</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">onp</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
-      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;x must be an integer or at least 1-dimensional&quot;</span><span class="p">)</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">_shuffle</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
-  <span class="k">elif</span> <span class="n">onp</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">_shuffle</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;permutation for &gt;1d inputs x not yet implemented, see &quot;</span>
-           <span class="s2">&quot;https://github.com/google/jax/issues/2066 for updates.&quot;</span><span class="p">)</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,))</span>
 <span class="k">def</span> <span class="nf">_shuffle</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
