@@ -119,14 +119,14 @@ class esc:
         folds = meta[:, 1].astype('int32')
         fine_labels = meta[:, 2].astype('int32')
         categories = meta[:, 3]
-        esc10 = meta[:, 4].astype('bool')
-        coarse_labels = np.array([esc50.fine_to_coarse[c] for c in categories])
+        esc10 = meta[:, 4] == 'True'
+        coarse_labels = np.array([esc.fine_to_coarse[c] for c in categories])
         coarse_labels = coarse_labels.astype('int32')
     
         wavs = list()
         order = list()
         N = 0
-        for filename in f.namelist():
+        for filename in tqdm(f.namelist(), ascii=True):
             if '.wav' not in filename:
                 continue
             wavfile   = f.read(filename)

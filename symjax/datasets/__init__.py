@@ -29,3 +29,4 @@ from .warblr import warblr
 from .birdvox_70k import birdvox_70k
 from .birdvox_dcase_20k import birdvox_dcase_20k
 from .seizures_neonatal import seizures_neonatal
+from .FSDKaggle2018 import FSDKaggle2018
