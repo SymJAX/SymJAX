@@ -85,6 +85,7 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/wrap.html">Wrap Jax computation into SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/examples.html">Examples</a></li>
 </ul>
 <ul>
@@ -912,12 +913,12 @@
 
 
 <span class="nd">@_wraps</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">convolve</span><span class="p">,</span> <span class="n">lax_description</span><span class="o">=</span><span class="n">_PRECISION_DOC</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">convolve</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;full&#39;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">convolve</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;full&#39;</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="k">return</span> <span class="n">_conv</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="s1">&#39;convolve&#39;</span><span class="p">,</span> <span class="n">precision</span><span class="p">)</span>
 
 
 <span class="nd">@_wraps</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">correlate</span><span class="p">,</span> <span class="n">lax_description</span><span class="o">=</span><span class="n">_PRECISION_DOC</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">correlate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">correlate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="k">return</span> <span class="n">_conv</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="s1">&#39;correlate&#39;</span><span class="p">,</span> <span class="n">precision</span><span class="p">)</span>
 
 
@@ -1186,16 +1187,16 @@
   <span class="k">return</span> <span class="n">a</span>
 
 
-<span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="k">def</span> <span class="nf">_gradient</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">varargs</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
-  <span class="k">def</span> <span class="nf">gradient_along_axis</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+<span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_gradient</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">gradient_along_axis</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
     <span class="n">sliced</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">slice_in_dim</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
     <span class="n">a_grad</span> <span class="o">=</span> <span class="n">concatenate</span><span class="p">((</span>
-      <span class="p">(</span><span class="n">sliced</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">sliced</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>  <span class="c1"># upper edge</span>
-      <span class="p">(</span><span class="n">sliced</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-</span> <span class="n">sliced</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span>  <span class="c1"># inner</span>
-      <span class="p">(</span><span class="n">sliced</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-</span> <span class="n">sliced</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)),</span>  <span class="c1"># lower edge</span>
+      <span class="n">sliced</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">sliced</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+      <span class="p">(</span><span class="n">sliced</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-</span> <span class="n">sliced</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span>
+      <span class="n">sliced</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-</span> <span class="n">sliced</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
     <span class="p">),</span> <span class="n">axis</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">a_grad</span> <span class="o">/</span> <span class="n">h</span>
+    <span class="k">return</span> <span class="n">a_grad</span>
 
   <span class="k">if</span> <span class="n">axis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">axis</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">ndim</span><span class="p">)</span>
@@ -1204,32 +1205,14 @@
       <span class="n">axis</span> <span class="o">=</span> <span class="p">(</span><span class="n">axis</span><span class="p">,)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Give `axis` either as int or iterable&quot;</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-      <span class="k">return</span> <span class="p">[]</span>
     <span class="n">axis</span> <span class="o">=</span> <span class="p">[</span><span class="n">_canonicalize_axis</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">ndim</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">axis</span><span class="p">]</span>
 
   <span class="k">if</span> <span class="nb">min</span><span class="p">([</span><span class="n">s</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">axis</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Shape of array too small to calculate &quot;</span>
-                     <span class="s2">&quot;a numerical gradient, &quot;</span>
-                     <span class="s2">&quot;at least 2 elements are required.&quot;</span><span class="p">)</span>
-  <span class="n">len_axes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
-  <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">varargs</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">varargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="c1"># no spacing</span>
-    <span class="n">dx</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">*</span> <span class="n">len_axes</span>
-  <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-    <span class="c1"># single value for all axes</span>
-    <span class="n">dx</span> <span class="o">=</span> <span class="n">varargs</span> <span class="o">*</span> <span class="n">len_axes</span>
-  <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="n">len_axes</span><span class="p">:</span>
-    <span class="n">dx</span> <span class="o">=</span> <span class="n">varargs</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid number of spacing arguments </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">n</span><span class="p">)</span>
-
-  <span class="k">if</span> <span class="n">ndim</span><span class="p">(</span><span class="n">dx</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Non-constant spacing not implemented&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+      <span class="s2">&quot;Shape of array too small to calculate a numerical gradient&quot;</span><span class="p">)</span>
 
   <span class="c1"># TODO: use jax.lax loop tools if possible</span>
-  <span class="n">a_grad</span> <span class="o">=</span> <span class="p">[</span><span class="n">gradient_along_axis</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span> <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">dx</span><span class="p">)]</span>
+  <span class="n">a_grad</span> <span class="o">=</span> <span class="p">[</span><span class="n">gradient_along_axis</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span> <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axis</span><span class="p">]</span>
 
   <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
     <span class="n">a_grad</span> <span class="o">=</span> <span class="n">a_grad</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -1240,9 +1223,11 @@
 <span class="nd">@_wraps</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">gradient</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">gradient</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
   <span class="n">axis</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;axis&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;*args (sample distances) not implemented&quot;</span><span class="p">)</span>
   <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only `axis` keyword is implemented&quot;</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">_gradient</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">_gradient</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
 
 
 <span class="nd">@_wraps</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">isrealobj</span><span class="p">)</span>
@@ -1479,14 +1464,6 @@
 <div class="viewcode-block" id="split"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.split">[docs]</a><span class="nd">@_wraps</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">split</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="n">ary</span><span class="p">,</span> <span class="n">indices_or_sections</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
   <span class="n">dummy_val</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ary</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>  <span class="c1"># zero strides</span>
-  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">indices_or_sections</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="o">+</span> <span class="n">_arraylike_types</span><span class="p">):</span>
-    <span class="n">indices_or_sections</span> <span class="o">=</span> <span class="p">[</span><span class="n">core</span><span class="o">.</span><span class="n">concrete_or_error</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">i_s</span><span class="p">,</span> <span class="s2">&quot;in jax.numpy.split argument 1&quot;</span><span class="p">)</span>
-                           <span class="k">for</span> <span class="n">i_s</span> <span class="ow">in</span> <span class="n">indices_or_sections</span><span class="p">]</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="n">indices_or_sections</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">concrete_or_error</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">indices_or_sections</span><span class="p">,</span>
-                                                 <span class="s2">&quot;in jax.numpy.split argument 1&quot;</span><span class="p">)</span>
-  <span class="n">axis</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">concrete_or_error</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="s2">&quot;in jax.numpy.split argument `axis`&quot;</span><span class="p">)</span>
-
   <span class="n">subarrays</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">dummy_val</span><span class="p">,</span> <span class="n">indices_or_sections</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>  <span class="c1"># shapes</span>
   <span class="n">split_indices</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">cumsum</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">onp</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">sub</span><span class="p">)[</span><span class="n">axis</span><span class="p">]</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">subarrays</span><span class="p">])</span>
   <span class="n">starts</span><span class="p">,</span> <span class="n">ends</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ndim</span><span class="p">(</span><span class="n">ary</span><span class="p">),</span> <span class="n">shape</span><span class="p">(</span><span class="n">ary</span><span class="p">)</span>
@@ -2663,7 +2640,7 @@
 
 
 <div class="viewcode-block" id="dot"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.dot">[docs]</a><span class="nd">@_wraps</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">dot</span><span class="p">,</span> <span class="n">lax_description</span><span class="o">=</span><span class="n">_PRECISION_DOC</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=missing-docstring</span>
+<span class="k">def</span> <span class="nf">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=missing-docstring</span>
   <span class="n">_check_arraylike</span><span class="p">(</span><span class="s2">&quot;dot&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
   <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">_promote_dtypes</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
   <span class="n">a_ndim</span><span class="p">,</span> <span class="n">b_ndim</span> <span class="o">=</span> <span class="n">ndim</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="n">ndim</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
@@ -2681,7 +2658,7 @@
 
 
 <div class="viewcode-block" id="matmul"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.matmul">[docs]</a><span class="nd">@_wraps</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">matmul</span><span class="p">,</span> <span class="n">lax_description</span><span class="o">=</span><span class="n">_PRECISION_DOC</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">matmul</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=missing-docstring</span>
+<span class="k">def</span> <span class="nf">matmul</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=missing-docstring</span>
   <span class="n">_check_arraylike</span><span class="p">(</span><span class="s2">&quot;matmul&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
   <span class="n">a_is_vec</span><span class="p">,</span> <span class="n">b_is_vec</span> <span class="o">=</span> <span class="p">(</span><span class="n">ndim</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="n">ndim</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
   <span class="n">a</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="n">shape</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="k">if</span> <span class="n">a_is_vec</span> <span class="k">else</span> <span class="n">a</span>
@@ -2705,14 +2682,14 @@
 
 
 <div class="viewcode-block" id="vdot"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.vdot">[docs]</a><span class="nd">@_wraps</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">vdot</span><span class="p">,</span> <span class="n">lax_description</span><span class="o">=</span><span class="n">_PRECISION_DOC</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">vdot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">vdot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="k">if</span> <span class="n">issubdtype</span><span class="p">(</span><span class="n">_dtype</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="n">complexfloating</span><span class="p">):</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">conj</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">b</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="tensordot"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.tensordot">[docs]</a><span class="nd">@_wraps</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">tensordot</span><span class="p">,</span> <span class="n">lax_description</span><span class="o">=</span><span class="n">_PRECISION_DOC</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">tensordot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">tensordot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="n">_check_arraylike</span><span class="p">(</span><span class="s2">&quot;tensordot&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
   <span class="n">a_ndim</span> <span class="o">=</span> <span class="n">ndim</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
   <span class="n">b_ndim</span> <span class="o">=</span> <span class="n">ndim</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
@@ -2747,7 +2724,7 @@
 
 <div class="viewcode-block" id="einsum"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.einsum">[docs]</a><span class="nd">@_wraps</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">einsum</span><span class="p">,</span> <span class="n">lax_description</span><span class="o">=</span><span class="n">_PRECISION_DOC</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">einsum</span><span class="p">(</span><span class="o">*</span><span class="n">operands</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-  <span class="n">optimize</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;optimize&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+  <span class="n">optimize</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;optimize&#39;</span><span class="p">,</span> <span class="s1">&#39;auto&#39;</span><span class="p">)</span>
   <span class="n">optimize</span> <span class="o">=</span> <span class="s1">&#39;greedy&#39;</span> <span class="k">if</span> <span class="n">optimize</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">else</span> <span class="n">optimize</span>
   <span class="n">precision</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;precision&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -2912,7 +2889,7 @@
 
 
 <div class="viewcode-block" id="inner"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.inner">[docs]</a><span class="nd">@_wraps</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">inner</span><span class="p">,</span> <span class="n">lax_description</span><span class="o">=</span><span class="n">_PRECISION_DOC</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">inner</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">inner</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="k">if</span> <span class="n">ndim</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ndim</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>
   <span class="k">return</span> <span class="n">tensordot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span></div>
@@ -2992,22 +2969,7 @@
   <span class="k">if</span> <span class="n">axis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">ravel</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
     <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span>
-  <span class="k">return</span> <span class="n">_argminmax</span><span class="p">(</span><span class="s2">&quot;argmax&quot;</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span></div>
-
-
-<span class="n">_NANARG_DOC</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
-<span class="s2">Warning: jax.numpy.arg</span><span class="si">{}</span><span class="s2"> returns -1 for all-NaN slices and does not raise</span>
-<span class="s2">an error.</span>
-<span class="s2">&quot;&quot;&quot;</span>
-
-<span class="nd">@_wraps</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">nanargmax</span><span class="p">,</span> <span class="n">lax_description</span><span class="o">=</span><span class="n">_NANARG_DOC</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;max&quot;</span><span class="p">))</span>
-<span class="k">def</span> <span class="nf">nanargmax</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-  <span class="k">if</span> <span class="ow">not</span> <span class="n">issubdtype</span><span class="p">(</span><span class="n">_dtype</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="n">inexact</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">argmax</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
-  <span class="n">nan_mask</span> <span class="o">=</span> <span class="n">isnan</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-  <span class="n">a</span> <span class="o">=</span> <span class="n">where</span><span class="p">(</span><span class="n">nan_mask</span><span class="p">,</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
-  <span class="n">res</span> <span class="o">=</span> <span class="n">argmax</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">where</span><span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="n">nan_mask</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">_argminmax</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="argmin"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.argmin">[docs]</a><span class="nd">@_wraps</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">argmin</span><span class="p">)</span>
@@ -3015,23 +2977,11 @@
   <span class="k">if</span> <span class="n">axis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">ravel</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
     <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span>
-  <span class="k">return</span> <span class="n">_argminmax</span><span class="p">(</span><span class="s2">&quot;argmin&quot;</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span></div>
-
-
-<span class="nd">@_wraps</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">nanargmin</span><span class="p">,</span> <span class="n">lax_description</span><span class="o">=</span><span class="n">_NANARG_DOC</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">))</span>
-<span class="k">def</span> <span class="nf">nanargmin</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-  <span class="k">if</span> <span class="ow">not</span> <span class="n">issubdtype</span><span class="p">(</span><span class="n">_dtype</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="n">inexact</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">argmin</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
-  <span class="n">nan_mask</span> <span class="o">=</span> <span class="n">isnan</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-  <span class="n">a</span> <span class="o">=</span> <span class="n">where</span><span class="p">(</span><span class="n">nan_mask</span><span class="p">,</span> <span class="n">inf</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
-  <span class="n">res</span> <span class="o">=</span> <span class="n">argmin</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">where</span><span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="n">nan_mask</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">_argminmax</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span></div>
 
 
 <span class="c1"># TODO(mattjj): redo this lowering with a call to variadic lax.reduce</span>
-<span class="k">def</span> <span class="nf">_argminmax</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
-  <span class="k">if</span> <span class="n">size</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;attempt to get </span><span class="si">{}</span><span class="s2"> of an empty sequence&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">_argminmax</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
   <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">a</span><span class="o">.</span><span class="n">ndim</span>
   <span class="n">shape</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
   <span class="n">idxs</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">tie_in</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">arange</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">axis</span><span class="p">]))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
@@ -3483,7 +3433,7 @@
   <span class="n">collapsed_slice_dims</span> <span class="o">=</span> <span class="p">[]</span>
   <span class="n">start_index_map</span> <span class="o">=</span> <span class="p">[]</span>
 
-  <span class="n">index_dtype</span> <span class="o">=</span> <span class="n">int64</span> <span class="k">if</span> <span class="n">_max</span><span class="p">(</span><span class="n">x_shape</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">31</span><span class="p">)</span> <span class="k">else</span> <span class="n">int32</span>
+  <span class="n">index_dtype</span> <span class="o">=</span> <span class="n">int64</span> <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">x_shape</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">31</span><span class="p">)</span> <span class="k">else</span> <span class="n">int32</span>
   <span class="n">gather_indices</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">index_dtype</span><span class="p">)</span>  <span class="c1"># use onp to save a compilation</span>
 
   <span class="c1"># We perform three transformations to y before the scatter op, in order:</span>

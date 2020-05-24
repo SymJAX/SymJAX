@@ -58,6 +58,31 @@ def orthogonal(shape, gain=1, seed=None):
      q = q.reshape(shape)
      return gain * q
 
+def _compute_fans(shape, in_axis=0, out_axis=1):
+  receptive_field_size = numpy.prod(shape) / (shape[in_axis] * shape[out_axis])
+  fan_in = shape[in_axis] * receptive_field_size
+  fan_out = shape[out_axis] * receptive_field_size
+  return fan_in, fan_out
+
+def variance_scaling(mode, shape, gain, distribution=normal):
+    """Variance Scaling initialization.
+    """
+    if len(shape) < 2:
+        raise RuntimeError(
+                     "This initializer only works with shapes of length >= 2")
+
+    fan_in, fan_out = _compute_fans(shape, in_axis, out_axis)
+    if mode == "fan_in":
+        den = fan_in
+    elif mode == "fan_out":
+        den = fan_out
+    elif mode == "fan_avg":
+        den = (fan_in + fan_out) / 2.
+    else:
+        raise ValueError(
+            f"mode most be fan_in, fan_out or fan_avg, value passed was {mode}")
+    std = gain * numpy.sqrt(1. / den)
+    return distribution(shape, std=std)
 
 def glorot(shape, gain=1, distribution=normal):
     """Glorot weight initialization.
@@ -108,11 +133,8 @@ def glorot(shape, gain=1, distribution=normal):
         raise RuntimeError(
                      "This initializer only works with shapes of length >= 2")
 
-    n1, n2 = shape[:2]
-    receptive_field_size = numpy.prod(shape[2:])
-    std = gain * numpy.sqrt(2.0 / ((n1 + n2) * receptive_field_size))
-    return distribution(shape, std=std)
-
+    return variance_scaling("fan_avg", shape, gain, distribution)
+   
 
 def he(shape, gain=numpy.sqrt(2), distribution=normal):
     """He weight initialization.
@@ -152,14 +174,12 @@ def he(shape, gain=numpy.sqrt(2), distribution=normal):
     HeNormal  : Shortcut with Gaussian initializer.
     HeUniform : Shortcut with uniform initializer.
     """
-    if len(shape) <= 2:
-        fan_in = shape[0]
-    elif len(shape) > 2:
-        fan_in = numpy.prod(shape[1:])
-    std = gain * numpy.sqrt(1.0 / fan_in)
-    return distribution(shape, std=std)
+    return variance_scaling("fan_in", shape, gain, distribution)
 
 
-
-
-
+def lecun(shape, gain=1.0, distribution=normal):
+    """LeCun weight initialization.
+    Weights are initialized with a standard deviation of
+    :math:`\\sigma = gain \\sqrt{\\frac{1}{fan_{in}}}`.
+   """
+    return variance_scaling("fan_in", shape, gain, distribution)

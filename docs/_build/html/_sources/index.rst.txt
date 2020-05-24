@@ -25,6 +25,7 @@ Contents
   :maxdepth: 2
 
   user/installation
+  user/wrap
   user/examples
 
 API

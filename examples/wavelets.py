@@ -22,8 +22,8 @@ waveletlp = waveletlp.get()
 
 plt.subplot(321)
 for i in range(J*Q):
-    fr = np.real(np.fft.fft(wavelet[i]))
-    fi = np.imag(np.fft.fft(wavelet[i]))
+    fr = np.real(np.fft.fft(np.fft.ifftshift(wavelet[i])))
+    fi = np.imag(np.fft.fft(np.fft.ifftshift(wavelet[i])))
     plt.plot(i + fr, '--b')
     plt.plot(i + fi, '--r')
 
@@ -34,8 +34,8 @@ for i in range(J*Q):
 
 plt.subplot(324)
 for i in range(J*Q):
-    fr = np.real(np.fft.ifft(waveletw[i]))
-    fi = np.imag(np.fft.ifft(waveletw[i]))
+    fr = np.real(np.fft.fftshift(np.fft.ifft(waveletw[i])))
+    fi = np.imag(np.fft.fftshift(np.fft.ifft(waveletw[i])))
     plt.plot(2 * i + fr / fr.max(), '--b')
     plt.plot(2 * i + fi / fi.max(), '--r')
 
@@ -52,12 +52,10 @@ plt.plot(np.abs(waveletlp).sum(0), c='g')
 
 plt.subplot(326)
 for i in range(J*Q):
-    fr = np.real(np.fft.ifft(waveletlp[i]))
-    fi = np.imag(np.fft.ifft(waveletlp[i]))
+    fr = np.real(np.fft.fftshift(np.fft.ifft(waveletlp[i])))
+    fi = np.imag(np.fft.fftshift(np.fft.ifft(waveletlp[i])))
     plt.plot(2 * i + fr / fr.max(), '--b')
     plt.plot(2 * i + fi / fi.max(), '--r')
-
-
 
 
 plt.show()

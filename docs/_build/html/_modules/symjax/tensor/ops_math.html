@@ -85,6 +85,7 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/wrap.html">Wrap Jax computation into SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/examples.html">Examples</a></li>
 </ul>
 <ul>
@@ -292,23 +293,33 @@
         <span class="k">return</span> <span class="n">index_add</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">upsample</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">factors</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;zeros&#39;</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;repeat&#39;</span><span class="p">:</span>
-        <span class="n">vs</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">factors</span><span class="p">):</span>
-            <span class="n">vs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">repeat</span><span class="p">(</span><span class="n">vs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">vs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;zeros&#39;</span><span class="p">:</span>
-        <span class="n">masks</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">factors</span><span class="p">):</span>
-            <span class="n">v</span> <span class="o">=</span> <span class="n">tile</span><span class="p">(</span><span class="n">one_hot</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">f</span><span class="p">),</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">ax</span><span class="p">])</span>
-            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">one_hot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">factors</span><span class="p">),</span> <span class="s1">&#39;int32&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">({})</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
-            <span class="n">masks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">masks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span>
-        <span class="n">x_repeat</span> <span class="o">=</span> <span class="n">upsample</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">factors</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;repeat&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">x_repeat</span> <span class="o">*</span> <span class="n">masks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Not Implemented upsample&#39;</span><span class="p">)</span>
+<span class="c1">#def upsample_1d(x, factors, mode=&#39;zeros&#39;):</span>
+<span class="c1">#    &quot;&quot;&quot;</span>
+<span class="c1">#</span>
+<span class="c1">#    Parameters</span>
+<span class="c1">#    ----------</span>
+<span class="c1">#</span>
+<span class="c1">#    x : array-like</span>
+<span class="c1">#        the input tensor</span>
+<span class="c1">#</span>
+<span class="c1">#    factors</span>
+<span class="c1">#</span>
+<span class="c1">#    &quot;&quot;&quot;</span>
+<span class="c1">#    if mode == &#39;repeat&#39;:</span>
+<span class="c1">#        vs = [x]</span>
+<span class="c1">#        for ax, f in enumerate(factors):</span>
+<span class="c1">#            vs.append(repeat(vs[-1], f, ax))</span>
+<span class="c1">#        return vs[-1]</span>
+<span class="c1">#    elif mode == &#39;zeros&#39;:</span>
+<span class="c1">#        masks = [1]</span>
+<span class="c1">#        for ax, f in enumerate(factors):</span>
+<span class="c1">#            v = tile(one_hot(0, f), x.shape[ax])</span>
+<span class="c1">#            shape = (one_hot(ax, len(factors), &#39;int32&#39;) * (-2) + 1).get({})</span>
+<span class="c1">#            masks.append(masks[-1] * v.reshape(shape))</span>
+<span class="c1">#        x_repeat = upsample(x, factors, mode=&#39;repeat&#39;)</span>
+<span class="c1">#        return x_repeat * masks[-1]</span>
+<span class="c1">#    else:</span>
+<span class="c1">#        raise ValueError(&#39;Not Implemented upsample&#39;)</span>
 
 
 <span class="n">_JNP_NAMES</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">jnp</span><span class="p">,</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isfunction</span><span class="p">)]</span>

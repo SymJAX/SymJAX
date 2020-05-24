@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; symjax 0.0.1 documentation</title>
+  <title>Wrap Jax computation into SymJAX &mdash; symjax 0.0.1 documentation</title>
   
 
   
@@ -37,8 +37,8 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Wrap Jax computation into SymJAX" href="wrap.html" />
-    <link rel="prev" title="Welcome to SymJAX’s documentation!" href="../index.html" /> 
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -86,12 +86,8 @@
             
             
               <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#installation-with-pip">Installation with pip</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#manual-installation">Manual installation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="wrap.html">Wrap Jax computation into SymJAX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Wrap Jax computation into SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 </ul>
 <ul>
@@ -152,13 +148,13 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Installation</li>
+      <li>Wrap Jax computation into SymJAX</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/user/installation.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/user/wrap.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -171,54 +167,57 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>This installation is restricted to GPU support only.</p>
-<div class="section" id="installation-with-pip">
-<h2>Installation with pip<a class="headerlink" href="#installation-with-pip" title="Permalink to this headline">¶</a></h2>
-<ol class="arabic">
-<li><p>Install all GPU divers and compilers (<code class="docutils literal notranslate"><span class="pre">cuda</span></code>, <code class="docutils literal notranslate"><span class="pre">cudnn</span></code>, and GPU drivers).</p></li>
-<li><p>Install <code class="docutils literal notranslate"><span class="pre">jax</span></code> following <a class="reference external" href="https://github.com/google/jax#installation">Jax Installation</a>. Here is a minimal instruction to install the GPU version</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nv">PYTHON_VERSION</span><span class="o">=</span>cp37  <span class="c1"># alternatives: cp35, cp36, cp37, cp38</span>
-$ <span class="nv">CUDA_VERSION</span><span class="o">=</span>cuda92  <span class="c1"># alternatives: cuda92, cuda100, cuda101, cuda102</span>
-$ <span class="nv">PLATFORM</span><span class="o">=</span>linux_x86_64  <span class="c1"># alternatives: linux_x86_64</span>
-$ <span class="nv">BASE_URL</span><span class="o">=</span><span class="s1">&#39;https://storage.googleapis.com/jax-releases&#39;</span>
-$ pip install --upgrade <span class="nv">$BASE_URL</span>/<span class="nv">$CUDA_VERSION</span> jaxlib-0.1.38-<span class="nv">$PYTHON_VERSION</span>-none-<span class="nv">$PLATFORM</span>.whl
+  <div class="section" id="wrap-jax-computation-into-symjax">
+<h1>Wrap Jax computation into SymJAX<a class="headerlink" href="#wrap-jax-computation-into-symjax" title="Permalink to this headline">¶</a></h1>
+<p>The computation in Jax is done eagerly similarly to TF2 and PyTorch. In SymJAX
+the computational graph definition is done a priori with symbolic variables.
+That is, no actual computations are done during the graph definition, once done
+the graph is compiled with proper inputs/outputs/updates to provide the user
+with a compiled function executing the graph. This graph thus involves various
+operations, one can define its own in the two following way. First by combining
+the already existing SymJAX function, the other by creating it in pure Jax and
+then wrapping it into a SymJAX symbolic operation as demonstrated below.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">symjax</span> <span class="k">as</span> <span class="nn">sj</span>
+<span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
+
+<span class="n">__author__</span>      <span class="o">=</span> <span class="s2">&quot;Randall Balestriero&quot;</span>
+
+<span class="c1"># suppose we want to compute the mean-squared error between two vectors</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">((</span><span class="mi">10</span><span class="p">,))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">10</span><span class="p">,))</span>
+
+<span class="c1"># one way is to do so by combining SymJAX functions as</span>
+<span class="n">mse</span> <span class="o">=</span> <span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="c1"># notice that the basic operators are overloaded and implicitly call SymJAX ops</span>
+
+<span class="c1"># another solution is to create a new SymJAX Op from a jax computation as</span>
+<span class="c1"># follows</span>
+
+<span class="k">def</span> <span class="nf">mse_jax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># wrap the jax computation into a SymJAX Op that can then be used as any</span>
+<span class="c1"># SymJAX function</span>
+<span class="n">mse_op</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">jax_wrap</span><span class="p">(</span><span class="n">mse_jax</span><span class="p">)</span>
+<span class="n">also_mse</span> <span class="o">=</span> <span class="n">mse_op</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">also_mse</span><span class="p">)</span>
+<span class="c1"># Tensor(Op=mse_jax, shape=(), dtype=float32)</span>
+
+
+
+<span class="c1"># ensure that both are equivalent</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">mse</span><span class="p">,</span> <span class="n">also_mse</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="p">())</span>
+<span class="c1"># [array(6.0395503, dtype=float32), array(6.0395503, dtype=float32)]</span>
+
 </pre></div>
 </div>
-</div></blockquote>
-</li>
-<li><p>Install SymJAX with</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install symjax
-</pre></div>
-</div>
-</div></blockquote>
-</li>
-</ol>
-</div>
-<div class="section" id="manual-installation">
-<h2>Manual installation<a class="headerlink" href="#manual-installation" title="Permalink to this headline">¶</a></h2>
-<ol class="arabic">
-<li><p>Clone this repository with</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/RandallBalestriero/SymJAX
-</pre></div>
-</div>
-</div></blockquote>
-</li>
-<li><p>Install.</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> SymJAX
-$ pip install -r requirements.txt
-$ pip install .
-</pre></div>
-</div>
-</div></blockquote>
-</li>
-</ol>
-</div>
+<p>A SymJAX computation graph can not be partially defined with Jax computation,
+the above thus provides an easy way to wrap Jax computations into a SymJAX Op
+which can then be put into the graph as any other SymJAX provided Ops.</p>
 </div>
 
 
@@ -229,10 +228,10 @@ $ pip install .
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="wrap.html" class="btn btn-neutral float-right" title="Wrap Jax computation into SymJAX" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to SymJAX’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -119,7 +119,7 @@ def train_test_split(*args, train_size=0.8, stratify=None, seed=None):
 class batchify:
 
     def __init__(self, *args, batch_size, option='random', load_func=None,
-                 extra_process=0):
+                 extra_process=0, n_batches=None):
         """
 
         Parameters
@@ -132,6 +132,11 @@ class batchify:
 
         extra_processes: int (optional)
             if there is no load_func then extra process is useless
+
+        n_batches: int (optional)
+            the number of batches to produce, only used if option is random, if
+            not given it is taken to be the length of the data divided by the
+            batch_size
         
         Returns
         -------
@@ -150,6 +155,7 @@ class batchify:
         
         """
 
+        self.n_batches = n_batches or len(args[0]) // batch_size
         self.args = args
         self.start_index = 0
         self.option = option
@@ -158,12 +164,16 @@ class batchify:
         self.terminate = False
 
         if option == 'random_see_all':
-            self.permutation = np.random.permutation(args[0].shape[0])
-        elif option == 'random':
-            self.permutation = np.random.randint(0, args[0].shape[0],
-                                                 args[0].shape[0])
-        else:
-            self.permutation = np.arange(args[0].shape[0])
+            self.permutation = np.random.permutation(len(args[0]))
+#        elif option == 'random':
+#            if self.n_batches is None:
+#                self.permutation = np.random.randint(0, args[0].shape[0],
+#                                                     args[0].shape[0])
+#            else:
+#                self.permutation = np.random.randint(0, args[0].shape[0],
+#                                               self.batch_size * self.n_batches)
+#        else:
+#            self.permutation = np.arange(args[0].shape[0])
 
         # set up load function
         if load_func is None:
@@ -217,15 +227,25 @@ class batchify:
         return self
 
     def get_batch(self):
+
         indices = (self.start_index, self.start_index + self.batch_size)
 
         # check if we exhausted the samples
-        if indices[1] > self.args[0].shape[0]:
+        if self.option == 'random':
+            if indices[1] > self.batch_size * self.n_batches:
+                raise StopIteration()
+        elif indices[1] > len(self.args[0]):
             raise StopIteration()
 
         # proceed to get the data
-        perm = self.permutation[indices[0]: indices[1]]
-        batch = [arg[perm] for arg in self.args]
+        if self.option == 'random_see_all':
+            perm = self.permutation[indices[0]:indices[1]]
+            batch = [arg[perm] for arg in self.args]
+        elif self.option == 'continuous':
+            batch = [arg[indices[0]:indices[1]] for arg in self.args]
+        elif self.option == 'random':
+            perm = np.random.randint(0, len(self.args[0]), self.batch_size)
+            batch = [arg[perm] for arg in self.args]
         return batch
 
     def __next__(self):
@@ -251,6 +271,9 @@ class batchify:
         for i, load_func in enumerate(self.load_func):
             if load_func is not None:
                 batch[i] = load_func(batch[i])
+
+
+
 
 
 
