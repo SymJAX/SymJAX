@@ -12,6 +12,18 @@ This is an under development research project, not an official product, expect b
 
 SymJAX is a symbolic programming version of JAX simplifying graph input/output/updates and providing additional functionalities for general machine learning and deep learning applications. From an user perspective SymJAX apparents to Theano with fast graph optimization/compilation and broad hardware support, along with Lasagne-like deep learning functionalities
 
+## Why SymJAX ?
+
+The number of libraries topping Jax/Tensorflow/Torch is large and growing by the
+day. What SymJAX offers as opposed to most is an all-in-one library with diverse
+functionalities such as
+
+- dozens of various datasets with clear descriptions and one line import
+- advanced signal processing tools such as multiple wavelet familites (in time and frequency domain), multiple time-frequency representations, apodization windows, ...
+- IO utilities to monitor/save/track specific statistics during graph execution through h5 files and numpy, simple and explicit graph saving allowing to save and load models without burden
+- side utilities such as automatic batching of dataset, data splitting, cross-validation, ...
+
+
 ## Examples
 
 ```python
