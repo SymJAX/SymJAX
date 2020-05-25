@@ -1,8 +1,8 @@
-import numpy
+import numpy as np
 
 
 def constant(shape, value):
-    return numpy.full(shape, value)
+    return np.full(shape, value)
 
 def uniform(shape, range=0.01, std=None, mean=0.):
     """Sample initial weights from the uniform distribution.
@@ -18,19 +18,19 @@ def uniform(shape, range=0.01, std=None, mean=0.):
 
     std: float or None
         If std is a float then the weights are sampled from
-        U(mean - numpy.sqrt(3) * std, mean + numpy.sqrt(3) * std).
+        U(mean - np.sqrt(3) * std, mean + np.sqrt(3) * std).
 
     mean: float
         see std for description.
     """
     if std is not None:
-        a = mean - numpy.sqrt(3) * std
-        b = mean + numpy.sqrt(3) * std
+        a = mean - np.sqrt(3) * std
+        b = mean + np.sqrt(3) * std
     elif hasattr(range, '__len__'):
         a, b = range  # range is a tuple
     else:
         a, b = -range, range  # range is a number
-    return numpy.random.rand(*shape) * (b - a) + a
+    return np.random.rand(*shape) * (b - a) + a
 
 def normal(shape, mean=0., std=1.):
     """Sample initial weights from the Gaussian distribution.
@@ -46,25 +46,28 @@ def normal(shape, mean=0., std=1.):
         Mean of initial parameters.
     
     """
-    return numpy.random.randn(*shape)*std + mean
+    return np.random.randn(*shape) * std + mean
 
 
 def orthogonal(shape, gain=1, seed=None):
-     flat_shape = (shape[0], numpy.prod(shape[1:]))
-     a = numpy.random.normal(flat_shape, seed=seed)
-     u, _, v = numpy.linalg.svd(a, full_matrices=False)
+     flat_shape = (shape[0], np.prod(shape[1:]))
+     a = np.random.normal(flat_shape, seed=seed)
+     u, _, v = np.linalg.svd(a, full_matrices=False)
      # pick the one with the correct shape
      q = u if u.shape == flat_shape else v
      q = q.reshape(shape)
      return gain * q
 
 def _compute_fans(shape, in_axis=0, out_axis=1):
-  receptive_field_size = numpy.prod(shape) / (shape[in_axis] * shape[out_axis])
-  fan_in = shape[in_axis] * receptive_field_size
-  fan_out = shape[out_axis] * receptive_field_size
-  return fan_in, fan_out
 
-def variance_scaling(mode, shape, gain, distribution=normal):
+    print(shape)
+    receptive_field_size = np.prod(shape) / (shape[in_axis] * shape[out_axis])
+    fan_in = shape[in_axis] * receptive_field_size
+    fan_out = shape[out_axis] * receptive_field_size
+    return fan_in, fan_out
+
+def variance_scaling(mode, shape, gain, distribution=normal, in_axis=0,
+                        out_axis=1):
     """Variance Scaling initialization.
     """
     if len(shape) < 2:
@@ -80,11 +83,11 @@ def variance_scaling(mode, shape, gain, distribution=normal):
         den = (fan_in + fan_out) / 2.
     else:
         raise ValueError(
-            f"mode most be fan_in, fan_out or fan_avg, value passed was {mode}")
-    std = gain * numpy.sqrt(1. / den)
+            "mode must be fan_in, fan_out or fan_avg, value passed was {mode}")
+    std = gain * np.sqrt(1. / den)
     return distribution(shape, std=std)
 
-def glorot(shape, gain=1, distribution=normal):
+def glorot(shape, gain=1, distribution=normal, in_axis=0, out_axis=1):
     """Glorot weight initialization.
     This is also known as Xavier initialization [1]_.
 
@@ -133,10 +136,11 @@ def glorot(shape, gain=1, distribution=normal):
         raise RuntimeError(
                      "This initializer only works with shapes of length >= 2")
 
-    return variance_scaling("fan_avg", shape, gain, distribution)
+    return variance_scaling("fan_avg", shape, gain, distribution,
+                            in_axis=in_axis, out_axis=out_axis)
    
 
-def he(shape, gain=numpy.sqrt(2), distribution=normal):
+def he(shape, gain=np.sqrt(2), distribution=normal, in_axis=0, out_axis=1):
     """He weight initialization.
     Weights are initialized with a standard deviation of
     :math:`\\sigma = gain \\sqrt{\\frac{1}{fan_{in}}}` [1]_.
@@ -174,12 +178,14 @@ def he(shape, gain=numpy.sqrt(2), distribution=normal):
     HeNormal  : Shortcut with Gaussian initializer.
     HeUniform : Shortcut with uniform initializer.
     """
-    return variance_scaling("fan_in", shape, gain, distribution)
+    return variance_scaling("fan_in", shape, gain, distribution,
+                            in_axis=in_axis, out_axis=out_axis)
 
 
-def lecun(shape, gain=1.0, distribution=normal):
+def lecun(shape, gain=1.0, distribution=normal, in_axis=0, out_axis=1):
     """LeCun weight initialization.
     Weights are initialized with a standard deviation of
     :math:`\\sigma = gain \\sqrt{\\frac{1}{fan_{in}}}`.
    """
-    return variance_scaling("fan_in", shape, gain, distribution)
+    return variance_scaling("fan_in", shape, gain, distribution,
+                            in_axis=in_axis, out_axis=out_axis)
