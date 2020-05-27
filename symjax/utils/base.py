@@ -104,9 +104,11 @@ def train_test_split(*args, train_size=0.8, stratify=None, seed=None):
     else:
         indices = np.random.RandomState(seed=seed).permutation(len(args[0]))
         if train_size > 1:
+            assert type(train_size) == int
             cutoff = train_size
         else:
             cutoff = int(len(args[0])*train_size)
+        print(cutoff)
         train_indices = indices[:cutoff]
         test_indices = indices[cutoff:]
     train_set = [arg[train_indices] for arg in args]

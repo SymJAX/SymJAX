@@ -177,6 +177,7 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None):
 
     @wraps(doc_func)
     def op(*args, seed=None, **kwargs):
+        # now we evaluate the shape from the jax built-in function
 
         # first we check if we are in a random function to be careful
         # with the key
@@ -220,7 +221,7 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None):
             return func(*all_args, **kwargs, **static_kwargs)
 
         # now we evaluate the shape from the jax built-in function
-        
+        print(func,var_args, var_kwargs)
         tree = jax.eval_shape(abstract_func, *var_args, **var_kwargs)
 
         # now we determine if it is an Op or a Tuple object based on the

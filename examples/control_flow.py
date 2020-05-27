@@ -19,6 +19,21 @@ a = T.scan(lambda c, x: (c*x,c*x), T.ones(1), xx)
 g = symjax.gradients(a[1][-1],xx)[0]
 f = symjax.function(outputs=[a,g])
 
+# scan with updates
+xx = T.range(5)
+uu = T.ones((10,2))
+a = T.scan(lambda c, x: (T.index_update(c, x, 10),1), T.random.randn((10,2)), xx)
+#a = T.scan(lambda c, x: (c*x,c*x), T.ones(1), xx)
+#a = T.scan(lambda c, x: (T.square(c),c[0]), uu, xx)
+#g = symjax.gradients(a[1][-1],xx)
+f = symjax.function(outputs=a[0])
+print(f())
+asdf
+
+
+
+
+
 # fori loop
 b= T.Placeholder((), 'int32')
 xx = T.ones(1)
