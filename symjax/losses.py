@@ -162,68 +162,61 @@ def vae_comp_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0., eps=1
     return loss
 
   
-def vae_fact_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, eps=1e-8):
-    """N samples of dimension D to latent space of I pieces each of C sluters
+def FGMM_VAE(x, x_rec, x_logvar, z_logvar, q_mu, q_logvar, mu, q_loggamma, logpi):
+    """N samples of dimension D to latent space of dimension K with F factors of C clusters
     in K dimension
 
     Parameters
     ----------
 
     x: array
-        should be of shape (N, D)
+        (observation) should be of shape (N, D)
 
-    x_hat: array
-        should be of shape (N, D)
+    x_rec: array
+        (reconstruction, output of decoder) should be of shape (N, D)
 
-    z_mu: array
-        should be of shape (N, K), infered mean of variational Gaussian
+    x_logvar: array
+        (parameter) should be of shape (D,)
 
     z_logvar: array
+        (parameter) should be of shape (K,)
+
+    q_mu: array
+        should be of shape (N, K), infered mean of variational Gaussian
+
+    q_logvar: array
         should be of shape (N, K), infered log-variance of variational Gaussian
 
     mu: array
-        should be of shape (I, C, K), parameter (centroids)
+        (parameter) should be of shape (F, C, K), parameter (centroids)
 
-    logvar: array
-        should be of shape (K,), parameter (logvar of clusters)
+    q_loggamma: array
+        should be of shape (N, F, C), parameter (prior of clusters)
 
     logpi: array
-        should be of shape (I, C), parameter (prior of clusters)
+        (parameter) should be of shape (F, C), parameter (prior of clusters)
 
     """
 
-    var = T.exp(logvar)
+    q_var = T.exp(q_logvar)
+    gamma = T.exp(q_loggamma)
+    z_var = T.exp(z_logvar)
+    x_var = T.exp(x_logvar)
+    pi = T.exp(logpi)
 
-    # predict the log probability of clusters, shape will be (N, I, C)
-    # and compute compute p(t_i|z_i) = p(z_i|t_i)p(t_i)/(\sum_t_i p(z_i|t_i)p(t_i))
-    logprob = (logpi[:, :, None] - .5 * (T.log(2 * np.pi) + logvar)\
-                - (z_mu[:, :, None, :] - mu) ** 2 / (2 * var)).sum(3)
-    pt_z = T.softmax(logprob)
-
-    # E_{q(z,c|x)}[log(p(x|z))]
-    px_z = ((x - x_hat)**2).sum(1)
-
-    # - E_{q(z,c|x)}[log(q(c|x))] entropy of categorical
-    h_c = - (pt_z * T.log_softmax(logprob)).sum((1, 2))
-
-    # - E_{q(z,c|x)}[log(q(z|x))] : entropy of normal
-    h_z = 0.5 * z_logvar.sum((1, 2))
-
-    # E_{q(z,c|x)}[log(p(z|c)]
-    ll_z = - 0.5 * (logvar + z_var / var - 1\
-            + ((z_mu ** 2 - 2 * z_mu * (mu * pt_z[...,None]).sum((1, 2))\
-                + (mu * pt_z[...,None]).sum((1, 2)) ** 2\
-                - (mu* pt_z[...,None]**2).sum((1, 2))\
-                + (mu* pt_z[...,None]).sum((1, 2)))/ var).sum(-1))
-
-    # E_{q(z,c|x)}[log(p(c)]
-    p_c = (pt_z * logpi[:, :, None]).sum((1, 2))
-
-    loss = - (px_z + ll_z + p_c + h_c + h_z)
-
-    return loss
-
-
+    K = var.shape[0]
+    D = var_x.shape[0]
+    log2pi = T.log(2 * np.pi)
+    # reconstruction part (first expectation)
+    E1 = - 0.5 (T.sum((x - x_rec)/x_var, 1) + x_logvar.sum() + D * log2pi)
+    E2_1 = - 0.5 * (log2pi + z_logvar + (q_var + q_mu ** 2) / z_var).sum(1)
+    E2_2 = T.einsum('nfc,fck,nk->n', q_gamma, mu, q_mu / z_var)
+    E2_3 = - 0.5 * T.einsum('nfc,fck->n'q_gamma, mu ** 2 / z_var)
+    corr = T.einsum('fcd,nfc,abk,nab->nfa',mu / z_var, q_gamma, mu, q_gamma)
+    E2_4 = - 0.5 * T.sum(corr * (1 - T.eye(K)), (1, 2))
+    E3 = (q_gamma * logpi).sum((1, 2))
+    H = K * (log2pi + 1) / 2 + 0.5 * q_logvar.sum(1) - (q_gamma * q_loggamma).sum((1, 2))
+    return -(E1 + E2_1 + E2_2 + E2_3 + E2_4 + E3 + H)
 
 
 
