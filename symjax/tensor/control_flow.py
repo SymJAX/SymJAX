@@ -7,7 +7,7 @@ while_loop = jax_wrap(jla.while_loop)
 
 
 
-def _scan(f, init, xs, length=None, reverse=False):
+def _scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
     """Scan a function over leading array axes while carrying along state.
   
     The type signature in brief is
@@ -76,8 +76,14 @@ def _scan(f, init, xs, length=None, reverse=False):
       loop carry value and the second element represents the stacked outputs of
       the second output of ``f`` when scanned over the leading axis of the inputs.
     """
+    # get the fully jaxed function
     truef = symjax_to_jax_fn(f)
-    return jla.scan(truef, init, xs)
+    # now create a dummy function that only takes as input the sequences
+    if non_sequences is None:
+        finalf = truef
+    else:
+        finalf = lambda a,b:truef(a,b,*non_sequences)
+    return jla.scan(finalf, init, sequences)
 
 scan = jax_wrap(_scan)
 

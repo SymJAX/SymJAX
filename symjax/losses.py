@@ -211,7 +211,7 @@ def FGMM_VAE(x, x_rec, x_logvar, z_logvar, q_mu, q_logvar, mu, q_loggamma, logpi
     E1 = - 0.5 (T.sum((x - x_rec)/x_var, 1) + x_logvar.sum() + D * log2pi)
     E2_1 = - 0.5 * (log2pi + z_logvar + (q_var + q_mu ** 2) / z_var).sum(1)
     E2_2 = T.einsum('nfc,fck,nk->n', q_gamma, mu, q_mu / z_var)
-    E2_3 = - 0.5 * T.einsum('nfc,fck->n'q_gamma, mu ** 2 / z_var)
+    E2_3 = - 0.5 * T.einsum('nfc,fck->n',q_gamma, mu ** 2 / z_var)
     corr = T.einsum('fcd,nfc,abk,nab->nfa',mu / z_var, q_gamma, mu, q_gamma)
     E2_4 = - 0.5 * T.sum(corr * (1 - T.eye(K)), (1, 2))
     E3 = (q_gamma * logpi).sum((1, 2))

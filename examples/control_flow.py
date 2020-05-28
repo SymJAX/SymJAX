@@ -22,12 +22,14 @@ f = symjax.function(outputs=[a,g])
 # scan with updates
 xx = T.range(5)
 uu = T.ones((10,2))
-a = T.scan(lambda c, x: (T.index_update(c, x, 10),1), T.random.randn((10,2)), xx)
+vvar = T.Variable(T.zeros((10,2)))
+vv = T.index_add(vvar, 1, 1)
+a = T.scan(lambda c, x, p: (T.index_update(c, x, p[x]),1), vv, xx, [vv])
 #a = T.scan(lambda c, x: (c*x,c*x), T.ones(1), xx)
 #a = T.scan(lambda c, x: (T.square(c),c[0]), uu, xx)
 #g = symjax.gradients(a[1][-1],xx)
-f = symjax.function(outputs=a[0])
-print(f())
+f = symjax.function(outputs=a[0], updates={vvar:vvar+1})
+print(f(),f(), f())
 asdf
 
 
