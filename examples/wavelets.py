@@ -58,4 +58,5 @@ for i in range(J*Q):
     plt.plot(2 * i + fi / fi.max(), '--r')
 
 
-plt.show()
+# plt.show()
+plt.savefig('wavelets.png')
