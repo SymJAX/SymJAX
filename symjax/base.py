@@ -335,8 +335,7 @@ class function:
             if isinstance(jitoutputs, jax.interpreters.xla.DeviceArray):
                 return jax.api.device_get(jitoutputs)
             else:
-                npy_jitoutputs = [jax.api.device_get(
-                    arr) for arr in jitoutputs]
+                npy_jitoutputs = [jax.api.device_get(arr) if isinstance(arr, jax.interpreters.xla.DeviceArray) else arr  for arr in jitoutputs]
                 return npy_jitoutputs
 
         self.meta = meta

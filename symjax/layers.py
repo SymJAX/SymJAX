@@ -140,6 +140,26 @@ class Upsample1D(Layer):
                              mode=self.mode, value=self.value)
 
 
+class Upsample2D(Layer):
+
+    def __init__(self, input_or_shape, repeat, axis, mode='constant',
+                 value=0.):
+
+        self.init_input(input_or_shape)
+        self.repeat = repeat
+        self.mode = mode
+        self.value = value
+        self.axis = axis
+        super().__init__(self.forward(self.input))
+
+    def forward(self, input):
+        p1 = T.upsample_1d(input, repeat=self.repeat[0], axis=self.axis[0],
+                             mode=self.mode, value=self.value)
+        p2 = T.upsample_1d(p1, repeat=self.repeat[1], axis=self.axis[1],
+                             mode=self.mode, value=self.value)
+        return p2
+
+
 class Reshape(Layer):
 
     def __init__(self, input_or_shape, shape):
