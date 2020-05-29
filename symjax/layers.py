@@ -67,6 +67,8 @@ class Layer(T.Tensor):
 
     def create_tensor(self, tensor_or_func, shape, dtype=None):
         if not callable(tensor_or_func):
+            if tensor_or_func is None:
+                return None
             assert tensor_or_func.shape == shape
             if tensor_or_func.dtype != dtype and dtype is not None:
                 return tensor_or_func.astype(dtype)
@@ -82,7 +84,8 @@ class Layer(T.Tensor):
 
     def create_variable(self, name, tensor_or_func, shape, trainable,
                         dtype=None):
-
+        if tensor_or_func is None:
+            return None
         t = self.create_tensor(tensor_or_func, shape, dtype)
 
         if not trainable:
@@ -221,7 +224,10 @@ class Dense(Layer):
         if numpy.prod(input.shape[1:]) != self.W.shape[0]:
             raise RuntimeError(
                 'input to Dense layer {} has different dim'.format(self))
-        return T.dot(T.flatten2d(input), self.W) + self.b
+        if hasattr(self, 'b'):
+            return T.dot(T.flatten2d(input), self.W) + self.b
+        else:
+            return T.dot(T.flatten2d(input), self.W)
 
 
 class Conv1D(Layer):
@@ -311,8 +317,10 @@ class Conv2D(Layer):
         conv = T.convNd(input, self.W, strides=self.strides, padding=self.pad,
                         input_dilation=self.input_dilation,
                         filter_dilation=self.filter_dilation)
-
-        return conv + self.b.reshape((-1, 1, 1))
+        if hasattr(self, 'b'):
+            return conv + self.b.reshape((-1, 1, 1))
+        else:
+            return conv
 
 
 class Pool1D(Layer):

@@ -209,7 +209,7 @@ def FGMM_VAE(x, x_rec, x_logvar, z_logvar, q_mu, q_logvar, mu, q_loggamma, logpi
     F = logpi.shape[0]
     log2pi = T.log(2 * np.pi)
     # reconstruction part (first expectation)
-    E1 = - 0.5 * (((x - x_rec)/x_var).sum(1) + x_logvar.sum() + D * log2pi)
+    E1 = - 0.5 * (((x - x_rec) ** 2/x_var).sum(1) + x_logvar.sum() + D * log2pi)
     E2_1 = - 0.5 * (log2pi + z_logvar + (q_var + q_mu ** 2) / z_var).sum(1)
     E2_2 = T.einsum('nfc,fck,nk->n', q_gamma, mu, q_mu / z_var)
     E2_3 = - 0.5 * T.einsum('nfc,fck->n',q_gamma, mu ** 2 / z_var)
