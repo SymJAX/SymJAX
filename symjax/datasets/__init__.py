@@ -9,6 +9,7 @@ from .svhn import svhn
 from .dsprites import dsprites
 from .cifar10 import cifar10
 from .cifar100 import cifar100
+from .celeb import celebA
 from .tinyimagenet import tinyimagenet
 from .ibeans import ibeans
 from .cassava import cassava

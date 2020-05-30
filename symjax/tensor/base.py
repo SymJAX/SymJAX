@@ -413,7 +413,10 @@ class TupleItem(Tensor):
 class Tuple(tuple):
 
     def __new__(cls, *args, _jax_function, _shapes, _dtypes, **kwargs):
-        items = [TupleItem(shape, dtype, i, None, roots=[])
+
+        roots = list(set(getroots(list(kwargs.values())+ list(args))))
+
+        items = [TupleItem(shape, dtype, i, None, roots=roots)
                  for i, (shape, dtype) in enumerate(zip(_shapes, _dtypes))]
         return super(Tuple, cls).__new__(cls, tuple(items))
 
@@ -423,21 +426,21 @@ class Tuple(tuple):
         self.kwargs = kwargs
         self.jax_function = _jax_function
 
-        # set roots
-        roots = list()
-        for value in kwargs.values():
-            if hasattr(value, 'roots'):
-                roots += value.roots
-        for value in args:
-            if hasattr(value, 'roots'):
-                roots += value.roots
-
-        roots = list(set(roots))
-
+#        # set roots
+#        roots = list()
+#        for value in kwargs.values():
+#            if hasattr(value, 'roots'):
+#                roots += value.roots
+#        for value in args:
+#            if hasattr(value, 'roots'):
+#                roots += value.roots
+#
+#        roots = list(set(roots))
+#
         # set the parent link with the inside items and set the roots too
         for item in self:
             item.parent = self
-            item.roots = roots
+#            item.roots = roots
 
         self.args, self.kwargs = args, kwargs
 
