@@ -53,7 +53,7 @@ class Graph:
 
     def reset(self):
 
-        for var in self.variables:
+        for var in self.variables.values():
             var.reset()
 
 def gradients(scalar, variables):

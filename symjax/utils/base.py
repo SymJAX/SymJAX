@@ -167,15 +167,6 @@ class batchify:
 
         if option == 'random_see_all':
             self.permutation = np.random.permutation(len(args[0]))
-#        elif option == 'random':
-#            if self.n_batches is None:
-#                self.permutation = np.random.randint(0, args[0].shape[0],
-#                                                     args[0].shape[0])
-#            else:
-#                self.permutation = np.random.randint(0, args[0].shape[0],
-#                                               self.batch_size * self.n_batches)
-#        else:
-#            self.permutation = np.arange(args[0].shape[0])
 
         # set up load function
         if load_func is None:
@@ -242,12 +233,14 @@ class batchify:
         # proceed to get the data
         if self.option == 'random_see_all':
             perm = self.permutation[indices[0]:indices[1]]
-            batch = [arg[perm] for arg in self.args]
+            batch = [arg[perm] if hasattr(arg, 'shape') else [arg[i] for i in perm]
+                        for arg in self.args]
         elif self.option == 'continuous':
             batch = [arg[indices[0]:indices[1]] for arg in self.args]
         elif self.option == 'random':
             perm = np.random.randint(0, len(self.args[0]), self.batch_size)
-            batch = [arg[perm] for arg in self.args]
+            batch = [arg[perm] if hasattr(arg, 'shape') else [arg[i] for i in perm]
+                     for arg in self.args]
         return batch
 
     def __next__(self):
