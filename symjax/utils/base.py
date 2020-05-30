@@ -189,7 +189,7 @@ class batchify:
                         queue.put(np.asarray(result))
                         lock.release()
                     self.load_func.append(fn)
-        assert np.prod([args[0].shape[0] == arg.shape[0] for arg in args[1:]])
+        assert np.prod([len(args[0]) == len(arg) for arg in args[1:]])
 
         self.queues = [Queue() for f in self.load_func]
         self.locks = [Lock() for f in self.load_func]
