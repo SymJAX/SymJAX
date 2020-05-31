@@ -88,5 +88,46 @@ def _scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
 scan = jax_wrap(_scan)
 
 
-map = jax_wrap(jla.map)
+
+def _map(f, sequences, non_sequences=None):
+    """Map a function over leading array axes.
+  
+    Like Python's builtin map, except inputs and outputs are in the form of
+    stacked arrays. Consider using the ``jax.vmap`` transform instead, unless you
+    need to apply a function element by element for reduced memory usage or
+    heterogeneous computation with other control flow primitives.
+  
+    When ``xs`` is an array type, the semantics of ``map`` are given by this
+    Python implementation::
+  
+      def map(f, xs):
+        return np.stack([f(x) for x in xs])
+  
+    Like ``scan``, ``map`` is implemented in terms of JAX primitives so many of
+    the same advantages over a Python loop apply: ``xs`` may be an arbitrary
+    nested pytree type, and the mapped computation is compiled only once.
+  
+    Args:
+      f: a Python function to apply element-wise over the first axis or axes of
+        ``xs``.
+      xs: values over which to map along the leading axis.
+  
+    Returns:
+      Mapped values.
+    """
+    truef = symjax_to_jax_fn(f)
+    # now create a dummy function that only takes as input the sequences
+    if non_sequences is None:
+        finalf = truef
+    else:
+        finalf = lambda a:truef(a, *non_sequences)
+    return jla.map(finalf, sequences)
+
+scan = jax_wrap(_scan)
+
+def map(f, xs):
+    g = lambda _, x: (1, f(x))
+    ys = scan(g, 0, xs)[1]
+    return ys
+#map = jax_wrap(_map)
 

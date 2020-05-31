@@ -10,6 +10,7 @@ import symjax.tensor as T
 # map
 xx = T.ones(10)
 a = T.map(lambda a: a * 2, xx)
+print(a)
 g = symjax.gradients(a.sum(),xx)[0]
 f = symjax.function(outputs=[a,g])
 
@@ -24,7 +25,7 @@ xx = T.range(5)
 uu = T.ones((10,2))
 vvar = T.Variable(T.zeros((10,2)))
 vv = T.index_add(vvar, 1, 1)
-a = T.scan(lambda c, x, p: (T.index_update(c, x, p[x]),1), vv, xx, [vv])
+a = T.scan(lambda c, x: (T.index_update(c, x, vv[x]),1), vv, xx)
 #a = T.scan(lambda c, x: (c*x,c*x), T.ones(1), xx)
 #a = T.scan(lambda c, x: (T.square(c),c[0]), uu, xx)
 #g = symjax.gradients(a[1][-1],xx)
