@@ -16,6 +16,7 @@ from .cassava import cassava
 from .stl10 import stl10
 
 # audio
+from .univariate_timeseries import univariate_timeseries
 from .speech_commands import speech_commands
 from .vocalset import vocalset
 from .picidae import picidae

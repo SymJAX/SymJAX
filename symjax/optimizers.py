@@ -187,8 +187,7 @@ class Adam(Optimizer):
         step = tensor.Variable([[0.]], trainable=False, name='step')
         variables = [step]
         # get the learning rate
-        if not numpy.isscalar(learning_rate) and not isinstance(
-                learning_rate, tensor.Placeholder):
+        if callable(learning_rate):
             learning_rate = learning_rate()
 
         updates = dict()
