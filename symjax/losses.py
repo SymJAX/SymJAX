@@ -162,7 +162,7 @@ def vae_comp_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0., eps=1
     return loss
 
   
-def FGMM_VAE(x, x_rec, x_logvar, z_logvar, q_mu, q_logvar, mu, q_loggamma, logpi):
+def FGMM_VAE(x, x_rec, x_logvar, z_logvar, q_mu, q_logvar, mu, q_loggamma, q_logeta, logpi, logpia, mode='bernoulli', eps=1e-5):
     """N samples of dimension D to latent space of dimension K with F factors of C clusters
     in K dimension
 
@@ -196,28 +196,52 @@ def FGMM_VAE(x, x_rec, x_logvar, z_logvar, q_mu, q_logvar, mu, q_loggamma, logpi
     logpi: array
         (parameter) should be of shape (F, C), parameter (prior of clusters)
 
+    logpia: array
+        (parameters) should ve of shape (F,)
+
     """
 
     q_var = T.exp(q_logvar)
     q_gamma = T.exp(q_loggamma)
+    q_eta = T.exp(q_logeta)
     z_var = T.exp(z_logvar)
     x_var = T.exp(x_logvar)
     pi = T.exp(logpi)
+    pia = T.exp(logpia)
 
     K = z_var.shape[0]
     D = x_var.shape[0]
     F = logpi.shape[0]
     log2pi = T.log(2 * np.pi)
+    
     # reconstruction part (first expectation)
-    E1 = - 0.5 * (((x - x_rec) ** 2/x_var).sum(1) + x_logvar.sum() + D * log2pi)
+    E1 = - 0.5 * (((x - x_rec) ** 2 / x_var).sum(1) + x_logvar.sum() + D * log2pi)
+    
     E2_1 = - 0.5 * (log2pi + z_logvar + (q_var + q_mu ** 2) / z_var).sum(1)
-    E2_2 = T.einsum('nfc,fck,nk->n', q_gamma, mu, q_mu / z_var)
-    E2_3 = - 0.5 * T.einsum('nfc,fck->n',q_gamma, mu ** 2 / z_var)
-    corr = T.einsum('fcd,nfc,abk,nab->nfa',mu / z_var, q_gamma, mu, q_gamma)
-    E2_4 = - 0.5 * T.sum(corr * (1 - T.eye(F)), (1, 2))
+    
+    E2_2 = T.einsum('nf,nfc,fck,nk->n', q_eta, q_gamma, mu, q_mu / z_var)
+    
+    E2_3 = - 0.5 * (T.einsum('nf,nfc,fck->nk',q_eta,q_gamma, mu ** 2) / z_var).sum(1)
+
+    if mode == 'bernoulli':
+        q_gammaeta = T.einsum('nf,nfc->nfc', q_eta, q_gamma)
+        corr = T.einsum('fcd,nfc,abk,nab->nfa',mu / z_var, q_gammaeta, mu, q_gammaeta)
+        E2_4 = - 0.5 * T.sum(corr * (1 - T.eye(F)), (1, 2))
+    else:
+        E2_4 = 0.
     E3 = (q_gamma * logpi).sum((1, 2))
-    H = K * (log2pi + 1) / 2 + 0.5 * q_logvar.sum(1) - (q_gamma * q_loggamma).sum((1, 2))
-    return -(E1 + E2_1 + E2_2 + E2_3 + E2_4 + E3 + H)
+    if mode == 'bernoulli':
+        E4 = (q_eta * logpia + (1 - q_eta) * T.log(1-pia + eps)).sum(1)
+    else:
+        E4 = (q_eta * logpia).sum(1)
+
+    # now on to the entropy
+    H = K * (log2pi + 1) / 2 + 0.5 * q_logvar.sum(1)- (q_gamma * q_loggamma).sum((1, 2))
+    if mode == 'bernoulli':
+        Ha = -(q_eta * q_logeta + (1 - q_eta) * T.log(1 - q_eta + eps)).sum(1)
+    else:
+        Ha = -(q_eta * q_logeta).sum(1)
+    return -(E1 + E2_1 + E2_2 + E2_3 + E2_4 + E3 + E4 + H + Ha)
 
 
 
