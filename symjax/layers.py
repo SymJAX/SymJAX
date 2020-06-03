@@ -257,7 +257,10 @@ class Conv1D(Layer):
         conv = T.convNd(input, self.W, strides=self.stride, padding=self.pad,
                         input_dilation=self.input_dilation,
                         filter_dilation=self.filter_dilation)
-        return conv + self.b[:, None]
+        if hasattr(self, 'b'):
+            return conv + self.b[:, None]
+        else:
+            return conv
 
 
 class Conv2DTranspose(Layer):
