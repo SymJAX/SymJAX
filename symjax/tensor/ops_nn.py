@@ -15,10 +15,17 @@ for name in NAMES:
         continue
     module.__dict__.update({name: jax_wrap(jax.nn.__dict__[name])})
 
+
+def log_1_minus_sigmoid(x):
+    return - softplus(x)
+
 from .ops_math import dynamic_slice_in_dim, equal, where, dynamic_slice, greater, concatenate, full, expand_dims
 from . import ops_math as T
 
 # conv
+
+
+
 conv_general_dilated = jax_wrap(jla.conv_general_dilated)
 
 def convNd(input, filter, strides=1, padding='VALID', input_format=None,
