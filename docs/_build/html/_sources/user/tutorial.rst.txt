@@ -18,6 +18,21 @@ another based on a node->node mapping:
 
 .. literalinclude:: ../../examples/clone.py
 
+Scopes, Operations/Variables/Placeholders naming and accessing
+--------------------------------------------------------------
+
+Accessing, naming variables, operations and placeholders. This is done in a
+similar way as in the vanilla Tensorflow form with scopes and EVERY of the
+variable/placeholder/operation is named and located with a unique identifier
+(name) per scope. If during creation both have same names, the original name is
+augmented with an underscore and interger number, here is a brief example:
+
+.. literalinclude:: ../../examples/graph_accessing.py
+
+Graph Saving and Loading
+------------------------
+
+
 
 
 Wrap Jax computation into SymJAX

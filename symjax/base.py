@@ -6,7 +6,7 @@ import jax
 import jax.numpy as np
 import warnings
 import numpy
-
+import fnmatch
 import symjax
 from symjax import tensor as t
 from symjax.tensor import random
@@ -111,6 +111,33 @@ class Graph:
                 break
         names[name + '_' + str(count)] = tensor
         tensor.name = tensor.name + '_' + str(count)
+
+
+
+
+def variable(name):
+    matched = fnmatch.filter(symjax._variables.keys(), name)
+    if len(matched) == 1:
+        return symjax._variables[matched[0]]
+    elif len(matched) == 0:
+        return None
+    return [symjax._variables[m] for m in matched]
+
+def placeholder(name):
+    matched = fnmatch.filter(symjax._placeholders.keys(), name)
+    if len(matched) == 1:
+        return symjax._placeholder[matched[0]]
+    elif len(matched) == 0:
+        return None
+    return [symjax._placeholders[m] for m in matched]
+
+def op(name):
+    matched = fnmatch.filter(symjax._ops.keys(), name)
+    if len(matched) == 1:
+        return symjax._ops[matched[0]]
+    elif len(matched) == 0:
+        return None
+    return [symjax._ops[m] for m in matched]
 
 
 def gradients(scalar, variables):
