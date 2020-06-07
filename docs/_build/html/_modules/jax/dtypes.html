@@ -85,7 +85,7 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../user/wrap.html">Wrap Jax computation into SymJAX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../user/examples.html">Examples</a></li>
 </ul>
 <ul>
@@ -186,15 +186,15 @@
 <span class="c1"># so we need our own implementation that deviates from NumPy in places.</span>
 
 
-<span class="kn">from</span> <span class="nn">distutils.util</span> <span class="kn">import</span> <span class="n">strtobool</span>
+<span class="kn">from</span> <span class="nn">distutils.util</span> <span class="k">import</span> <span class="n">strtobool</span>
 <span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">onp</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">util</span>
-<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">flags</span>
-<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">xla_client</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="k">import</span> <span class="n">flags</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="k">import</span> <span class="n">xla_client</span>
 
 <span class="n">FLAGS</span> <span class="o">=</span> <span class="n">flags</span><span class="o">.</span><span class="n">FLAGS</span>
 <span class="n">flags</span><span class="o">.</span><span class="n">DEFINE_bool</span><span class="p">(</span><span class="s1">&#39;jax_enable_x64&#39;</span><span class="p">,</span>
@@ -203,7 +203,7 @@
 
 <span class="c1"># bfloat16 support</span>
 <span class="n">bfloat16</span> <span class="o">=</span> <span class="n">xla_client</span><span class="o">.</span><span class="n">bfloat16</span>
-<span class="n">_bfloat16_dtype</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">bfloat16</span><span class="p">)</span>
+<span class="n">_bfloat16_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">bfloat16</span><span class="p">)</span>
 
 <span class="k">class</span> <span class="nc">_bfloat16_finfo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="n">bits</span> <span class="o">=</span> <span class="mi">16</span>
@@ -222,28 +222,30 @@
 
 <span class="c1"># Default types.</span>
 
-<span class="n">bool_</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">bool_</span>
-<span class="n">int_</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">int64</span>
-<span class="n">float_</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">float64</span>
-<span class="n">complex_</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">complex128</span>
+<span class="n">bool_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span>
+<span class="n">int_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span>
+<span class="n">float_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+<span class="n">complex_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span>
 
 <span class="c1"># TODO(phawkins): change the above defaults to:</span>
-<span class="c1"># int_ = onp.int32</span>
-<span class="c1"># float_ = onp.float32</span>
-<span class="c1"># complex_ = onp.complex64</span>
+<span class="c1"># int_ = np.int32</span>
+<span class="c1"># float_ = np.float32</span>
+<span class="c1"># complex_ = np.complex64</span>
 
 
 <span class="n">_dtype_to_32bit_dtype</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">):</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">),</span>
-    <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;uint64&#39;</span><span class="p">):</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;uint32&#39;</span><span class="p">),</span>
-    <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">):</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">),</span>
-    <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;complex128&#39;</span><span class="p">):</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;complex64&#39;</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">):</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;uint64&#39;</span><span class="p">):</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;uint32&#39;</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">):</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;complex128&#39;</span><span class="p">):</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;complex64&#39;</span><span class="p">),</span>
 <span class="p">}</span>
 
 <span class="nd">@util</span><span class="o">.</span><span class="n">memoize</span>
 <span class="k">def</span> <span class="nf">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Convert from a dtype to a canonical dtype based on FLAGS.jax_enable_x64.&quot;&quot;&quot;</span>
-  <span class="n">dtype</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;bfloat16&quot;</span><span class="p">:</span>
+    <span class="n">dtype</span> <span class="o">=</span> <span class="n">bfloat16</span>
+  <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
 
   <span class="k">if</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">jax_enable_x64</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">dtype</span>
@@ -253,79 +255,90 @@
 
 <span class="c1"># Default dtypes corresponding to Python scalars.</span>
 <span class="n">python_scalar_dtypes</span> <span class="o">=</span> <span class="p">{</span>
-  <span class="nb">bool</span><span class="p">:</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">bool_</span><span class="p">),</span>
-  <span class="nb">int</span><span class="p">:</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">int_</span><span class="p">),</span>
-  <span class="nb">float</span><span class="p">:</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">float_</span><span class="p">),</span>
-  <span class="nb">complex</span><span class="p">:</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">complex_</span><span class="p">),</span>
+  <span class="nb">bool</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">bool_</span><span class="p">),</span>
+  <span class="nb">int</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">int_</span><span class="p">),</span>
+  <span class="nb">float</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">float_</span><span class="p">),</span>
+  <span class="nb">complex</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">complex_</span><span class="p">),</span>
 <span class="p">}</span>
 
 <span class="k">def</span> <span class="nf">scalar_type_of</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
   <span class="n">typ</span> <span class="o">=</span> <span class="n">dtype</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">onp</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">bool_</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">bool</span>
-  <span class="k">elif</span> <span class="n">onp</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+  <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">int</span>
-  <span class="k">elif</span> <span class="n">onp</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+  <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">float</span>
-  <span class="k">elif</span> <span class="n">onp</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">complexfloating</span><span class="p">):</span>
+  <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">complexfloating</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">complex</span>
   <span class="k">else</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid scalar value </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">coerce_to_array</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Coerces a scalar or NumPy array to an onp.array.</span>
+  <span class="sd">&quot;&quot;&quot;Coerces a scalar or NumPy array to an np.array.</span>
 
 <span class="sd">  Handles Python scalar type promotion according to JAX&#39;s rules, not NumPy&#39;s</span>
 <span class="sd">  rules.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">dtype</span> <span class="o">=</span> <span class="n">python_scalar_dtypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span> <span class="k">if</span> <span class="n">dtype</span> <span class="k">else</span> <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span> <span class="k">if</span> <span class="n">dtype</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-<span class="n">iinfo</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">iinfo</span>
+<span class="n">iinfo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span>
 
 <span class="k">def</span> <span class="nf">finfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">):</span>
   <span class="c1"># Since NumPy doesn&#39;t consider bfloat16 a floating-point type, we have to</span>
   <span class="c1"># provide an alternative implementation of finfo that does so.</span>
-  <span class="k">if</span> <span class="n">onp</span><span class="o">.</span><span class="n">result_type</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span> <span class="o">==</span> <span class="n">_bfloat16_dtype</span><span class="p">:</span>
+  <span class="k">if</span> <span class="p">((</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;bfloat16&quot;</span><span class="p">)</span> <span class="ow">or</span>
+      <span class="n">np</span><span class="o">.</span><span class="n">result_type</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span> <span class="o">==</span> <span class="n">_bfloat16_dtype</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">_bfloat16_finfo</span>
   <span class="k">else</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">onp</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
 
+<span class="k">def</span> <span class="nf">_issubclass</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Determines if ``a`` is a subclass of ``b``.</span>
+
+<span class="sd">  Similar to issubclass, but returns False instead of an exception if `a` is not</span>
+<span class="sd">  a class.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">try</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+  <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+    <span class="k">return</span> <span class="kc">False</span>
 
 <span class="k">def</span> <span class="nf">issubdtype</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
   <span class="k">if</span> <span class="n">a</span> <span class="o">==</span> <span class="n">bfloat16</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">b</span> <span class="ow">in</span> <span class="p">[</span><span class="n">bfloat16</span><span class="p">,</span> <span class="n">_bfloat16_dtype</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">floating</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">inexact</span><span class="p">,</span>
-                 <span class="n">onp</span><span class="o">.</span><span class="n">number</span><span class="p">]</span>
-  <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">generic</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">b</span> <span class="ow">in</span> <span class="p">[</span><span class="n">bfloat16</span><span class="p">,</span> <span class="n">_bfloat16_dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inexact</span><span class="p">,</span>
+                 <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">]</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">_issubclass</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">generic</span><span class="p">):</span>
     <span class="c1"># Workaround for JAX scalar types. NumPy&#39;s issubdtype has a backward</span>
     <span class="c1"># compatibility behavior for the second argument of issubdtype that</span>
     <span class="c1"># interacts badly with JAX&#39;s custom scalar types. As a workaround,</span>
     <span class="c1"># explicitly cast the second argument to a NumPy type object.</span>
-    <span class="n">b</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">type</span>
-  <span class="k">return</span> <span class="n">onp</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">type</span>
+  <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 
-<span class="n">can_cast</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">can_cast</span>
-<span class="n">issubsctype</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">issubsctype</span>
+<span class="n">can_cast</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">can_cast</span>
+<span class="n">issubsctype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">issubsctype</span>
 
 
 <span class="c1"># List of all valid JAX dtypes, in the order they appear in the type promotion</span>
 <span class="c1"># table.</span>
 <span class="n">_jax_types</span> <span class="o">=</span> <span class="p">[</span>
-  <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;bool&#39;</span><span class="p">),</span>
-  <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">),</span>
-  <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;uint16&#39;</span><span class="p">),</span>
-  <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;uint32&#39;</span><span class="p">),</span>
-  <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;uint64&#39;</span><span class="p">),</span>
-  <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;int8&#39;</span><span class="p">),</span>
-  <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;int16&#39;</span><span class="p">),</span>
-  <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">),</span>
-  <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">),</span>
-  <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">bfloat16</span><span class="p">),</span>
-  <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float16&#39;</span><span class="p">),</span>
-  <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">),</span>
-  <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">),</span>
-  <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;complex64&#39;</span><span class="p">),</span>
-  <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;complex128&#39;</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;bool&#39;</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;uint16&#39;</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;uint32&#39;</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;uint64&#39;</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;int8&#39;</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;int16&#39;</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">bfloat16</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float16&#39;</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;complex64&#39;</span><span class="p">),</span>
+  <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;complex128&#39;</span><span class="p">),</span>
 <span class="p">]</span>
 
 <span class="c1"># Mapping from types to their type numbers.</span>
@@ -334,7 +347,7 @@
 <span class="k">def</span> <span class="nf">_make_type_promotion_table</span><span class="p">():</span>
   <span class="n">b1</span><span class="p">,</span> <span class="n">u1</span><span class="p">,</span> <span class="n">u2</span><span class="p">,</span> <span class="n">u4</span><span class="p">,</span> <span class="n">u8</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="n">s4</span><span class="p">,</span> <span class="n">s8</span><span class="p">,</span> <span class="n">bf</span><span class="p">,</span> <span class="n">f2</span><span class="p">,</span> <span class="n">f4</span><span class="p">,</span> <span class="n">f8</span><span class="p">,</span> <span class="n">c4</span><span class="p">,</span> <span class="n">c8</span> <span class="o">=</span> <span class="n">_jax_types</span>
   <span class="c1">#  b1, u1, u2, u4, u8, s1, s2, s4, s8, bf, f2, f4, f8, c4, c8</span>
-  <span class="k">return</span> <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+  <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
     <span class="p">[</span><span class="n">b1</span><span class="p">,</span> <span class="n">u1</span><span class="p">,</span> <span class="n">u2</span><span class="p">,</span> <span class="n">u4</span><span class="p">,</span> <span class="n">u8</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="n">s4</span><span class="p">,</span> <span class="n">s8</span><span class="p">,</span> <span class="n">bf</span><span class="p">,</span> <span class="n">f2</span><span class="p">,</span> <span class="n">f4</span><span class="p">,</span> <span class="n">f8</span><span class="p">,</span> <span class="n">c4</span><span class="p">,</span> <span class="n">c8</span><span class="p">],</span>  <span class="c1"># b1</span>
     <span class="p">[</span><span class="n">u1</span><span class="p">,</span> <span class="n">u1</span><span class="p">,</span> <span class="n">u2</span><span class="p">,</span> <span class="n">u4</span><span class="p">,</span> <span class="n">u8</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="n">s4</span><span class="p">,</span> <span class="n">s8</span><span class="p">,</span> <span class="n">bf</span><span class="p">,</span> <span class="n">f2</span><span class="p">,</span> <span class="n">f4</span><span class="p">,</span> <span class="n">f8</span><span class="p">,</span> <span class="n">c4</span><span class="p">,</span> <span class="n">c8</span><span class="p">],</span>  <span class="c1"># u1</span>
     <span class="p">[</span><span class="n">u2</span><span class="p">,</span> <span class="n">u2</span><span class="p">,</span> <span class="n">u2</span><span class="p">,</span> <span class="n">u4</span><span class="p">,</span> <span class="n">u8</span><span class="p">,</span> <span class="n">s4</span><span class="p">,</span> <span class="n">s4</span><span class="p">,</span> <span class="n">s4</span><span class="p">,</span> <span class="n">s8</span><span class="p">,</span> <span class="n">bf</span><span class="p">,</span> <span class="n">f2</span><span class="p">,</span> <span class="n">f4</span><span class="p">,</span> <span class="n">f8</span><span class="p">,</span> <span class="n">c4</span><span class="p">,</span> <span class="n">c8</span><span class="p">],</span>  <span class="c1"># u2</span>
@@ -366,8 +379,8 @@
 <span class="sd">  Returns:</span>
 <span class="sd">    A :class:`numpy.dtype` object.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">a</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-  <span class="n">b</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+  <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+  <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
   <span class="k">try</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">_type_promotion_table</span><span class="p">[</span><span class="n">_jax_type_nums</span><span class="p">[</span><span class="n">a</span><span class="p">],</span> <span class="n">_jax_type_nums</span><span class="p">[</span><span class="n">b</span><span class="p">]]</span>
   <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -377,18 +390,18 @@
 
 <span class="k">def</span> <span class="nf">is_python_scalar</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
   <span class="k">try</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">aval</span><span class="o">.</span><span class="n">weak_type</span> <span class="ow">and</span> <span class="n">onp</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">aval</span><span class="o">.</span><span class="n">weak_type</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
   <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
     <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">in</span> <span class="n">python_scalar_dtypes</span>
 
 <span class="k">def</span> <span class="nf">_dtype_priority</span><span class="p">(</span><span class="n">dtype</span><span class="p">):</span>
-  <span class="k">if</span> <span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">bool_</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">):</span>
     <span class="k">return</span> <span class="mi">0</span>
-  <span class="k">elif</span> <span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+  <span class="k">elif</span> <span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
     <span class="k">return</span> <span class="mi">1</span>
-  <span class="k">elif</span> <span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+  <span class="k">elif</span> <span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
     <span class="k">return</span> <span class="mi">2</span>
-  <span class="k">elif</span> <span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">complexfloating</span><span class="p">):</span>
+  <span class="k">elif</span> <span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">complexfloating</span><span class="p">):</span>
     <span class="k">return</span> <span class="mi">3</span>
   <span class="k">else</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Dtype </span><span class="si">{}</span><span class="s2"> is not supported by JAX&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dtype</span><span class="p">))</span>
@@ -396,7 +409,7 @@
 <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
   <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">in</span> <span class="n">python_scalar_dtypes</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">python_scalar_dtypes</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span>
-  <span class="k">return</span> <span class="n">onp</span><span class="o">.</span><span class="n">result_type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">result_type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">result_type</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Convenience function to apply Numpy argument dtype promotion.&quot;&quot;&quot;</span>

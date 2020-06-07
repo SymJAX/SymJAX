@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Wrap Jax computation into SymJAX &mdash; symjax 0.0.1 documentation</title>
+  <title>Quick Walkthrough Tutorial of SymJAX &mdash; symjax 0.0.1 documentation</title>
   
 
   
@@ -87,7 +87,11 @@
             
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Wrap Jax computation into SymJAX</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Walkthrough Tutorial of SymJAX</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#clone-one-line-multipurpose-graph-replacement">Clone: one line multipurpose graph replacement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wrap-jax-computation-into-symjax">Wrap Jax computation into SymJAX</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 </ul>
 <ul>
@@ -148,13 +152,13 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Wrap Jax computation into SymJAX</li>
+      <li>Quick Walkthrough Tutorial of SymJAX</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/user/wrap.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/user/tutorial.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -167,8 +171,69 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="wrap-jax-computation-into-symjax">
-<h1>Wrap Jax computation into SymJAX<a class="headerlink" href="#wrap-jax-computation-into-symjax" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="quick-walkthrough-tutorial-of-symjax">
+<h1><a class="toc-backref" href="#id1">Quick Walkthrough Tutorial of SymJAX</a><a class="headerlink" href="#quick-walkthrough-tutorial-of-symjax" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#quick-walkthrough-tutorial-of-symjax" id="id1">Quick Walkthrough Tutorial of SymJAX</a></p>
+<ul>
+<li><p><a class="reference internal" href="#clone-one-line-multipurpose-graph-replacement" id="id2">Clone: one line multipurpose graph replacement</a></p></li>
+<li><p><a class="reference internal" href="#wrap-jax-computation-into-symjax" id="id3">Wrap Jax computation into SymJAX</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="clone-one-line-multipurpose-graph-replacement">
+<h2><a class="toc-backref" href="#id2">Clone: one line multipurpose graph replacement</a><a class="headerlink" href="#clone-one-line-multipurpose-graph-replacement" title="Permalink to this headline">¶</a></h2>
+<p>In most current packages, the ability to perform an already define computation
+graph but with altered nodes is cumbersone. Some specific involve the use
+of layers as in Keras where one can feed any value hence allow to compute a
+feedforward pass without much changes but if one had to replace a specific
+variable or more complex part of a graph no tools are available. In Theano,
+the clone function allowed to do such thing and it implemented in SymJAX as
+well. As per the below example, it is clear how the clone utility allows to
+get an already defined computational graph and replace any subgraph in it with
+another based on a node-&gt;node mapping:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">symjax</span>
+<span class="kn">import</span> <span class="nn">symjax.tensor</span> <span class="k">as</span> <span class="nn">T</span>
+
+<span class="c1"># we create a simple mapping with 2 matrix multiplications interleaved</span>
+<span class="c1"># with nonlinearities</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Placeholder</span><span class="p">((</span><span class="mi">8</span><span class="p">,),</span> <span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+<span class="n">w_1</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">)))</span>
+<span class="n">w_2</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">16</span><span class="p">)))</span>
+
+<span class="c1"># the output can be computed easily as</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">w_2</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">w_1</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+
+<span class="c1"># now suppose we also wanted the same mapping but with a noise input</span>
+<span class="n">epsilon</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="mi">8</span><span class="p">,))</span>
+
+<span class="n">output_noisy</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">clone</span><span class="p">({</span><span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="o">+</span><span class="n">epsilon</span><span class="p">})</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">output</span><span class="p">,</span> <span class="n">output_noisy</span><span class="p">])</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">8</span><span class="p">)))</span>
+
+<span class="c1"># [array([-14.496595,   8.7136  ], dtype=float32), array([-11.590391 ,   4.7543654], dtype=float32)]</span>
+<span class="c1"># [array([-14.496595,   8.7136  ], dtype=float32), array([-30.038504,  26.758451], dtype=float32)]</span>
+<span class="c1"># [array([-14.496595,   8.7136  ], dtype=float32), array([-19.214798,  19.600328], dtype=float32)]</span>
+<span class="c1"># [array([-14.496595,   8.7136  ], dtype=float32), array([-12.927457,  10.457445], dtype=float32)]</span>
+<span class="c1"># [array([-14.496595,   8.7136  ], dtype=float32), array([-19.486668,  17.367273], dtype=float32)]</span>
+<span class="c1"># [array([-14.496595,   8.7136  ], dtype=float32), array([-31.634314,  24.837488], dtype=float32)]</span>
+<span class="c1"># [array([-14.496595,   8.7136  ], dtype=float32), array([-19.756075,  12.330083], dtype=float32)]</span>
+<span class="c1"># [array([-14.496595,   8.7136  ], dtype=float32), array([-38.9738  ,  31.588022], dtype=float32)]</span>
+<span class="c1"># [array([-14.496595,   8.7136  ], dtype=float32), array([-19.561726,  12.192366], dtype=float32)]</span>
+<span class="c1"># [array([-14.496595,   8.7136  ], dtype=float32), array([-33.110832,  30.104563], dtype=float32)]</span>
+
+</pre></div>
+</div>
+</div>
+<div class="section" id="wrap-jax-computation-into-symjax">
+<h2><a class="toc-backref" href="#id3">Wrap Jax computation into SymJAX</a><a class="headerlink" href="#wrap-jax-computation-into-symjax" title="Permalink to this headline">¶</a></h2>
 <p>The computation in Jax is done eagerly similarly to TF2 and PyTorch. In SymJAX
 the computational graph definition is done a priori with symbolic variables.
 That is, no actual computations are done during the graph definition, once done
@@ -218,6 +283,7 @@ then wrapping it into a SymJAX symbolic operation as demonstrated below.</p>
 <p>A SymJAX computation graph can not be partially defined with Jax computation,
 the above thus provides an easy way to wrap Jax computations into a SymJAX Op
 which can then be put into the graph as any other SymJAX provided Ops.</p>
+</div>
 </div>
 
 

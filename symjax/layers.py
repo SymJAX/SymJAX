@@ -1,7 +1,7 @@
 from symjax.tensor import ops_methods
 from symjax import tensor as T
 from symjax import initializers
-from symjax import get_graph
+#from symjax import get_graph
 import numpy
 import inspect
 

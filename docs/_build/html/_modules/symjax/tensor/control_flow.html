@@ -85,7 +85,7 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user/wrap.html">Wrap Jax computation into SymJAX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/examples.html">Examples</a></li>
 </ul>
 <ul>
@@ -164,79 +164,139 @@
            <div itemprop="articleBody">
             
   <h1>Source code for symjax.tensor.control_flow</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
-<span class="kn">import</span> <span class="nn">jax.lax</span> <span class="k">as</span> <span class="nn">jla</span>
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Op</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">symjax_to_jax_fn</span>
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">jax_wrap</span>
-<span class="kn">import</span> <span class="nn">numpy</span>
+<span></span><span class="kn">import</span> <span class="nn">jax.lax</span> <span class="k">as</span> <span class="nn">jla</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">jax_wrap</span><span class="p">,</span> <span class="n">symjax_to_jax_fn</span>
+
+<span class="n">cond</span> <span class="o">=</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">jla</span><span class="o">.</span><span class="n">cond</span><span class="p">)</span>
+<span class="n">fori_loop</span> <span class="o">=</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">jla</span><span class="o">.</span><span class="n">fori_loop</span><span class="p">)</span>
+<span class="n">while_loop</span> <span class="o">=</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">jla</span><span class="o">.</span><span class="n">while_loop</span><span class="p">)</span>
 
 
 
+<span class="k">def</span> <span class="nf">_scan</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">non_sequences</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Scan a function over leading array axes while carrying along state.</span>
+<span class="sd">  </span>
+<span class="sd">    The type signature in brief is</span>
+<span class="sd">  </span>
+<span class="sd">    .. code-block:: haskell</span>
+<span class="sd">  </span>
+<span class="sd">      scan :: (c -&gt; a -&gt; (c, b)) -&gt; c -&gt; [a] -&gt; (c, [b])</span>
+<span class="sd">  </span>
+<span class="sd">    where we use [t] here to denote the type t with an additional leading axis.</span>
+<span class="sd">    That is, if t is an array type then [t] represents the type with an additional</span>
+<span class="sd">    leading axis, and if t is a pytree (container) type with array leaves then [t]</span>
+<span class="sd">    represents the type with the same pytree structure and corresponding leaves</span>
+<span class="sd">    each with an additional leading axis.</span>
+<span class="sd">  </span>
+<span class="sd">    When ``a`` is an array type or None, and ``b`` is an array type, the semantics</span>
+<span class="sd">    of ``scan`` are given roughly by this Python implementation::</span>
+<span class="sd">  </span>
+<span class="sd">      def scan(f, init, xs, length=None):</span>
+<span class="sd">        if xs is None:</span>
+<span class="sd">          xs = [None] * length</span>
+<span class="sd">        carry = init</span>
+<span class="sd">        ys = []</span>
+<span class="sd">        for x in xs:</span>
+<span class="sd">          carry, y = f(carry, x)</span>
+<span class="sd">          ys.append(y)</span>
+<span class="sd">        return carry, np.stack(ys)</span>
+<span class="sd">  </span>
+<span class="sd">    Unlike that Python version, both ``a`` and ``b`` may be arbitrary pytree</span>
+<span class="sd">    types, and so multiple arrays can be scanned over at once and produce multiple</span>
+<span class="sd">    output arrays. (None is actually an empty pytree.)</span>
+<span class="sd">  </span>
+<span class="sd">    Also unlike that Python version, ``scan`` is a JAX primitive and is lowered to</span>
+<span class="sd">    a single XLA While HLO. That makes it useful for reducing compilation times</span>
+<span class="sd">    for jit-compiled functions, since native Python loop constructs in an ``@jit``</span>
+<span class="sd">    function are unrolled, leading to large XLA computations.</span>
+<span class="sd">  </span>
+<span class="sd">    Finally, the loop-carried value ``carry`` must hold a fixed shape and dtype</span>
+<span class="sd">    across all iterations (and not just be consistent up to NumPy rank/shape</span>
+<span class="sd">    broadcasting and dtype promotion rules, for example). In other words, the type</span>
+<span class="sd">    ``c`` in the type signature above represents an array with a fixed shape and</span>
+<span class="sd">    dtype (or a nested tuple/list/dict container data structure with a fixed</span>
+<span class="sd">    structure and arrays with fixed shape and dtype at the leaves).</span>
+<span class="sd">  </span>
+<span class="sd">    Args:</span>
+<span class="sd">      f: a Python function to be scanned of type ``c -&gt; a -&gt; (c, b)``, meaning</span>
+<span class="sd">        that ``f`` accepts two arguments where the first is a value of the loop</span>
+<span class="sd">        carry and the second is a slice of ``xs`` along its leading axis, and that</span>
+<span class="sd">        ``f`` returns a pair where the first element represents a new value for</span>
+<span class="sd">        the loop carry and the second represents a slice of the output.</span>
+<span class="sd">      init: an initial loop carry value of type ``c``, which can be a scalar,</span>
+<span class="sd">        array, or any pytree (nested Python tuple/list/dict) thereof, representing</span>
+<span class="sd">        the initial loop carry value. This value must have the same structure as</span>
+<span class="sd">        the first element of the pair returned by ``f``.</span>
+<span class="sd">      xs: the value of type ``[a]`` over which to scan along the leading axis,</span>
+<span class="sd">        where ``[a]`` can be an array or any pytree (nested Python</span>
+<span class="sd">        tuple/list/dict) thereof with consistent leading axis sizes.</span>
+<span class="sd">      length: optional integer specifying the number of loop iterations, which</span>
+<span class="sd">        must agree with the sizes of leading axes of the arrays in ``xs`` (but can</span>
+<span class="sd">        be used to perform scans where no input ``xs`` are needed).</span>
+<span class="sd">      reverse: optional boolean specifying whether to run the scan iteration</span>
+<span class="sd">        forward (the default) or in reverse, equivalent to reversing the leading</span>
+<span class="sd">        axes of the arrays in both ``xs`` and in ``ys``.</span>
+<span class="sd">  </span>
+<span class="sd">    Returns:</span>
+<span class="sd">      A pair of type ``(c, [b])`` where the first element represents the final</span>
+<span class="sd">      loop carry value and the second element represents the stacked outputs of</span>
+<span class="sd">      the second output of ``f`` when scanned over the leading axis of the inputs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># get the fully jaxed function</span>
+    <span class="n">truef</span> <span class="o">=</span> <span class="n">symjax_to_jax_fn</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="c1"># now create a dummy function that only takes as input the sequences</span>
+    <span class="k">if</span> <span class="n">non_sequences</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">finalf</span> <span class="o">=</span> <span class="n">truef</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">finalf</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">:</span><span class="n">truef</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="o">*</span><span class="n">non_sequences</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jla</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">finalf</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">sequences</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">_scan</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="p">(),</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">new_fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">*</span><span class="n">constants</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">jla</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">new_fn</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
-        
-<span class="n">_scan2</span><span class="o">=</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">_scan</span><span class="p">)</span>
+<span class="n">scan</span> <span class="o">=</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">_scan</span><span class="p">)</span>
 
-<div class="viewcode-block" id="scan"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.control_flow.scan">[docs]</a><span class="k">def</span> <span class="nf">scan</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="p">(),</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">newfn</span> <span class="o">=</span> <span class="n">symjax_to_jax_fn</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">_scan2</span><span class="p">(</span><span class="n">newfn</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">constants</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span></div>
 
-<span class="n">scan</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">jla</span><span class="o">.</span><span class="n">scan</span><span class="o">.</span><span class="vm">__doc__</span>
 
-<span class="c1">#_cond = Op(jla.cond, name=&#39;cond&#39;)</span>
+<span class="k">def</span> <span class="nf">_map</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">non_sequences</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Map a function over leading array axes.</span>
+<span class="sd">  </span>
+<span class="sd">    Like Python&#39;s builtin map, except inputs and outputs are in the form of</span>
+<span class="sd">    stacked arrays. Consider using the ``jax.vmap`` transform instead, unless you</span>
+<span class="sd">    need to apply a function element by element for reduced memory usage or</span>
+<span class="sd">    heterogeneous computation with other control flow primitives.</span>
+<span class="sd">  </span>
+<span class="sd">    When ``xs`` is an array type, the semantics of ``map`` are given by this</span>
+<span class="sd">    Python implementation::</span>
+<span class="sd">  </span>
+<span class="sd">      def map(f, xs):</span>
+<span class="sd">        return np.stack([f(x) for x in xs])</span>
+<span class="sd">  </span>
+<span class="sd">    Like ``scan``, ``map`` is implemented in terms of JAX primitives so many of</span>
+<span class="sd">    the same advantages over a Python loop apply: ``xs`` may be an arbitrary</span>
+<span class="sd">    nested pytree type, and the mapped computation is compiled only once.</span>
+<span class="sd">  </span>
+<span class="sd">    Args:</span>
+<span class="sd">      f: a Python function to apply element-wise over the first axis or axes of</span>
+<span class="sd">        ``xs``.</span>
+<span class="sd">      xs: values over which to map along the leading axis.</span>
+<span class="sd">  </span>
+<span class="sd">    Returns:</span>
+<span class="sd">      Mapped values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">truef</span> <span class="o">=</span> <span class="n">symjax_to_jax_fn</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="c1"># now create a dummy function that only takes as input the sequences</span>
+    <span class="k">if</span> <span class="n">non_sequences</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">finalf</span> <span class="o">=</span> <span class="n">truef</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">finalf</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">:</span><span class="n">truef</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">non_sequences</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jla</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">finalf</span><span class="p">,</span> <span class="n">sequences</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">_cond</span><span class="p">(</span><span class="n">predicate</span><span class="p">,</span> <span class="n">true_predicate</span><span class="p">,</span> <span class="n">true_fun</span><span class="p">,</span> <span class="n">false_predicate</span><span class="p">,</span> <span class="n">false_fun</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; predicate should be a boolean tensor with shape ()</span>
-<span class="sd">        true_input is the input passed to true_fn that will give the output</span>
-<span class="sd">        if the predicate evaluates to True, and conversely for False...&quot;&quot;&quot;</span>
+<span class="n">scan</span> <span class="o">=</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">_scan</span><span class="p">)</span>
 
-        <span class="c1"># in case the given predicates are not tuples, set them</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">true_predicate</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">tuple</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">true_predicate</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">true_predicate</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">true_predicate</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">true_predicate</span> <span class="o">=</span> <span class="p">(</span><span class="n">true_predicate</span><span class="p">,</span> <span class="p">)</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">false_predicate</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">tuple</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">false_predicate</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">false_predicate</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">false_predicate</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">false_predicate</span> <span class="o">=</span> <span class="p">(</span><span class="n">false_predicate</span><span class="p">,</span> <span class="p">)</span>
+<span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">):</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">ys</span> <span class="o">=</span> <span class="n">scan</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">xs</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">ys</span>
+<span class="c1">#map = jax_wrap(_map)</span>
 
-        <span class="n">newtruefn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">true_fun</span><span class="p">:</span> <span class="n">symjax_to_jax_fn</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">)</span>
-        <span class="n">newfalsefn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">false_fun</span><span class="p">:</span> <span class="n">symjax_to_jax_fn</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">jla</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">predicate</span><span class="p">,</span> <span class="n">true_predicate</span><span class="p">,</span> <span class="n">newtruefn</span><span class="p">,</span> <span class="n">false_predicate</span><span class="p">,</span>
-                   <span class="n">newfalsefn</span><span class="p">)</span>
-
-<span class="n">cond</span> <span class="o">=</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">_cond</span><span class="p">,</span> <span class="n">doc_func</span><span class="o">=</span><span class="n">_cond</span><span class="p">)</span>
-
-<span class="c1">##class cond(Op):</span>
-<span class="c1">##    @staticmethod</span>
-<span class="c1">##    def fn(predicate, true_predicate, true_fun, false_predicate, false_fun):</span>
-<span class="c1">##        &quot;&quot;&quot; predicate should be a boolean tensor with shape ()</span>
-<span class="c1">##        true_input is the input passed to true_fn that will give the output</span>
-<span class="c1">##        if the predicate evaluates to True, and conversely for False...&quot;&quot;&quot;</span>
-<span class="c1">##</span>
-<span class="c1">##        # in case the given predicates are not tuples, set them</span>
-<span class="c1">##        if type(true_predicate) != tuple:</span>
-<span class="c1">##            if type(true_predicate) == list:</span>
-<span class="c1">##                true_predicate = tuple(true_predicate)</span>
-<span class="c1">##            else:</span>
-<span class="c1">##                true_predicate = (true_predicate, )</span>
-<span class="c1">##        if type(false_predicate) != tuple:</span>
-<span class="c1">##            if type(false_predicate) == list:</span>
-<span class="c1">##                false_predicate = tuple(false_predicate)</span>
-<span class="c1">##            else:</span>
-<span class="c1">##                false_predicate = (false_predicate, )</span>
-<span class="c1">##</span>
-<span class="c1">##        newtruefn = lambda x, _fn=true_fun: symjax_to_jax_fn(*x, _fn=_fn)</span>
-<span class="c1">##        newfalsefn = lambda x, _fn=false_fun: symjax_to_jax_fn(*x, _fn=_fn)</span>
-<span class="c1">##        return jla.cond(predicate, true_predicate, newtruefn, false_predicate,</span>
-<span class="c1">##                   newfalsefn)</span>
-<span class="c1">##</span>
-<span class="c1">#</span>
 </pre></div>
 
            </div>

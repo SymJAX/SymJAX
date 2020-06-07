@@ -85,7 +85,7 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../user/wrap.html">Wrap Jax computation into SymJAX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../user/examples.html">Examples</a></li>
 </ul>
 <ul>
@@ -286,16 +286,8 @@
 <span class="sd">It differs from the forward transform by the sign of the exponential</span>
 <span class="sd">argument and the default normalization by :math:`1/n`.</span>
 
-<span class="sd">Type Promotion</span>
-<span class="sd">--------------</span>
-
-<span class="sd">`numpy.fft` promotes ``float32`` and ``complex64`` arrays to ``float64`` and</span>
-<span class="sd">``complex128`` arrays respectively. For an FFT implementation that does not</span>
-<span class="sd">promote input arrays, see `scipy.fftpack`.</span>
-
 <span class="sd">Normalization</span>
 <span class="sd">-------------</span>
-
 <span class="sd">The default normalization has the direct transforms unscaled and the inverse</span>
 <span class="sd">transforms are scaled by :math:`1/n`. It is possible to obtain unitary</span>
 <span class="sd">transforms by setting the keyword argument ``norm`` to ``&quot;ortho&quot;`` (default is</span>
@@ -359,14 +351,61 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">print_function</span>
 
-<span class="kn">from</span> <span class="nn">._pocketfft</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">.helper</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">._pocketfft</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.helper</span> <span class="k">import</span> <span class="o">*</span>
 
-<span class="kn">from</span> <span class="nn">numpy._pytesttester</span> <span class="kn">import</span> <span class="n">PytestTester</span>
+<span class="kn">from</span> <span class="nn">numpy._pytesttester</span> <span class="k">import</span> <span class="n">PytestTester</span>
 <span class="n">test</span> <span class="o">=</span> <span class="n">PytestTester</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="k">del</span> <span class="n">PytestTester</span>
+
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">warnings</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="c1"># Filter out harmless Cython warnings coming from mkl_fft</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;numpy.dtype size changed&quot;</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;numpy.ufunc size changed&quot;</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;numpy.ndarray size changed&quot;</span><span class="p">)</span>
+        <span class="kn">import</span> <span class="nn">mkl_fft._numpy_fft</span> <span class="k">as</span> <span class="nn">_nfft</span>
+        <span class="n">patch_fft</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">__patched_functions__</span> <span class="o">=</span> <span class="n">_nfft</span><span class="o">.</span><span class="n">__all__</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">patch_fft</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="k">if</span> <span class="n">patch_fft</span><span class="p">:</span>
+    <span class="n">_restore_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+
+    <span class="k">def</span> <span class="nf">register_func</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">__patched_functions__</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> not an mkl_fft function.&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">f_globals</span>
+        <span class="n">_restore_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">f</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span>
+
+    <span class="k">def</span> <span class="nf">restore_func</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">__patched_functions__</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> not an mkl_fft function.&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">_restore_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;failed to restore&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;found and restoring...&#39;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">f_globals</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="k">def</span> <span class="nf">restore_all</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_restore_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">restore_func</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">__patched_functions__</span><span class="p">:</span>
+        <span class="n">register_func</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_nfft</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+    <span class="k">del</span> <span class="n">_nfft</span>
+
+<span class="k">del</span> <span class="n">patch_fft</span>
 </pre></div>
 
            </div>

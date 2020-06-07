@@ -85,7 +85,7 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../user/wrap.html">Wrap Jax computation into SymJAX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../user/examples.html">Examples</a></li>
 </ul>
 <ul>
@@ -173,54 +173,111 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
 
-<span class="kn">from</span> <span class="nn">symjax</span> <span class="kn">import</span> <span class="n">tensor</span> <span class="k">as</span> <span class="n">t</span>
-<span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">jacfwd</span><span class="p">,</span> <span class="n">jacrev</span>
+<span class="kn">import</span> <span class="nn">symjax</span>
+<span class="kn">from</span> <span class="nn">symjax</span> <span class="k">import</span> <span class="n">tensor</span> <span class="k">as</span> <span class="n">t</span>
+<span class="kn">from</span> <span class="nn">symjax.tensor</span> <span class="k">import</span> <span class="n">random</span>
+<span class="kn">from</span> <span class="nn">jax</span> <span class="k">import</span> <span class="n">jacfwd</span><span class="p">,</span> <span class="n">jacrev</span>
 
-<span class="k">global</span> <span class="n">current_graph</span>
-<span class="n">current_graph</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-<span class="k">def</span> <span class="nf">get_graph</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">current_graph</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Current graph.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">current_graph</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
 
 <span class="k">class</span> <span class="nc">Graph</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Graph.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
         <span class="sd">&quot;&quot;&quot;Constructor.&quot;&quot;&quot;</span>
+        
+
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set global variables.&quot;&quot;&quot;</span>
-        <span class="nb">globals</span><span class="p">()[</span><span class="s1">&#39;current_graph&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">symjax</span><span class="o">.</span><span class="n">_current_scope</span> <span class="o">+=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_current_scope</span>
+        <span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Delete globals.&quot;&quot;&quot;</span>
-        <span class="nb">globals</span><span class="p">()[</span><span class="s1">&#39;current_graph&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">symjax</span><span class="o">.</span><span class="n">_current_scope</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">full_name</span>
 
     <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Save graph.&quot;&quot;&quot;</span>
         <span class="n">numpy</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="nb">dict</span><span class="p">([(</span><span class="n">name</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
                                   <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">()]))</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+                <span class="n">cropped_name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;/&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cropped_name</span><span class="p">:</span>
+                    <span class="n">variables</span><span class="p">[</span><span class="n">cropped_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">variables</span>
+        
     <span class="k">def</span> <span class="nf">variable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+        <span class="c1"># check if the name for given relative or full</span>
+        <span class="k">if</span> <span class="s1">&#39;/&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">full_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="o">+</span> <span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">full_name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="k">if</span> <span class="n">full_name</span> <span class="ow">in</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">full_name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Variable </span><span class="si">{name}</span><span class="s1"> not in graph </span><span class="si">{self.full_name}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        
         <span class="sd">&quot;&quot;&quot;Load graph.&quot;&quot;&quot;</span>
+
         <span class="n">data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">var</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensor</span><span class="p">):</span>
+
+        <span class="c1"># fake graph entrance if not used by user</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="fm">__enter__</span><span class="p">()</span>
+
+        <span class="n">tensor</span><span class="o">.</span><span class="n">scope</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="o">+</span> <span class="n">tensor</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">Placeholder</span><span class="p">):</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_placeholders</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">Variable</span><span class="p">):</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span>  <span class="n">symjax</span><span class="o">.</span><span class="n">_ops</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">names</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tensor</span>
+            <span class="k">return</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">)</span> <span class="ow">in</span> <span class="n">names</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="n">names</span><span class="p">[</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">)]</span> <span class="o">=</span> <span class="n">tensor</span>
+        <span class="n">tensor</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="gradients"><a class="viewcode-back" href="../../modules/symjax.html#symjax.gradients">[docs]</a><span class="k">def</span> <span class="nf">gradients</span><span class="p">(</span><span class="n">scalar</span><span class="p">,</span> <span class="n">variables</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Compute the gradients of a scalar w.r.t to a given list of variables.</span>
@@ -394,7 +451,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">classargs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[],</span> <span class="n">updates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>   <span class="c1"># noqa</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">classargs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[],</span> <span class="n">updates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>   <span class="c1"># noqa</span>
                  <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize.&quot;&quot;&quot;</span>
@@ -425,7 +482,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">all_roots</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">getroots</span><span class="p">(</span><span class="n">outs</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">classargs</span> <span class="o">=</span> <span class="n">classargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span>
-
         <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">updates</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">updates_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
@@ -468,14 +524,15 @@
             <span class="o">-</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classargs</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">extra_inputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_inputs</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">jitfn</span><span class="p">(</span><span class="o">*</span><span class="n">jitargs</span><span class="p">):</span>
-            <span class="n">allargs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classargs</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span> <span class="o">+</span>\
-                <span class="bp">self</span><span class="o">.</span><span class="n">extra_inputs</span>
-            <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">updates_values</span><span class="p">],</span>
-                         <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">allargs</span><span class="p">,</span> <span class="n">jitargs</span><span class="p">)))</span>
+        <span class="k">def</span> <span class="nf">to_jit</span><span class="p">(</span><span class="o">*</span><span class="n">jitargs</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
+            <span class="n">allargs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classargs</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_inputs</span>
+            <span class="n">feed_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">m</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;base&#39;</span><span class="p">:</span> <span class="n">v</span><span class="p">})</span>
+                        <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">allargs</span><span class="p">,</span> <span class="n">jitargs</span><span class="p">)])</span>
+            <span class="n">feed_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;rng&#39;</span><span class="p">:</span><span class="n">seed</span><span class="p">})</span>
+            <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">updates_values</span><span class="p">],</span> <span class="n">feed_dict</span><span class="p">)</span>
 
         <span class="c1"># we compile our underlying function using jit for performances</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">jitfn</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">jitfn</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jited</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">to_jit</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
 
         <span class="c1"># define the frontend function that takes as input the inputs variables</span>
         <span class="c1"># and internally compute and update the variables from updates if any</span>
@@ -492,35 +549,30 @@
                             <span class="s2">&quot;, shape=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fnarg</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
 
             <span class="c1"># retreive the function outputs, updated values and apply them</span>
-            <span class="n">jitoutputs</span><span class="p">,</span> <span class="n">jitupdates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jitfn</span><span class="p">(</span>
-                <span class="o">*</span><span class="n">fnargs</span><span class="p">,</span>
-                <span class="o">*</span><span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_inputs</span><span class="p">,</span>
-                       <span class="p">{</span><span class="s1">&#39;rng&#39;</span><span class="p">:</span> <span class="n">rng</span><span class="p">}))</span>
+            <span class="n">jited_add_inputs</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_inputs</span><span class="p">,</span>
+                                    <span class="n">tracker</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;rng&#39;</span><span class="p">:</span> <span class="n">rng</span><span class="p">})</span>
+            <span class="n">jitoutputs</span><span class="p">,</span> <span class="n">jitupdates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jited</span><span class="p">(</span><span class="o">*</span><span class="n">fnargs</span><span class="p">,</span> <span class="o">*</span><span class="n">jited_add_inputs</span><span class="p">,</span>
+                    <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">update</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span><span class="p">,</span> <span class="n">jitupdates</span><span class="p">):</span>
-                <span class="n">key</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">update</span>
+                <span class="n">key</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">update</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">jitoutputs</span><span class="p">,</span> <span class="n">jax</span><span class="o">.</span><span class="n">interpreters</span><span class="o">.</span><span class="n">xla</span><span class="o">.</span><span class="n">DeviceArray</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">jax</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">device_get</span><span class="p">(</span><span class="n">jitoutputs</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">npy_jitoutputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">jax</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">device_get</span><span class="p">(</span>
-                    <span class="n">arr</span><span class="p">)</span> <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">jitoutputs</span><span class="p">]</span>
+                <span class="n">npy_jitoutputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">jax</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">device_get</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">jax</span><span class="o">.</span><span class="n">interpreters</span><span class="o">.</span><span class="n">xla</span><span class="o">.</span><span class="n">DeviceArray</span><span class="p">)</span> <span class="k">else</span> <span class="n">arr</span>  <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">jitoutputs</span><span class="p">]</span>
                 <span class="k">return</span> <span class="n">npy_jitoutputs</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="n">meta</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callable fn.&quot;&quot;&quot;</span>
         <span class="c1"># in the presence of RandomTensor(s) in the graph, we keep track of the</span>
         <span class="c1"># number of functions calls to keep accumulating the PRNGKey of the jax</span>
         <span class="c1"># key, otherwise each function call returns the same realisation</span>
         <span class="k">if</span> <span class="n">rng</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s1">&#39;_rng&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
-                <span class="nb">globals</span><span class="p">()[</span><span class="s1">&#39;_rng&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="nb">globals</span><span class="p">()[</span><span class="s1">&#39;_rng&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">_rng</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="s1">&#39;_rng&#39;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">_rng</span> <span class="o">=</span> <span class="n">rng</span>
+            <span class="n">rng</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">_seed</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">_seed</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">pargs</span> <span class="o">=</span> <span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="k">else</span> <span class="n">arg</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">(</span><span class="o">*</span><span class="n">pargs</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">_rng</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">(</span><span class="o">*</span><span class="n">pargs</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

@@ -1,6 +1,6 @@
 import numpy
 from . import tensor
-from .base import gradients, function, get_graph
+from .base import gradients, function
 
 
 class Optimizer:

@@ -85,7 +85,7 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user/wrap.html">Wrap Jax computation into SymJAX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/examples.html">Examples</a></li>
 </ul>
 <ul>
@@ -168,12 +168,12 @@
 <span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">import</span> <span class="nn">jax</span>
 <span class="kn">import</span> <span class="nn">jax.lax</span> <span class="k">as</span> <span class="nn">jla</span>
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Op</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">jax_wrap</span>
-<span class="kn">from</span> <span class="nn">.control_flow</span> <span class="kn">import</span> <span class="n">cond</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">Op</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">jax_wrap</span>
+<span class="kn">from</span> <span class="nn">.control_flow</span> <span class="k">import</span> <span class="n">cond</span>
 <span class="kn">import</span> <span class="nn">ast</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">.ops_nn</span> <span class="kn">import</span> <span class="n">relu</span>
+<span class="kn">from</span> <span class="nn">.ops_nn</span> <span class="k">import</span> <span class="n">relu</span>
 
 <span class="n">module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">]</span>
 

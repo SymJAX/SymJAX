@@ -85,7 +85,7 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../user/wrap.html">Wrap Jax computation into SymJAX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../user/examples.html">Examples</a></li>
 </ul>
 <ul>
@@ -187,26 +187,31 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">onp</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">lax</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">dtypes</span>
-<span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">jit</span><span class="p">,</span> <span class="n">vmap</span>
-<span class="kn">from</span> <span class="nn">.numpy.lax_numpy</span> <span class="kn">import</span> <span class="n">_constant_like</span><span class="p">,</span> <span class="n">asarray</span>
-<span class="kn">from</span> <span class="nn">jax.lib</span> <span class="kn">import</span> <span class="n">xla_bridge</span>
-<span class="kn">from</span> <span class="nn">jax.lib</span> <span class="kn">import</span> <span class="n">cuda_prng</span>
-<span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">core</span>
-<span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">abstract_arrays</span>
-<span class="kn">from</span> <span class="nn">jax.numpy.linalg</span> <span class="kn">import</span> <span class="n">cholesky</span>
-<span class="kn">from</span> <span class="nn">jax.scipy.special</span> <span class="kn">import</span> <span class="n">logit</span>
-<span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="kn">import</span> <span class="n">ad</span>
-<span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="kn">import</span> <span class="n">batching</span>
-<span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="kn">import</span> <span class="n">xla</span>
-<span class="kn">from</span> <span class="nn">jax.util</span> <span class="kn">import</span> <span class="n">prod</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">lax</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">dtypes</span>
+<span class="kn">from</span> <span class="nn">.api</span> <span class="k">import</span> <span class="n">jit</span><span class="p">,</span> <span class="n">vmap</span>
+<span class="kn">from</span> <span class="nn">.numpy.lax_numpy</span> <span class="k">import</span> <span class="n">_constant_like</span><span class="p">,</span> <span class="n">asarray</span>
+<span class="kn">from</span> <span class="nn">jax.lib</span> <span class="k">import</span> <span class="n">xla_bridge</span>
+<span class="kn">from</span> <span class="nn">jax.lib</span> <span class="k">import</span> <span class="n">xla_client</span>
+<span class="kn">from</span> <span class="nn">jax.lib</span> <span class="k">import</span> <span class="n">cuda_prng</span>
+<span class="kn">from</span> <span class="nn">jax</span> <span class="k">import</span> <span class="n">core</span>
+<span class="kn">from</span> <span class="nn">jax</span> <span class="k">import</span> <span class="n">abstract_arrays</span>
+<span class="kn">from</span> <span class="nn">jax.numpy.linalg</span> <span class="k">import</span> <span class="n">cholesky</span>
+<span class="kn">from</span> <span class="nn">jax.scipy.special</span> <span class="k">import</span> <span class="n">logit</span>
+<span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="k">import</span> <span class="n">ad</span>
+<span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="k">import</span> <span class="n">batching</span>
+<span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="k">import</span> <span class="n">xla</span>
+<span class="kn">from</span> <span class="nn">jax.util</span> <span class="k">import</span> <span class="n">prod</span>
+
+
+<span class="n">_UINT_DTYPES</span> <span class="o">=</span> <span class="p">{</span><span class="mi">8</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="mi">16</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">,</span> <span class="mi">32</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">,</span> <span class="mi">64</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">}</span>
 
 
 <span class="k">def</span> <span class="nf">PRNGKey</span><span class="p">(</span><span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -272,6 +277,25 @@
     <span class="n">aval</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">UnshapedArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">))</span>
   <span class="k">return</span> <span class="p">(</span><span class="n">aval</span><span class="p">,)</span> <span class="o">*</span> <span class="mi">2</span>
 
+<span class="n">rotate_left</span> <span class="o">=</span> <span class="n">_make_rotate_left</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">apply_round</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">rot</span><span class="p">):</span>
+  <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">[:]</span>
+  <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotate_left</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">rot</span><span class="p">)</span>
+  <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">^</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="k">return</span> <span class="n">v</span>
+
+<span class="k">def</span> <span class="nf">rotate_list</span><span class="p">(</span><span class="n">xs</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">xs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">xs</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">rolled_loop_step</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+  <span class="n">x</span><span class="p">,</span> <span class="n">ks</span><span class="p">,</span> <span class="n">rotations</span> <span class="o">=</span> <span class="n">state</span>
+  <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rotations</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">apply_round</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+  <span class="n">new_x</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">ks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ks</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">asarray</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">uint32</span><span class="p">)]</span>
+  <span class="k">return</span> <span class="n">new_x</span><span class="p">,</span> <span class="n">rotate_list</span><span class="p">(</span><span class="n">ks</span><span class="p">),</span> <span class="n">rotate_list</span><span class="p">(</span><span class="n">rotations</span><span class="p">)</span>
+
 <span class="k">def</span> <span class="nf">_threefry2x32_lowering</span><span class="p">(</span><span class="n">key1</span><span class="p">,</span> <span class="n">key2</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">use_rolled_loops</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Apply the Threefry 2x32 hash.</span>
 
@@ -283,15 +307,6 @@
 <span class="sd">    An array of dtype uint32 with the same shape as `count`.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">]</span>
-  <span class="n">rotate_left</span> <span class="o">=</span> <span class="n">_make_rotate_left</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
-
-  <span class="k">def</span> <span class="nf">apply_round</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">rot</span><span class="p">):</span>
-    <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">[:]</span>
-    <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotate_left</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">rot</span><span class="p">)</span>
-    <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">^</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">v</span>
-
 
   <span class="n">rotations</span> <span class="o">=</span> <span class="p">[</span><span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">13</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">uint32</span><span class="p">),</span>
                <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">17</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">24</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">uint32</span><span class="p">)]</span>
@@ -301,14 +316,7 @@
   <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ks</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
   <span class="k">if</span> <span class="n">use_rolled_loops</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">rotate_list</span><span class="p">(</span><span class="n">xs</span><span class="p">):</span> <span class="k">return</span> <span class="n">xs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">xs</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
-      <span class="n">x</span><span class="p">,</span> <span class="n">ks</span><span class="p">,</span> <span class="n">rotations</span> <span class="o">=</span> <span class="n">state</span>
-      <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rotations</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">apply_round</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
-      <span class="n">new_x</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">ks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ks</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">asarray</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">uint32</span><span class="p">)]</span>
-      <span class="k">return</span> <span class="n">new_x</span><span class="p">,</span> <span class="n">rotate_list</span><span class="p">(</span><span class="n">ks</span><span class="p">),</span> <span class="n">rotate_list</span><span class="p">(</span><span class="n">rotations</span><span class="p">)</span>
-    <span class="n">x</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">fori_loop</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">rotate_list</span><span class="p">(</span><span class="n">ks</span><span class="p">),</span> <span class="n">rotations</span><span class="p">))</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">fori_loop</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">rolled_loop_step</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">rotate_list</span><span class="p">(</span><span class="n">ks</span><span class="p">),</span> <span class="n">rotations</span><span class="p">))</span>
 
   <span class="k">else</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rotations</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
@@ -341,12 +349,13 @@
 
 <span class="k">def</span> <span class="nf">_threefry2x32_gpu_translation_rule</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">k1</span><span class="p">,</span> <span class="n">k2</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">):</span>
   <span class="n">shape</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">broadcast_shapes</span><span class="p">(</span>
-      <span class="n">c</span><span class="o">.</span><span class="n">GetShape</span><span class="p">(</span><span class="n">k1</span><span class="p">)</span><span class="o">.</span><span class="n">dimensions</span><span class="p">(),</span> <span class="n">c</span><span class="o">.</span><span class="n">GetShape</span><span class="p">(</span><span class="n">k2</span><span class="p">)</span><span class="o">.</span><span class="n">dimensions</span><span class="p">(),</span>
-      <span class="n">c</span><span class="o">.</span><span class="n">GetShape</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span><span class="o">.</span><span class="n">dimensions</span><span class="p">(),</span> <span class="n">c</span><span class="o">.</span><span class="n">GetShape</span><span class="p">(</span><span class="n">x2</span><span class="p">)</span><span class="o">.</span><span class="n">dimensions</span><span class="p">())</span>
+      <span class="n">c</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(</span><span class="n">k1</span><span class="p">)</span><span class="o">.</span><span class="n">dimensions</span><span class="p">(),</span> <span class="n">c</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(</span><span class="n">k2</span><span class="p">)</span><span class="o">.</span><span class="n">dimensions</span><span class="p">(),</span>
+      <span class="n">c</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span><span class="o">.</span><span class="n">dimensions</span><span class="p">(),</span> <span class="n">c</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(</span><span class="n">x2</span><span class="p">)</span><span class="o">.</span><span class="n">dimensions</span><span class="p">())</span>
   <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
   <span class="k">def</span> <span class="nf">_broadcast</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="n">ndims</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">GetShape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">BroadcastInDim</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">rank</span> <span class="o">-</span> <span class="n">ndims</span><span class="p">,</span> <span class="n">rank</span><span class="p">)))</span>
+    <span class="n">ndims</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">xla_client</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">BroadcastInDim</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span>
+                                         <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">rank</span> <span class="o">-</span> <span class="n">ndims</span><span class="p">,</span> <span class="n">rank</span><span class="p">)))</span>
   <span class="k">return</span> <span class="n">cuda_prng</span><span class="o">.</span><span class="n">threefry2x32</span><span class="p">(</span>
       <span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">_broadcast</span><span class="p">(</span><span class="n">k1</span><span class="p">),</span> <span class="n">_broadcast</span><span class="p">(</span><span class="n">k2</span><span class="p">)),</span> <span class="p">(</span><span class="n">_broadcast</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span> <span class="n">_broadcast</span><span class="p">(</span><span class="n">x2</span><span class="p">)))</span>
 
@@ -433,18 +442,34 @@
   <span class="sd">&quot;&quot;&quot;Sample uniform random bits of given width and shape using PRNG key.&quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_prng_key</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;_random_bits got invalid prng key.&quot;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">bit_width</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;requires 32- or 64-bit field width.&quot;</span><span class="p">)</span>
-  <span class="n">max_count</span> <span class="o">=</span> <span class="p">(</span><span class="n">bit_width</span> <span class="o">//</span> <span class="mi">32</span><span class="p">)</span> <span class="o">*</span> <span class="n">onp</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">bit_width</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;requires 8-, 16-, 32- or 64-bit field width.&quot;</span><span class="p">)</span>
+  <span class="n">size</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+  <span class="n">max_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">bit_width</span> <span class="o">*</span> <span class="n">size</span> <span class="o">/</span> <span class="mi">32</span><span class="p">))</span>
   <span class="k">if</span> <span class="n">max_count</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">:</span>
     <span class="c1"># TODO(mattjj): just split the key here</span>
     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;requesting more random bits than a single call provides.&quot;</span><span class="p">)</span>
 
   <span class="n">counts</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">tie_in</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">iota</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">uint32</span><span class="p">,</span> <span class="n">max_count</span><span class="p">))</span>
   <span class="n">bits</span> <span class="o">=</span> <span class="n">threefry_2x32</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">counts</span><span class="p">)</span>
+  <span class="n">dtype</span> <span class="o">=</span> <span class="n">_UINT_DTYPES</span><span class="p">[</span><span class="n">bit_width</span><span class="p">]</span>
   <span class="k">if</span> <span class="n">bit_width</span> <span class="o">==</span> <span class="mi">64</span><span class="p">:</span>
-    <span class="n">bits</span> <span class="o">=</span> <span class="p">[</span><span class="n">lax</span><span class="o">.</span><span class="n">convert_element_type</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span>
-    <span class="n">bits</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">shift_left</span><span class="p">(</span><span class="n">bits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">onp</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="mi">32</span><span class="p">))</span> <span class="o">|</span> <span class="n">bits</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">bits</span> <span class="o">=</span> <span class="p">[</span><span class="n">lax</span><span class="o">.</span><span class="n">convert_element_type</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span>
+    <span class="n">bits</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">shift_left</span><span class="p">(</span><span class="n">bits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="p">(</span><span class="mi">32</span><span class="p">))</span> <span class="o">|</span> <span class="n">bits</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="k">elif</span> <span class="n">bit_width</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">]:</span>
+    <span class="c1"># this is essentially bits.view(dtype)[:size]</span>
+    <span class="n">bits</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span>
+      <span class="n">onp</span><span class="o">.</span><span class="n">uint32</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">),</span>
+      <span class="n">lax</span><span class="o">.</span><span class="n">shift_right_logical</span><span class="p">(</span>
+        <span class="n">lax</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)),</span>
+        <span class="n">lax</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span>
+          <span class="n">onp</span><span class="o">.</span><span class="n">uint32</span><span class="p">(</span><span class="n">bit_width</span><span class="p">),</span>
+          <span class="n">lax</span><span class="o">.</span><span class="n">broadcasted_iota</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">uint32</span><span class="p">,</span> <span class="p">(</span><span class="mi">32</span> <span class="o">//</span> <span class="n">bit_width</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+      <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">bits</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">uint32</span><span class="p">(</span><span class="n">max_count</span> <span class="o">*</span> <span class="mi">32</span> <span class="o">//</span> <span class="n">bit_width</span><span class="p">),),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">bits</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">convert_element_type</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)[:</span><span class="n">size</span><span class="p">]</span>
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
 
 
@@ -452,11 +477,8 @@
 
 
 <span class="k">def</span> <span class="nf">_check_shape</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="o">*</span><span class="n">param_shapes</span><span class="p">):</span>
-  <span class="k">try</span><span class="p">:</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">shape</span><span class="p">))</span>
-  <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> requires a concrete tuple of integers as shape argument, got </span><span class="si">{}</span><span class="s2">.&quot;</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">))</span> <span class="kn">from</span> <span class="nn">err</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+
   <span class="k">if</span> <span class="n">param_shapes</span><span class="p">:</span>
     <span class="n">shape_</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">broadcast_shapes</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="o">*</span><span class="n">param_shapes</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">shape</span> <span class="o">!=</span> <span class="n">shape_</span><span class="p">:</span>
@@ -500,7 +522,7 @@
   <span class="n">finfo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
   <span class="n">nbits</span><span class="p">,</span> <span class="n">nmant</span> <span class="o">=</span> <span class="n">finfo</span><span class="o">.</span><span class="n">bits</span><span class="p">,</span> <span class="n">finfo</span><span class="o">.</span><span class="n">nmant</span>
 
-  <span class="k">if</span> <span class="n">nbits</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">nbits</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;uniform only accepts 32- or 64-bit dtypes.&quot;</span><span class="p">)</span>
 
   <span class="n">bits</span> <span class="o">=</span> <span class="n">_random_bits</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">nbits</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
@@ -511,7 +533,7 @@
   <span class="c1"># equivalent float representations, which might not be true on all platforms.</span>
   <span class="n">float_bits</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">bitwise_or</span><span class="p">(</span>
       <span class="n">lax</span><span class="o">.</span><span class="n">shift_right_logical</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">nbits</span> <span class="o">-</span> <span class="n">nmant</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">bits</span><span class="p">))),</span>
-      <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">uint32</span> <span class="k">if</span> <span class="n">nbits</span> <span class="o">==</span> <span class="mi">32</span> <span class="k">else</span> <span class="n">onp</span><span class="o">.</span><span class="n">uint64</span><span class="p">))</span>
+      <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">_UINT_DTYPES</span><span class="p">[</span><span class="n">nbits</span><span class="p">]))</span>
   <span class="n">floats</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">bitcast_convert_type</span><span class="p">(</span><span class="n">float_bits</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span> <span class="o">-</span> <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">max</span><span class="p">(</span>
       <span class="n">minval</span><span class="p">,</span>
@@ -552,8 +574,8 @@
   <span class="n">maxval</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">convert_element_type</span><span class="p">(</span><span class="n">maxval</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
   <span class="n">nbits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">bits</span>
 
-  <span class="k">if</span> <span class="n">nbits</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;randint only accepts 32- or 64-bit dtypes.&quot;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">nbits</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;randint only accepts 8-, 16-, 32-, or 64-bit dtypes.&quot;</span><span class="p">)</span>
 
   <span class="c1"># if we don&#39;t have minval &lt; maxval, just always return minval</span>
   <span class="c1"># https://github.com/google/jax/issues/222</span>
@@ -566,16 +588,15 @@
   <span class="n">rbits</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">key</span><span class="p">:</span> <span class="n">_random_bits</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">nbits</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
   <span class="n">higher_bits</span><span class="p">,</span> <span class="n">lower_bits</span> <span class="o">=</span> <span class="n">rbits</span><span class="p">(</span><span class="n">k1</span><span class="p">),</span> <span class="n">rbits</span><span class="p">(</span><span class="n">k2</span><span class="p">)</span>
 
-  <span class="n">unsigned_dtype</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">uint32</span> <span class="k">if</span> <span class="n">nbits</span> <span class="o">==</span> <span class="mi">32</span> <span class="k">else</span> <span class="n">onp</span><span class="o">.</span><span class="n">uint64</span>
+  <span class="n">unsigned_dtype</span> <span class="o">=</span> <span class="n">_UINT_DTYPES</span><span class="p">[</span><span class="n">nbits</span><span class="p">]</span>
   <span class="n">span</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">convert_element_type</span><span class="p">(</span><span class="n">maxval</span> <span class="o">-</span> <span class="n">minval</span><span class="p">,</span> <span class="n">unsigned_dtype</span><span class="p">)</span>
 
   <span class="c1"># To compute a remainder operation on an integer that might have twice as many</span>
   <span class="c1"># bits as we can represent in the native unsigned dtype, we compute a</span>
-  <span class="c1"># multiplier equal to 2**nbits % span (using that nbits is 32 or 64).</span>
-  <span class="n">multiplier</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">rem</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">,</span> <span class="n">unsigned_dtype</span><span class="p">),</span> <span class="n">span</span><span class="p">)</span>
+  <span class="c1"># multiplier equal to 2**nbits % span. To avoid overflow, we use the identity:</span>
+  <span class="c1">#  (a * b) % N = [(a % N) * (b % N)] % N</span>
+  <span class="n">multiplier</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">rem</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">_const</span><span class="p">(</span><span class="n">span</span><span class="p">,</span> <span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">nbits</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">span</span><span class="p">)</span>
   <span class="n">multiplier</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">rem</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">multiplier</span><span class="p">,</span> <span class="n">multiplier</span><span class="p">),</span> <span class="n">span</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">nbits</span> <span class="o">==</span> <span class="mi">64</span><span class="p">:</span>
-    <span class="n">multiplier</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">rem</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">multiplier</span><span class="p">,</span> <span class="n">multiplier</span><span class="p">),</span> <span class="n">span</span><span class="p">)</span>
 
   <span class="n">random_offset</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">rem</span><span class="p">(</span><span class="n">higher_bits</span><span class="p">,</span> <span class="n">span</span><span class="p">),</span> <span class="n">multiplier</span><span class="p">),</span>
                           <span class="n">lax</span><span class="o">.</span><span class="n">rem</span><span class="p">(</span><span class="n">lower_bits</span><span class="p">,</span> <span class="n">span</span><span class="p">))</span>
@@ -594,7 +615,38 @@
 <span class="sd">  Returns:</span>
 <span class="sd">    A shuffled version of x.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;jax.random.shuffle is deprecated and will be removed in a future release. &quot;</span>
+         <span class="s2">&quot;Use jax.random.permutation&quot;</span><span class="p">)</span>
+  <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="ne">FutureWarning</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">_shuffle</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">permutation</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Permute elements of an array along its first axis or return a permuted range.</span>
+
+<span class="sd">  If `x` is a multi-dimensional array, it is only shuffled along its</span>
+<span class="sd">  first index.</span>
+
+<span class="sd">  Args:n</span>
+<span class="sd">    key: a PRNGKey used as the random key.</span>
+<span class="sd">    x: the array or integer range to be shuffled.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A shuffled version of x or array range</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">onp</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="c1"># scalar case, must be a concrete integer</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">onp</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">onp</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;x must be an integer or at least 1-dimensional&quot;</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_shuffle</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="k">elif</span> <span class="n">onp</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">_shuffle</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">ind</span> <span class="o">=</span> <span class="n">_shuffle</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,))</span>
 <span class="k">def</span> <span class="nf">_shuffle</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
@@ -1153,6 +1205,114 @@
   <span class="k">return</span> <span class="n">random_gamma_p</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">a</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
 
+<span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">_poisson_knuth</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">max_iters</span><span class="p">):</span>
+  <span class="c1"># Knuth&#39;s algorithm for generating Poisson random variates.</span>
+  <span class="c1"># Reference:</span>
+  <span class="c1"># https://en.wikipedia.org/wiki/Poisson_distribution#Generating_Poisson-distributed_random_variables</span>
+
+  <span class="k">def</span> <span class="nf">body_fn</span><span class="p">(</span><span class="n">carry</span><span class="p">):</span>
+    <span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="n">log_prod</span> <span class="o">=</span> <span class="n">carry</span>
+    <span class="n">rng</span><span class="p">,</span> <span class="n">subkey</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">log_prod</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">lam</span><span class="p">,</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">uniform</span><span class="p">(</span><span class="n">subkey</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="n">log_prod</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">cond_fn</span><span class="p">(</span><span class="n">carry</span><span class="p">):</span>
+    <span class="n">i</span><span class="p">,</span> <span class="n">log_prod</span> <span class="o">=</span> <span class="n">carry</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">carry</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">log_prod</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">lam</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">max_iters</span><span class="p">)</span>
+
+  <span class="n">k_init</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+  <span class="n">log_rate_init</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+  <span class="n">k</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span><span class="n">cond_fn</span><span class="p">,</span> <span class="n">body_fn</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">k_init</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">log_rate_init</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="k">return</span> <span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+
+
+<span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">_poisson_rejection</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">max_iters</span><span class="p">):</span>
+  <span class="c1"># Transformed rejection due to Hormann.</span>
+  <span class="c1"># Reference:</span>
+  <span class="c1"># http://citeseer.ist.psu.edu/viewdoc/citations;jsessionid=1BEB35946CC807879F55D42512E5490C?doi=10.1.1.48.3054.</span>
+  <span class="n">log_lam</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+  <span class="n">b</span> <span class="o">=</span> <span class="mf">0.931</span> <span class="o">+</span> <span class="mf">2.53</span> <span class="o">*</span> <span class="n">lax</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+  <span class="n">a</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.059</span> <span class="o">+</span> <span class="mf">0.02483</span> <span class="o">*</span> <span class="n">b</span>
+  <span class="n">inv_alpha</span> <span class="o">=</span> <span class="mf">1.1239</span> <span class="o">+</span> <span class="mf">1.1328</span> <span class="o">/</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="mf">3.4</span><span class="p">)</span>
+  <span class="n">v_r</span> <span class="o">=</span> <span class="mf">0.9277</span> <span class="o">-</span> <span class="mf">3.6224</span> <span class="o">/</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">body_fn</span><span class="p">(</span><span class="n">carry</span><span class="p">):</span>
+    <span class="n">i</span><span class="p">,</span> <span class="n">k_out</span><span class="p">,</span> <span class="n">accepted</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">carry</span>
+    <span class="n">key</span><span class="p">,</span> <span class="n">subkey_0</span><span class="p">,</span> <span class="n">subkey_1</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="n">u</span> <span class="o">=</span> <span class="n">uniform</span><span class="p">(</span><span class="n">subkey_0</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">lam</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">uniform</span><span class="p">(</span><span class="n">subkey_1</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">lam</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">u_shifted</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+
+    <span class="n">k</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">a</span> <span class="o">/</span> <span class="n">u_shifted</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span> <span class="o">+</span> <span class="n">lam</span> <span class="o">+</span> <span class="mf">0.43</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">v</span> <span class="o">*</span> <span class="n">inv_alpha</span> <span class="o">/</span> <span class="p">(</span><span class="n">a</span> <span class="o">/</span> <span class="p">(</span><span class="n">u_shifted</span> <span class="o">*</span> <span class="n">u_shifted</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span><span class="p">))</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="o">-</span><span class="n">lam</span> <span class="o">+</span> <span class="n">k</span> <span class="o">*</span> <span class="n">log_lam</span> <span class="o">-</span> <span class="n">lax</span><span class="o">.</span><span class="n">lgamma</span><span class="p">(</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">accept1</span> <span class="o">=</span> <span class="p">(</span><span class="n">u_shifted</span> <span class="o">&gt;=</span> <span class="mf">0.07</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">v</span> <span class="o">&lt;=</span> <span class="n">v_r</span><span class="p">)</span>
+    <span class="n">reject</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">((</span><span class="n">u_shifted</span> <span class="o">&lt;</span> <span class="mf">0.013</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">v</span> <span class="o">&gt;</span> <span class="n">u_shifted</span><span class="p">))</span>
+    <span class="n">accept2</span> <span class="o">=</span> <span class="n">s</span> <span class="o">&lt;=</span> <span class="n">t</span>
+    <span class="n">accept</span> <span class="o">=</span> <span class="n">accept1</span> <span class="o">|</span> <span class="p">(</span><span class="o">~</span><span class="n">reject</span> <span class="o">&amp;</span> <span class="n">accept2</span><span class="p">)</span>
+
+    <span class="n">k_out</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">accept</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">k_out</span><span class="p">)</span>
+    <span class="n">accepted</span> <span class="o">|=</span> <span class="n">accept</span>
+
+    <span class="k">return</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">k_out</span><span class="p">,</span> <span class="n">accepted</span><span class="p">,</span> <span class="n">key</span>
+
+  <span class="k">def</span> <span class="nf">cond_fn</span><span class="p">(</span><span class="n">carry</span><span class="p">):</span>
+    <span class="n">i</span><span class="p">,</span> <span class="n">k_out</span><span class="p">,</span> <span class="n">accepted</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">carry</span>
+    <span class="k">return</span> <span class="p">(</span><span class="o">~</span><span class="n">accepted</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">max_iters</span><span class="p">)</span>
+
+  <span class="n">k_init</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">lam</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+  <span class="n">accepted</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+  <span class="n">k</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span><span class="n">cond_fn</span><span class="p">,</span> <span class="n">body_fn</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">k_init</span><span class="p">,</span> <span class="n">accepted</span><span class="p">,</span> <span class="n">key</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="k">return</span> <span class="n">k</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+
+
+<span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">_poisson</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
+  <span class="c1"># The implementation matches TensorFlow and NumPy:</span>
+  <span class="c1"># https://github.com/tensorflow/tensorflow/blob/v2.2.0-rc3/tensorflow/core/kernels/random_poisson_op.cc</span>
+  <span class="c1"># https://github.com/numpy/numpy/blob/v1.18.3/numpy/random/src/distributions/distributions.c#L574</span>
+  <span class="c1"># For lambda &lt; 10, we use the Knuth algorithm; otherwise, we use transformed</span>
+  <span class="c1"># rejection sampling.</span>
+  <span class="n">use_knuth</span> <span class="o">=</span> <span class="n">lam</span> <span class="o">&lt;</span> <span class="mi">10</span>
+  <span class="n">lam_knuth</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">use_knuth</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+  <span class="c1"># The acceptance probability for rejection sampling maxes out at 89% as</span>
+  <span class="c1"># λ -&gt; ∞, so pick some arbitrary large value.</span>
+  <span class="n">lam_rejection</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">use_knuth</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="mf">1e5</span><span class="p">),</span> <span class="n">lam</span><span class="p">)</span>
+  <span class="n">max_iters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>  <span class="c1"># insanely conservative</span>
+  <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+      <span class="n">use_knuth</span><span class="p">,</span>
+      <span class="n">_poisson_knuth</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">lam_knuth</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">max_iters</span><span class="p">),</span>
+      <span class="n">_poisson_rejection</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">lam_rejection</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">max_iters</span><span class="p">),</span>
+  <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">poisson</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">int64</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Sample Poisson random values with given shape and integer dtype.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    key: a PRNGKey used as the random key.</span>
+<span class="sd">    lam: rate parameter (mean of the distribution), must be &gt;= 0.</span>
+<span class="sd">    shape: optional, a tuple of nonnegative integers representing the result</span>
+<span class="sd">      shape. Default ().</span>
+<span class="sd">    dtype: optional, a integer dtype for the returned values (default int64 if</span>
+<span class="sd">      jax_enable_x64 is true, otherwise int32).</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A random array with the specified shape and dtype.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">canonicalize_dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">abstract_arrays</span><span class="o">.</span><span class="n">canonicalize_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">onp</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span> <span class="o">!=</span> <span class="n">shape</span><span class="p">:</span>
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+  <span class="n">lam</span> <span class="o">=</span> <span class="n">lam</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">_poisson</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="gumbel"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.gumbel">[docs]</a><span class="k">def</span> <span class="nf">gumbel</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Sample Gumbel random values with given shape and float dtype.</span>
 
@@ -1175,6 +1335,7 @@
   <span class="n">_check_shape</span><span class="p">(</span><span class="s2">&quot;gumbel&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
   <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
       <span class="n">uniform</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">minval</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mf">1.</span><span class="p">)))</span>
+
 
 <span class="k">def</span> <span class="nf">categorical</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Sample random values from categorical distributions.</span>
@@ -1204,6 +1365,7 @@
 
   <span class="n">sample_shape</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">batch_shape</span><span class="p">)]</span>
   <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">gumbel</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sample_shape</span> <span class="o">+</span> <span class="n">logits</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">logits</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="o">+</span> <span class="n">logits</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="laplace"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.laplace">[docs]</a><span class="k">def</span> <span class="nf">laplace</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Sample Laplace random values with given shape and float dtype.</span>
@@ -1249,8 +1411,21 @@
 
 <span class="nd">@partial</span><span class="p">(</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="k">def</span> <span class="nf">_logistic</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
+  <span class="c1"># Mathematically, we can compute the distribution by generating uniformly-distributed</span>
+  <span class="c1"># numbers x in the open interval (a, b) and computing:</span>
+  <span class="c1">#   z = log[ (x - a) / (b - x))</span>
+  <span class="c1"># It&#39;s important to avoid x=a or x=b, which lead to infinite values for z.</span>
+  <span class="c1"># The uniform() function generates pseudorandom floating point numbers x in the</span>
+  <span class="c1"># semi-closed interval [0, 1), so if used directly  with (a,b)=(0,1), it will</span>
+  <span class="c1"># lead to infinite output in a small number of cases (as many as 1 in 2^23 for float32).</span>
+  <span class="c1">#</span>
+  <span class="c1"># Instead, we let (a, b) = (-ε, 1) where ε is the smallest step between floating point</span>
+  <span class="c1"># values: then numbers in the interval (-ε, 1) are approximated by standard uniformly</span>
+  <span class="c1"># drawn numbers in [0, 1).</span>
   <span class="n">_check_shape</span><span class="p">(</span><span class="s2">&quot;logistic&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">logit</span><span class="p">(</span><span class="n">uniform</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">))</span>
+  <span class="n">x</span> <span class="o">=</span> <span class="n">uniform</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+  <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+  <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">_const</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">eps</span><span class="p">),</span> <span class="n">x</span><span class="p">),</span> <span class="n">lax</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">_const</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">x</span><span class="p">)))</span>
 
 
 <div class="viewcode-block" id="pareto"><a class="viewcode-back" href="../../modules/random.html#symjax.tensor.random.pareto">[docs]</a><span class="k">def</span> <span class="nf">pareto</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>

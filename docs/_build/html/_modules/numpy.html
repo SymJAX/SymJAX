@@ -85,7 +85,7 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user/wrap.html">Wrap Jax computation into SymJAX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user/examples.html">Examples</a></li>
 </ul>
 <ul>
@@ -270,13 +270,14 @@
 <span class="sd">Exceptions to this rule are documented.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">print_function</span>
 
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">._globals</span> <span class="kn">import</span> <span class="n">ModuleDeprecationWarning</span><span class="p">,</span> <span class="n">VisibleDeprecationWarning</span>
-<span class="kn">from</span> <span class="nn">._globals</span> <span class="kn">import</span> <span class="n">_NoValue</span>
+<span class="kn">from</span> <span class="nn">._globals</span> <span class="k">import</span> <span class="n">ModuleDeprecationWarning</span><span class="p">,</span> <span class="n">VisibleDeprecationWarning</span>
+<span class="kn">from</span> <span class="nn">._globals</span> <span class="k">import</span> <span class="n">_NoValue</span>
 
 <span class="c1"># We first need to detect if we&#39;re being called as part of the numpy setup</span>
 <span class="c1"># procedure itself in a reliable manner.</span>
@@ -288,50 +289,62 @@
 <span class="k">if</span> <span class="n">__NUMPY_SETUP__</span><span class="p">:</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Running from numpy source directory.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
+    <span class="c1"># Add MKL runtimes to the path</span>
+    <span class="sd">&quot;&quot;&quot;Set environment for additional binaries&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s1">&#39;win32&#39;</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">extendkey</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">value</span><span class="p">]</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">redist</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;DLLs&#39;</span><span class="p">]:</span>
+            <span class="n">redist_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="n">redist</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">redist_dir</span><span class="p">):</span>
+                <span class="n">extendkey</span><span class="p">(</span><span class="s1">&#39;PATH&#39;</span><span class="p">,</span> <span class="n">redist_dir</span><span class="p">)</span>
+
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">numpy.__config__</span> <span class="kn">import</span> <span class="n">show</span> <span class="k">as</span> <span class="n">show_config</span>
+        <span class="kn">from</span> <span class="nn">numpy.__config__</span> <span class="k">import</span> <span class="n">show</span> <span class="k">as</span> <span class="n">show_config</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Error importing numpy: you should not try to import numpy from</span>
 <span class="s2">        its source directory; please exit the numpy source tree, and relaunch</span>
 <span class="s2">        your python interpreter from there.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-    <span class="kn">from</span> <span class="nn">.version</span> <span class="kn">import</span> <span class="n">git_revision</span> <span class="k">as</span> <span class="n">__git_revision__</span>
-    <span class="kn">from</span> <span class="nn">.version</span> <span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">__version__</span>
+    <span class="kn">from</span> <span class="nn">.version</span> <span class="k">import</span> <span class="n">git_revision</span> <span class="k">as</span> <span class="n">__git_revision__</span>
+    <span class="kn">from</span> <span class="nn">.version</span> <span class="k">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">__version__</span>
 
     <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ModuleDeprecationWarning&#39;</span><span class="p">,</span>
                <span class="s1">&#39;VisibleDeprecationWarning&#39;</span><span class="p">]</span>
 
     <span class="c1"># Allow distributors to run custom init code</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_distributor_init</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">_distributor_init</span>
 
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">core</span>
-    <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="o">*</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">compat</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">lib</span>
-    <span class="c1"># FIXME: why have numpy.lib if everything is imported here??</span>
-    <span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="o">*</span>
-
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">linalg</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">fft</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">polynomial</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">random</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">ctypeslib</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">ma</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">matrixlib</span> <span class="k">as</span> <span class="n">_mat</span>
-    <span class="kn">from</span> <span class="nn">.matrixlib</span> <span class="kn">import</span> <span class="o">*</span>
-    <span class="kn">from</span> <span class="nn">.compat</span> <span class="kn">import</span> <span class="n">long</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">core</span>
+    <span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="o">*</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">compat</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">lib</span>
+    <span class="kn">from</span> <span class="nn">.lib</span> <span class="k">import</span> <span class="o">*</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">linalg</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">fft</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">polynomial</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">random</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">ctypeslib</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">ma</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">matrixlib</span> <span class="k">as</span> <span class="n">_mat</span>
+    <span class="kn">from</span> <span class="nn">.matrixlib</span> <span class="k">import</span> <span class="o">*</span>
+    <span class="kn">from</span> <span class="nn">.compat</span> <span class="k">import</span> <span class="n">long</span>
 
     <span class="c1"># Make these accessible from numpy name-space</span>
     <span class="c1"># but not imported in from numpy import *</span>
-    <span class="c1"># TODO[gh-6103]: Deprecate these</span>
     <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="nb">str</span>
         <span class="n">unicode</span> <span class="o">=</span> <span class="nb">str</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">__builtin__</span> <span class="kn">import</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">unicode</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="kn">from</span> <span class="nn">__builtin__</span> <span class="k">import</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">unicode</span><span class="p">,</span> <span class="nb">str</span>
 
-    <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="nb">round</span><span class="p">,</span> <span class="nb">abs</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="nb">min</span>
+    <span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="nb">round</span><span class="p">,</span> <span class="nb">abs</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="nb">min</span>
     <span class="c1"># now that numpy modules are imported, can initialize limits</span>
     <span class="n">core</span><span class="o">.</span><span class="n">getlimits</span><span class="o">.</span><span class="n">_register_known_types</span><span class="p">()</span>
 
@@ -340,19 +353,6 @@
     <span class="n">__all__</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_mat</span><span class="o">.</span><span class="n">__all__</span><span class="p">)</span>
     <span class="n">__all__</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">lib</span><span class="o">.</span><span class="n">__all__</span><span class="p">)</span>
     <span class="n">__all__</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;linalg&#39;</span><span class="p">,</span> <span class="s1">&#39;fft&#39;</span><span class="p">,</span> <span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="s1">&#39;ctypeslib&#39;</span><span class="p">,</span> <span class="s1">&#39;ma&#39;</span><span class="p">])</span>
-
-    <span class="c1"># These are added by `from .core import *` and `core.__all__`, but we</span>
-    <span class="c1"># overwrite them above with builtins we do _not_ want to export.</span>
-    <span class="n">__all__</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;long&#39;</span><span class="p">)</span>
-    <span class="n">__all__</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;unicode&#39;</span><span class="p">)</span>
-
-    <span class="c1"># Remove things that are in the numpy.lib but not in the numpy namespace</span>
-    <span class="c1"># Note that there is a test (numpy/tests/test_public_api.py:test_numpy_namespace)</span>
-    <span class="c1"># that prevents adding more things to the main namespace by accident.</span>
-    <span class="c1"># The list below will grow until the `from .lib import *` fixme above is</span>
-    <span class="c1"># taken care of</span>
-    <span class="n">__all__</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;Arrayterator&#39;</span><span class="p">)</span>
-    <span class="k">del</span> <span class="n">Arrayterator</span>
 
     <span class="c1"># Filter out Cython harmless warnings</span>
     <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;numpy.dtype size changed&quot;</span><span class="p">)</span>
@@ -364,37 +364,12 @@
     <span class="n">oldnumeric</span> <span class="o">=</span> <span class="s1">&#39;removed&#39;</span>
     <span class="n">numarray</span> <span class="o">=</span> <span class="s1">&#39;removed&#39;</span>
 
-    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
-        <span class="c1"># Importing Tester requires importing all of UnitTest which is not a</span>
-        <span class="c1"># cheap import Since it is mainly used in test suits, we lazy import it</span>
-        <span class="c1"># here to save on the order of 10 ms of import time for most users</span>
-        <span class="c1">#</span>
-        <span class="c1"># The previous way Tester was imported also had a side effect of adding</span>
-        <span class="c1"># the full `numpy.testing` namespace</span>
-        <span class="c1">#</span>
-        <span class="c1"># module level getattr is only supported in 3.7 onwards</span>
-        <span class="c1"># https://www.python.org/dev/peps/pep-0562/</span>
-        <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="n">attr</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">&#39;testing&#39;</span><span class="p">:</span>
-                <span class="kn">import</span> <span class="nn">numpy.testing</span> <span class="k">as</span> <span class="nn">testing</span>
-                <span class="k">return</span> <span class="n">testing</span>
-            <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">&#39;Tester&#39;</span><span class="p">:</span>
-                <span class="kn">from</span> <span class="nn">.testing</span> <span class="kn">import</span> <span class="n">Tester</span>
-                <span class="k">return</span> <span class="n">Tester</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;module </span><span class="si">{!r}</span><span class="s2"> has no attribute &quot;</span>
-                                     <span class="s2">&quot;</span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
-
-        <span class="k">def</span> <span class="fm">__dir__</span><span class="p">():</span>
-            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;Tester&#39;</span><span class="p">,</span> <span class="s1">&#39;testing&#39;</span><span class="p">]</span>
-
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># We don&#39;t actually use this ourselves anymore, but I&#39;m not 100% sure that</span>
-        <span class="c1"># no-one else in the world is using it (though I hope not)</span>
-        <span class="kn">from</span> <span class="nn">.testing</span> <span class="kn">import</span> <span class="n">Tester</span>
+    <span class="c1"># We don&#39;t actually use this ourselves anymore, but I&#39;m not 100% sure that</span>
+    <span class="c1"># no-one else in the world is using it (though I hope not)</span>
+    <span class="kn">from</span> <span class="nn">.testing</span> <span class="k">import</span> <span class="n">Tester</span>
 
     <span class="c1"># Pytest testing</span>
-    <span class="kn">from</span> <span class="nn">numpy._pytesttester</span> <span class="kn">import</span> <span class="n">PytestTester</span>
+    <span class="kn">from</span> <span class="nn">numpy._pytesttester</span> <span class="k">import</span> <span class="n">PytestTester</span>
     <span class="n">test</span> <span class="o">=</span> <span class="n">PytestTester</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
     <span class="k">del</span> <span class="n">PytestTester</span>
 

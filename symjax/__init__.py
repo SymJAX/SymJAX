@@ -16,3 +16,10 @@ __all__ = [
     "optimizers"]
 
 from . import *
+
+_current_scope = '/'
+_current_graph = [Graph('')]
+_variables = {}
+_placeholders = {}
+_updates = {}
+_ops = {}

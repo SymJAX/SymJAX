@@ -87,7 +87,7 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user/wrap.html">Wrap Jax computation into SymJAX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user/examples.html">Examples</a></li>
 </ul>
 <ul class="current">
@@ -199,8 +199,8 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#symjax.tensor.random.laplace" title="symjax.tensor.random.laplace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">laplace</span></code></a>(key[, shape, dtype])</p></td>
 <td><p>Sample Laplace random values with given shape and float dtype.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#symjax.tensor.random.logit" title="symjax.tensor.random.logit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logit</span></code></a></p></td>
-<td><p>Logit ufunc for ndarrays.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">logit</span></code></p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#symjax.tensor.random.multivariate_normal" title="symjax.tensor.random.multivariate_normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multivariate_normal</span></code></a>(key, mean, cov[, shape, …])</p></td>
 <td><p>Sample multivariate normal random values with given mean and covariance.</p></td>
@@ -314,66 +314,6 @@ ADDITIONOriginal docstring below.</p>
 <div><p>Returns:
 A random array with the specified shape and dtype.</p>
 </div></blockquote>
-</dd></dl>
-
-<dl class="py function">
-<dt id="symjax.tensor.random.logit">
-<code class="sig-name descname">logit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/jax/scipy/special.html#logit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.logit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Logit ufunc for ndarrays.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.random.logit" title="symjax.tensor.random.logit"><code class="xref py py-func docutils literal notranslate"><span class="pre">logit()</span></code></a>.
-ADDITIONOriginal docstring below.</p>
-<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.random.logit" title="symjax.tensor.random.logit"><code class="xref py py-func docutils literal notranslate"><span class="pre">logit()</span></code></a>.
-Original docstring below.</p>
-<p>logit(x, /, out=None, <a href="#id1"><span class="problematic" id="id2">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
-<p>logit(x)</p>
-<p>The logit function is defined as logit(p) = log(p/(1-p)).
-Note that logit(0) = -inf, logit(1) = inf, and logit(p)
-for p&lt;0 or p&gt;1 yields nan.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>out</strong> – An ndarray of the same shape as x. Its entries
-are logit of the corresponding entry of x.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>ndarray</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><code class="xref py py-func docutils literal notranslate"><span class="pre">expit()</span></code></p>
-</div>
-<p class="rubric">Notes</p>
-<p>As a ufunc logit takes a number of optional
-keyword arguments. For more information
-see <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/ufuncs.html">ufuncs</a></p>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.10.0.</span></p>
-</div>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">logit</span><span class="p">,</span> <span class="n">expit</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">logit</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-<span class="go">array([       -inf, -1.09861229,  0.        ,  1.09861229,         inf])</span>
-</pre></div>
-</div>
-<p><cite>expit</cite> is the inverse of <cite>logit</cite>:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">expit</span><span class="p">(</span><span class="n">logit</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.999</span><span class="p">]))</span>
-<span class="go">array([ 0.1  ,  0.75 ,  0.999])</span>
-</pre></div>
-</div>
-<p>Plot logit(x) for x in [0, 1]:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">501</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">logit</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;logit(x)&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="py function">

@@ -85,7 +85,7 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user/wrap.html">Wrap Jax computation into SymJAX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/examples.html">Examples</a></li>
 </ul>
 <ul>
@@ -170,9 +170,9 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">tarfile</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
 <span class="kn">import</span> <span class="nn">zipfile</span>
-<span class="kn">from</span> <span class="nn">scipy.io.wavfile</span> <span class="kn">import</span> <span class="n">read</span> <span class="k">as</span> <span class="n">wav_read</span>
+<span class="kn">from</span> <span class="nn">scipy.io.wavfile</span> <span class="k">import</span> <span class="n">read</span> <span class="k">as</span> <span class="n">wav_read</span>
 <span class="kn">import</span> <span class="nn">io</span>
 
 
@@ -285,14 +285,14 @@
         <span class="n">folds</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
         <span class="n">fine_labels</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
         <span class="n">categories</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
-        <span class="n">esc10</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;bool&#39;</span><span class="p">)</span>
-        <span class="n">coarse_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">esc50</span><span class="o">.</span><span class="n">fine_to_coarse</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">])</span>
+        <span class="n">esc10</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;True&#39;</span>
+        <span class="n">coarse_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">esc</span><span class="o">.</span><span class="n">fine_to_coarse</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">])</span>
         <span class="n">coarse_labels</span> <span class="o">=</span> <span class="n">coarse_labels</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
     
         <span class="n">wavs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="n">order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="n">N</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">namelist</span><span class="p">(),</span> <span class="n">ascii</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
             <span class="k">if</span> <span class="s1">&#39;.wav&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="n">wavfile</span>   <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>

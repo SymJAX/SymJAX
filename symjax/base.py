@@ -7,54 +7,111 @@ import jax.numpy as np
 import warnings
 import numpy
 
+import symjax
 from symjax import tensor as t
+from symjax.tensor import random
 from jax import jacfwd, jacrev
 
-global current_graph
-current_graph = None
 
 
-def get_graph():
+def current_graph():
     """Current graph."""
-    return current_graph
+    assert len(symjax._current_graph)
+    return symjax._current_graph[-1]
 
 
 class Graph:
     """Graph."""
 
-    def __init__(self, name, seed=None,):
+    def __init__(self, name, seed=None):
+
         """Constructor."""
+        
+
         self.name = name
-        self.variables = {}
-        self.updates = {}
+        self.full_name = None
 
     def __enter__(self):
         """Set global variables."""
-        globals()['current_graph'] = self
+        if len(self.name):
+            symjax._current_scope +=  self.name + '/'
+        self.full_name = symjax._current_scope
+        symjax._current_graph.append(self)
 
     def __exit__(self, *a):
         """Delete globals."""
-        globals()['current_graph'] = None
+        symjax._current_graph.pop(-1)
+        symjax._current_scope = symjax._current_graph[-1].full_name
 
     def save(self, path):
         """Save graph."""
         numpy.savez(path, **dict([(name, v.get())
                                   for name, v in self.variables.items()]))
 
+    @property
+    def variables(self):
+        variables = {}
+        for name in symjax._variables:
+            if self.full_name in name:
+                cropped_name = name.replace(self.full_name, '')
+                if '/' not in cropped_name:
+                    variables[cropped_name] = symjax._variables[name]
+        return variables
+        
     def variable(self, name):
-        if name in self.variables:
-            return self.variables[name]
+
+        # check if the name for given relative or full
+        if '/' not in name:
+            full_name = self.full_name + name
+        else:
+            full_name = name
+
+        if full_name in symjax._variables:
+            return symjax._variables[full_name]
+        else:
+            RuntimeError('Variable {name} not in graph {self.full_name}')
 
     def load(self, path):
+        
         """Load graph."""
+
         data = numpy.load(path)
         for name, value in data.items():
-            self.variables[name].assign(value)
+            self.variable[name].update(value)
 
     def reset(self):
 
         for var in self.variables.values():
             var.reset()
+
+    def add(self, tensor):
+
+        # fake graph entrance if not used by user
+        if self.full_name is None:
+            self.__enter__()
+
+        tensor.scope = self.full_name
+        name = self.full_name + tensor.name
+        if isinstance(tensor, symjax.tensor.Placeholder):
+            names = symjax._placeholders
+        elif isinstance(tensor, symjax.tensor.Variable):
+            names = symjax._variables
+        else:
+            names =  symjax._ops
+
+        if name not in names.keys():
+            names[name] = tensor
+            return
+
+        count = 1
+        while True:
+            if name + '_' + str(count) in names.keys():
+                count += 1
+            else:
+                break
+        names[name + '_' + str(count)] = tensor
+        tensor.name = tensor.name + '_' + str(count)
+
 
 def gradients(scalar, variables):
     """Compute the gradients of a scalar w.r.t to a given list of variables.
@@ -259,7 +316,6 @@ class function:
         self.all_roots = set(t.getroots(outs))
         self.classargs = classargs
         self.outputs = outputs
-
         items = list(updates.items())
         self.updates_keys = [item[0] for item in items]
         self.updates_values = [item[1] for item in items]
@@ -302,14 +358,15 @@ class function:
             - (set(self.classargs).union(self.updates_keys))
         self.extra_inputs = list(self.extra_inputs)
 
-        def jitfn(*jitargs):
-            allargs = list(self.classargs) + self.updates_keys +\
-                self.extra_inputs
-            return t.get([self.outputs, self.updates_values],
-                         dict(zip(allargs, jitargs)))
+        def to_jit(*jitargs, seed):
+            allargs = list(self.classargs) + self.updates_keys + self.extra_inputs
+            feed_dict = dict([(m, {'base': v})
+                        for m, v in zip(allargs, jitargs)])
+            feed_dict.update({'rng':seed})
+            return t.get([self.outputs, self.updates_values], feed_dict)
 
         # we compile our underlying function using jit for performances
-        self.jitfn = jax.jit(jitfn, device=device, backend=backend)
+        self.jited = jax.jit(to_jit, device=device, backend=backend)
 
         # define the frontend function that takes as input the inputs variables
         # and internally compute and update the variables from updates if any
@@ -326,12 +383,12 @@ class function:
                             ", shape={}".format(fnarg.shape))
 
             # retreive the function outputs, updated values and apply them
-            jitoutputs, jitupdates = self.jitfn(
-                *fnargs,
-                *t.get(self.updates_keys + self.extra_inputs,
-                       {'rng': rng}))
+            jited_add_inputs = t.get(self.updates_keys + self.extra_inputs,
+                                    tracker={'rng': rng})
+            jitoutputs, jitupdates = self.jited(*fnargs, *jited_add_inputs,
+                    seed=rng)
             for key, update in zip(self.updates_keys, jitupdates):
-                key.value = update
+                key.update(update)
             if isinstance(jitoutputs, jax.interpreters.xla.DeviceArray):
                 return jax.api.device_get(jitoutputs)
             else:
@@ -346,11 +403,7 @@ class function:
         # number of functions calls to keep accumulating the PRNGKey of the jax
         # key, otherwise each function call returns the same realisation
         if rng is None:
-            if '_rng' not in globals():
-                globals()['_rng'] = 0
-            globals()['_rng'] += 1
-            _rng = globals()['_rng']
-        else:
-            _rng = rng
+            rng = random._seed
+            random._seed += 1
         pargs = [numpy.array(arg) if type(arg) == list else arg for arg in args]
-        return self.meta(*pargs, rng=_rng)
+        return self.meta(*pargs, rng=rng)
