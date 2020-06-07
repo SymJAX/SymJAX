@@ -18,6 +18,8 @@ Welcome to SymJAX's documentation!
 This is an under development research project, not an official product, expect bugs and sharp edges; please help by trying it out, reporting bugs.
 
 
+.. image:: img/SymJAX.png
+
 Contents
 ========
 

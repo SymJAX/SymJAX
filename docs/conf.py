@@ -77,7 +77,6 @@ html_theme = "sphinx_rtd_theme"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-# https://www.freelogodesign.org/preview?lang=en&name=SymJAX&logo=63cb0e66-1cfe-4204-a865-418af1550e09
 html_logo = 'img/symjax_logo.png'
 html_theme_options = {'logo_only': True}
 html_css_files = ['custom.css']
