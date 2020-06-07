@@ -306,6 +306,82 @@ augmented with an underscore and interger number, here is a brief example:</p>
 </div>
 <div class="section" id="graph-saving-and-loading">
 <h2><a class="toc-backref" href="#id4">Graph Saving and Loading</a><a class="headerlink" href="#graph-saving-and-loading" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">symjax</span>
+<span class="kn">import</span> <span class="nn">symjax.tensor</span> <span class="k">as</span> <span class="nn">T</span>
+
+
+<span class="n">g</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="s1">&#39;model1&#39;</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">g</span><span class="p">:</span>
+    <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,)))</span>
+    <span class="k">with</span> <span class="n">symjax</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="s1">&#39;layer1&#39;</span><span class="p">):</span>
+        <span class="n">W1</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,)),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;W&#39;</span><span class="p">)</span>
+        <span class="n">b1</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,)),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">symjax</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="s1">&#39;layer2&#39;</span><span class="p">):</span>
+        <span class="n">W2</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,)),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;W&#39;</span><span class="p">)</span>
+        <span class="n">b2</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,)),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+ 
+<span class="c1"># define an irrelevant loss function involving the parameters</span>
+<span class="n">loss</span> <span class="o">=</span>  <span class="p">(</span><span class="n">W1</span> <span class="o">+</span> <span class="n">b1</span> <span class="o">+</span> <span class="n">W2</span> <span class="o">+</span> <span class="n">b2</span><span class="p">)</span> <span class="o">*</span> <span class="n">learning_rate</span>
+
+<span class="c1"># and a train/update function</span>
+<span class="n">train</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">outputs</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">updates</span><span class="o">=</span><span class="p">{</span><span class="n">W1</span><span class="p">:</span><span class="n">W1</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">b1</span><span class="p">:</span><span class="n">b1</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">W2</span><span class="p">:</span> <span class="n">W2</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span>
+                                               <span class="n">b2</span><span class="p">:</span> <span class="n">b2</span><span class="o">+</span><span class="mi">3</span><span class="p">})</span>
+
+<span class="c1"># pretend we train for a while</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">train</span><span class="p">())</span>
+
+<span class="c1"># [0.]</span>
+<span class="c1"># [8.]</span>
+<span class="c1"># [16.]</span>
+<span class="c1"># [24.]</span>
+
+<span class="c1"># now say we wanted to reset the variables and retrain, we can do</span>
+<span class="c1"># either with g, as it contains all the variables</span>
+<span class="n">g</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="c1"># or we can do</span>
+<span class="n">symjax</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+<span class="c1"># or if we wanted to only reset say variables from layer2</span>
+<span class="n">symjax</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="s1">&#39;*layer2*&#39;</span><span class="p">)</span>
+
+<span class="c1"># now that all has been reset, let&#39;s retrain for a while</span>
+<span class="c1"># pretend we train for a while</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">train</span><span class="p">())</span>
+
+<span class="c1"># [0.]</span>
+<span class="c1"># [8.]</span>
+
+<span class="c1"># now resetting is nice, but we might want to save the model parameters, to</span>
+<span class="c1"># keep training later or do some other analyses. We can do so as follows:</span>
+<span class="n">g</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;model1_saved&#39;</span><span class="p">)</span>
+<span class="c1"># this would save all variables as they are contained in g. Now say we want to</span>
+<span class="c1"># only save the second layer variables, if we had saved the graph variables as</span>
+<span class="c1"># say h we could just do ``h.save(&#39;layer1_saved&#39;)&#39;&#39;</span>
+<span class="c1"># but while we do not have it, we recall the scope of it, we can thus do</span>
+<span class="n">symjax</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;*layer1*&#39;</span><span class="p">,</span> <span class="s1">&#39;layer1_saved&#39;</span><span class="p">)</span>
+<span class="c1"># and for the entire set of variables just do</span>
+<span class="n">symjax</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;model1_saved&#39;</span><span class="p">)</span>
+
+<span class="c1"># now suppose that after training or after resetting</span>
+<span class="n">symjax</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+
+<span class="c1">#one wants to recover the saved weights, one can do</span>
+<span class="n">symjax</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;model1_saved&#39;</span><span class="p">)</span>
+<span class="c1"># in that case all variables will be reloaded as they were in model1_saved,</span>
+<span class="c1"># if we used symjax.load(&#39;*&#39;, &#39;layer1_saved&#39;), an error would occur as not all</span>
+<span class="c1"># variables are present in this file, one should instead do</span>
+<span class="c1"># (in this case, this is redundant as we loaded everything up above)</span>
+<span class="n">symjax</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;*layer1*&#39;</span><span class="p">,</span> <span class="s1">&#39;layer1_saved&#39;</span><span class="p">)</span>
+
+<span class="c1"># we can now pretend to keep training our model form its saved state</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">train</span><span class="p">())</span>
+
+<span class="c1"># [16.]</span>
+<span class="c1"># [24.]</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="wrap-jax-computation-into-symjax">
 <h2><a class="toc-backref" href="#id5">Wrap Jax computation into SymJAX</a><a class="headerlink" href="#wrap-jax-computation-into-symjax" title="Permalink to this headline">¶</a></h2>

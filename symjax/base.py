@@ -41,11 +41,14 @@ class Graph:
     def __exit__(self, *a):
         """Delete globals."""
         symjax._current_graph.pop(-1)
-        symjax._current_scope = symjax._current_graph[-1].full_name
+        if symjax._current_graph[-1].full_name is not None:
+            symjax._current_scope = symjax._current_graph[-1].full_name
+        else:
+            symjax._current_scope = '/'
 
     def save(self, path):
         """Save graph."""
-        numpy.savez(path, **dict([(name, v.get())
+        numpy.savez(path, **dict([(name, symjax.tensor.get(v))
                                   for name, v in self.variables.items()]))
 
     @property
@@ -113,6 +116,30 @@ class Graph:
         tensor.name = tensor.name + '_' + str(count)
 
 
+def reset(name):
+    matched = fnmatch.filter(symjax._variables.keys(), name)
+    for m in matched:
+        symjax._variables[m].reset()
+
+
+def save(name, path):
+    """Save graph."""
+    matched = fnmatch.filter(symjax._variables.keys(), name)
+    numpy.savez(path, **dict([(symjax._variables[v].scope + symjax._variables[v].name, symjax.tensor.get(symjax._variables[v])) for v in matched]))
+
+
+def load(name, path):
+        
+    """Load graph."""
+
+    if path[-4:] != '.npz':
+        path += '.npz'
+
+    matched = fnmatch.filter(symjax._variables.keys(), name)
+    data = numpy.load(path)
+    for name, value in data.items():
+        symjax._variables[name].update(value)
+
 
 
 def variable(name):
@@ -124,6 +151,11 @@ def variable(name):
     return [symjax._variables[m] for m in matched]
 
 def placeholder(name):
+    
+    """
+    Same as symjax.variable but for placeholders
+    """
+    
     matched = fnmatch.filter(symjax._placeholders.keys(), name)
     if len(matched) == 1:
         return symjax._placeholder[matched[0]]
@@ -132,6 +164,11 @@ def placeholder(name):
     return [symjax._placeholders[m] for m in matched]
 
 def op(name):
+    
+    """
+    Same as symjax.variable but for ops
+    """
+
     matched = fnmatch.filter(symjax._ops.keys(), name)
     if len(matched) == 1:
         return symjax._ops[matched[0]]

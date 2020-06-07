@@ -581,6 +581,8 @@ class Variable(Tensor):
         else:
             dtype = type(initializer)
 
+        self.reset()
+
         super().__init__(numpy.shape(initializer), dtype, roots=[self])
 
 
@@ -604,6 +606,7 @@ class Variable(Tensor):
         if not hasattr(self, '_value'):
             self.reset()
         return self._value
+
 
     def update(self, update_value):
 

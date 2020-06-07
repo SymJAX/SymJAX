@@ -32,7 +32,7 @@ augmented with an underscore and interger number, here is a brief example:
 Graph Saving and Loading
 ------------------------
 
-
+.. literalinclude:: ../../examples/graph.py
 
 
 Wrap Jax computation into SymJAX

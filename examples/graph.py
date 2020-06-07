@@ -1,58 +1,74 @@
 import symjax
 import symjax.tensor as T
 
-# scope/graph naming and accessing
 
-value1 = T.Variable(T.ones((1,)))
-value2 = T.Variable(T.zeros((1,)))
-
-g = symjax.Graph('special')
+g = symjax.Graph('model1')
 with g:
-    value3 = T.Variable(T.zeros((1,)))
-    value4 = T.Variable(T.zeros((1,)))
-    result = value3 + value4
+    learning_rate = T.Variable(T.ones((1,)))
+    with symjax.Graph('layer1'):
+        W1 = T.Variable(T.zeros((1,)), name='W')
+        b1 = T.Variable(T.zeros((1,)), name='b')
+    with symjax.Graph('layer2'):
+        W2 = T.Variable(T.zeros((1,)), name='W')
+        b2 = T.Variable(T.zeros((1,)), name='b')
+ 
+# define an irrelevant loss function involving the parameters
+loss =  (W1 + b1 + W2 + b2) * learning_rate
 
-    h = symjax.Graph('inversion')
-    with h:
-        value5 = T.Variable(T.zeros((1,)))
-        value6 = T.Variable(T.zeros((1,)))
-        value7 = T.Variable(T.zeros((1,)), name='w')
+# and a train/update function
+train = symjax.function(outputs=loss, updates={W1:W1+1, b1:b1+2, W2: W2+2,
+                                               b2: b2+3})
 
+# pretend we train for a while
+for i in range(4):
+    print(train())
 
-print(g.variables)
-# {'unnamed_variable': Variable(name=unnamed_variable, shape=(1,), dtype=float32, trainable=True, scope=/special/),
-#  'unnamed_variable_1': Variable(name=unnamed_variable_1, shape=(1,), dtype=float32, trainable=True, scope=/special/)}
+# [0.]
+# [8.]
+# [16.]
+# [24.]
 
-print(h.variables)
-#{'unnamed_variable': Variable(name=unnamed_variable, shape=(1,), dtype=float32, trainable=True, scope=/special/inversion/),
-# 'unnamed_variable_1': Variable(name=unnamed_variable_1, shape=(1,), dtype=float32, trainable=True, scope=/special/inversion/),
-# 'w': Variable(name=w, shape=(1,), dtype=float32, trainable=True, scope=/special/inversion/)}
+# now say we wanted to reset the variables and retrain, we can do
+# either with g, as it contains all the variables
+g.reset()
+# or we can do
+symjax.reset('*')
+# or if we wanted to only reset say variables from layer2
+symjax.reset('*layer2*')
 
-print(h.variable('w'))
-# Variable(name=w, shape=(1,), dtype=float32, trainable=True, scope=/special/inversion/)
+# now that all has been reset, let's retrain for a while
+# pretend we train for a while
+for i in range(2):
+    print(train())
 
-# now suppose that we did not hold the value for the graph g/h, we can still
-# recover a variable based on the name AND the scope
+# [0.]
+# [8.]
 
-print(symjax.variable('/special/inversion/w'))
-# Variable(name=w, shape=(1,), dtype=float32, trainable=True, scope=/special/inversion/)
+# now resetting is nice, but we might want to save the model parameters, to
+# keep training later or do some other analyses. We can do so as follows:
+g.save('model1_saved')
+# this would save all variables as they are contained in g. Now say we want to
+# only save the second layer variables, if we had saved the graph variables as
+# say h we could just do ``h.save('layer1_saved')''
+# but while we do not have it, we recall the scope of it, we can thus do
+symjax.save('*layer1*', 'layer1_saved')
+# and for the entire set of variables just do
+symjax.save('*', 'model1_saved')
 
-# now if the exact scope name is not know, it is possible to use smart indexing
-# for example suppose we do not remember, then we can get all variables named
-# 'w' among scopes
+# now suppose that after training or after resetting
+symjax.reset('*')
 
-print(symjax.variable('*/w'))
-# Variable(name=w, shape=(1,), dtype=float32, trainable=True, scope=/special/inversion/)
+#one wants to recover the saved weights, one can do
+symjax.load('*', 'model1_saved')
+# in that case all variables will be reloaded as they were in model1_saved,
+# if we used symjax.load('*', 'layer1_saved'), an error would occur as not all
+# variables are present in this file, one should instead do
+# (in this case, this is redundant as we loaded everything up above)
+symjax.load('*layer1*', 'layer1_saved')
 
-# if only part of the scope is known, all the variables of a given scope can
-# be retreived
+# we can now pretend to keep training our model form its saved state
+for i in range(2):
+    print(train())
 
-print(symjax.variable('/special/*'))
-# [Variable(name=unnamed_variable, shape=(1,), dtype=float32, trainable=True, scope=/special/),
-#  Variable(name=unnamed_variable_1, shape=(1,), dtype=float32, trainable=True, scope=/special/),
-#  Variable(name=unnamed_variable, shape=(1,), dtype=float32, trainable=True, scope=/special/inversion/),
-#  Variable(name=unnamed_variable_1, shape=(1,), dtype=float32, trainable=True, scope=/special/inversion/),
-#  Variable(name=w, shape=(1,), dtype=float32, trainable=True, scope=/special/inversion/)]
-
-print(symjax.op('*add'))
-# Op(name=add, shape=(1,), dtype=float32, scope=/special/)
+# [16.]
+# [24.]
