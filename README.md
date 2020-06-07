@@ -24,6 +24,9 @@ functionalities such as
 - IO utilities to monitor/save/track specific statistics during graph execution through h5 files and numpy, simple and explicit graph saving allowing to save and load models without burden
 - side utilities such as automatic batching of dataset, data splitting, cross-validation, ...
 
+and most importantly, a SYMBOLIC/DECLARATIVE programming environment allowing CONCISE/EXPLICIT/OPTIMIZED computations across devices.
+
+For imperative programming using Jax see for example [FLAX](https://github.com/google/flax), and in general, [Tensorflow](https://www.tensorflow.org/), [PyTorch](https://pytorch.org/)
 
 ## Examples
 
