@@ -2,4 +2,4 @@
 # -*- coding: utf-8 -*-
 
 __author__      = "Randall Balestriero"
-http://mindbigdata.com/opendb/index.html
+#http://mindbigdata.com/opendb/index.html
