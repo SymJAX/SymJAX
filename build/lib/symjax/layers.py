@@ -1,6 +1,7 @@
-from .tensor import ops_methods
-from . import tensor as T
-from . import initializers
+from symjax.tensor import ops_methods
+from symjax import tensor as T
+from symjax import initializers
+#from symjax import get_graph
 import numpy
 import inspect
 
@@ -34,6 +35,16 @@ def forward(input, layers):
         outputs.append(layer.forward(outputs[-1]))
     return outputs
 
+def get_variables(layers, trainable=True):
+    return sum([l.variables(trainable) for l in layers if hasattr(l, 'variables')], [])
+
+def get_updates(layers):
+    updates = dict()
+    for l in layers:
+        if hasattr(l, 'updates'):
+            updates.update(l.updates)
+    return updates
+
 
 class Layer(T.Tensor):
 
@@ -54,6 +65,36 @@ class Layer(T.Tensor):
         else:
             self.input = input_or_shape
 
+    def create_tensor(self, tensor_or_func, shape, dtype=None):
+        if not callable(tensor_or_func):
+            if tensor_or_func is None:
+                return None
+            assert tensor_or_func.shape == shape
+            if tensor_or_func.dtype != dtype and dtype is not None:
+                return tensor_or_func.astype(dtype)
+            else:
+                return tensor_or_func
+        if dtype is None:
+            dtype = 'float32'
+        try:
+            tensor = tensor_or_func(shape=shape, dtype=dtype)
+        except:
+            tensor = tensor_or_func(shape=shape).astype(dtype)
+        return tensor
+
+    def create_variable(self, name, tensor_or_func, shape, trainable,
+                        dtype=None):
+        if tensor_or_func is None:
+            return None
+        t = self.create_tensor(tensor_or_func, shape, dtype)
+
+        if not trainable:
+            self.__dict__[name] = t
+        else:
+            self.__dict__[name] = T.Variable(t, name=name, trainable=True)
+            self.add_variable(self.__dict__[name])
+
+
     @property
     def updates(self):
         if not hasattr(self, '_updates'):
@@ -61,7 +102,9 @@ class Layer(T.Tensor):
         return self._updates
 
     def add_update(self, update):
-        self.updates.update(update)
+        self._updates.update(update)
+        if get_graph() is not None:
+            get_graph().updates.update(update)
 
     def add_variable(self, variable):
         if not hasattr(self, '_variables'):
@@ -81,6 +124,43 @@ class Identity(Layer):
 
     def forward(self, input):
         return input
+
+
+class Upsample1D(Layer):
+
+    def __init__(self, input_or_shape, repeat, axis=-1, mode='constant',
+                 value=0.):
+
+        self.init_input(input_or_shape)
+        self.repeat = repeat
+        self.mode = mode
+        self.value = value
+        self.axis = axis
+        super().__init__(self.forward(self.input))
+
+    def forward(self, input):
+        return T.upsample_1d(input, repeat=self.repeat, axis=self.axis,
+                             mode=self.mode, value=self.value)
+
+
+class Upsample2D(Layer):
+
+    def __init__(self, input_or_shape, repeat, axis, mode='constant',
+                 value=0.):
+
+        self.init_input(input_or_shape)
+        self.repeat = repeat
+        self.mode = mode
+        self.value = value
+        self.axis = axis
+        super().__init__(self.forward(self.input))
+
+    def forward(self, input):
+        p1 = T.upsample_1d(input, repeat=self.repeat[0], axis=self.axis[0],
+                             mode=self.mode, value=self.value)
+        p2 = T.upsample_1d(p1, repeat=self.repeat[1], axis=self.axis[1],
+                             mode=self.mode, value=self.value)
+        return p2
 
 
 class Reshape(Layer):
@@ -108,34 +188,35 @@ class Upsample(Layer):
         return upsample
 
 
-class Activation(Layer):
+class Lambda(Layer):
+    """lambda function applied onto the input
 
-    def __init__(self, input_or_shape, activation):
+    applies a function (such as activation function) onto the input.
+    """
+    def __init__(self, input_or_shape, fn):
 
         self.init_input(input_or_shape)
-        self.activation = activation
+        self.fn = fn
         super().__init__(self.forward(self.input))
 
     def forward(self, input):
-        return self.activation(input)
+        return self.fn(input)
 
 
 class Dense(Layer):
+    """Fully-connected/Dense layer
 
+    perform a dense matrix multiplication and bias shifting of the
+    input
+    """
     def __init__(self, input_or_shape, units, W=initializers.he,
-                 b=numpy.zeros, W_dtype='float32', b_dtype='float32',
-                 trainable_W=True, trainable_b=True):
+                 b=numpy.zeros, trainable_W=True, trainable_b=True):
 
         self.init_input(input_or_shape)
 
-        w_shape = (numpy.prod(self.input.shape[1:]), units)
-        self.W = T.Variable(W, shape=w_shape, dtype=W_dtype,
+        self.create_variable('W', W, (numpy.prod(self.input.shape[1:]), units),
                             trainable=trainable_W)
-        self.add_variable(self.W)
-
-        self.b = T.Variable(b, shape=(w_shape[1],), dtype=b_dtype,
-                            trainable=trainable_b)
-        self.add_variable(self.b)
+        self.create_variable('b', b, (units,), trainable=trainable_b)
 
         super().__init__(self.forward(self.input))
 
@@ -143,58 +224,82 @@ class Dense(Layer):
         if numpy.prod(input.shape[1:]) != self.W.shape[0]:
             raise RuntimeError(
                 'input to Dense layer {} has different dim'.format(self))
-        return T.dot(T.flatten2d(input), self.W) + self.b
+        if hasattr(self, 'b'):
+            return T.dot(T.flatten2d(input), self.W) + self.b
+        else:
+            return T.dot(T.flatten2d(input), self.W)
 
 
 class Conv1D(Layer):
-    """ for standard conv1d the W_shape should be
-            (#out_filters, #in_channels, time_bins)
-        and for the bias it should be (#out_filters, 1) or to not
-        share the bias across time put
-        (#out_filters, time_bins) or to share all bias put (1,) be
-        careful to have the correct
-        time for broadcasting if needed
+    """1-D (time) convolution
+
     """
-    def __init__(self, input_or_shape, W_shape, b_shape=None, strides=1,
-                 pad='VALID', W=initializers.he, b=numpy.zeros,
-                 W_dtype='float32', b_dtype='float32',
-                 trainable_W=True, trainable_b=True,
+    def __init__(self, input_or_shape, n_filters, filter_length,
+                 W=initializers.he, b=numpy.zeros,
+                 stride=1, pad='VALID', trainable_W=True, trainable_b=True,
                  input_dilations=None, filter_dilations=None):
 
         self.init_input(input_or_shape)
+        if numpy.isscalar(input_dilations):
+            input_dilations = (input_dilations,) * 2
         self.input_dilation = input_dilations
         self.filter_dilation = filter_dilations
-        self.strides = strides
+        self.stride = stride
         self.pad = pad
 
-        if not trainable_W:
-            self.W = W
-        else:
-            self.W = T.Variable(W, shape=W_shape, dtype=W_dtype,
-                                trainable=trainable_W)
-            self.add_variable(self.W)
-
-        if b_shape is None:
-            b_shape = (W_shape[0], 1)
-        self.b = T.Variable(b, shape=b_shape, dtype=b_dtype,
-                            trainable=trainable_b)
-        self.add_variable(self.b)
-
-        self.strides = strides
+        self.create_variable('W', W, (n_filters, self.input.shape[1],
+                                   filter_length), trainable=trainable_W)
+        self.create_variable('b', b, (n_filters,), trainable=trainable_b)
 
         super().__init__(self.forward(self.input))
 
     def forward(self, input):
-        conv = T.convNd(input, self.W, strides=self.strides, padding=self.pad,
+        conv = T.convNd(input, self.W, strides=self.stride, padding=self.pad,
                         input_dilation=self.input_dilation,
                         filter_dilation=self.filter_dilation)
-        return conv + self.b
+        if hasattr(self, 'b'):
+            return conv + self.b[:, None]
+        else:
+            return conv
+
+
+class Conv2DTranspose(Layer):
+    """2-D (spatial) convolution
+
+    """
+    def __init__(self, input_or_shape, n_filters, filter_shape, pad='VALID',
+                 strides=1, W=initializers.he, b=numpy.zeros,
+                 trainable_W=True, trainable_b=True, transpose_W=True,
+                 filter_dilations=None):
+
+        self.init_input(input_or_shape)
+        self.transpose_W = transpose_W
+        self.filter_dilation = filter_dilations
+        self.strides = strides
+        self.pad = pad
+
+        self.create_variable('W', W,
+                        (self.input.shape[1], n_filters) + tuple(filter_shape),
+                            trainable=trainable_W)
+        self.create_variable('b', b, (n_filters,), trainable=trainable_b)
+
+        super().__init__(self.forward(self.input))
+
+    def forward(self, input):
+        conv = T.convNd_transpose(input, self.W, strides=self.strides, padding=self.pad,
+                        transpose_kernel=self.transpose_W,
+                        filter_dilation=self.filter_dilation)
+
+        return conv + self.b.reshape((-1, 1, 1))
+
 
 
 class Conv2D(Layer):
-    def __init__(self, input_or_shape, W_shape, b_shape=None, pad='VALID',
+    """2-D (spatial) convolution
+
+    """
+    def __init__(self, input_or_shape, n_filters, filter_shape, pad='VALID',
                  strides=1, W=initializers.he, b=numpy.zeros,
-                 W_dtype='float32', b_dtype='float32',
                  trainable_W=True, trainable_b=True,
                  input_dilations=None, filter_dilations=None):
 
@@ -204,15 +309,10 @@ class Conv2D(Layer):
         self.strides = strides
         self.pad = pad
 
-        self.W = T.Variable(W, shape=W_shape, dtype=W_dtype,
+        self.create_variable('W', W,
+                        (n_filters, self.input.shape[1]) + tuple(filter_shape),
                             trainable=trainable_W)
-        self.add_variable(self.W)
-
-        if b_shape is None:
-            b_shape = (W_shape[0], 1, 1)
-        self.b = T.Variable(b, shape=b_shape, dtype=b_dtype,
-                            trainable=trainable_b)
-        self.add_variable(self.b)
+        self.create_variable('b', b, (n_filters,), trainable=trainable_b)
 
         super().__init__(self.forward(self.input))
 
@@ -220,11 +320,38 @@ class Conv2D(Layer):
         conv = T.convNd(input, self.W, strides=self.strides, padding=self.pad,
                         input_dilation=self.input_dilation,
                         filter_dilation=self.filter_dilation)
+        if hasattr(self, 'b'):
+            return conv + self.b.reshape((-1, 1, 1))
+        else:
+            return conv
 
-        return conv + self.b
+
+class Pool1D(Layer):
+    """2-D (spatial) pooling
+
+    """
+    def __init__(self, input_or_shape, pool_shape, pool_type='MAX',
+                 strides=None):
+
+        self.init_input(input_or_shape)
+        self.pool_type = pool_type
+        self.pool_shape = (1, 1, pool_shape)
+        if strides is None:
+            self.strides = self.pool_shape
+        else:
+            self.strides = (1, 1, strides)
+
+        super().__init__(self.forward(self.input))
+
+    def forward(self, input):
+        return T.poolNd(input, self.pool_shape, strides=self.strides,
+                        reducer=self.pool_type)
 
 
 class Pool2D(Layer):
+    """2-D (spatial) pooling
+
+    """
     def __init__(self, input_or_shape, pool_shape, pool_type='MAX',
                  strides=None):
 
@@ -234,7 +361,7 @@ class Pool2D(Layer):
         if strides is None:
             self.strides = self.pool_shape
         else:
-            if hasattr(strides, __len__):
+            if hasattr(strides, '__len__'):
                 self.strides = (1, 1, strides[0], strides[1])
             else:
                 self.strides = (1, 1, strides, strides)
@@ -485,7 +612,8 @@ class BatchNormalization(Layer):
 
     """
     def __init__(self, input_or_shape, axis, deterministic, const=0.001,
-                 beta1=0.99, beta2=0.99, W=numpy.ones, b=numpy.zeros):
+                 beta1=0.99, beta2=0.99, W=numpy.ones, b=numpy.zeros,
+                 trainable_W=True, trainable_b=True):
 
         self.init_input(input_or_shape)
 
@@ -497,13 +625,9 @@ class BatchNormalization(Layer):
 
         parameter_shape = [self.input.shape[i] if i not in axis else 1
                            for i in range(self.input.ndim)]
-        self.W = T.Variable(W, shape=parameter_shape, dtype='float32',
-                            trainable=True)
-        self.add_variable(self.W)
 
-        self.b = T.Variable(b, shape=parameter_shape, dtype='float32',
-                            trainable=True)
-        self.add_variable(self.b)
+        self.create_variable('W', W, parameter_shape, trainable=trainable_W)
+        self.create_variable('b', b, parameter_shape, trainable=trainable_b)
 
         super().__init__(self.forward(self.input))
 
@@ -513,20 +637,20 @@ class BatchNormalization(Layer):
             deterministic = self.deterministic
         dirac = T.cast(deterministic, 'float32')
 
-        mean = T.mean(input, self.axis, keepdims=True)
-        var = T.var(input, self.axis, keepdims=True)
-        if len(self.updates.keys()) == 0:
+        self.mean = T.mean(input, self.axis, keepdims=True)
+        self.var = T.var(input, self.axis, keepdims=True)
+        if len(self.updates) == 0:
             self.avgmean, upm, step = T.ExponentialMovingAverage(
-                mean, self.beta1)
+                self.mean, self.beta1)
             self.avgvar, upv, step = T.ExponentialMovingAverage(
-                var, self.beta2, step=step, init=numpy.ones(
-                    var.shape).astype('float32'))
+                self.var, self.beta2, step=step, init=numpy.ones(
+                    self.var.shape).astype('float32'))
             self.add_variable(self.avgmean)
             self.add_variable(self.avgvar)
             self.add_update(upm)
             self.add_update(upv)
 
-        usemean = mean * (1 - dirac) + self.avgmean * dirac
-        usevar = var * (1 - dirac) + self.avgvar * dirac
-        return self.W * (input - usemean) / \
-            (T.sqrt(usevar) + self.const) + self.b
+        self.usemean = self.mean * (1 - dirac) + self.avgmean * dirac
+        self.usevar = self.var * (1 - dirac) + self.avgvar * dirac
+        return self.W * (input - self.usemean) / \
+            (T.sqrt(self.usevar) + self.const) + self.b

@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 __author__      = "Randall Balestriero"
-#https://wp.nyu.edu/birdvox/codedata/#datasets
 import os
 import pickle,gzip
 import urllib.request
@@ -13,14 +12,11 @@ from tqdm import tqdm
 
 
 class birdvox_70k:
-    """
-    BirdVox-70k: a dataset for avian flight call detection in half-second clips
-    =========================================================================
+    """a dataset for avian flight call detection in half-second clips
+    
     Version 1.0, April 2018.
     
-    
     Created By
-    ----------
     
     Vincent Lostanlen (1, 2, 3), Justin Salamon (2, 3), Andrew Farnsworth (1),
     Steve Kelling (1), and Juan Pablo Bello (2, 3).
@@ -31,10 +27,7 @@ class birdvox_70k:
     
     https://wp.nyu.edu/birdvox
     
-     
-     
     Description
-    -----------
     
     The BirdVox-70k dataset contains 70k half-second clips from 6 audio
     recordings in the BirdVox-full-night dataset, each about ten hours in

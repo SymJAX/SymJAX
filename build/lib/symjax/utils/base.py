@@ -1,8 +1,92 @@
 import numpy as np
 from multiprocessing import Pool, Queue, Lock, Process
 
+def create_cmap(values, colors):
+
+    from matplotlib.pyplot import Normalize
+    import matplotlib
+    
+    norm = Normalize(min(values), max(values))
+    tuples = list(zip(map(norm, values), colors))
+    cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", tuples)
+    return cmap, norm
+
+
+def patchify_1d(x, window_length, stride):
+    """extract patches from a numpy array
+    
+    Parameters
+    ----------
+
+    x: array-like
+        the input data to extract patches from, any shape, the last dimension
+        is the one being patched
+
+    window_length: int
+        the length of the patches
+
+    stride: int
+        the amount of stride (bins separating two consecutive patches
+
+    Returns
+    -------
+
+    x_patches: array-like
+        the number of patches is put in the pre-last dimension (-2)
+    """
+
+    n_windows = (x.shape[-1] - window_length) // stride + 1
+    new_x = np.empty(x.shape[:-1] + (n_windows, window_length))
+    for n in range(n_windows):
+        new_x[...,n, :] = x[...,n * stride: n * stride + window_length]
+    return new_x
 
 def train_test_split(*args, train_size=0.8, stratify=None, seed=None):
+    """split given data into two non overlapping sets
+
+    Parameters
+    ----------
+
+    *args: inputs
+        the sets to be split by the function
+
+    train_size: scalar
+        the amount of data to put in the first set, either an integer value
+        being the actual number of data to keep, or a ratio (0 to 1 number)
+
+    stratify: array (optional)
+        the optimal stratify guide to spit the array s.t. the same proportion
+        based on the stratify array is kep in both set based on the proportion
+        of the split
+
+    seed: integer (optional)
+        the seed for the random number generator for reproducibility
+
+    Returns
+    -------
+
+    train_set: list
+        returns the train data, the list has the members of *args split
+
+    test_set: list
+        returns the test data, the list has the members of *args split
+
+    Example
+    -------
+
+    .. code-block:: python
+
+       x = numpy.random.randn(100, 4)
+       y = numpy.random.randn(100)
+
+       train, test = train_test_split(x, y, train_size=0.5)
+       print(train[0].shape, train[1].shape)
+       # (50, 4) (50,)
+       print(test[0].shape, test[1].shape)
+       # (50, 4) (50,)
+
+
+    """
     if stratify is not None:
         train_indices = list()
         test_indices = list()
@@ -20,18 +104,24 @@ def train_test_split(*args, train_size=0.8, stratify=None, seed=None):
     else:
         indices = np.random.RandomState(seed=seed).permutation(len(args[0]))
         if train_size > 1:
+            assert type(train_size) == int
             cutoff = train_size
         else:
             cutoff = int(len(args[0])*train_size)
+        print(cutoff)
         train_indices = indices[:cutoff]
         test_indices = indices[cutoff:]
-    output = sum([[arg[train_indices], arg[test_indices]] for arg in args], [])
-    return output
+    train_set = [arg[train_indices] for arg in args]
+    test_set = [arg[test_indices] for arg in args]
+    if len(args) == 1:
+        return train_set[0], test_set[0]
+    return train_set, test_set
+
 
 class batchify:
 
-    def __init__(self, *args, batch_size, option='continuous', load_func=None,
-                 extra_process=0):
+    def __init__(self, *args, batch_size, option='random', load_func=None,
+                 extra_process=0, n_batches=None):
         """
 
         Parameters
@@ -43,8 +133,31 @@ class batchify:
             goal is to load files if the args were list of filenames
 
         extra_processes: int (optional)
-            if there is no load_func then extra process is useless"""
+            if there is no load_func then extra process is useless
 
+        n_batches: int (optional)
+            the number of batches to produce, only used if option is random, if
+            not given it is taken to be the length of the data divided by the
+            batch_size
+        
+        Returns
+        -------
+        
+        *batch_args: list
+            the iterator containing the batch values
+            of each arg in args
+        
+        Example
+        -------
+        
+        .. code-block:: python
+        
+        for x, y in batchify(X, Y):
+            train(x, y)
+        
+        """
+
+        self.n_batches = n_batches or len(args[0]) // batch_size
         self.args = args
         self.start_index = 0
         self.option = option
@@ -53,12 +166,7 @@ class batchify:
         self.terminate = False
 
         if option == 'random_see_all':
-            self.permutation = np.random.permutation(args[0].shape[0])
-        elif option == 'random':
-            self.permutation = np.random.randint(0, args[0].shape[0],
-                                                 args[0].shape[0])
-        else:
-            self.permutation = np.arange(args[0].shape[0])
+            self.permutation = np.random.permutation(len(args[0]))
 
         # set up load function
         if load_func is None:
@@ -81,7 +189,7 @@ class batchify:
                         queue.put(np.asarray(result))
                         lock.release()
                     self.load_func.append(fn)
-        assert np.prod([args[0].shape[0] == arg.shape[0] for arg in args[1:]])
+        assert np.prod([len(args[0]) == len(arg) for arg in args[1:]])
 
         self.queues = [Queue() for f in self.load_func]
         self.locks = [Lock() for f in self.load_func]
@@ -112,15 +220,27 @@ class batchify:
         return self
 
     def get_batch(self):
+
         indices = (self.start_index, self.start_index + self.batch_size)
 
         # check if we exhausted the samples
-        if indices[1] > self.args[0].shape[0]:
+        if self.option == 'random':
+            if indices[1] > self.batch_size * self.n_batches:
+                raise StopIteration()
+        elif indices[1] > len(self.args[0]):
             raise StopIteration()
 
         # proceed to get the data
-        perm = self.permutation[indices[0]: indices[1]]
-        batch = [arg[perm] for arg in self.args]
+        if self.option == 'random_see_all':
+            perm = self.permutation[indices[0]:indices[1]]
+            batch = [arg[perm] if hasattr(arg, 'shape') else [arg[i] for i in perm]
+                        for arg in self.args]
+        elif self.option == 'continuous':
+            batch = [arg[indices[0]:indices[1]] for arg in self.args]
+        elif self.option == 'random':
+            perm = np.random.randint(0, len(self.args[0]), self.batch_size)
+            batch = [arg[perm] if hasattr(arg, 'shape') else [arg[i] for i in perm]
+                     for arg in self.args]
         return batch
 
     def __next__(self):
@@ -146,6 +266,9 @@ class batchify:
         for i, load_func in enumerate(self.load_func):
             if load_func is not None:
                 batch[i] = load_func(batch[i])
+
+
+
 
 
 

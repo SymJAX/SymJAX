@@ -38,22 +38,26 @@ class fashionmnist:
         t0 = time.time()
     
         if not os.path.isdir(path+'fashionmnist'):
-            print('\tCreating Directory')
+            print('\tCreating fashionmnist Directory')
             os.mkdir(path+'fashionmnist')
         base_url = 'http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/'
         if not os.path.exists(path+'fashionmnist/train-images.gz'):
+            print('\tDownloading train images')
             url = base_url+'train-images-idx3-ubyte.gz'
             urllib.request.urlretrieve(url,path+'fashionmnist/train-images.gz')
     
         if not os.path.exists(path+'fashionmnist/train-labels.gz'):
+            print('\tDownloading train labels')
             url = base_url+'train-labels-idx1-ubyte.gz'
             urllib.request.urlretrieve(url,path+'fashionmnist/train-labels.gz')
     
         if not os.path.exists(path+'fashionmnist/test-images.gz'):
+            print('\tDownloading test images') 
             url = base_url+'t10k-images-idx3-ubyte.gz'
             urllib.request.urlretrieve(url,path+'fashionmnist/test-images.gz')
     
         if not os.path.exists(path+'fashionmnist/test-labels.gz'):
+            print('\tDownloading test labels') 
             url = base_url+'t10k-labels-idx1-ubyte.gz'
             urllib.request.urlretrieve(url,path+'fashionmnist/test-labels.gz')
     
@@ -81,13 +85,15 @@ class fashionmnist:
         if path is None:
             path = os.environ['DATASET_PATH'] 
         # Loading the file
-    
+        fashionmnist.download(path)
+        t0 = time.time()
+        print('\tLoading fashionmnist')
         with gzip.open(path+'fashionmnist/train-labels.gz', 'rb') as lbpath:
             train_labels = np.frombuffer(lbpath.read(), dtype=np.uint8, offset=8)
     
         with gzip.open(path+'fashionmnist/train-images.gz', 'rb') as lbpath:
             train_images = np.frombuffer(lbpath.read(), dtype=np.uint8, offset=16)
-        train_images = train_images.reshape((-1,1,28,28))
+        train_images = train_images.reshape((-1,1,28,28)).astype('float32')
     
         with gzip.open(path+'fashionmnist/test-labels.gz', 'rb') as lbpath:
             test_labels = np.frombuffer(lbpath.read(), 
@@ -96,8 +102,8 @@ class fashionmnist:
         with gzip.open(path+'fashionmnist/test-images.gz', 'rb') as lbpath:
             test_images = np.frombuffer(lbpath.read(), 
                                 dtype=np.uint8, offset=16)
-        test_iamges = test_images.reshape((-1,1,28,28))
+        test_images = test_images.reshape((-1,1,28,28)).astype('float32')
     
     
         print('Dataset fashionmnist loaded in','{0:.2f}s.'.format(time.time()-t0))
-        return train_images, train_labels, test_images, test_labels
+        return np.copy(train_images), np.copy(train_labels), np.copy(test_images), np.copy(test_labels)

@@ -73,7 +73,7 @@ class gtzan:
             if 'wav' not in name.name:
                 continue
             f = tar.extractfile(name.name)#.read()
-            train_songs.append(wav_read(f)[1][::subsample])
+            train_songs.append(wav_read(f)[1])
             t = name.name.split('/')[1]
             train_labels.append(gtzan.name2class[t])
     

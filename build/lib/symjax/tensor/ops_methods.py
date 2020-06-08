@@ -16,6 +16,9 @@ _add_method(Tensor)(ops_math.multiply, '__mul__')
 _add_method(Tensor)(ops_math.multiply, '__rmul__')
 _add_method(Tensor)(ops_math.true_divide, '__truediv__')
 _add_method(Tensor)(lambda a, b: ops_math.true_divide(b, a), '__rtruediv__')
+_add_method(Tensor)(ops_math.floor_divide, '__floordiv__')
+_add_method(Tensor)(lambda a, b: ops_math.floor_divide(b, a), '__rfloordiv__')
+
 _add_method(Tensor)(ops_math.subtract, '__sub__')
 _add_method(Tensor)(lambda a, b: ops_math.subtract(b,a), '__rsub__')
 _add_method(Tensor)(ops_math.power, '__pow__')
@@ -46,6 +49,12 @@ _add_method(Tensor)(ops_math.argmin, 'argmin')
 
 
 ## additional operators
+
+_add_method(Tensor)(ops_math.real, 'real')
+_add_method(Tensor)(ops_math.imag, 'imag')
+
+_add_method(Tensor)(ops_math.conjugate, 'conj')
+_add_method(Tensor)(ops_math.conjugate, 'conjugate')
 _add_method(Tensor)(ops_math.cast, 'cast')
 _add_method(Tensor)(ops_math.cast, 'astype')
 _add_method(Tensor)(ops_math.squeeze, 'squeeze')

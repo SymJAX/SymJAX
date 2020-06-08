@@ -11,6 +11,7 @@ from tqdm import tqdm
 
 class warblr:
     """Binary audio classification, presence or absence of a bird.
+
     `Warblr <http://machine-listening.eecs.qmul.ac.uk/bird-audio-detection-challenge/#downloads>`_ 
     comes from a UK bird-sound crowdsourcing 
     research spinout called Warblr. From this initiative we have 
@@ -21,15 +22,12 @@ class warblr:
     includes weather noise, traffic noise, human speech and even human 
     bird imitations. It is directly representative of the data that is 
     collected from a mobile crowdsourcing initiative.
-
-    :param data_format: (optional, default 'NCHW')
-    :type data_format: 'NCHW' or 'NHWC'
-    :param path: (optional, default $DATASET_path), the path to look for the data and 
-                     where the data will be downloaded if not present
-    :type path: str
     """
  
     def download(path):
+        """
+        Download the data
+        """
     
         # Load the dataset (download if necessary) and set
         # the class attributes.
@@ -51,6 +49,10 @@ class warblr:
     
     
     def load(path=None):
+        """
+        Load the data given a path
+        """
+
         if path is None:
             path = os.environ['DATASET_PATH']
     

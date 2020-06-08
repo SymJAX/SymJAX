@@ -2,19 +2,18 @@
 # -*- coding: utf-8 -*-
 
 __author__      = "Randall Balestriero"
-import setuptools
+
+from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
 
     long_description = fh.read()
 
-setuptools.setup(
+setup(
 
      name='symjax',  
 
-     version='0.2',
-
-     scripts=['pkg'] ,
+     version='0.3',
 
      author="Randall Balestriero",
 
@@ -28,7 +27,7 @@ setuptools.setup(
 
      url="https://github.com/RandallBalestriero/SymJAX.git",
 
-     packages=setuptools.find_packages(),
+     packages=find_packages(exclude=["examples"]),
 
      classifiers=[
          "Natural Language :: English",
@@ -42,5 +41,5 @@ setuptools.setup(
          "Operating System :: Unix",
 
      ],
-
+     python_requires='>=3.7',
  )

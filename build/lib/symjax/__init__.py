@@ -1,18 +1,33 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# flake8: noqa
+
+from .base import (
+        Graph,
+        function,
+        gradients,
+        jacobians,
+        reset,
+        save,
+        load,
+        variable,
+        placeholder,
+        op)
 
 
-__all__ = [
-        "datasets",
-        "tensor",
-        "losses",
-        "utils",
-        "initializers",
-        "layers",
-        "schedules",
-        "optimizers"]
+from . import datasets
+from . import tensor
+from . import losses
+from . import utils
+from . import initializers
+from . import layers
+from . import optimizers
+from . import schedules
 
-__version__ = 'alpha.1'
 
-from .base import gradients, jacobians, function
-from . import *
+_current_scope = '/'
+_current_graph = [Graph('')]
+_variables = {}
+_placeholders = {}
+_updates = {}
+_ops = {}

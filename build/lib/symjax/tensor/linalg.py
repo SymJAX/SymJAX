@@ -3,36 +3,18 @@ import jax.numpy.linalg as jnpl
 import numpy
 import jax
 import jax.lax as jla
-from .base import Op, Tuple
+from .base import Op, Tuple, jax_wrap
 import ast
 import inspect
 import sys
 
 
-names = ['det', 'inv', 'norm']
+NAMES = [c[0] for c in inspect.getmembers(jnpl, inspect.isfunction)]
 module = sys.modules[__name__]
-for name in names:
+for name in NAMES:
     module.__dict__.update(
-        {name: type(name, (Op,), {'_fn': staticmethod(jnpl.__dict__[name])})})
-    module.__dict__[name].__doc__ = jnpl.__dict__[name].__doc__
+        {name: jax_wrap(jnpl.__dict__[name])})
 
-
-
-def cholesky(a):
-    return Tuple(jnpl.cholesky, a)
-
-def eig(a):
-    return Tuple(jnpl.eig, a)
-
-def eigh(a):
-    return Tuple(jnpl.eigh, a)
-
-def qr(a):
-    return Tuple(jnpl.qr, a)
-
-def svd(a, compute_uv=True):
-    return Tuple(jnpl.svd, args=[a],
-                 kwargs={'compute_uv': compute_uv})
 
 
 

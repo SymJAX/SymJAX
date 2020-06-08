@@ -1,4 +1,8 @@
 *.pyc
 *.npz
 *.pkl
-*egg-info
+*.egg-info
+*.so
+
+build/
+dist/
