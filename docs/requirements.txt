@@ -54,7 +54,6 @@ protobuf==3.9.1
 ptyprocess==0.6.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
-pycddlib==2.1.1
 pycparser==2.20
 PyDrive==1.3.1
 Pygments==2.4.2
