@@ -2,4 +2,4 @@
 # -*- coding: utf-8 -*-
 
 __author__      = "Randall Balestriero"
-https://ai.stanford.edu/%7Ejkrause/cars/car_dataset.html
+#https://ai.stanford.edu/%7Ejkrause/cars/car_dataset.html

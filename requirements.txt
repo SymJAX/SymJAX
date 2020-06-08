@@ -88,7 +88,6 @@ sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.4
 SQLAlchemy==1.3.16
--e git+https://github.com/RandallBalestriero/SymJAX.git@e506ac49b0aff97121b0907dd9aac1ac60ffb235#egg=symjax
 tabulate==0.8.7
 tornado==6.0.4
 tqdm==4.45.0

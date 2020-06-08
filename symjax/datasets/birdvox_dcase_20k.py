@@ -32,7 +32,7 @@ class birdvox_dcase_20k:
     (2): Center for Urban Science and Progress, New York University
     (3): Music and Audio Research Lab, New York University
 
-    https://wp.nyu.edu/birdvox
+    `link <https://wp.nyu.edu/birdvox>`_
      
     Description
 
