@@ -2,7 +2,7 @@
 <img src="docs/img/symjax_logo.png" alt="logo"></img>
 </div>
 
-# SymJAX: symbolic CPU/GPU/TPU programming [![Test status](https://travis-ci.org/google/jax.svg?branch=master)](https://travis-ci.org/google/jax)
+# SymJAX: symbolic CPU/GPU/TPU programming [![Test status](https://travis-ci.org/RandallBalestriero/SymJAX.svg?branch=master)](https://travis-ci.org/RandallBalestriero/SymJAX)
 
 This is an under development research project, not an official product, expect bugs and sharp edges; please help by trying it out, reporting bugs.
 [**Reference docs**](https://symjax.readthedocs.io/en/latest/)
