@@ -2,12 +2,14 @@ import jax.numpy as jnp
 import numpy
 import jax
 import jax.lax as jla
+import jaxlib
 from .base import Op, Tuple, jax_wrap
 from .control_flow import cond
 import ast
 import inspect
 import sys
 from .ops_nn import relu
+
 
 module = sys.modules[__name__]
 
