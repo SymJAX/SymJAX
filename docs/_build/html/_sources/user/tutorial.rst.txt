@@ -1,7 +1,25 @@
 Quick Walkthrough Tutorial of SymJAX
 ====================================
 
-.. contents:: Table of Contents
+.. toctree::
+  :hidden:
+
+We briefly describe some key components of SymJAX.
+
+
+Function: compiling a graph into an executable (function)
+---------------------------------------------------------
+
+As opposed to most current softwares, SymJAX proposes a symbolic viewpoint
+from which one can create a computational graph, laying out all the computation
+pipeline from inputs to outputs including updates of persistent variables. Once
+this is defined, it is possible to compile this graph to optimize the exection
+speed. In fact, knowing the graph (nodes, connections, shapes, types, constant
+values) is enough to produce an highly optimized executable of this graph. In
+SymJAX this is done via  symjax.function as demonstrated below:
+
+.. literalinclude:: ../../examples/function.py
+
 
 Clone: one line multipurpose graph replacement
 ----------------------------------------------
@@ -32,11 +50,21 @@ augmented with an underscore and interger number, here is a brief example:
 Graph Saving and Loading
 ------------------------
 
+An important feature of SymJAX is the easiness to reset, save, load variables.
+This is crucial in order to save a model and being to reloaded (in a possibly
+different script) to keep using it. In our case, a computational graph is
+completely defined by its structure and the values of the persistent nodes 
+(the variables). Hence, it is enough to save the variables. This is done in a
+very explicit manner using the numpy.savez utility where the saved file can
+be accessed from any other script, variables can be loaded, accessed, even
+modified, and then reloaded inside the computational graph. Here is a brief
+example:
+
 .. literalinclude:: ../../examples/graph.py
 
 
-Wrap Jax computation into SymJAX
---------------------------------
+Wrap: Jax function/computation to SymJAX Op
+-------------------------------------------
 
 The computation in Jax is done eagerly similarly to TF2 and PyTorch. In SymJAX
 the computational graph definition is done a priori with symbolic variables.

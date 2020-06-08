@@ -346,6 +346,7 @@ def ExponentialMovingAverage(value, alpha, step=None, init=None):
     else:
         var = Variable(init, trainable=False, name='EMA')
 
+    print(_step, value, var * alpha)
     new_value = where(equal(_step, 0), value, var * alpha + (1 - alpha) * value)
     if step is None:
         updates = {var: new_value, _step: _step + 1}

@@ -389,7 +389,7 @@
     <span class="c1"># roots</span>
     <span class="c1"># to the scalar varible s.t. automatic diffenrentiation can be applied</span>
     <span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">scalar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">all_roots</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">))))</span>
+        <span class="k">return</span> <span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">scalar</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">all_roots</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">))))</span>
 
     <span class="c1"># now we obtain the grad function. In fact, Jax returns a function that,</span>
     <span class="c1"># when it is called, returns the gradient values, this function is then</span>
@@ -440,7 +440,7 @@
     <span class="c1"># all roots</span>
     <span class="c1"># to the scalar varible s.t. automatic diffenrentiation can be applied</span>
     <span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">tensor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">all_roots</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">))))</span>
+        <span class="k">return</span> <span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">all_roots</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">))))</span>
 
     <span class="c1"># now we obtain the jacobian function. In fact, Jax returns a function that</span>
     <span class="c1"># when it is called, returns the jacobian values, this function is then</span>
@@ -500,15 +500,15 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 
-<span class="sd">        &gt;&gt;&gt; import jaxonn</span>
-<span class="sd">        &gt;&gt;&gt; import jaxonn.tensor as T</span>
+<span class="sd">        &gt;&gt;&gt; import symjax</span>
+<span class="sd">        &gt;&gt;&gt; import symjax.tensor as T</span>
 <span class="sd">        &gt;&gt;&gt; x = T.ones((4, 4))</span>
 <span class="sd">        &gt;&gt;&gt; xs = x.sum() + 1</span>
-<span class="sd">        &gt;&gt;&gt; f = jaxonn.function(outputs=xs)</span>
+<span class="sd">        &gt;&gt;&gt; f = symjax.function(outputs=xs)</span>
 <span class="sd">        &gt;&gt;&gt; print(f()) # returns 17</span>
 
 <span class="sd">        &gt;&gt;&gt; w = T.Variable(0., name=&#39;w&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; increment = jaxonn.function(updates={w: w + 1})</span>
+<span class="sd">        &gt;&gt;&gt; increment = symjax.function(updates={w: w + 1})</span>
 <span class="sd">        &gt;&gt;&gt; for i in range(10):</span>
 <span class="sd">        &gt;&gt;&gt;     increment()</span>
 <span class="sd">        &gt;&gt;&gt; print(w.value) # returns 10</span>
@@ -590,8 +590,8 @@
 
         <span class="k">def</span> <span class="nf">to_jit</span><span class="p">(</span><span class="o">*</span><span class="n">jitargs</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
             <span class="n">allargs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classargs</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_inputs</span>
-            <span class="n">feed_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">m</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;base&#39;</span><span class="p">:</span> <span class="n">v</span><span class="p">})</span>
-                        <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">allargs</span><span class="p">,</span> <span class="n">jitargs</span><span class="p">)])</span>
+            <span class="n">feed_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">allargs</span><span class="p">,</span> <span class="n">jitargs</span><span class="p">))</span><span class="c1">#[(m, {&#39;base&#39;: v})</span>
+<span class="c1">#                        for m, v in zip(allargs, jitargs)])</span>
             <span class="n">feed_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;rng&#39;</span><span class="p">:</span><span class="n">seed</span><span class="p">})</span>
             <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">updates_values</span><span class="p">],</span> <span class="n">feed_dict</span><span class="p">)</span>
 

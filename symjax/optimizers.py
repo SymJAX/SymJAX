@@ -72,7 +72,9 @@ class SGD(Optimizer):
 
         if params is None:
             params = [v for k, v in get_graph().variables.items() if v.trainable]
-
+        elif type(params) is not list and type(params) is not tuple:
+            params = [params]
+        
         grads = self._get_grads(grads_or_loss, params)
 
         if not numpy.isscalar(learning_rate) and not isinstance(
@@ -84,8 +86,8 @@ class SGD(Optimizer):
             updates[param] = param - learning_rate * grad
 
         self.updates = updates
-        if get_graph() is not None:
-            get_graph().updates.update(updates)
+#        if get_graph() is not None:
+#            get_graph().updates.update(updates)
 
 
 class NesterovMomentum(Optimizer):

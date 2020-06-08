@@ -223,7 +223,7 @@ def gradients(scalar, variables):
     # roots
     # to the scalar varible s.t. automatic diffenrentiation can be applied
     def fn(*args):
-        return scalar.get(dict(zip(all_roots, list(args))))
+        return symjax.tensor.get(scalar, dict(zip(all_roots, list(args))))
 
     # now we obtain the grad function. In fact, Jax returns a function that,
     # when it is called, returns the gradient values, this function is then
@@ -274,7 +274,7 @@ def jacobians(tensor, variables, mode='forward'):
     # all roots
     # to the scalar varible s.t. automatic diffenrentiation can be applied
     def fn(*args):
-        return tensor.get(dict(zip(all_roots, list(args))))
+        return symjax.tensor.get(tensor, dict(zip(all_roots, list(args))))
 
     # now we obtain the jacobian function. In fact, Jax returns a function that
     # when it is called, returns the jacobian values, this function is then
@@ -334,15 +334,15 @@ class function:
     Examples
     --------
 
-        >>> import jaxonn
-        >>> import jaxonn.tensor as T
+        >>> import symjax
+        >>> import symjax.tensor as T
         >>> x = T.ones((4, 4))
         >>> xs = x.sum() + 1
-        >>> f = jaxonn.function(outputs=xs)
+        >>> f = symjax.function(outputs=xs)
         >>> print(f()) # returns 17
 
         >>> w = T.Variable(0., name='w')
-        >>> increment = jaxonn.function(updates={w: w + 1})
+        >>> increment = symjax.function(updates={w: w + 1})
         >>> for i in range(10):
         >>>     increment()
         >>> print(w.value) # returns 10
@@ -424,8 +424,8 @@ class function:
 
         def to_jit(*jitargs, seed):
             allargs = list(self.classargs) + self.updates_keys + self.extra_inputs
-            feed_dict = dict([(m, {'base': v})
-                        for m, v in zip(allargs, jitargs)])
+            feed_dict = dict(zip(allargs, jitargs))#[(m, {'base': v})
+#                        for m, v in zip(allargs, jitargs)])
             feed_dict.update({'rng':seed})
             return t.get([self.outputs, self.updates_values], feed_dict)
 

@@ -22,10 +22,11 @@ out2 = out1.clone({randn: rand})# * value
 #out3 = out1.clone({randn:T.ones(1)*3})
 print(out2.roots)
 get_vars = symjax.function(outputs=[out1, out2], updates={value:2+value})
-
+two = symjax.function(rand, outputs=[out2], updates={value:2+value})
 print('start')
-for i in range(10):
-    print(get_vars())
+for i in range(100):
+    print(two(1))
+#    print(get_vars())
 #    print(get_vars())
 
 asdf

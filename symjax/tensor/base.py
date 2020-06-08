@@ -73,16 +73,18 @@ def getroots(item, roots=[]):
         return []
 
 
-def get(item, tracker=None, givens=None):
+def get(item, tracker=None, givens=None, branches=None):
     if tracker is None:
         tracker = {}
     if givens is None:
         givens = {}
+    if branches is None:
+        branches = {}
 
     if isinstance(item, list):
-        return [get(i, tracker, givens) for i in item]
+        return [get(i, tracker, givens, branches) for i in item]
     elif isinstance(item, tuple):
-        return tuple([get(i, tracker, givens) for i in item])
+        return tuple([get(i, tracker, givens, branches) for i in item])
 
     if isinstance(item, Tensor):
         # if the item is already in tracker, we might just return the already
@@ -94,26 +96,27 @@ def get(item, tracker=None, givens=None):
         minimal_givens = dict([m for m in current_givens.items() if m[0] in minimal])
         if item in minimal_givens:
             new_givens = dict([m for m in minimal_givens.items() if m[0] != item])
-            return get(minimal_givens[item], tracker, new_givens)
+            return get(minimal_givens[item], tracker, new_givens, branches)
         if len(minimal_givens) == 0:
             # if this branch is unchanged, return directly the already
             # computed one
             if item in tracker:
-                if 'base' in tracker[item]:
-                    return tracker[item]['base']
-            tracker[item]= {'base': item._get(tracker, {})}
-            return tracker[item]['base']
+                return tracker[item]
+            tracker[item]= item._get(tracker, {}, {})
+            return tracker[item]
 
         # otherwise we specialize
         names = ['{}{}->{}{}'.format(m.scope, m.name, current_givens[m].scope,
                                      current_givens[m].name) for m in minimal]
         names.sort()
         name = '_'.join(names)
-        if item in tracker:
-            if name in tracker[item]:
-                return tracker[item][name]
-        tracker[item] = {name: item._get(tracker, minimal_givens)}
-        return tracker[item][name]
+        if item in branches:
+            if name in branches[item]:
+                return branches[item][name]
+            branches[item][name] = item._get(tracker, minimal_givens, branches)
+        else:
+            branches[item] = {name: item._get(tracker, minimal_givens, branches)}
+        return branches[item][name]
     else:
         return item
 
@@ -234,13 +237,13 @@ class Tensor:
     def ndim(self):
         return len(self.shape)
 
-    def _get(self, tracker, givens):
+    def _get(self, tracker, givens, branches):
         """ this method implements only the case where the tensor is a copy
             of another one such as a variable etc. In this case we simply refer
             to the original get method. Otherwise, there should never be a call
             of get on a Tensor but always on an Op etc"""
         if self.copyof is not None:
-            return self.copyof._get(tracker, givens)
+            return self.copyof._get(tracker, givens, branches)
 
     def clone(self, givens):
         for g in givens:
@@ -423,15 +426,15 @@ class Op(Tensor):
     def __str__(self):
         return self.__repr__()
 
-    def _get(self, tracker, givens):
+    def _get(self, tracker, givens, branches):
 
         self._check_tracker(tracker)
 
         # evaluate the function kwargs as explicit jax arrays
-        kwargs = dict()
-        for name, var in list(self.kwargs.items()):
-            kwargs.update({name: get(var, tracker, givens)})
+        kwargs = dict([(name, get(var, tracker, givens, branches))
+                        for name, var in self.kwargs.items()])
         args = [get(var, tracker, givens) for var in self.args]
+
         if isinstance(self, RandomOp):
             seed = self._seed or numpy.random.randint(0, 1000000)
             if 'rng' in tracker:
@@ -487,16 +490,11 @@ class TupleItem(Tensor):
     def __init__(self, shape, dtype, index, roots, name=''):
         self._parent = None
         self._index = index
+        self.name = name
         super().__init__(shape, dtype, roots=roots)
 
-    def _get(self, tracker=None, givens=None):
-        if givens is None:
-            givens = self._givens
-        else:
-            givens = {**givens, **self._givens}
-#        if self in givens:
-#            return get(givens[self], tracker, givens) 
-        return self.parent._get(tracker, givens)[self._index]
+    def _get(self, tracker, givens, branches):
+        return self._parent._get(tracker, givens, branches)[self._index]
 
 
 
@@ -505,8 +503,7 @@ class Tuple(tuple):
     def __new__(cls, *args, _jax_function, _shapes, _dtypes, **kwargs):
 
         roots = list(set(getroots(list(kwargs.values())+ list(args))))
-
-        items = [TupleItem(shape, dtype, i, roots=roots)
+        items = [TupleItem(shape, dtype, i, roots=roots, name=_jax_function.__name__+'[{}]'.format(i))
                  for i, (shape, dtype) in enumerate(zip(_shapes, _dtypes))]
         return super(Tuple, cls).__new__(cls, tuple(items))
 
@@ -521,25 +518,14 @@ class Tuple(tuple):
             item._parent = self
 
 
-    def _get(self, tracker, givens):
+    def _get(self, tracker, givens, branches):
 
         # kwarg dictionnary
-        args = list()
-        for var in self.args:
-            args.append(get(var, tracker, givens))
+        args = [get(var, tracker, givens, branches) for var in self.args]
+        kwargs = dict([(name, get(var, tracker, givens, branches))
+                            for name, var in self.kwargs.items()])
 
-        kwargs = dict()
-        for name, var in self.kwargs.items():
-            kwargs.update({name: get(var, tracker, givens)})
-
-        # we add the list object itself into the dictionnary first
-        tracker[self] = tuple(self.jax_function(*args, **kwargs))
-
-        # then we add each element of the list into the dictionnary
-        for i in range(len(self)):
-            tracker[self[i]] = tracker[self][i]
-
-        return tracker[self]
+        return tuple(self.jax_function(*args, **kwargs))
 
 
 class Variable(Tensor):
@@ -619,7 +605,7 @@ class Variable(Tensor):
         name = 'Variable(name={}, shape={}, dtype={}, trainable={}, scope={})'
         return name.format(self.name, self.shape, self.dtype, self.trainable, self.scope)
 
-    def _get(self, tracker, givens):
+    def _get(self, tracker, givens, branches):
         return self.value
 
 
@@ -650,7 +636,7 @@ class Placeholder(Tensor):
         return '(Placeholder: ' + self.name + 'dtype=' + str(self.dtype) + \
                ', shape=' + str(self.shape) + ')'
 
-    def _get(self, tracker, givens):
+    def _get(self, tracker, givens, branches):
         raise ValueError(' no value given for placeholder {}'.format(self))
 
 

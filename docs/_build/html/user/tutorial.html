@@ -88,10 +88,11 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Walkthrough Tutorial of SymJAX</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#function-compiling-a-graph-into-an-executable-function">Function: compiling a graph into an executable (function)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#clone-one-line-multipurpose-graph-replacement">Clone: one line multipurpose graph replacement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scopes-operations-variables-placeholders-naming-and-accessing">Scopes, Operations/Variables/Placeholders naming and accessing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#graph-saving-and-loading">Graph Saving and Loading</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#wrap-jax-computation-into-symjax">Wrap Jax computation into SymJAX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wrap-jax-function-computation-to-symjax-op">Wrap: Jax function/computation to SymJAX Op</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
@@ -174,22 +175,67 @@
            <div itemprop="articleBody">
             
   <div class="section" id="quick-walkthrough-tutorial-of-symjax">
-<h1><a class="toc-backref" href="#id1">Quick Walkthrough Tutorial of SymJAX</a><a class="headerlink" href="#quick-walkthrough-tutorial-of-symjax" title="Permalink to this headline">¶</a></h1>
-<div class="contents topic" id="table-of-contents">
-<p class="topic-title">Table of Contents</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="#quick-walkthrough-tutorial-of-symjax" id="id1">Quick Walkthrough Tutorial of SymJAX</a></p>
-<ul>
-<li><p><a class="reference internal" href="#clone-one-line-multipurpose-graph-replacement" id="id2">Clone: one line multipurpose graph replacement</a></p></li>
-<li><p><a class="reference internal" href="#scopes-operations-variables-placeholders-naming-and-accessing" id="id3">Scopes, Operations/Variables/Placeholders naming and accessing</a></p></li>
-<li><p><a class="reference internal" href="#graph-saving-and-loading" id="id4">Graph Saving and Loading</a></p></li>
-<li><p><a class="reference internal" href="#wrap-jax-computation-into-symjax" id="id5">Wrap Jax computation into SymJAX</a></p></li>
-</ul>
-</li>
-</ul>
+<h1>Quick Walkthrough Tutorial of SymJAX<a class="headerlink" href="#quick-walkthrough-tutorial-of-symjax" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<p>We briefly describe some key components of SymJAX.</p>
+<div class="section" id="function-compiling-a-graph-into-an-executable-function">
+<h2>Function: compiling a graph into an executable (function)<a class="headerlink" href="#function-compiling-a-graph-into-an-executable-function" title="Permalink to this headline">¶</a></h2>
+<p>As opposed to most current softwares, SymJAX proposes a symbolic viewpoint
+from which one can create a computational graph, laying out all the computation
+pipeline from inputs to outputs including updates of persistent variables. Once
+this is defined, it is possible to compile this graph to optimize the exection
+speed. In fact, knowing the graph (nodes, connections, shapes, types, constant
+values) is enough to produce an highly optimized executable of this graph. In
+SymJAX this is done via  symjax.function as demonstrated below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">symjax</span>
+<span class="kn">import</span> <span class="nn">symjax.tensor</span> <span class="k">as</span> <span class="nn">T</span>
+
+
+
+<span class="n">value</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">ones</span><span class="p">(()))</span>
+<span class="n">randn</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(())</span>
+<span class="n">rand</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(())</span>
+
+<span class="n">out1</span> <span class="o">=</span> <span class="n">randn</span> <span class="o">*</span> <span class="n">value</span>
+<span class="n">out2</span> <span class="o">=</span> <span class="n">out1</span><span class="o">.</span><span class="n">clone</span><span class="p">({</span><span class="n">randn</span><span class="p">:</span> <span class="n">rand</span><span class="p">})</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">rand</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">out2</span><span class="p">,</span> <span class="n">updates</span><span class="o">=</span><span class="p">{</span><span class="n">value</span><span class="p">:</span><span class="mi">2</span><span class="o">+</span><span class="n">value</span><span class="p">})</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="c1"># 0.</span>
+<span class="c1"># 3.</span>
+<span class="c1"># 10.</span>
+
+
+<span class="c1"># we create a simple computational graph</span>
+<span class="n">var</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">seed</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="p">((</span><span class="n">var</span> <span class="o">-</span> <span class="n">T</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">var</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="p">[</span><span class="n">var</span><span class="p">])</span>
+<span class="n">opt</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">var</span><span class="p">)</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">outputs</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">updates</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">updates</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="p">())</span>
+<span class="c1"># 240.96829</span>
+<span class="c1"># 231.42595</span>
+<span class="c1"># 222.26149</span>
+<span class="c1"># 213.45993</span>
+<span class="c1"># 205.00691</span>
+<span class="c1"># 196.88864</span>
+<span class="c1"># 189.09186</span>
+<span class="c1"># 181.60382</span>
+<span class="c1"># 174.41231</span>
+<span class="c1"># 167.50558</span>
+
+
+</pre></div>
+</div>
 </div>
 <div class="section" id="clone-one-line-multipurpose-graph-replacement">
-<h2><a class="toc-backref" href="#id2">Clone: one line multipurpose graph replacement</a><a class="headerlink" href="#clone-one-line-multipurpose-graph-replacement" title="Permalink to this headline">¶</a></h2>
+<h2>Clone: one line multipurpose graph replacement<a class="headerlink" href="#clone-one-line-multipurpose-graph-replacement" title="Permalink to this headline">¶</a></h2>
 <p>In most current packages, the ability to perform an already define computation
 graph but with altered nodes is cumbersone. Some specific involve the use
 of layers as in Keras where one can feed any value hence allow to compute a
@@ -237,7 +283,7 @@ another based on a node-&gt;node mapping:</p>
 </div>
 </div>
 <div class="section" id="scopes-operations-variables-placeholders-naming-and-accessing">
-<h2><a class="toc-backref" href="#id3">Scopes, Operations/Variables/Placeholders naming and accessing</a><a class="headerlink" href="#scopes-operations-variables-placeholders-naming-and-accessing" title="Permalink to this headline">¶</a></h2>
+<h2>Scopes, Operations/Variables/Placeholders naming and accessing<a class="headerlink" href="#scopes-operations-variables-placeholders-naming-and-accessing" title="Permalink to this headline">¶</a></h2>
 <p>Accessing, naming variables, operations and placeholders. This is done in a
 similar way as in the vanilla Tensorflow form with scopes and EVERY of the
 variable/placeholder/operation is named and located with a unique identifier
@@ -305,7 +351,16 @@ augmented with an underscore and interger number, here is a brief example:</p>
 </div>
 </div>
 <div class="section" id="graph-saving-and-loading">
-<h2><a class="toc-backref" href="#id4">Graph Saving and Loading</a><a class="headerlink" href="#graph-saving-and-loading" title="Permalink to this headline">¶</a></h2>
+<h2>Graph Saving and Loading<a class="headerlink" href="#graph-saving-and-loading" title="Permalink to this headline">¶</a></h2>
+<p>An important feature of SymJAX is the easiness to reset, save, load variables.
+This is crucial in order to save a model and being to reloaded (in a possibly
+different script) to keep using it. In our case, a computational graph is
+completely defined by its structure and the values of the persistent nodes
+(the variables). Hence, it is enough to save the variables. This is done in a
+very explicit manner using the numpy.savez utility where the saved file can
+be accessed from any other script, variables can be loaded, accessed, even
+modified, and then reloaded inside the computational graph. Here is a brief
+example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">symjax</span>
 <span class="kn">import</span> <span class="nn">symjax.tensor</span> <span class="k">as</span> <span class="nn">T</span>
 
@@ -383,8 +438,8 @@ augmented with an underscore and interger number, here is a brief example:</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="wrap-jax-computation-into-symjax">
-<h2><a class="toc-backref" href="#id5">Wrap Jax computation into SymJAX</a><a class="headerlink" href="#wrap-jax-computation-into-symjax" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="wrap-jax-function-computation-to-symjax-op">
+<h2>Wrap: Jax function/computation to SymJAX Op<a class="headerlink" href="#wrap-jax-function-computation-to-symjax-op" title="Permalink to this headline">¶</a></h2>
 <p>The computation in Jax is done eagerly similarly to TF2 and PyTorch. In SymJAX
 the computational graph definition is done a priori with symbolic variables.
 That is, no actual computations are done during the graph definition, once done
