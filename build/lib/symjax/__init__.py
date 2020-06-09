@@ -3,6 +3,7 @@
 # flake8: noqa
 
 from .base import (
+        current_graph,
         Graph,
         function,
         gradients,

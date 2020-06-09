@@ -1,2 +1,3 @@
+python setup.py bdist_wheel
 python3 -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
 python setup.py bdist_wheel
