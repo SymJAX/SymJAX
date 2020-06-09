@@ -4,7 +4,7 @@
 
 # SymJAX: symbolic CPU/GPU/TPU programming [![Build Status](https://travis-ci.org/RandallBalestriero/SymJAX.svg?branch=master)](https://travis-ci.org/RandallBalestriero/SymJAX)
 
-This is an under development research project, not an official product, expect bugs and sharp edges; please help by trying it out, reporting bugs.
+This is an under-development research project, not an official product, expect bugs and sharp edges; please help by trying it out, reporting bugs.
 [**Reference docs**](https://symjax.readthedocs.io/en/latest/)
 
 **Announcement:** First major stable release expected by end of June.
