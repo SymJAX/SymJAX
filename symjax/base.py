@@ -100,8 +100,8 @@ class Graph:
         elif isinstance(tensor, symjax.tensor.Variable):
             names = symjax._variables
         else:
-            names =  symjax._ops
-
+            names = symjax._ops
+        #print('in add', names)
         if name not in names.keys():
             names[name] = tensor
             return

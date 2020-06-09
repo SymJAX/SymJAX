@@ -1,0 +1,450 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>numpy.fft &mdash; symjax 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/symjax_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user/examples.html">Examples</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/pdfs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.pdfs</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.data</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/initializers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.initializers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/layers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.layers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/optimizers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.optimizers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/schedules.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.schedules</span></code></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">symjax</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../numpy.html">numpy</a> &raquo;</li>
+        
+      <li>numpy.fft</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for numpy.fft</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Discrete Fourier Transform (:mod:`numpy.fft`)</span>
+<span class="sd">=============================================</span>
+
+<span class="sd">.. currentmodule:: numpy.fft</span>
+
+<span class="sd">Standard FFTs</span>
+<span class="sd">-------------</span>
+
+<span class="sd">.. autosummary::</span>
+<span class="sd">   :toctree: generated/</span>
+
+<span class="sd">   fft       Discrete Fourier transform.</span>
+<span class="sd">   ifft      Inverse discrete Fourier transform.</span>
+<span class="sd">   fft2      Discrete Fourier transform in two dimensions.</span>
+<span class="sd">   ifft2     Inverse discrete Fourier transform in two dimensions.</span>
+<span class="sd">   fftn      Discrete Fourier transform in N-dimensions.</span>
+<span class="sd">   ifftn     Inverse discrete Fourier transform in N dimensions.</span>
+
+<span class="sd">Real FFTs</span>
+<span class="sd">---------</span>
+
+<span class="sd">.. autosummary::</span>
+<span class="sd">   :toctree: generated/</span>
+
+<span class="sd">   rfft      Real discrete Fourier transform.</span>
+<span class="sd">   irfft     Inverse real discrete Fourier transform.</span>
+<span class="sd">   rfft2     Real discrete Fourier transform in two dimensions.</span>
+<span class="sd">   irfft2    Inverse real discrete Fourier transform in two dimensions.</span>
+<span class="sd">   rfftn     Real discrete Fourier transform in N dimensions.</span>
+<span class="sd">   irfftn    Inverse real discrete Fourier transform in N dimensions.</span>
+
+<span class="sd">Hermitian FFTs</span>
+<span class="sd">--------------</span>
+
+<span class="sd">.. autosummary::</span>
+<span class="sd">   :toctree: generated/</span>
+
+<span class="sd">   hfft      Hermitian discrete Fourier transform.</span>
+<span class="sd">   ihfft     Inverse Hermitian discrete Fourier transform.</span>
+
+<span class="sd">Helper routines</span>
+<span class="sd">---------------</span>
+
+<span class="sd">.. autosummary::</span>
+<span class="sd">   :toctree: generated/</span>
+
+<span class="sd">   fftfreq   Discrete Fourier Transform sample frequencies.</span>
+<span class="sd">   rfftfreq  DFT sample frequencies (for usage with rfft, irfft).</span>
+<span class="sd">   fftshift  Shift zero-frequency component to center of spectrum.</span>
+<span class="sd">   ifftshift Inverse of fftshift.</span>
+
+
+<span class="sd">Background information</span>
+<span class="sd">----------------------</span>
+
+<span class="sd">Fourier analysis is fundamentally a method for expressing a function as a</span>
+<span class="sd">sum of periodic components, and for recovering the function from those</span>
+<span class="sd">components.  When both the function and its Fourier transform are</span>
+<span class="sd">replaced with discretized counterparts, it is called the discrete Fourier</span>
+<span class="sd">transform (DFT).  The DFT has become a mainstay of numerical computing in</span>
+<span class="sd">part because of a very fast algorithm for computing it, called the Fast</span>
+<span class="sd">Fourier Transform (FFT), which was known to Gauss (1805) and was brought</span>
+<span class="sd">to light in its current form by Cooley and Tukey [CT]_.  Press et al. [NR]_</span>
+<span class="sd">provide an accessible introduction to Fourier analysis and its</span>
+<span class="sd">applications.</span>
+
+<span class="sd">Because the discrete Fourier transform separates its input into</span>
+<span class="sd">components that contribute at discrete frequencies, it has a great number</span>
+<span class="sd">of applications in digital signal processing, e.g., for filtering, and in</span>
+<span class="sd">this context the discretized input to the transform is customarily</span>
+<span class="sd">referred to as a *signal*, which exists in the *time domain*.  The output</span>
+<span class="sd">is called a *spectrum* or *transform* and exists in the *frequency</span>
+<span class="sd">domain*.</span>
+
+<span class="sd">Implementation details</span>
+<span class="sd">----------------------</span>
+
+<span class="sd">There are many ways to define the DFT, varying in the sign of the</span>
+<span class="sd">exponent, normalization, etc.  In this implementation, the DFT is defined</span>
+<span class="sd">as</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">   A_k =  \\sum_{m=0}^{n-1} a_m \\exp\\left\\{-2\\pi i{mk \\over n}\\right\\}</span>
+<span class="sd">   \\qquad k = 0,\\ldots,n-1.</span>
+
+<span class="sd">The DFT is in general defined for complex inputs and outputs, and a</span>
+<span class="sd">single-frequency component at linear frequency :math:`f` is</span>
+<span class="sd">represented by a complex exponential</span>
+<span class="sd">:math:`a_m = \\exp\\{2\\pi i\\,f m\\Delta t\\}`, where :math:`\\Delta t`</span>
+<span class="sd">is the sampling interval.</span>
+
+<span class="sd">The values in the result follow so-called &quot;standard&quot; order: If ``A =</span>
+<span class="sd">fft(a, n)``, then ``A[0]`` contains the zero-frequency term (the sum of</span>
+<span class="sd">the signal), which is always purely real for real inputs. Then ``A[1:n/2]``</span>
+<span class="sd">contains the positive-frequency terms, and ``A[n/2+1:]`` contains the</span>
+<span class="sd">negative-frequency terms, in order of decreasingly negative frequency.</span>
+<span class="sd">For an even number of input points, ``A[n/2]`` represents both positive and</span>
+<span class="sd">negative Nyquist frequency, and is also purely real for real input.  For</span>
+<span class="sd">an odd number of input points, ``A[(n-1)/2]`` contains the largest positive</span>
+<span class="sd">frequency, while ``A[(n+1)/2]`` contains the largest negative frequency.</span>
+<span class="sd">The routine ``np.fft.fftfreq(n)`` returns an array giving the frequencies</span>
+<span class="sd">of corresponding elements in the output.  The routine</span>
+<span class="sd">``np.fft.fftshift(A)`` shifts transforms and their frequencies to put the</span>
+<span class="sd">zero-frequency components in the middle, and ``np.fft.ifftshift(A)`` undoes</span>
+<span class="sd">that shift.</span>
+
+<span class="sd">When the input `a` is a time-domain signal and ``A = fft(a)``, ``np.abs(A)``</span>
+<span class="sd">is its amplitude spectrum and ``np.abs(A)**2`` is its power spectrum.</span>
+<span class="sd">The phase spectrum is obtained by ``np.angle(A)``.</span>
+
+<span class="sd">The inverse DFT is defined as</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">   a_m = \\frac{1}{n}\\sum_{k=0}^{n-1}A_k\\exp\\left\\{2\\pi i{mk\\over n}\\right\\}</span>
+<span class="sd">   \\qquad m = 0,\\ldots,n-1.</span>
+
+<span class="sd">It differs from the forward transform by the sign of the exponential</span>
+<span class="sd">argument and the default normalization by :math:`1/n`.</span>
+
+<span class="sd">Normalization</span>
+<span class="sd">-------------</span>
+<span class="sd">The default normalization has the direct transforms unscaled and the inverse</span>
+<span class="sd">transforms are scaled by :math:`1/n`. It is possible to obtain unitary</span>
+<span class="sd">transforms by setting the keyword argument ``norm`` to ``&quot;ortho&quot;`` (default is</span>
+<span class="sd">`None`) so that both direct and inverse transforms will be scaled by</span>
+<span class="sd">:math:`1/\\sqrt{n}`.</span>
+
+<span class="sd">Real and Hermitian transforms</span>
+<span class="sd">-----------------------------</span>
+
+<span class="sd">When the input is purely real, its transform is Hermitian, i.e., the</span>
+<span class="sd">component at frequency :math:`f_k` is the complex conjugate of the</span>
+<span class="sd">component at frequency :math:`-f_k`, which means that for real</span>
+<span class="sd">inputs there is no information in the negative frequency components that</span>
+<span class="sd">is not already available from the positive frequency components.</span>
+<span class="sd">The family of `rfft` functions is</span>
+<span class="sd">designed to operate on real inputs, and exploits this symmetry by</span>
+<span class="sd">computing only the positive frequency components, up to and including the</span>
+<span class="sd">Nyquist frequency.  Thus, ``n`` input points produce ``n/2+1`` complex</span>
+<span class="sd">output points.  The inverses of this family assumes the same symmetry of</span>
+<span class="sd">its input, and for an output of ``n`` points uses ``n/2+1`` input points.</span>
+
+<span class="sd">Correspondingly, when the spectrum is purely real, the signal is</span>
+<span class="sd">Hermitian.  The `hfft` family of functions exploits this symmetry by</span>
+<span class="sd">using ``n/2+1`` complex points in the input (time) domain for ``n`` real</span>
+<span class="sd">points in the frequency domain.</span>
+
+<span class="sd">In higher dimensions, FFTs are used, e.g., for image analysis and</span>
+<span class="sd">filtering.  The computational efficiency of the FFT means that it can</span>
+<span class="sd">also be a faster way to compute large convolutions, using the property</span>
+<span class="sd">that a convolution in the time domain is equivalent to a point-by-point</span>
+<span class="sd">multiplication in the frequency domain.</span>
+
+<span class="sd">Higher dimensions</span>
+<span class="sd">-----------------</span>
+
+<span class="sd">In two dimensions, the DFT is defined as</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">   A_{kl} =  \\sum_{m=0}^{M-1} \\sum_{n=0}^{N-1}</span>
+<span class="sd">   a_{mn}\\exp\\left\\{-2\\pi i \\left({mk\\over M}+{nl\\over N}\\right)\\right\\}</span>
+<span class="sd">   \\qquad k = 0, \\ldots, M-1;\\quad l = 0, \\ldots, N-1,</span>
+
+<span class="sd">which extends in the obvious way to higher dimensions, and the inverses</span>
+<span class="sd">in higher dimensions also extend in the same way.</span>
+
+<span class="sd">References</span>
+<span class="sd">----------</span>
+
+<span class="sd">.. [CT] Cooley, James W., and John W. Tukey, 1965, &quot;An algorithm for the</span>
+<span class="sd">        machine calculation of complex Fourier series,&quot; *Math. Comput.*</span>
+<span class="sd">        19: 297-301.</span>
+
+<span class="sd">.. [NR] Press, W., Teukolsky, S., Vetterline, W.T., and Flannery, B.P.,</span>
+<span class="sd">        2007, *Numerical Recipes: The Art of Scientific Computing*, ch.</span>
+<span class="sd">        12-13.  Cambridge Univ. Press, Cambridge, UK.</span>
+
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
+
+<span class="sd">For examples, see the various functions.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">print_function</span>
+
+<span class="kn">from</span> <span class="nn">._pocketfft</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.helper</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">from</span> <span class="nn">numpy._pytesttester</span> <span class="kn">import</span> <span class="n">PytestTester</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">PytestTester</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="k">del</span> <span class="n">PytestTester</span>
+
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">warnings</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="c1"># Filter out harmless Cython warnings coming from mkl_fft</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;numpy.dtype size changed&quot;</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;numpy.ufunc size changed&quot;</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;numpy.ndarray size changed&quot;</span><span class="p">)</span>
+        <span class="kn">import</span> <span class="nn">mkl_fft._numpy_fft</span> <span class="k">as</span> <span class="nn">_nfft</span>
+        <span class="n">patch_fft</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">__patched_functions__</span> <span class="o">=</span> <span class="n">_nfft</span><span class="o">.</span><span class="n">__all__</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">patch_fft</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="k">if</span> <span class="n">patch_fft</span><span class="p">:</span>
+    <span class="n">_restore_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+
+    <span class="k">def</span> <span class="nf">register_func</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">__patched_functions__</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> not an mkl_fft function.&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">f_globals</span>
+        <span class="n">_restore_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">f</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span>
+
+    <span class="k">def</span> <span class="nf">restore_func</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">__patched_functions__</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> not an mkl_fft function.&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">_restore_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;failed to restore&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;found and restoring...&#39;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">f_globals</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="k">def</span> <span class="nf">restore_all</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_restore_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">restore_func</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">__patched_functions__</span><span class="p">:</span>
+        <span class="n">register_func</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_nfft</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+    <span class="k">del</span> <span class="n">_nfft</span>
+
+<span class="k">del</span> <span class="n">patch_fft</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Randall Balestriero
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

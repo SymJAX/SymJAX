@@ -186,7 +186,7 @@ class Adam(Optimizer):
             params = [v for k, v in get_graph().variables.items() if v.trainable]
 
         grads = self._get_grads(grads_or_loss, params)
-        step = tensor.Variable([[0.]], trainable=False, name='step')
+        step = tensor.Variable(tensor.zeros(1,dtype='float32'), trainable=False, name='step')
         variables = [step]
         # get the learning rate
         if callable(learning_rate):
@@ -207,5 +207,5 @@ class Adam(Optimizer):
 
         self.variables = variables
         self.updates = updates
-        if get_graph() is not None:
-            get_graph().updates.update(updates)
+#        if get_graph() is not None:
+#            get_graph().updates.update(updates)

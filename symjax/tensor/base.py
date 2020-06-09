@@ -303,6 +303,15 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None):
         from . import random
         random_func = func in random._RANDOM_FUNCTIONS
 
+
+        # if there is a name we remove it for now to use the jax tracer
+        if 'name' in kwargs:
+            op_name = kwargs['name']
+            del kwargs['name']
+        else:
+            op_name = None
+
+
         # we need to remove the static arguments first
         # we first do it for the kwars
         static_kwargs = {}
@@ -352,6 +361,7 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None):
                 _jax_function=func,
                 _shapes=shapes,
                 _dtypes=dtypes,
+                name=op_name,
                 **kwargs)
         elif random_func:
             shape, dtype = tree.shape, tree.dtype
@@ -361,11 +371,12 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None):
                 _shape=shape,
                 _dtype=dtype,
                 _seed=seed,
+                name=op_name,
                 **kwargs)
         else:
             shape, dtype = tree.shape, tree.dtype
             return Op(*args, _jax_function=func, _shape=shape, _dtype=dtype,
-                      **kwargs)
+                      name=op_name,**kwargs)
 
     if not hasattr(func, '__doc__') or func.__doc__ is None:
         return op
@@ -406,13 +417,14 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None):
 class Op(Tensor):
     """an Op generates a Tensor object obtained from a function"""
 
-    def __init__(self, *args, _jax_function, _shape, _dtype, _roots=[], **kwargs):
+    def __init__(self, *args, _jax_function, _shape, _dtype, _roots=[], name=None,
+                 **kwargs):
 
         # save args and kwargs
         self._kwargs = kwargs
         self._args = args
         self.jax_function = _jax_function
-        self.name = _jax_function.__name__
+        self.name = name or _jax_function.__name__
         # set roots
         roots = list(set(getroots(list(kwargs.values())+ list(args)) + _roots))
 
@@ -473,15 +485,15 @@ class RandomOp(Op):
         (Tensor, dtype=int32, shape=(3, 3))
     """
 
-    def __init__(self, *args, _jax_function, _shape, _dtype, _seed, **kwargs):
+    def __init__(self, *args, _jax_function, _shape, _dtype, _seed, name, **kwargs):
 
         self._seed = _seed
         super().__init__(*args, _jax_function=_jax_function, _shape=_shape,
-                                _dtype=_dtype, **kwargs)
+                                _dtype=_dtype, name=name, **kwargs)
 
     def __repr__(self):
         name = 'RandomTensor(Op={}, shape={}, dtype={})'
-        return name.format(self.jax_function.__name__, self.shape, self.dtype)
+        return name.format(self.name, self.shape, self.dtype)
 
 
 
@@ -500,10 +512,11 @@ class TupleItem(Tensor):
 
 class Tuple(tuple):
 
-    def __new__(cls, *args, _jax_function, _shapes, _dtypes, **kwargs):
+    def __new__(cls, *args, _jax_function, _shapes, _dtypes, name, **kwargs):
 
         roots = list(set(getroots(list(kwargs.values())+ list(args))))
-        items = [TupleItem(shape, dtype, i, roots=roots, name=_jax_function.__name__+'[{}]'.format(i))
+        name = name or _jax_function.__name__
+        items = [TupleItem(shape, dtype, i, roots=roots, name= name + '[{}]'.format(i))
                  for i, (shape, dtype) in enumerate(zip(_shapes, _dtypes))]
         return super(Tuple, cls).__new__(cls, tuple(items))
 
@@ -561,15 +574,9 @@ class Variable(Tensor):
         self.trainable = trainable
         self.name = name
         self.initializer = initializer
-
-        if hasattr(initializer, 'dtype'):
-            dtype = initializer.dtype
-        else:
-            dtype = type(initializer)
-
         self.reset()
 
-        super().__init__(numpy.shape(initializer), dtype, roots=[self])
+        super().__init__(numpy.shape(self.value), self.value.dtype if hasattr(self.value, 'dtype') else type(self.value), roots=[self])
 
 
     def reset(self):

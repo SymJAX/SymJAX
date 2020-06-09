@@ -16,14 +16,14 @@ from .base import (
         op)
 
 
-from . import datasets
+from . import data
 from . import tensor
 from . import losses
-from . import utils
 from . import initializers
 from . import layers
 from . import optimizers
 from . import schedules
+from . import viz
 
 
 _current_scope = '/'

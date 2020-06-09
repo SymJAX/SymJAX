@@ -116,7 +116,7 @@ class Layer(T.Tensor):
 
 
 class Identity(Layer):
-
+    name = 'Identity'
     def __init__(self, input_or_shape):
 
         self.init_input(input_or_shape)
@@ -127,7 +127,7 @@ class Identity(Layer):
 
 
 class Upsample1D(Layer):
-
+    name = 'Upsample1D'
     def __init__(self, input_or_shape, repeat, axis=-1, mode='constant',
                  value=0.):
 
@@ -144,7 +144,7 @@ class Upsample1D(Layer):
 
 
 class Upsample2D(Layer):
-
+    name = 'Upsample2D'
     def __init__(self, input_or_shape, repeat, axis, mode='constant',
                  value=0.):
 
@@ -164,7 +164,7 @@ class Upsample2D(Layer):
 
 
 class Reshape(Layer):
-
+    name = 'Reshape'
     def __init__(self, input_or_shape, shape):
 
         self.init_input(input_or_shape)
@@ -176,7 +176,7 @@ class Reshape(Layer):
 
 
 class Upsample(Layer):
-
+    name = 'Upsample'
     def __init__(self, input_or_shape, factors):
 
         self.init_input(input_or_shape)
@@ -193,6 +193,7 @@ class Lambda(Layer):
 
     applies a function (such as activation function) onto the input.
     """
+    name = 'Lambda'
     def __init__(self, input_or_shape, fn):
 
         self.init_input(input_or_shape)
@@ -209,6 +210,7 @@ class Dense(Layer):
     perform a dense matrix multiplication and bias shifting of the
     input
     """
+    name = 'Dense'
     def __init__(self, input_or_shape, units, W=initializers.he,
                  b=numpy.zeros, trainable_W=True, trainable_b=True):
 
@@ -234,6 +236,7 @@ class Conv1D(Layer):
     """1-D (time) convolution
 
     """
+    name = 'Conv1D'
     def __init__(self, input_or_shape, n_filters, filter_length,
                  W=initializers.he, b=numpy.zeros,
                  stride=1, pad='VALID', trainable_W=True, trainable_b=True,
@@ -267,6 +270,7 @@ class Conv2DTranspose(Layer):
     """2-D (spatial) convolution
 
     """
+    name = 'Conv2DTranspose'
     def __init__(self, input_or_shape, n_filters, filter_shape, pad='VALID',
                  strides=1, W=initializers.he, b=numpy.zeros,
                  trainable_W=True, trainable_b=True, transpose_W=True,
@@ -298,6 +302,7 @@ class Conv2D(Layer):
     """2-D (spatial) convolution
 
     """
+    name = 'Conv2D'
     def __init__(self, input_or_shape, n_filters, filter_shape, pad='VALID',
                  strides=1, W=initializers.he, b=numpy.zeros,
                  trainable_W=True, trainable_b=True,
@@ -330,6 +335,7 @@ class Pool1D(Layer):
     """2-D (spatial) pooling
 
     """
+    name = 'Pool1D'
     def __init__(self, input_or_shape, pool_shape, pool_type='MAX',
                  strides=None):
 
@@ -352,6 +358,7 @@ class Pool2D(Layer):
     """2-D (spatial) pooling
 
     """
+    name = 'Pool2D'
     def __init__(self, input_or_shape, pool_shape, pool_type='MAX',
                  strides=None):
 
@@ -398,7 +405,7 @@ class Dropout(Layer):
     output: the layer output
 
     """
-
+    name = 'Dropout'
     def __init__(self, input_or_shape, p, deterministic, seed=None):
 
         self.init_input(input_or_shape)
@@ -449,7 +456,7 @@ class RandomFlip(Layer):
 
     output: the output tensor which containts the internal variables
     """
-    
+    name = 'RandomFlip'
     def __init__(self, input_or_shape, p, axis, deterministic, seed=None):
 
         self.init_input(input_or_shape)
@@ -509,7 +516,7 @@ class RandomCrop(Layer):
     output: the output tensor which containts the internal variables
 
     """
-
+    name = 'RandomCrop'
     def __init__(self, input_or_shape, crop_shape, deterministic, padding=0,                 seed=None):
 
         self.init_input(input_or_shape)
@@ -611,6 +618,7 @@ class BatchNormalization(Layer):
     output: the layer output with attributes given by the layer options
 
     """
+    name = 'BatchNormalization'
     def __init__(self, input_or_shape, axis, deterministic, const=0.001,
                  beta1=0.99, beta2=0.99, W=numpy.ones, b=numpy.zeros,
                  trainable_W=True, trainable_b=True):
