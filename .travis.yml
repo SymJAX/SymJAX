@@ -12,7 +12,7 @@ before_install:
   - conda update --yes conda
   - conda config --add channels conda-forge
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION pip six protobuf>=3.6.0 absl-py opt_einsum numpy scipy fastcache
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION pip six protobuf>=3.6.0 absl-py opt_einsum numpy scipy fastcache pygraphviz
   - pip install pytest
   - pip install -r requirements.txt
   - pip install symjax
