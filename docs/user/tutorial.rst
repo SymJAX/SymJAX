@@ -31,7 +31,7 @@ Similarly to Theano, it is possible to display the computational graph of the co
 .. literalinclude:: ../../examples/viz_graph.py
 
 
-.. plot:: ../examples/viz_graph.py
+.. image:: ../img/file.png
 
 
 Clone: one line multipurpose graph replacement
