@@ -29,6 +29,8 @@ Contents
   user/installation
   user/tutorial
   user/examples
+  auto_examples/index
+  user/developers
 
 API
 ===

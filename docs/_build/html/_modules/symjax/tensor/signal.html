@@ -35,6 +35,9 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -87,6 +90,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/developers.html">Developers’ guide</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -169,8 +174,8 @@
 <span class="kn">import</span> <span class="nn">jax.lax</span> <span class="k">as</span> <span class="nn">jla</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">tensor</span> <span class="k">as</span> <span class="n">T</span>
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Op</span><span class="p">,</span> <span class="n">jax_wrap</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">tensor</span> <span class="k">as</span> <span class="n">T</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">Op</span><span class="p">,</span> <span class="n">jax_wrap</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
 
@@ -184,7 +189,8 @@
 
 <span class="n">module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">]</span>
 <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
-    <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">doc_func</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">])})</span>
+    <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">doc_func</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">])})</span>
 
 <span class="c1"># Add the fft functions into signal</span>
 
@@ -194,7 +200,6 @@
 <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
     <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
         <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">doc_func</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">])})</span>
-
 
 
 <span class="c1"># Add some utility functions</span>
@@ -216,11 +221,9 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">freqs</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
-    <span class="n">envelop</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">-</span> <span class="n">centers</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>  <span class="o">*</span> <span class="n">bandwidths</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">envelop</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">-</span> <span class="n">centers</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">bandwidths</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
     <span class="n">H</span> <span class="o">=</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&lt;=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">envelop</span> <span class="o">*</span> <span class="n">H</span>
-
-
 
 
 <span class="k">def</span> <span class="nf">complex_morlet</span><span class="p">(</span><span class="n">bandwidths</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -231,7 +234,7 @@
 <span class="sd">        \phi(t) = \frac{1}{\pi B} e^{-\frac{t^2}{B}}e^{j2\pi C t}</span>
 
 <span class="sd">    For a filter bank do</span>
-<span class="sd">    </span>
+
 <span class="sd">    J = 8</span>
 <span class="sd">    Q = 1</span>
 <span class="sd">    scales = T.power(2,T.linspace(0, J, J*Q))</span>
@@ -259,10 +262,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">B</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">bandwidths</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">time</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">B</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="n">B</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">get</span><span class="p">()))</span><span class="c1">#, int(B.get()) // 2 + 1)</span>
+        <span class="c1"># , int(B.get()) // 2 + 1)</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">B</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="n">B</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">B</span><span class="p">)))</span>
     <span class="n">envelop</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="p">(</span><span class="n">time</span> <span class="o">/</span> <span class="n">bandwidths</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
     <span class="n">wave</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">centers</span> <span class="o">*</span> <span class="n">time</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">envelop</span> <span class="o">*</span> <span class="n">wave</span>
+
 
 <span class="k">def</span> <span class="nf">littewood_paley_normalization</span><span class="p">(</span><span class="n">filter_bank</span><span class="p">,</span> <span class="n">down</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">up</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">lp</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">filter_bank</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -271,7 +276,6 @@
     <span class="n">up</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="ow">or</span> <span class="n">up</span>
     <span class="n">lp</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">freq</span> <span class="o">&gt;=</span> <span class="n">down</span><span class="p">,</span> <span class="n">freq</span> <span class="o">&lt;=</span> <span class="n">up</span><span class="p">),</span> <span class="n">lp</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">filter_bank</span> <span class="o">/</span> <span class="n">lp</span>
-
 
 
 <span class="k">def</span> <span class="nf">tukey</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
@@ -299,21 +303,20 @@
 <span class="sd">    .. [2] Wikipedia, &quot;Window function&quot;,</span>
 <span class="sd">           https://en.wikipedia.org/wiki/Window_function#Tukey_window</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">n</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
-    <span class="n">width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">alpha</span><span class="o">*</span><span class="p">(</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span><span class="p">))</span>
-    <span class="n">n1</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">width</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">n2</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="n">width</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">M</span><span class="o">-</span><span class="n">width</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">n3</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="n">M</span><span class="o">-</span><span class="n">width</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">))</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">width</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">n2</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="n">width</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span><span class="n">M</span> <span class="o">-</span> <span class="n">width</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">n3</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="n">M</span> <span class="o">-</span> <span class="n">width</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:]</span>
 
-    <span class="n">w1</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">T</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">n1</span><span class="o">/</span><span class="n">alpha</span><span class="o">/</span><span class="p">(</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">))))</span>
+    <span class="n">w1</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">T</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">n1</span> <span class="o">/</span> <span class="n">alpha</span> <span class="o">/</span> <span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))))</span>
     <span class="n">w2</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n2</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-    <span class="n">w3</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">T</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mf">2.0</span><span class="o">/</span><span class="n">alpha</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">n3</span><span class="o">/</span><span class="n">alpha</span><span class="o">/</span><span class="p">(</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">))))</span>
+    <span class="n">w3</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> \
+        <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">T</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mf">2.0</span> <span class="o">/</span> <span class="n">alpha</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">n3</span> <span class="o">/</span> <span class="n">alpha</span> <span class="o">/</span> <span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))))</span>
 
     <span class="n">w</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">w1</span><span class="p">,</span> <span class="n">w2</span><span class="p">,</span> <span class="n">w3</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">w</span>
-
 
 
 <span class="k">def</span> <span class="nf">morlet</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
@@ -356,7 +359,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">limit</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">limit</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span>
-    <span class="n">sine</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">T</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">sine</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">T</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
     <span class="n">envelop</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
 
     <span class="c1"># apply correction term for admissibility</span>
@@ -415,10 +418,9 @@
 
 
 <span class="k">def</span> <span class="nf">power_to_db</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">amin</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">top_db</span><span class="o">=</span><span class="mf">80.0</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    https://librosa.github.io/librosa/_modules/librosa/core/spectrum.html#power_to_db</span>
-<span class="sd">    Convert a power spectrogram (amplitude squared) to decibel (dB) units</span>
+    <span class="sd">&quot;&quot;&quot;Convert a power spectrogram (amplitude squared) to decibel (dB) units.</span>
 
+<span class="sd">    https://librosa.github.io/librosa/_modules/librosa/core/spectrum.html#power_to_db.</span>
 <span class="sd">    This computes the scaling ``10 * log10(S / ref)`` in a numerically</span>
 <span class="sd">    stable way.</span>
 
@@ -545,7 +547,7 @@
     <span class="n">p</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">extract_signal_patches</span><span class="p">(</span>
         <span class="n">psignal</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">hop</span><span class="p">)</span> <span class="o">*</span> <span class="n">apodization</span>
     <span class="k">assert</span> <span class="n">nfft</span> <span class="o">&gt;=</span> <span class="n">window</span>
-    <span class="n">pp</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">nfft</span><span class="o">-</span><span class="n">window</span><span class="p">]])</span>
+    <span class="n">pp</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">nfft</span> <span class="o">-</span> <span class="n">window</span><span class="p">]])</span>
     <span class="n">S</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">S</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">nfft</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))]</span><span class="o">.</span><span class="n">transpose</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 
@@ -593,7 +595,7 @@
 
     <span class="c1"># extract vertical (freq) partches to perform auto correlation</span>
     <span class="n">patches</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">extract_image_patches</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">L</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-                                      <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># (N C F&#39; T L)</span>
+                                      <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># (N C F&#39; T L)</span>
     <span class="n">output</span> <span class="o">=</span> <span class="p">(</span><span class="n">patches</span> <span class="o">*</span> <span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">patches</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">mask</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">T</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></div>
 
@@ -684,18 +686,18 @@
     <span class="n">mag</span> <span class="o">=</span> <span class="p">((</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">D</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">D</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]))</span>
 
     <span class="c1"># Compute phase advance</span>
-    <span class="n">dphase</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">D</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">D</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">phi_advance</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">])</span>
+    <span class="n">dphase</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">D</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])</span> <span class="o">-</span>
+              <span class="n">numpy</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">D</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">phi_advance</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">])</span>
     <span class="c1"># Wrap to -pi:pi range</span>
     <span class="n">dphase</span> <span class="o">=</span> <span class="n">dphase</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">dphase</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
 
     <span class="c1"># Phase accumulator; initialize to the first sample</span>
     <span class="n">phase_acc</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">numpy</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">D</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]]),</span>
-                                <span class="n">T</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">phi_advance</span> <span class="o">+</span> <span class="n">dphase</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="mi">1</span><span class="p">)</span>
-    
+                               <span class="n">T</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">phi_advance</span> <span class="o">+</span> <span class="n">dphase</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="mi">1</span><span class="p">)</span>
+
     <span class="n">d_stretch</span> <span class="o">=</span> <span class="n">mag</span> <span class="o">*</span> <span class="n">T</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phase_acc</span><span class="p">),</span> <span class="n">T</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phase_acc</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">d_stretch</span>
-
 
 
 <span class="k">def</span> <span class="nf">istft</span><span class="p">(</span><span class="n">stft_matrix</span><span class="p">,</span> <span class="n">hop_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">win_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="s1">&#39;hann&#39;</span><span class="p">,</span>
@@ -860,6 +862,7 @@
 
     <span class="k">return</span> <span class="n">y</span>
 
+
 <div class="viewcode-block" id="hilbert_transform"><a class="viewcode-back" href="../../../modules/signal.html#symjax.tensor.signal.hilbert_transform">[docs]</a><span class="k">def</span> <span class="nf">hilbert_transform</span><span class="p">(</span><span class="n">signal</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    the time should be the last dimension</span>
@@ -867,7 +870,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">heavyside</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">M</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">mask</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">index_add</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">M</span><span class="p">),</span> <span class="n">T</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">M</span><span class="o">//</span><span class="mi">2</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">index_add</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">M</span><span class="p">),</span> <span class="n">T</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="n">M</span> <span class="o">//</span> <span class="mi">2</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">T</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span> <span class="o">*</span> <span class="n">mask</span> <span class="o">*</span> <span class="n">heavyside</span><span class="p">)</span></div>
 </pre></div>
 

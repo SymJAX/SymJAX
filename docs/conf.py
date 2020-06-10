@@ -19,10 +19,11 @@ sys.path.insert(0, os.path.abspath('.'))
 sys.setrecursionlimit(1500)
 import mock
 
+from sphinx_gallery.scrapers import matplotlib_scraper
+
 MOCK_MODULES = ['soundfile']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
-
 
 
 # Project information
@@ -51,7 +52,26 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.coverage',
     'sphinx.ext.autosummary',
-    'sphinx_execute_code']
+    "sphinx_gallery.gen_gallery"]
+
+# matplotlib svg rendering
+class MatplotlibSVG(object):
+    """Render images with SVG format."""
+
+    def __repr__(self):
+        """Let matplotlib know the classname."""
+        return self.__class__.__name__
+
+    def __call__(self, *args, **kwargs):
+        """Return image with SVG format."""
+        return matplotlib_scraper(*args, format="svg", **kwargs)
+
+# gallery options
+sphinx_gallery_conf = {
+    "examples_dirs": "../gallery",
+    "gallery_dirs": "auto_examples",
+    "image_scrapers": (MatplotlibSVG(),),
+}
 
 # See https://github.com/rtfd/readthedocs.org/issues/283
 mathjax_path = (

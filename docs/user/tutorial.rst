@@ -19,7 +19,7 @@ speed. In fact, knowing the graph (nodes, connections, shapes, types, constant
 values) is enough to produce an highly optimized executable of this graph. In
 SymJAX this is done via  symjax.function as demonstrated below:
 
-.. execute_code:: ../../examples/function.py
+.. literalinclude:: ../../examples/function.py
 
 
 Graph visualization

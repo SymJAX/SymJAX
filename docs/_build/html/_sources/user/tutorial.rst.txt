@@ -66,7 +66,7 @@ Graph Saving and Loading
 An important feature of SymJAX is the easiness to reset, save, load variables.
 This is crucial in order to save a model and being to reloaded (in a possibly
 different script) to keep using it. In our case, a computational graph is
-completely defined by its structure and the values of the persistent nodes 
+completely defined by its structure and the values of the persistent nodes
 (the variables). Hence, it is enough to save the variables. This is done in a
 very explicit manner using the numpy.savez utility where the saved file can
 be accessed from any other script, variables can be loaded, accessed, even
