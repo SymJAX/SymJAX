@@ -93,3 +93,4 @@ uritemplate==3.0.1
 urllib3==1.25.9
 wcwidth==0.1.7
 yfinance==0.1.54
+sphinx-execute-code==0.2a2
