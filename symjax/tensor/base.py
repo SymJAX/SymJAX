@@ -437,7 +437,8 @@ def wrap_class(c, method_exceptions=None):
             attr_after = instance.__dict__.keys()
 
             news = [i for i in attr_after if i not in attr_before]
-            
+            news = [n for n in news if isinstance(instance.__dict__[n], jax.interpreters.xla.DeviceArray)]
+
             # this function maps the class inputs to the creator generated
             # class attributes
             def function(*args,**kwargs):
@@ -453,11 +454,10 @@ def wrap_class(c, method_exceptions=None):
             # we also have to wrap all the methods
             method_exceptions = cls._method_exceptions or []
             for att in dir(instance):
-                if att[:2] == '__':
+                if att[:2] == '__' or att in method_exceptions:
                     continue
-                if callable(getattr(instance, att)) and att not in method_exceptions:
+                if callable(getattr(instance, att)):
                     setattr(obj, att, jax_wrap(getattr(instance, att)))
-
             return obj
         
         def __init__(self, *args, **kwargs):
@@ -699,7 +699,7 @@ class Placeholder(Tensor):
         super().__init__(shape, dtype, roots=[self])
 
     def __repr__(self):
-        return '(Placeholder: ' + self.name + 'dtype=' + str(self.dtype) + \
+        return '(Placeholder: ' + self.name + ', dtype=' + str(self.dtype) + \
                ', shape=' + str(self.shape) + ')'
 
     def _get(self, tracker, givens, branches):

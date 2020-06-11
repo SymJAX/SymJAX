@@ -7,7 +7,6 @@ import jax.numpy as jnp
 
 __author__      = "Randall Balestriero"
 
-
 class product:
 
     def __init__(self, W, V=1):
