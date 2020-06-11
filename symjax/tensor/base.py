@@ -290,7 +290,7 @@ def update_numpydoc(docstr, fun, op):
     parameters = '\n'.join(param_list).replace('@@', '\n    ')
     return docstr[:begin_idx + 1] + parameters + docstr[end_idx - 2:]
 
-def jax_wrap(func, insert_default_kwargs=True, doc_func=None):
+def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
     if doc_func is None:
         doc_func=func
 
@@ -409,6 +409,68 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None):
 
 
 
+
+def wrap_class(c, method_exceptions=None):
+
+    class meta:
+        def __new__(cls, *args, **kwargs):
+            
+            # the first part consists into reexpressing any possible symjax
+            # input into a jax one to first evaluate the class creator and
+            # derive from its the equivalent symjax computational graph that
+            # would produce the same class attributes
+            new_args = []
+            new_kwargs = {}
+            for i in range(len(args)):
+                if isinstance(args[i], Tensor):
+                    new_args.append(jnp.zeros(args[i].shape, dtype=args[i].dtype))
+                else:
+                    new_args.append(args[i])
+            for i in kwargs:
+                if isinstance(kwargs[i], Tensor):
+                    new_kwargs[i] = jnp.zeros(kwargs[i].shape, dtype=kwargs[i].dtype)
+                else:
+                    new_kwargs[i] = kwargs[i]
+
+            # now we check which attributes were added during the class
+            # creation, those are the ones that will have to be obtained from
+            # a symjax computational graph based on the class inputs
+            attr_before = c.__dict__.keys()
+            instance = c(*new_args, **new_kwargs)
+            attr_after = instance.__dict__.keys()
+
+            news = [i for i in attr_after if i not in attr_before]
+            
+            # this function maps the class inputs to the creator generated
+            # class attributes
+            def function(*args,**kwargs):
+                return [instance.__dict__[n] for n in news]
+
+            init_op = jax_wrap(function)
+
+            # we now allow our normal class creation to proceed
+            obj = super().__new__(cls)
+            obj._init_op = init_op
+            obj._news = news
+
+            # we also have to wrap all the methods
+            method_exceptions = cls._method_exceptions or []
+            for att in dir(instance):
+                if att[:2] == '__':
+                    continue
+                if callable(getattr(instance, att)) and att not in method_exceptions:
+                    setattr(obj, att, jax_wrap(getattr(instance, att)))
+
+            return obj
+        
+        def __init__(self, *args, **kwargs):
+            attrs = self._init_op(*args, **kwargs)
+            for n, a in zip(self._news, attrs):
+                self.__dict__[n] = a
+
+    meta._method_exceptions = method_exceptions
+
+    return meta
 
 
 
