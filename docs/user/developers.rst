@@ -5,7 +5,7 @@ Development
   :hidden:
 
 The SymJAX project was started by Randall Balestriero in early 2020.
-As an open-source project, we highly welcome contributions (`current contributors: <https://github.com/Lasagne/Lasagne/graphs/contributors>`_) ! If you are willing to help, we recommand to follow the following steps before requesting a pull request
+As an open-source project, we highly welcome contributions (`current contributors <https://github.com/RandallBalestriero/SymJAX/graphs/contributors>`_) ! If you are willing to help, we recommand to follow the following steps before requesting a pull request
 
 
 Philosophy
@@ -34,5 +34,4 @@ If you are willing to help, we recommand to follow the following steps before re
 #. **Testing your code**: please ensure that your code passes the benchmark tests by running ``pytest`` in the repository root.
 
 #. **Pull requests**: once all the tests pass and the documentation is appropriate, commit your changes to a new branch, push
-that branch to your fork and send us a Pull Request via GitHub's web interface (`guide <
-https://guides.github.com/introduction/flow/>`_), the PR should include a brief description.
+that branch to your fork and send us a Pull Request via GitHub's web interface (`guide <https://guides.github.com/introduction/flow/>`_), the PR should include a brief description.
