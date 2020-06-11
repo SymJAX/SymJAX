@@ -9,9 +9,6 @@ from functools import wraps
 import re
 from copy import deepcopy
 import symjax
-#from ..base import gradients
-#print(base.gradient)
-#asdf
 
 def _add_method(cls):
     # important we keep the self inside the function call !
@@ -582,11 +579,12 @@ class Tuple(tuple):
                  for i, (shape, dtype) in enumerate(zip(_shapes, _dtypes))]
         return super(Tuple, cls).__new__(cls, tuple(items))
 
-    def __init__(self, *args, _jax_function, _shapes, _dtypes, **kwargs):
+    def __init__(self, *args, _jax_function, _shapes, _dtypes, name, **kwargs):
 
         self.args = args
         self.kwargs = kwargs
         self.jax_function = _jax_function
+        self.name = name
 
         # set the parent link with the inside items and set the roots too
         for item in self:
@@ -599,7 +597,6 @@ class Tuple(tuple):
         args = [get(var, tracker, givens, branches) for var in self.args]
         kwargs = dict([(name, get(var, tracker, givens, branches))
                             for name, var in self.kwargs.items()])
-
         return tuple(self.jax_function(*args, **kwargs))
 
 
