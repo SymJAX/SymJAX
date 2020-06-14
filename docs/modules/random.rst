@@ -12,7 +12,7 @@
    gamma
    gumbel
    laplace
-   logit
+   logistic
    multivariate_normal
    normal
    pareto
@@ -33,7 +33,7 @@ Detailed Description
 .. autofunction:: gamma
 .. autofunction:: gumbel
 .. autofunction:: laplace
-.. autofunction:: logit
+.. autofunction:: logistic
 .. autofunction:: multivariate_normal
 .. autofunction:: normal
 .. autofunction:: pareto
