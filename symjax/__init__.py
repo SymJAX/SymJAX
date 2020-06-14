@@ -9,8 +9,8 @@ from .base import (
         gradients,
         jacobians,
         reset_variables,
-        save,
-        load,
+        save_variables,
+        load_variables,
         get_variables,
         get_placeholders,
         get_ops)

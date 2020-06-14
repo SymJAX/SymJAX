@@ -158,7 +158,7 @@ def reset_variables(name='*', trainable=None):
         symjax._variables[m].reset()
 
 
-def save(name, path):
+def save_variables(name, path):
     """Save graph."""
     matched = fnmatch.filter(symjax._variables.keys(), name)
     numpy.savez(path, **dict(
