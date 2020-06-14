@@ -18,12 +18,6 @@ jobs:
         include:
           - python-version: 3.6
             os: ubuntu-latest
-            enable-x64: disable-x64
-            num_generated_cases: 25
-          - python-version: 3.7
-            os: ubuntu-latest
-            enable-x64: enable-x64
-            num_generated_cases: 25
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -35,10 +29,9 @@ jobs:
         sudo apt-get install python-pygraph python-pygraphviz
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install -e .
     - name: Run tests
       run: |
-        [ ${{ matrix.enable-x64 }} = enable-x64 ] && JAX_ENABLE_X64=1 || JAX_ENABLE_X64=0
-        pip install -e .
         pytest
 
 
