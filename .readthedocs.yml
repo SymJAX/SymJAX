@@ -17,8 +17,7 @@ formats:
 python:
   version: 3.6
   install:
+    - requirements: requirements.txt
+    - requirements: docs/requirements.txt
     - method: pip
       path: .
-      extra_requirements:
-        - docs/requirements.txt
-        - requirements.txt
