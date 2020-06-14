@@ -44,10 +44,9 @@ class Graph:
         else:
             symjax._current_scope = '/'
 
-    def save(self, path):
+    def save_variables(self, path):
         """Save graph."""
-        numpy.savez(path, **dict([(name, symjax.tensor.get(v))
-                                  for name, v in self.variables.items()]))
+        numpy.savez(path, **dict([(v.name, symjax.tensor.get(v)) for v in self.variables]))
 
     @property
     def variables(self):
@@ -66,7 +65,7 @@ class Graph:
         else:
             RuntimeError('Variable {name} not in graph {self.full_name}')
 
-    def load(self, path):
+    def load_variables(self, path):
 
         """Load graph."""
 
@@ -76,7 +75,7 @@ class Graph:
 
     def reset(self):
 
-        for var in self.variables.values():
+        for var in self.variables:
             var.reset()
 
     def add(self, tensor):
@@ -168,8 +167,11 @@ def save_variables(name, path):
 def load_variables(name, path_or_file, scope_mapping=None):
     """Load graph."""
 
-    if path[-4:] != '.npz':
-        path += '.npz'
+    if type(path_or_file) == str:
+        if path_or_file[-4:] != '.npz':
+            path_or_file += '.npz'
+
+    scope_mapping = scope_mapping or {}
 
     matched = fnmatch.filter(symjax._variables.keys(), name)
     data = numpy.load(path_or_file)

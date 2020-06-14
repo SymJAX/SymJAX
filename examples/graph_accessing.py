@@ -34,25 +34,25 @@ print(h.variable('w'))
 # now suppose that we did not hold the value for the graph g/h, we can still
 # recover a variable based on the name AND the scope
 
-print(symjax.variable('/special/inversion/w'))
+print(symjax.get_variables('/special/inversion/w'))
 # Variable(name=w, shape=(1,), dtype=float32, trainable=True, scope=/special/inversion/)
 
 # now if the exact scope name is not know, it is possible to use smart indexing
 # for example suppose we do not remember, then we can get all variables named
 # 'w' among scopes
 
-print(symjax.variable('*/w'))
+print(symjax.get_variables('*/w'))
 # Variable(name=w, shape=(1,), dtype=float32, trainable=True, scope=/special/inversion/)
 
 # if only part of the scope is known, all the variables of a given scope can
 # be retreived
 
-print(symjax.variable('/special/*'))
+print(symjax.get_variables('/special/*'))
 # [Variable(name=unnamed_variable, shape=(1,), dtype=float32, trainable=True, scope=/special/),
 #  Variable(name=unnamed_variable_1, shape=(1,), dtype=float32, trainable=True, scope=/special/),
 #  Variable(name=unnamed_variable, shape=(1,), dtype=float32, trainable=True, scope=/special/inversion/),
 #  Variable(name=unnamed_variable_1, shape=(1,), dtype=float32, trainable=True, scope=/special/inversion/),
 #  Variable(name=w, shape=(1,), dtype=float32, trainable=True, scope=/special/inversion/)]
 
-print(symjax.op('*add'))
+print(symjax.get_ops('*add'))
 # Op(name=add, shape=(1,), dtype=float32, scope=/special/)

@@ -32,9 +32,9 @@ for i in range(4):
 # either with g, as it contains all the variables
 g.reset()
 # or we can do
-symjax.reset('*')
+symjax.reset_variables('*')
 # or if we wanted to only reset say variables from layer2
-symjax.reset('*layer2*')
+symjax.reset_variables('*layer2*')
 
 # now that all has been reset, let's retrain for a while
 # pretend we train for a while
@@ -46,25 +46,25 @@ for i in range(2):
 
 # now resetting is nice, but we might want to save the model parameters, to
 # keep training later or do some other analyses. We can do so as follows:
-g.save('model1_saved')
+g.save_variables('model1_saved')
 # this would save all variables as they are contained in g. Now say we want to
 # only save the second layer variables, if we had saved the graph variables as
 # say h we could just do ``h.save('layer1_saved')''
 # but while we do not have it, we recall the scope of it, we can thus do
-symjax.save('*layer1*', 'layer1_saved')
+symjax.save_variables('*layer1*', 'layer1_saved')
 # and for the entire set of variables just do
-symjax.save('*', 'model1_saved')
+symjax.save_variables('*', 'model1_saved')
 
 # now suppose that after training or after resetting
-symjax.reset('*')
+symjax.reset_variables('*')
 
 #one wants to recover the saved weights, one can do
-symjax.load('*', 'model1_saved')
+symjax.load_variables('*', 'model1_saved')
 # in that case all variables will be reloaded as they were in model1_saved,
 # if we used symjax.load('*', 'layer1_saved'), an error would occur as not all
 # variables are present in this file, one should instead do
 # (in this case, this is redundant as we loaded everything up above)
-symjax.load('*layer1*', 'layer1_saved')
+symjax.load_variables('*layer1*', 'layer1_saved')
 
 # we can now pretend to keep training our model form its saved state
 for i in range(2):
