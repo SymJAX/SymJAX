@@ -1,8 +1,8 @@
-<div align="center">
-<img src="docs/img/symjax_logo.png" alt="logo"></img>
-</div>
 
-# SymJAX: symbolic CPU/GPU/TPU programming ![Build Status](https://github.com/RandallBalestriero/SymJAX/workflows/continuous-integration/badge.svg)
+![SymJAX logo](./docs/img/symjax_logo.png)
+
+
+# SymJAX: symbolic CPU/GPU/TPU programming ![Continuous integration](https://github.com/RandallBalestriero/SymJAX/workflows/Continuous%20integration/badge.svg?branch=master)
 
 This is an under-development research project, not an official product, expect bugs and sharp edges; please help by trying it out, reporting bugs.
 [**Reference docs**](https://symjax.readthedocs.io/en/latest/)
