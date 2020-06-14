@@ -336,8 +336,7 @@ class function:
 
     Based on given inputs, outputs and update policy of variables. This
     function internally jit compile the underlying jax computational
-    graph for performances and thus should be favored to the get
-    method of tensors.
+    graph for performances.
 
     Arguments
     ---------
@@ -354,9 +353,6 @@ class function:
         updates: Dict (optional)
             the dictionnary of updates as per {var:new_value} for any
             variable of the graph
-
-        device: ??
-            ??
 
         backend: 'cpu' or 'gpu'
             the backend to use to run the function on

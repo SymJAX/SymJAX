@@ -10,17 +10,20 @@ import re
 from copy import deepcopy
 import symjax
 
+
 def _add_method(cls):
     # important we keep the self inside the function call !
     def decorator(func, name=''):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             return func(self, *args, **kwargs)
+
         if name == '':
             setattr(cls, func.__name__, wrapper)
         else:
             setattr(cls, name, wrapper)
-        return func # returning func means func can still be used normally
+        return func  # returning func means func can still be used normally
+
     return decorator
 
 
@@ -99,7 +102,7 @@ def get(item, tracker=None, givens=None, branches=None):
             # computed one
             if item in tracker:
                 return tracker[item]
-            tracker[item]= item._get(tracker, {}, {})
+            tracker[item] = item._get(tracker, {}, {})
             return tracker[item]
 
         # otherwise we specialize
@@ -116,8 +119,6 @@ def get(item, tracker=None, givens=None, branches=None):
         return branches[item][name]
     else:
         return item
-
-
 
 
 def get_connected(item, parents, _minimal=None):
@@ -156,7 +157,6 @@ def get_connected(item, parents, _minimal=None):
     return _minimal
 
 
-
 def isvar(item):
     """ check whether an item (possibly a nested list etc) contains a variable
     (any subtype of Tensor) """
@@ -169,13 +169,12 @@ def isvar(item):
     # a callable
     else:
         cond1 = isinstance(item, Tensor)
-#        cond2 = isinstance(item, jax.interpreters.partial_eval.JaxprTracer)
+        #        cond2 = isinstance(item, jax.interpreters.partial_eval.JaxprTracer)
         cond3 = callable(item)
         return cond1 and not cond3  # (cond1 or cond2) and cond3
 
 
 class Tensor:
-    
     __array_priority__ = 1000
 
     def __init__(self, shape, dtype, roots=[], copyof=None, name=None):
@@ -193,7 +192,7 @@ class Tensor:
 
     def __repr__(self):
         return '(Tensor: name={}, shape={}, dtype={})'.format(self.name,
-                                                    self.shape, self.dtype)
+                                                              self.shape, self.dtype)
 
     def __str__(self):
         return self.__repr__()
@@ -232,7 +231,6 @@ class Tensor:
         else:
             return {}
 
-
     @property
     def shape(self):
         return self._shape
@@ -260,7 +258,7 @@ class Tensor:
                             name=self.name + '_clone')
         new_object._givens = givens
         return new_object
-    
+
     def _check_tracker(self, tracker):
         if tracker is None:
             return
@@ -268,39 +266,42 @@ class Tensor:
             if isinstance(tracker[i], Tensor):
                 RuntimeError("incorrect tracker value for {}".format(tracker[i]))
 
+
 _numpy_signature_re = re.compile(r'^([\w., ]+=)?\s*[\w\.]+\(.*\)$')
+
 
 def update_numpydoc(docstr, fun, op):
     '''Transforms the numpy docstring to remove references of
        parameters that are supported by the numpy version but not the JAX version'''
-  
-    #Some numpy functions have an extra tab at the beginning of each line,
-    #If this function is one of those we remove this extra tab from all the lines
+
+    # Some numpy functions have an extra tab at the beginning of each line,
+    # If this function is one of those we remove this extra tab from all the lines
     if not hasattr(op, '__code__'):
-      return docstr
+        return docstr
     if docstr[:4] == '    ':
-      lines = docstr.split('\n')
-      for idx, line in enumerate(lines):
-        lines[idx] = line.replace('    ', '', 1)
-      docstr = '\n'.join(lines)
-  
+        lines = docstr.split('\n')
+        for idx, line in enumerate(lines):
+            lines[idx] = line.replace('    ', '', 1)
+        docstr = '\n'.join(lines)
+
     begin_idx = docstr.find("Parameters")
     begin_idx = docstr.find("--\n", begin_idx) + 2
     end_idx = docstr.find("Returns", begin_idx)
-  
+
     parameters = docstr[begin_idx:end_idx]
     param_list = parameters.replace('\n    ', '@@').split('\n')
     for idx, p in enumerate(param_list):
-      param = p[:p.find(' : ')].split(", ")[0]
-      if param not in op.__code__.co_varnames:
-        param_list[idx] = ''
+        param = p[:p.find(' : ')].split(", ")[0]
+        if param not in op.__code__.co_varnames:
+            param_list[idx] = ''
     param_list = [param for param in param_list if param != '']
     parameters = '\n'.join(param_list).replace('@@', '\n    ')
     return docstr[:begin_idx + 1] + parameters + docstr[end_idx - 2:]
 
+
 def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
     if doc_func is None:
-        doc_func=func
+        doc_func = func
 
     @wraps(doc_func)
     def op(*args, seed=None, **kwargs):
@@ -311,14 +312,12 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
         from . import random
         random_func = func in random._RANDOM_FUNCTIONS
 
-
         # if there is a name we remove it for now to use the jax tracer
         if 'name' in kwargs:
             op_name = kwargs['name']
             del kwargs['name']
         else:
             op_name = None
-
 
         # we need to remove the static arguments first
         # we first do it for the kwars
@@ -384,45 +383,41 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
         else:
             shape, dtype = tree.shape, tree.dtype
             return Op(*args, _jax_function=func, _shape=shape, _dtype=dtype,
-                      name=op_name,**kwargs)
+                      name=op_name, **kwargs)
 
     if not hasattr(func, '__doc__') or func.__doc__ is None:
         return op
 
     if doc_func is not None:
         sections = func.__doc__.split("\n\n")
-    
+
         signatures = []
         summary = None
         for i in range(len(sections)):
-          if _numpy_signature_re.match(sections[i]):
-            signatures.append(sections[i])
-          else:
-            summary = sections[i].strip()
-            break
+            if _numpy_signature_re.match(sections[i]):
+                signatures.append(sections[i])
+            else:
+                summary = sections[i].strip()
+                break
         body = "\n\n".join(signatures + sections[i + 1:])
-        body = update_numpydoc(body, func , op)
+        body = update_numpydoc(body, func, op)
         desc = "ADDITION"
         docstr = (
             "{summary}\n\nLAX-backend implementation of :func:`{fun}`.\n"
             "{lax_description}Original docstring below.\n\n{body}"
-            .format(summary=summary, lax_description=desc,
-                    fun=func.__name__, body=body))
-    
+                .format(summary=summary, lax_description=desc,
+                        fun=func.__name__, body=body))
+
         op.__name__ = func.__name__
         op.__doc__ = docstr
 
     return op
 
 
-
-
-
 def wrap_class(c, method_exceptions=None):
-
     class meta:
         def __new__(cls, *args, **kwargs):
-            
+
             # the first part consists into reexpressing any possible symjax
             # input into a jax one to first evaluate the class creator and
             # derive from its the equivalent symjax computational graph that
@@ -452,7 +447,7 @@ def wrap_class(c, method_exceptions=None):
 
             # this function maps the class inputs to the creator generated
             # class attributes
-            def function(*args,**kwargs):
+            def function(*args, **kwargs):
                 return [instance.__dict__[n] for n in news]
 
             init_op = jax_wrap(function)
@@ -470,7 +465,7 @@ def wrap_class(c, method_exceptions=None):
                 if callable(getattr(instance, att)):
                     setattr(obj, att, jax_wrap(getattr(instance, att)))
             return obj
-        
+
         def __init__(self, *args, **kwargs):
             attrs = self._init_op(*args, **kwargs)
             for n, a in zip(self._news, attrs):
@@ -479,9 +474,6 @@ def wrap_class(c, method_exceptions=None):
     meta._method_exceptions = method_exceptions
 
     return meta
-
-
-
 
 
 class Op(Tensor):
@@ -495,14 +487,14 @@ class Op(Tensor):
         self._args = args
         self.jax_function = _jax_function
         # set roots
-        roots = list(set(getroots(list(kwargs.values())+ list(args)) + _roots))
+        roots = list(set(getroots(list(kwargs.values()) + list(args)) + _roots))
 
         super().__init__(_shape, _dtype, roots, name=name)
 
     def __repr__(self):
         name = 'Op(name={}, shape={}, dtype={}, scope={})'
         return name.format(self.name, self.shape, self.dtype,
-                            self.scope)
+                           self.scope)
 
     def __str__(self):
         return self.__repr__()
@@ -513,7 +505,7 @@ class Op(Tensor):
 
         # evaluate the function kwargs as explicit jax arrays
         kwargs = dict([(name, get(var, tracker, givens, branches))
-                        for name, var in self.kwargs.items()])
+                       for name, var in self.kwargs.items()])
         args = [get(var, tracker, givens) for var in self.args]
 
         if isinstance(self, RandomOp):
@@ -555,15 +547,13 @@ class RandomOp(Op):
     """
 
     def __init__(self, *args, _jax_function, _shape, _dtype, _seed, name, **kwargs):
-
         self._seed = _seed
         super().__init__(*args, _jax_function=_jax_function, _shape=_shape,
-                                _dtype=_dtype, name=name, **kwargs)
+                         _dtype=_dtype, name=name, **kwargs)
 
     def __repr__(self):
         name = 'RandomTensor(Op={}, shape={}, dtype={})'
         return name.format(self.name, self.shape, self.dtype)
-
 
 
 class TupleItem(Tensor):
@@ -577,19 +567,16 @@ class TupleItem(Tensor):
         return self._parent._get(tracker, givens, branches)[self._index]
 
 
-
 class Tuple(tuple):
 
     def __new__(cls, *args, _jax_function, _shapes, _dtypes, name, **kwargs):
-
-        roots = list(set(getroots(list(kwargs.values())+ list(args))))
+        roots = list(set(getroots(list(kwargs.values()) + list(args))))
         name = name or _jax_function.__name__
-        items = [TupleItem(shape, dtype, i, roots=roots, name= name + '[{}]'.format(i))
+        items = [TupleItem(shape, dtype, i, roots=roots, name=name + '[{}]'.format(i))
                  for i, (shape, dtype) in enumerate(zip(_shapes, _dtypes))]
         return super(Tuple, cls).__new__(cls, tuple(items))
 
     def __init__(self, *args, _jax_function, _shapes, _dtypes, name, **kwargs):
-
         self.args = args
         self.kwargs = kwargs
         self.jax_function = _jax_function
@@ -599,13 +586,11 @@ class Tuple(tuple):
         for item in self:
             item._parent = self
 
-
     def _get(self, tracker, givens, branches):
-
         # kwarg dictionnary
         args = [get(var, tracker, givens, branches) for var in self.args]
         kwargs = dict([(name, get(var, tracker, givens, branches))
-                            for name, var in self.kwargs.items()])
+                       for name, var in self.kwargs.items()])
         return tuple(self.jax_function(*args, **kwargs))
 
 
@@ -638,7 +623,7 @@ class Variable(Tensor):
     """
 
     def __init__(self, initializer, name='unnamed_variable', trainable=True, dtype=None):
-        
+
         self.trainable = trainable
         self.initializer = initializer
         self._dtype = dtype
@@ -646,9 +631,8 @@ class Variable(Tensor):
 
         super().__init__(numpy.shape(self.value), dtype, roots=[self], name=name)
 
-
     def reset(self):
-        
+
         """reset the value of the variable based on the initial one, whether
         it was an array or initializer. If it was a random initializer,
         nothing guarantees that the reset will give back the original value
@@ -673,13 +657,11 @@ class Variable(Tensor):
             self.reset()
         return self._value
 
-
     def update(self, update_value):
 
         """assign a new value for the variable"""
 
         self._value = get(update_value)
-
 
     def __repr__(self):
         name = 'Variable(name={}, shape={}, dtype={}, trainable={}, scope={})'
@@ -727,6 +709,7 @@ def placeholder_like(item, name=''):
     else:
         return Placeholder(item.shape, item.dtype, name=name)
 
+
 def match(l1, l2, output):
     if output is None:
         output = dict()
@@ -735,6 +718,7 @@ def match(l1, l2, output):
             match(a, b, output)
     else:
         output.update({l1: l2})
+
 
 def symjax_to_jax_fn(func):
     def newfn(*args, fn=func):
@@ -746,7 +730,9 @@ def symjax_to_jax_fn(func):
             del feed_dict[None]
         outputs = [o.get(feed_dict) if hasattr(o, 'get') else o for o in symjax_outputs]
         return outputs
+
     return newfn
+
 
 def clone(tensor, givens):
     return tensor.clone(givens)

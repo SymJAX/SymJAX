@@ -2,7 +2,7 @@ Development
 ===========
 
 .. toctree::
-  :hidden:
+   :hidden:
 
 The SymJAX project was started by Randall Balestriero in early 2020.
 As an open-source project, we highly welcome contributions (`current contributors <https://github.com/RandallBalestriero/SymJAX/graphs/contributors>`_) ! If you are willing to help, we recommand to follow the following steps before requesting a pull request
@@ -23,15 +23,49 @@ How to contribute
 -----------------
 
 
-If you are willing to help, we recommand to follow the following steps before requesting a pull request
+If you are willing to help, we recommend to follow the following steps before requesting a pull request. Recall that
 
 #. **Coding conventions**: we used the `PEP8 style guide for Python Code <https://www.python.org/dev/peps/pep-0008/>`_
 
 #. **Docstrings**: we used the `numpydoc docstring guide <https://numpydoc.readthedocs.io/en/latest/format.html>`_ for documenting the functions directly from the docstrings and automatically generating the documentation with `sphinx <https://www.sphinx-doc.org/en/master/>`_. Please provide codes with up-to-date docstrings.
 
-#. **Documentation build**: make sure than the documentation successfully builds by running ``make html`` inside the ``SymJAX/docs`` repository.
 
-#. **Testing your code**: please ensure that your code passes the benchmark tests by running ``pytest`` in the repository root.
+Build the doc
+'''''''''''''
 
-#. **Pull requests**: once all the tests pass and the documentation is appropriate, commit your changes to a new branch, push
-that branch to your fork and send us a Pull Request via GitHub's web interface (`guide <https://guides.github.com/introduction/flow/>`_), the PR should include a brief description.
+
+To rebuild the documentation, install several packages::
+
+  pip install -r docs/requirements.txt
+
+to generate the documentation, you can do in the ``docs`` directory and run::
+
+  make html
+
+You can then see the generated documentation in
+``docs/build/html/index.html``.
+
+Once the documentation has been changed and all is pushed to Github ``master`` branch the SymJAX
+documentations (at `symjax.readthedocs.io <https://symjax.readthedocs.io/>`_) is rebuilt based on
+the ``.readthedocs.yml`` and the ``docs/conf.py`` configuration files.
+For each automated documentation build you can see the
+`documentation build logs <https://readthedocs.org/projects/symjax/builds/>`_.
+
+Test the code
+'''''''''''''
+
+
+To run all the SymJAX tests, we recommend using ``pytest-xdist``. First, install ``pytest-xdist`` and ``pytest-benchmark`` by running
+``pip install pytest-xdist pytest-benchmark``.
+Then, from the repository root directory run::
+
+    pytest
+
+If all tests pass successfully, the code is ready for a PR.
+
+Push requests
+'''''''''''''
+
+Once all the tests pass and the documentation is appropriate, commit your changes to a new branch, push
+that branch to your fork and send us a Pull Request via GitHub's web interface
+(`guide <https://guides.github.com/introduction/flow/>`_), the PR should include a brief description.

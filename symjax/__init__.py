@@ -23,7 +23,6 @@ from . import initializers
 from . import layers
 from . import optimizers
 from . import schedules
-from . import viz
 
 
 _current_scope = '/'
