@@ -133,18 +133,19 @@ def reset_variables(name='*', trainable=None):
     Example
     -------
 
-    .. runblock:: pycon
+    .. doctest::
 
         >>> import symjax
-        >>> w = symjax.tensor.Variable(1., name='w')
-        >>> x = symjax.tensor.Variable(2., name='x')
-        >>> f = symjax.function(outputs=[w, x], updates={w:w+1,x:x+1})
+        >>> import logging
+        >>> w = symjax.tensor.Variable(1., name='w', dtype='float32')
+        >>> x = symjax.tensor.Variable(2., name='x', dtype='float32')
+        >>> f = symjax.function(outputs=[w, x], updates={w:w + 1,x:x + 1})
         >>> for i in range(10):
-        ...    print(f())
+        ...    f()
+        >>> # reset only the w variable
         >>> symjax.reset_variables('w')
-        >>> print(f())
+        >>> # reset all variables
         >>> symjax.reset_variables('*')
-        >>> print(f())
 
     """
 
@@ -165,16 +166,22 @@ def save(name, path):
          matched]))
 
 
-def load(name, path):
+def load_variables(name, path_or_file, scope_mapping=None):
     """Load graph."""
 
     if path[-4:] != '.npz':
         path += '.npz'
 
     matched = fnmatch.filter(symjax._variables.keys(), name)
-    data = numpy.load(path)
-    for name, value in data.items():
-        symjax._variables[name].update(value)
+    data = numpy.load(path_or_file)
+    for name in matched:
+        if symjax._variables[name].scope in scope_mapping:
+            name_in_file = scope_mapping[symjax._variables[name].scope] + '/' + symjax._variables[name].name
+        else:
+            name_in_file = name
+        if name_in_file not in data:
+            raise Warning('{} not in loaded file'.format(name_in_file))
+        symjax._variables[name].update(data[name_in_file])
 
 
 def get_variables(name, trainable=None):
@@ -183,10 +190,6 @@ def get_variables(name, trainable=None):
         assert type(trainable) == bool
         matched = [m for m in matched
                    if symjax._variables[m].trainable == trainable]
-    if len(matched) == 1:
-        return symjax._variables[matched[0]]
-    elif len(matched) == 0:
-        return None
     return [symjax._variables[m] for m in matched]
 
 
@@ -196,10 +199,6 @@ def get_placeholders(name):
     """
 
     matched = fnmatch.filter(symjax._placeholders.keys(), name)
-    if len(matched) == 1:
-        return symjax._placeholder[matched[0]]
-    elif len(matched) == 0:
-        return None
     return [symjax._placeholders[m] for m in matched]
 
 
@@ -209,10 +208,15 @@ def get_ops(name):
     """
 
     matched = fnmatch.filter(symjax._ops.keys(), name)
-    if len(matched) == 1:
-        return symjax._ops[matched[0]]
-    elif len(matched) == 0:
-        return None
+    return [symjax._ops[m] for m in matched]
+
+
+def get_updates(name):
+    """
+    Same as symjax.get_variables but for updates
+    """
+
+    matched = fnmatch.filter(symjax._updates.keys(), name)
     return [symjax._ops[m] for m in matched]
 
 

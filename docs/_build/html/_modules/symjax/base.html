@@ -185,7 +185,6 @@
 <span class="kn">from</span> <span class="nn">jax</span> <span class="k">import</span> <span class="n">jacfwd</span><span class="p">,</span> <span class="n">jacrev</span>
 
 
-
 <span class="k">def</span> <span class="nf">current_graph</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Current graph.&quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="p">)</span>
@@ -198,7 +197,6 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;Constructor.&quot;&quot;&quot;</span>
-        
 
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="o">=</span> <span class="kc">None</span>
@@ -206,7 +204,7 @@
     <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set global variables.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
-            <span class="n">symjax</span><span class="o">.</span><span class="n">_current_scope</span> <span class="o">+=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
+            <span class="n">symjax</span><span class="o">.</span><span class="n">_current_scope</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_current_scope</span>
         <span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -226,7 +224,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span><span class="p">)</span>
-        
+
     <span class="k">def</span> <span class="nf">variable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 
         <span class="c1"># check if the name for given relative or full</span>
@@ -241,7 +239,7 @@
             <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Variable </span><span class="si">{name}</span><span class="s1"> not in graph </span><span class="si">{self.full_name}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        
+
         <span class="sd">&quot;&quot;&quot;Load graph.&quot;&quot;&quot;</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -267,7 +265,7 @@
             <span class="n">names</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">names</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_ops</span>
-        <span class="c1">#print(&#39;in add&#39;, names)</span>
+        <span class="c1"># print(&#39;in add&#39;, names)</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">names</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tensor</span>
             <span class="k">return</span>
@@ -307,18 +305,18 @@
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
 
-<span class="sd">    .. runblock:: pycon</span>
+<span class="sd">    .. doctest::</span>
 
 <span class="sd">        &gt;&gt;&gt; import symjax</span>
-<span class="sd">        &gt;&gt;&gt; w = symjax.tensor.Variable(1., name=&#39;w&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; x = symjax.tensor.Variable(2., name=&#39;x&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; f = symjax.function(outputs=[w, x], updates={w:w+1,x:x+1})</span>
+<span class="sd">        &gt;&gt;&gt; import logging</span>
+<span class="sd">        &gt;&gt;&gt; w = symjax.tensor.Variable(1., name=&#39;w&#39;, dtype=&#39;float32&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; x = symjax.tensor.Variable(2., name=&#39;x&#39;, dtype=&#39;float32&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; f = symjax.function(outputs=[w, x], updates={w:w + 1,x:x + 1})</span>
 <span class="sd">        &gt;&gt;&gt; for i in range(10):</span>
-<span class="sd">        ...    print(f())</span>
+<span class="sd">        ...    f()</span>
+<span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; symjax.reset_variables(&#39;w&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; print(f())</span>
 <span class="sd">        &gt;&gt;&gt; symjax.reset_variables(&#39;*&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; print(f())</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -334,11 +332,12 @@
 <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Save graph.&quot;&quot;&quot;</span>
     <span class="n">matched</span> <span class="o">=</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
-    <span class="n">numpy</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="nb">dict</span><span class="p">([(</span><span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">scope</span> <span class="o">+</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">v</span><span class="p">]))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">]))</span>
+    <span class="n">numpy</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="p">[(</span><span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">scope</span> <span class="o">+</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">v</span><span class="p">]))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span>
+         <span class="n">matched</span><span class="p">]))</span>
 
 
 <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        
     <span class="sd">&quot;&quot;&quot;Load graph.&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">!=</span> <span class="s1">&#39;.npz&#39;</span><span class="p">:</span>
@@ -350,25 +349,24 @@
         <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 
-
 <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">matched</span> <span class="o">=</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">trainable</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">trainable</span><span class="p">)</span> <span class="o">==</span> <span class="nb">bool</span>
         <span class="n">matched</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matched</span>
-                    <span class="k">if</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">trainable</span> <span class="o">==</span>  <span class="n">trainable</span><span class="p">]</span>
+                   <span class="k">if</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">trainable</span> <span class="o">==</span> <span class="n">trainable</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matched</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">matched</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">matched</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">]</span>
 
+
 <span class="k">def</span> <span class="nf">get_placeholders</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-    
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Same as symjax.variable but for placeholders</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="n">matched</span> <span class="o">=</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">symjax</span><span class="o">.</span><span class="n">_placeholders</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matched</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_placeholder</span><span class="p">[</span><span class="n">matched</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
@@ -376,8 +374,8 @@
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">symjax</span><span class="o">.</span><span class="n">_placeholders</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">]</span>
 
+
 <div class="viewcode-block" id="get_ops"><a class="viewcode-back" href="../../modules/symjax.html#symjax.get_ops">[docs]</a><span class="k">def</span> <span class="nf">get_ops</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-    
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Same as symjax.variable but for ops</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -472,6 +470,8 @@
 
 <span class="sd">        jacobians: Tuple</span>
 <span class="sd">            the sequency of gradients ordered as given in the input variables</span>
+<span class="sd">            :param tensor:</span>
+<span class="sd">            :param mode:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># get all the roots of the scalar, this is needed as otherwise they are not</span>
     <span class="c1"># as the input of the gradient function and thus a change of</span>
@@ -508,8 +508,7 @@
 
 <span class="sd">    Based on given inputs, outputs and update policy of variables. This</span>
 <span class="sd">    function internally jit compile the underlying jax computational</span>
-<span class="sd">    graph for performances and thus should be favored to the get</span>
-<span class="sd">    method of tensors.</span>
+<span class="sd">    graph for performances.</span>
 
 <span class="sd">    Arguments</span>
 <span class="sd">    ---------</span>
@@ -526,9 +525,6 @@
 <span class="sd">        updates: Dict (optional)</span>
 <span class="sd">            the dictionnary of updates as per {var:new_value} for any</span>
 <span class="sd">            variable of the graph</span>
-
-<span class="sd">        device: ??</span>
-<span class="sd">            ??</span>
 
 <span class="sd">        backend: &#39;cpu&#39; or &#39;gpu&#39;</span>
 <span class="sd">            the backend to use to run the function on</span>
@@ -562,7 +558,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">classargs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[],</span> <span class="n">updates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>   <span class="c1"># noqa</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">classargs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[],</span> <span class="n">updates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
                  <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize.&quot;&quot;&quot;</span>
@@ -631,15 +627,15 @@
         <span class="c1"># function. Now we must ensure that the other ones will also be given</span>
         <span class="c1"># as inputs to not be treated as constants by jax.</span>
         <span class="c1"># we also remove update keys because we will expicitly feed them</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">extra_inputs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_roots</span><span class="p">)</span>\
-            <span class="o">-</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classargs</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_inputs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_roots</span><span class="p">)</span> \
+                            <span class="o">-</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classargs</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">extra_inputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_inputs</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">to_jit</span><span class="p">(</span><span class="o">*</span><span class="n">jitargs</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
             <span class="n">allargs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classargs</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_inputs</span>
-            <span class="n">feed_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">allargs</span><span class="p">,</span> <span class="n">jitargs</span><span class="p">))</span><span class="c1">#[(m, {&#39;base&#39;: v})</span>
-<span class="c1">#                        for m, v in zip(allargs, jitargs)])</span>
-            <span class="n">feed_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;rng&#39;</span><span class="p">:</span><span class="n">seed</span><span class="p">})</span>
+            <span class="n">feed_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">allargs</span><span class="p">,</span> <span class="n">jitargs</span><span class="p">))</span>  <span class="c1"># [(m, {&#39;base&#39;: v})</span>
+            <span class="c1">#                        for m, v in zip(allargs, jitargs)])</span>
+            <span class="n">feed_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;rng&#39;</span><span class="p">:</span> <span class="n">seed</span><span class="p">})</span>
             <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">updates_values</span><span class="p">],</span> <span class="n">feed_dict</span><span class="p">)</span>
 
         <span class="c1"># we compile our underlying function using jit for performances</span>
@@ -661,15 +657,16 @@
 
             <span class="c1"># retreive the function outputs, updated values and apply them</span>
             <span class="n">jited_add_inputs</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_inputs</span><span class="p">,</span>
-                                    <span class="n">tracker</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;rng&#39;</span><span class="p">:</span> <span class="n">rng</span><span class="p">})</span>
+                                     <span class="n">tracker</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;rng&#39;</span><span class="p">:</span> <span class="n">rng</span><span class="p">})</span>
             <span class="n">jitoutputs</span><span class="p">,</span> <span class="n">jitupdates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jited</span><span class="p">(</span><span class="o">*</span><span class="n">fnargs</span><span class="p">,</span> <span class="o">*</span><span class="n">jited_add_inputs</span><span class="p">,</span>
-                    <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+                                                <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">update</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span><span class="p">,</span> <span class="n">jitupdates</span><span class="p">):</span>
                 <span class="n">key</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">update</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">jitoutputs</span><span class="p">,</span> <span class="n">jax</span><span class="o">.</span><span class="n">interpreters</span><span class="o">.</span><span class="n">xla</span><span class="o">.</span><span class="n">DeviceArray</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">jax</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">device_get</span><span class="p">(</span><span class="n">jitoutputs</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">npy_jitoutputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">jax</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">device_get</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">jax</span><span class="o">.</span><span class="n">interpreters</span><span class="o">.</span><span class="n">xla</span><span class="o">.</span><span class="n">DeviceArray</span><span class="p">)</span> <span class="k">else</span> <span class="n">arr</span>  <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">jitoutputs</span><span class="p">]</span>
+                <span class="n">npy_jitoutputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">jax</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">device_get</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">jax</span><span class="o">.</span><span class="n">interpreters</span><span class="o">.</span><span class="n">xla</span><span class="o">.</span><span class="n">DeviceArray</span><span class="p">)</span> <span class="k">else</span> <span class="n">arr</span>
+                                  <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">jitoutputs</span><span class="p">]</span>
                 <span class="k">return</span> <span class="n">npy_jitoutputs</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="n">meta</span>

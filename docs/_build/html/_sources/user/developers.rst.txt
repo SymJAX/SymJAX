@@ -43,7 +43,7 @@ to generate the documentation, you can do in the ``docs`` directory and run::
   make html
 
 You can then see the generated documentation in
-``docs/build/html/index.html``.
+``docs/_build/html/index.html``.
 
 Once the documentation has been changed and all is pushed to Github ``master`` branch the SymJAX
 documentations (at `symjax.readthedocs.io <https://symjax.readthedocs.io/>`_) is rebuilt based on
@@ -55,7 +55,7 @@ Test the code
 '''''''''''''
 
 
-To run all the SymJAX tests, we recommend using ``pytest-xdist``. First, install ``pytest-xdist`` and ``pytest-benchmark`` by running
+To run all the SymJAX tests, we recommend using ``pytest`` or ``pytest-xdist``. First, install ``pytest-xdist`` and ``pytest-benchmark`` by running
 ``pip install pytest-xdist pytest-benchmark``.
 Then, from the repository root directory run::
 

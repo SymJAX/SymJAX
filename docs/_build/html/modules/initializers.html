@@ -224,6 +224,10 @@ and <code class="docutils literal notranslate"><span class="pre">initializer=Uni
 .. math:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">sigma</span> <span class="o">&amp;=</span> \<span class="n">sqrt</span><span class="p">{</span>\<span class="n">frac</span><span class="p">{</span><span class="mi">2</span><span class="p">}{</span><span class="n">fan_</span><span class="p">{</span><span class="ow">in</span><span class="p">}</span><span class="o">+</span><span class="n">fan_</span><span class="p">{</span><span class="n">out</span><span class="p">}}}</span>\\
 <span class="n">W</span> <span class="o">&amp;</span>\<span class="n">sim</span> <span class="n">N</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> \<span class="n">sigma</span><span class="p">)</span>
+<span class="p">:</span><span class="n">param</span> <span class="n">shape</span><span class="p">:</span>
+<span class="p">:</span><span class="n">param</span> <span class="n">distribution</span><span class="p">:</span>
+<span class="p">:</span><span class="n">param</span> <span class="n">in_axis</span><span class="p">:</span>
+<span class="p">:</span><span class="n">param</span> <span class="n">out_axis</span><span class="p">:</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -233,6 +237,10 @@ and <code class="docutils literal notranslate"><span class="pre">initializer=Uni
 <code class="sig-name descname">he</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">gain=1.4142135623730951</em>, <em class="sig-param">distribution=&lt;function normal&gt;</em>, <em class="sig-param">in_axis=0</em>, <em class="sig-param">out_axis=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#he"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.he" title="Permalink to this definition">¶</a></dt>
 <dd><p>He weight initialization.
 Weights are initialized with a standard deviation of
+:param shape:
+:param distribution:
+:param in_axis:
+:param out_axis:
 <span class="math notranslate nohighlight">\(\sigma = gain \sqrt{\frac{1}{fan_{in}}}\)</span> <a href="#id6"><span class="problematic" id="id3">[1]_</span></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -287,7 +295,8 @@ Initial weight parameters are sampled from N(mean, std).</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>std</strong> (<em>float</em>) – Std of initial parameters.</p></li>
-<li><p><strong>mean</strong> (<em>float</em>) – Mean of initial parameters.</p></li>
+<li><p><strong>mean</strong> (<em>float</em>) – Mean of initial parameters.
+:param shape:</p></li>
 </ul>
 </dd>
 </dl>
@@ -306,7 +315,8 @@ weights are sampled from U(-range, range). If range is a tuple the
 weights are sampled from U(range[0], range[1]).</p></li>
 <li><p><strong>std</strong> (<em>float</em><em> or </em><em>None</em>) – If std is a float then the weights are sampled from
 U(mean - np.sqrt(3) * std, mean + np.sqrt(3) * std).</p></li>
-<li><p><strong>mean</strong> (<em>float</em>) – see std for description.</p></li>
+<li><p><strong>mean</strong> (<em>float</em>) – see std for description.
+:param shape:</p></li>
 </ul>
 </dd>
 </dl>

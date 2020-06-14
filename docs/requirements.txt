@@ -11,4 +11,3 @@ sphinxcontrib-qthelp
 sphinxcontrib-serializinghtml
 sphinx-execute-code
 sphinx-gallery
-sphinx-autorun

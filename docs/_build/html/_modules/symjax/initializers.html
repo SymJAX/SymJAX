@@ -176,6 +176,7 @@
 <span class="k">def</span> <span class="nf">constant</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
+
 <div class="viewcode-block" id="uniform"><a class="viewcode-back" href="../../modules/initializers.html#symjax.initializers.uniform">[docs]</a><span class="k">def</span> <span class="nf">uniform</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Sample initial weights from the uniform distribution.</span>
 <span class="sd">    Parameters are sampled from U(a, b).</span>
@@ -194,6 +195,7 @@
 
 <span class="sd">    mean: float</span>
 <span class="sd">        see std for description.</span>
+<span class="sd">        :param shape:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">std</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">mean</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">std</span>
@@ -203,6 +205,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="nb">range</span><span class="p">,</span> <span class="nb">range</span>  <span class="c1"># range is a number</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span> <span class="o">+</span> <span class="n">a</span></div>
+
 
 <div class="viewcode-block" id="normal"><a class="viewcode-back" href="../../modules/initializers.html#symjax.initializers.normal">[docs]</a><span class="k">def</span> <span class="nf">normal</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Sample initial weights from the Gaussian distribution.</span>
@@ -216,35 +219,37 @@
 <span class="sd">    </span>
 <span class="sd">    mean: float</span>
 <span class="sd">        Mean of initial parameters.</span>
-<span class="sd">    </span>
+<span class="sd">        :param shape:</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="n">std</span> <span class="o">+</span> <span class="n">mean</span></div>
 
 
-<span class="k">def</span> <span class="nf">orthogonal</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-     <span class="n">flat_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
-     <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">flat_shape</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
-     <span class="n">u</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-     <span class="c1"># pick the one with the correct shape</span>
-     <span class="n">q</span> <span class="o">=</span> <span class="n">u</span> <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">flat_shape</span> <span class="k">else</span> <span class="n">v</span>
-     <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
-     <span class="k">return</span> <span class="n">gain</span> <span class="o">*</span> <span class="n">q</span>
+<span class="k">def</span> <span class="nf">orthogonal</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">flat_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">flat_shape</span><span class="p">)</span>
+    <span class="n">u</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># pick the one with the correct shape</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">u</span> <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">flat_shape</span> <span class="k">else</span> <span class="n">v</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">gain</span> <span class="o">*</span> <span class="n">q</span>
+
 
 <span class="k">def</span> <span class="nf">_compute_fans</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">in_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">out_axis</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-
     <span class="nb">print</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
     <span class="n">receptive_field_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="n">in_axis</span><span class="p">]</span> <span class="o">*</span> <span class="n">shape</span><span class="p">[</span><span class="n">out_axis</span><span class="p">])</span>
     <span class="n">fan_in</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="n">in_axis</span><span class="p">]</span> <span class="o">*</span> <span class="n">receptive_field_size</span>
     <span class="n">fan_out</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="n">out_axis</span><span class="p">]</span> <span class="o">*</span> <span class="n">receptive_field_size</span>
     <span class="k">return</span> <span class="n">fan_in</span><span class="p">,</span> <span class="n">fan_out</span>
 
+
 <div class="viewcode-block" id="variance_scaling"><a class="viewcode-back" href="../../modules/initializers.html#symjax.initializers.variance_scaling">[docs]</a><span class="k">def</span> <span class="nf">variance_scaling</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">gain</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="n">normal</span><span class="p">,</span> <span class="n">in_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                        <span class="n">out_axis</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                     <span class="n">out_axis</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Variance Scaling initialization.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                     <span class="s2">&quot;This initializer only works with shapes of length &gt;= 2&quot;</span><span class="p">)</span>
+            <span class="s2">&quot;This initializer only works with shapes of length &gt;= 2&quot;</span><span class="p">)</span>
 
     <span class="n">fan_in</span><span class="p">,</span> <span class="n">fan_out</span> <span class="o">=</span> <span class="n">_compute_fans</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">in_axis</span><span class="p">,</span> <span class="n">out_axis</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;fan_in&quot;</span><span class="p">:</span>
@@ -258,6 +263,7 @@
             <span class="s2">&quot;mode must be fan_in, fan_out or fan_avg, value passed was </span><span class="si">{mode}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">std</span> <span class="o">=</span> <span class="n">gain</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">den</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">distribution</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">std</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="glorot"><a class="viewcode-back" href="../../modules/initializers.html#symjax.initializers.glorot">[docs]</a><span class="k">def</span> <span class="nf">glorot</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="n">normal</span><span class="p">,</span> <span class="n">in_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">out_axis</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Glorot weight initialization.</span>
@@ -303,18 +309,26 @@
 <span class="sd">    .. math::</span>
 <span class="sd">       \\sigma &amp;= \\sqrt{\\frac{2}{fan_{in}+fan_{out}}}\\\\</span>
 <span class="sd">       W &amp;\sim N(0, \\sigma)</span>
+<span class="sd">       :param shape:</span>
+<span class="sd">       :param distribution:</span>
+<span class="sd">       :param in_axis:</span>
+<span class="sd">       :param out_axis:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                     <span class="s2">&quot;This initializer only works with shapes of length &gt;= 2&quot;</span><span class="p">)</span>
+            <span class="s2">&quot;This initializer only works with shapes of length &gt;= 2&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">variance_scaling</span><span class="p">(</span><span class="s2">&quot;fan_avg&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">gain</span><span class="p">,</span> <span class="n">distribution</span><span class="p">,</span>
                             <span class="n">in_axis</span><span class="o">=</span><span class="n">in_axis</span><span class="p">,</span> <span class="n">out_axis</span><span class="o">=</span><span class="n">out_axis</span><span class="p">)</span></div>
-   
+
 
 <div class="viewcode-block" id="he"><a class="viewcode-back" href="../../modules/initializers.html#symjax.initializers.he">[docs]</a><span class="k">def</span> <span class="nf">he</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">distribution</span><span class="o">=</span><span class="n">normal</span><span class="p">,</span> <span class="n">in_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">out_axis</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;He weight initialization.</span>
 <span class="sd">    Weights are initialized with a standard deviation of</span>
+<span class="sd">    :param shape:</span>
+<span class="sd">    :param distribution:</span>
+<span class="sd">    :param in_axis:</span>
+<span class="sd">    :param out_axis:</span>
 <span class="sd">    :math:`\\sigma = gain \\sqrt{\\frac{1}{fan_{in}}}` [1]_.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>

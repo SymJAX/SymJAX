@@ -51,8 +51,16 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.coverage',
+    'sphinx.ext.doctest',
     'sphinx.ext.autosummary',
     "sphinx_gallery.gen_gallery"]
+
+doctest_global_setup = '''
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
+'''
 
 # matplotlib svg rendering
 class MatplotlibSVG(object):

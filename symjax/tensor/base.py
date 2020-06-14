@@ -627,9 +627,8 @@ class Variable(Tensor):
         self.trainable = trainable
         self.initializer = initializer
         self._dtype = dtype
-        self.reset()
 
-        super().__init__(numpy.shape(self.value), dtype, roots=[self], name=name)
+        super().__init__(self.value.shape, str(self.value.dtype), roots=[self], name=name)
 
     def reset(self):
 
