@@ -25,12 +25,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install pygraph
-    - run: |
+      run: |
         sudo apt-get install python-pygraph python-pygraphviz
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -e .
     - name: Run tests
-    - run: pytest
+      run: pytest
 
 
