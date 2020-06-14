@@ -171,7 +171,7 @@
             
   <h1>Source code for symjax.tensor.control_flow</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">jax.lax</span> <span class="k">as</span> <span class="nn">jla</span>
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">jax_wrap</span><span class="p">,</span> <span class="n">symjax_to_jax_fn</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">jax_wrap</span><span class="p">,</span> <span class="n">symjax_to_jax_fn</span>
 
 <span class="n">cond</span> <span class="o">=</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">jla</span><span class="o">.</span><span class="n">cond</span><span class="p">)</span>
 <span class="n">fori_loop</span> <span class="o">=</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">jla</span><span class="o">.</span><span class="n">fori_loop</span><span class="p">)</span>

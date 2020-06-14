@@ -180,9 +180,9 @@
 <span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">import</span> <span class="nn">fnmatch</span>
 <span class="kn">import</span> <span class="nn">symjax</span>
-<span class="kn">from</span> <span class="nn">symjax</span> <span class="kn">import</span> <span class="n">tensor</span> <span class="k">as</span> <span class="n">t</span>
-<span class="kn">from</span> <span class="nn">symjax.tensor</span> <span class="kn">import</span> <span class="n">random</span>
-<span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">jacfwd</span><span class="p">,</span> <span class="n">jacrev</span>
+<span class="kn">from</span> <span class="nn">symjax</span> <span class="k">import</span> <span class="n">tensor</span> <span class="k">as</span> <span class="n">t</span>
+<span class="kn">from</span> <span class="nn">symjax.tensor</span> <span class="k">import</span> <span class="n">random</span>
+<span class="kn">from</span> <span class="nn">jax</span> <span class="k">import</span> <span class="n">jacfwd</span><span class="p">,</span> <span class="n">jacrev</span>
 
 
 
@@ -195,7 +195,7 @@
 <span class="k">class</span> <span class="nc">Graph</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Graph.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;Constructor.&quot;&quot;&quot;</span>
         
@@ -203,14 +203,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set global variables.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
             <span class="n">symjax</span><span class="o">.</span><span class="n">_current_scope</span> <span class="o">+=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_current_scope</span>
         <span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Delete globals.&quot;&quot;&quot;</span>
         <span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">full_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -562,7 +562,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">classargs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[],</span> <span class="n">updates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>   <span class="c1"># noqa</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">classargs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[],</span> <span class="n">updates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>   <span class="c1"># noqa</span>
                  <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize.&quot;&quot;&quot;</span>
@@ -674,7 +674,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="n">meta</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callable fn.&quot;&quot;&quot;</span>
         <span class="c1"># in the presence of RandomTensor(s) in the graph, we keep track of the</span>
         <span class="c1"># number of functions calls to keep accumulating the PRNGKey of the jax</span>

@@ -233,9 +233,9 @@
 </table>
 <div class="section" id="detailed-description">
 <h2>Detailed Description<a class="headerlink" href="#detailed-description" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
+<dl class="function">
 <dt id="symjax.tensor.random.bernoulli">
-<code class="sig-name descname">bernoulli</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n">jax.numpy.lax_numpy.ndarray</span></em>, <em class="sig-param"><span class="n">p</span><span class="p">:</span> <span class="n">jax.numpy.lax_numpy.ndarray</span> <span class="o">=</span> <span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">shape</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Sequence<span class="p">[</span>int<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; jax.numpy.lax_numpy.ndarray<a class="reference internal" href="../_modules/jax/random.html#bernoulli"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.bernoulli" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">bernoulli</code><span class="sig-paren">(</span><em class="sig-param">key: jax.numpy.lax_numpy.ndarray</em>, <em class="sig-param">p: jax.numpy.lax_numpy.ndarray = 0.5</em>, <em class="sig-param">shape: Optional[Sequence[int]] = None</em><span class="sig-paren">)</span> &#x2192; jax.numpy.lax_numpy.ndarray<a class="reference internal" href="../_modules/jax/random.html#bernoulli"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.bernoulli" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample Bernoulli random values with given shape and mean.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.random.bernoulli" title="symjax.tensor.random.bernoulli"><code class="xref py py-func docutils literal notranslate"><span class="pre">bernoulli()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -246,7 +246,7 @@ is not None, or else <code class="docutils literal notranslate"><span class="pre
 </div></blockquote>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="symjax.tensor.random.beta">
 <code class="sig-name descname">beta</code><span class="sig-paren">(</span><em class="sig-param">key: jax.numpy.lax_numpy.ndarray, a: Union[float, jax.numpy.lax_numpy.ndarray], b: Union[float, jax.numpy.lax_numpy.ndarray], shape: Optional[Sequence[int]] = None, dtype: numpy.dtype = &lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span> &#x2192; jax.numpy.lax_numpy.ndarray<a class="reference internal" href="../_modules/jax/random.html#beta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.beta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample Beta random values with given shape and float dtype.</p>
@@ -259,7 +259,7 @@ A random array with the specified dtype and shape given by <code class="docutils
 </div></blockquote>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="symjax.tensor.random.cauchy">
 <code class="sig-name descname">cauchy</code><span class="sig-paren">(</span><em class="sig-param">key</em>, <em class="sig-param">shape=()</em>, <em class="sig-param">dtype=&lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/jax/random.html#cauchy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.cauchy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample Cauchy random values with given shape and float dtype.</p>
@@ -271,7 +271,7 @@ A random array with the specified shape and dtype.</p>
 </div></blockquote>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="symjax.tensor.random.dirichlet">
 <code class="sig-name descname">dirichlet</code><span class="sig-paren">(</span><em class="sig-param">key</em>, <em class="sig-param">alpha</em>, <em class="sig-param">shape=None</em>, <em class="sig-param">dtype=&lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/jax/random.html#dirichlet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.dirichlet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample Dirichlet random values with given shape and float dtype.</p>
@@ -285,7 +285,7 @@ A random array with the specified dtype and shape given by
 </div></blockquote>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="symjax.tensor.random.gamma">
 <code class="sig-name descname">gamma</code><span class="sig-paren">(</span><em class="sig-param">key</em>, <em class="sig-param">a</em>, <em class="sig-param">shape=None</em>, <em class="sig-param">dtype=&lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/jax/random.html#gamma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.gamma" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample Gamma random values with given shape and float dtype.</p>
@@ -298,7 +298,7 @@ A random array with the specified dtype and with shape given by <code class="doc
 </div></blockquote>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="symjax.tensor.random.gumbel">
 <code class="sig-name descname">gumbel</code><span class="sig-paren">(</span><em class="sig-param">key</em>, <em class="sig-param">shape=()</em>, <em class="sig-param">dtype=&lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/jax/random.html#gumbel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.gumbel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample Gumbel random values with given shape and float dtype.</p>
@@ -310,7 +310,7 @@ A random array with the specified shape and dtype.</p>
 </div></blockquote>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="symjax.tensor.random.laplace">
 <code class="sig-name descname">laplace</code><span class="sig-paren">(</span><em class="sig-param">key</em>, <em class="sig-param">shape=()</em>, <em class="sig-param">dtype=&lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/jax/random.html#laplace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.laplace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample Laplace random values with given shape and float dtype.</p>
@@ -322,7 +322,7 @@ A random array with the specified shape and dtype.</p>
 </div></blockquote>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="symjax.tensor.random.multivariate_normal">
 <code class="sig-name descname">multivariate_normal</code><span class="sig-paren">(</span><em class="sig-param">key: jax.numpy.lax_numpy.ndarray</em>, <em class="sig-param">mean: jax.numpy.lax_numpy.ndarray</em>, <em class="sig-param">cov: jax.numpy.lax_numpy.ndarray</em>, <em class="sig-param">shape: Optional[Sequence[int]] = None</em>, <em class="sig-param">dtype: numpy.dtype = &lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span> &#x2192; jax.numpy.lax_numpy.ndarray<a class="reference internal" href="../_modules/jax/random.html#multivariate_normal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.multivariate_normal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample multivariate normal random values with given mean and covariance.</p>
@@ -336,7 +336,7 @@ A random array with the specified dtype and shape given by
 </div></blockquote>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="symjax.tensor.random.normal">
 <code class="sig-name descname">normal</code><span class="sig-paren">(</span><em class="sig-param">key: jax.numpy.lax_numpy.ndarray</em>, <em class="sig-param">shape: Sequence[int] = ()</em>, <em class="sig-param">dtype: numpy.dtype = &lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span> &#x2192; jax.numpy.lax_numpy.ndarray<a class="reference internal" href="../_modules/jax/random.html#normal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.normal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample standard normal random values with given shape and float dtype.</p>
@@ -348,7 +348,7 @@ A random array with the specified shape and dtype.</p>
 </div></blockquote>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="symjax.tensor.random.pareto">
 <code class="sig-name descname">pareto</code><span class="sig-paren">(</span><em class="sig-param">key</em>, <em class="sig-param">b</em>, <em class="sig-param">shape=None</em>, <em class="sig-param">dtype=&lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/jax/random.html#pareto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.pareto" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample Pareto random values with given shape and float dtype.</p>
@@ -361,7 +361,7 @@ A random array with the specified dtype and with shape given by <code class="doc
 </div></blockquote>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="symjax.tensor.random.randint">
 <code class="sig-name descname">randint</code><span class="sig-paren">(</span><em class="sig-param">key: jax.numpy.lax_numpy.ndarray, shape: Sequence[int], minval: Union[int, jax.numpy.lax_numpy.ndarray], maxval: Union[int, jax.numpy.lax_numpy.ndarray], dtype: numpy.dtype = &lt;class 'numpy.int64'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/jax/random.html#randint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.randint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample uniform random values in [minval, maxval) with given shape/dtype.</p>
@@ -373,9 +373,9 @@ A random array with the specified shape and dtype.</p>
 </div></blockquote>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="symjax.tensor.random.shuffle">
-<code class="sig-name descname">shuffle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n">jax.numpy.lax_numpy.ndarray</span></em>, <em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">jax.numpy.lax_numpy.ndarray</span></em>, <em class="sig-param"><span class="n">axis</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em><span class="sig-paren">)</span> &#x2192; jax.numpy.lax_numpy.ndarray<a class="reference internal" href="../_modules/jax/random.html#shuffle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.shuffle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">shuffle</code><span class="sig-paren">(</span><em class="sig-param">key: jax.numpy.lax_numpy.ndarray</em>, <em class="sig-param">x: jax.numpy.lax_numpy.ndarray</em>, <em class="sig-param">axis: int = 0</em><span class="sig-paren">)</span> &#x2192; jax.numpy.lax_numpy.ndarray<a class="reference internal" href="../_modules/jax/random.html#shuffle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.shuffle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shuffle the elements of an array uniformly at random along an axis.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.random.shuffle" title="symjax.tensor.random.shuffle"><code class="xref py py-func docutils literal notranslate"><span class="pre">shuffle()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -385,7 +385,7 @@ A shuffled version of x.</p>
 </div></blockquote>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="symjax.tensor.random.truncated_normal">
 <code class="sig-name descname">truncated_normal</code><span class="sig-paren">(</span><em class="sig-param">key: jax.numpy.lax_numpy.ndarray, lower: Union[float, jax.numpy.lax_numpy.ndarray], upper: Union[float, jax.numpy.lax_numpy.ndarray], shape: Optional[Sequence[int]] = None, dtype: numpy.dtype = &lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span> &#x2192; jax.numpy.lax_numpy.ndarray<a class="reference internal" href="../_modules/jax/random.html#truncated_normal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.truncated_normal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample truncated standard normal random values with given shape and dtype.</p>
@@ -398,7 +398,7 @@ A random array with the specified dtype and shape given by <code class="docutils
 </div></blockquote>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="symjax.tensor.random.uniform">
 <code class="sig-name descname">uniform</code><span class="sig-paren">(</span><em class="sig-param">key: jax.numpy.lax_numpy.ndarray</em>, <em class="sig-param">shape: Sequence[int] = ()</em>, <em class="sig-param">dtype: numpy.dtype = &lt;class 'numpy.float64'&gt;</em>, <em class="sig-param">minval: Union[float</em>, <em class="sig-param">jax.numpy.lax_numpy.ndarray] = 0.0</em>, <em class="sig-param">maxval: Union[float</em>, <em class="sig-param">jax.numpy.lax_numpy.ndarray] = 1.0</em><span class="sig-paren">)</span> &#x2192; jax.numpy.lax_numpy.ndarray<a class="reference internal" href="../_modules/jax/random.html#uniform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.random.uniform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample uniform random values in [minval, maxval) with given shape/dtype.</p>

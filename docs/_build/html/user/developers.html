@@ -96,7 +96,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html#datasets">Datasets</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Development</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#philosophy">Philosophy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#how-to-contribute">How to contribute</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-contribute">How to contribute</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#build-the-doc">Build the doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-the-code">Test the code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#push-requests">Push requests</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -194,15 +199,45 @@ located in the Gallery.</p>
 </div>
 <div class="section" id="how-to-contribute">
 <h2>How to contribute<a class="headerlink" href="#how-to-contribute" title="Permalink to this headline">¶</a></h2>
-<p>If you are willing to help, we recommand to follow the following steps before requesting a pull request</p>
+<p>If you are willing to help, we recommend to follow the following steps before requesting a pull request. Recall that</p>
 <ol class="arabic simple">
 <li><p><strong>Coding conventions</strong>: we used the <a class="reference external" href="https://www.python.org/dev/peps/pep-0008/">PEP8 style guide for Python Code</a></p></li>
 <li><p><strong>Docstrings</strong>: we used the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc docstring guide</a> for documenting the functions directly from the docstrings and automatically generating the documentation with <a class="reference external" href="https://www.sphinx-doc.org/en/master/">sphinx</a>. Please provide codes with up-to-date docstrings.</p></li>
-<li><p><strong>Documentation build</strong>: make sure than the documentation successfully builds by running <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code> inside the <code class="docutils literal notranslate"><span class="pre">SymJAX/docs</span></code> repository.</p></li>
-<li><p><strong>Testing your code</strong>: please ensure that your code passes the benchmark tests by running <code class="docutils literal notranslate"><span class="pre">pytest</span></code> in the repository root.</p></li>
 </ol>
-<p>#. <strong>Pull requests</strong>: once all the tests pass and the documentation is appropriate, commit your changes to a new branch, push
-that branch to your fork and send us a Pull Request via GitHub’s web interface (<a class="reference external" href="https://guides.github.com/introduction/flow/">guide</a>), the PR should include a brief description.</p>
+<div class="section" id="build-the-doc">
+<h3>Build the doc<a class="headerlink" href="#build-the-doc" title="Permalink to this headline">¶</a></h3>
+<p>To rebuild the documentation, install several packages:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">docs</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>to generate the documentation, you can do in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> directory and run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">html</span>
+</pre></div>
+</div>
+<p>You can then see the generated documentation in
+<code class="docutils literal notranslate"><span class="pre">docs/build/html/index.html</span></code>.</p>
+<p>Once the documentation has been changed and all is pushed to Github <code class="docutils literal notranslate"><span class="pre">master</span></code> branch the SymJAX
+documentations (at <a class="reference external" href="https://symjax.readthedocs.io/">symjax.readthedocs.io</a>) is rebuilt based on
+the <code class="docutils literal notranslate"><span class="pre">.readthedocs.yml</span></code> and the <code class="docutils literal notranslate"><span class="pre">docs/conf.py</span></code> configuration files.
+For each automated documentation build you can see the
+<a class="reference external" href="https://readthedocs.org/projects/symjax/builds/">documentation build logs</a>.</p>
+</div>
+<div class="section" id="test-the-code">
+<h3>Test the code<a class="headerlink" href="#test-the-code" title="Permalink to this headline">¶</a></h3>
+<p>To run all the SymJAX tests, we recommend using <code class="docutils literal notranslate"><span class="pre">pytest-xdist</span></code>. First, install <code class="docutils literal notranslate"><span class="pre">pytest-xdist</span></code> and <code class="docutils literal notranslate"><span class="pre">pytest-benchmark</span></code> by running
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pytest-xdist</span> <span class="pre">pytest-benchmark</span></code>.
+Then, from the repository root directory run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pytest</span>
+</pre></div>
+</div>
+<p>If all tests pass successfully, the code is ready for a PR.</p>
+</div>
+<div class="section" id="push-requests">
+<h3>Push requests<a class="headerlink" href="#push-requests" title="Permalink to this headline">¶</a></h3>
+<p>Once all the tests pass and the documentation is appropriate, commit your changes to a new branch, push
+that branch to your fork and send us a Pull Request via GitHub’s web interface
+(<a class="reference external" href="https://guides.github.com/introduction/flow/">guide</a>), the PR should include a brief description.</p>
+</div>
 </div>
 </div>
 
