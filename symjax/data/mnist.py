@@ -88,7 +88,14 @@ class mnist:
         valid_set = (valid_set[0].reshape((-1,1,28,28)).astype('float32'),
                      valid_set[1].astype('int32'))
     
-    
+        data = {'train_set/images': train_set[0],
+                'train_set/labels': train_set[1],
+                'test_set/images': test_set[0],
+                'test_set/labels': test_set[1],
+                'valid_set/images': valid_set[0],
+                'valid_set/labels': valid_set[1],
+                'INFOS': mnist.__doc__}
+
         print('Dataset mnist loaded in {0:.2f}s.'.format(time.time()-t0))
     
-        return train_set[0], train_set[1], valid_set[0], valid_set[1], test_set[0], test_set[1]
+        return data

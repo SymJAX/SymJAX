@@ -87,6 +87,13 @@ class speech_commands:
         y = np.squeeze(np.array([np.nonzero(label == unique_labels)[0]
                         for label in labels]).astype('int32'))
     
+        data = {'wavs': np.array(wavs).astype('float32'), 
+                'labels': y,
+                'names': labels,
+                'noises': noises,
+                'noises_labels':noises_labels,
+                'INFOS': speech_commands.__doc__}
+
         print('Dataset speech commands loaded in{0:.2f}s.'.format(time.time()-t0))
     
-        return np.array(wavs).astype('float32'), y, labels, noises, noise_labels
+        return data

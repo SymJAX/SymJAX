@@ -94,3 +94,21 @@ A SymJAX computation graph can not be partially defined with Jax computation,
 the above thus provides an easy way to wrap Jax computations into a SymJAX Op
 which can then be put into the graph as any other SymJAX provided Ops.
 
+
+Wrap: Jax class to SymJAX class
+-------------------------------
+
+One might have defined a Jax class, with a constructor possibly taking some 
+constant values and some jax arrays, performing some computations, setting
+some attributes, and then interacting with those attributes when calling the
+class methods. It would be particularly easy to pair such already implemented
+classes with SymJAX computation graph. This can be done as follows:
+
+.. literalinclude:: ../../examples/wrap_class.py
+
+As can be seen, there is some restrictions. First, the behavior inside the
+constructor of the original class should be fixed as it will be executed once
+by the wrapper in order to map the constructor computations into SymJAX. 
+Second, any jax array update done internally will break the conversion as
+such operations are only allowed for Variables in SymJAX, hence some care is 
+needed. More flexibility will be provided in future versions.

@@ -95,3 +95,4 @@ wcwidth==0.1.7
 yfinance==0.1.54
 sphinx-execute-code==0.2a2
 sphinx-gallery==0.7.0
+sphinx-autorun==1.1.1

@@ -337,18 +337,15 @@ def poolNd(input, window_shape, reducer='MAX', strides=None, padding='VALID',
 
 def ExponentialMovingAverage(value, alpha, step=None, init=None):
     if step is None:
-        _step = Variable(0, trainable=False, name='step')
+        _step = Variable(0, trainable=False, name='step', dtype='float32')
     else:
         _step = step
     if init is None:
         var = Variable(numpy.zeros(value.shape), trainable=False,
-                              name='EMA')
+                              name='EMA', dtype='float32')
     else:
-        var = Variable(init, trainable=False, name='EMA')
+        var = Variable(init, trainable=False, name='EMA', dtype='float32')
 
-    print(step, _step)
-    print(equal(_step, 0))
-    print(equal(_step, 0), value, var * alpha + (1 - alpha) * value)
     new_value = where(equal(_step, 0), value, var * alpha + (1 - alpha) * value)
     if step is None:
         updates = {var: new_value, _step: _step + 1}

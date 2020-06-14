@@ -53,13 +53,7 @@ class Graph:
 
     @property
     def variables(self):
-        variables = {}
-        for name in symjax._variables:
-            if self.full_name in name:
-                cropped_name = name.replace(self.full_name, '')
-                if '/' not in cropped_name:
-                    variables[cropped_name] = symjax._variables[name]
-        return variables
+        return get_variables(self.full_name + '*')
         
     def variable(self, name):
 
@@ -113,12 +107,55 @@ class Graph:
             else:
                 break
         names[name + '_' + str(count)] = tensor
-        tensor.name = tensor.name + '_' + str(count)
+        tensor._set_name(tensor.name + '_' + str(count))
 
 
-def reset(name):
+def reset_variables(name='*', trainable=None):
+    """
+    utility to reset variables based on their names
+
+    Parameters
+    ----------
+
+    name: str (default=*)
+        the name (or part of the name) of all the variables that should be
+        reset, it can include the glob (*) searching for all matching
+        names
+
+    trainable: bool or None (optional, default=None)
+        is not None, it will only reset from the matched variables the ones that
+        trainable attribute matches the given one
+
+
+    Returns
+    -------
+
+    None
+
+    Example
+    -------
+
+    .. runblock:: pycon
+
+        >>> import symjax
+        >>> w = symjax.tensor.Variable(1., name='w')
+        >>> x = symjax.tensor.Variable(2., name='x')
+        >>> f = symjax.function(outputs=[w, x], updates={w:w+1,x:x+1})
+        >>> for i in range(10):
+        ...    print(f())
+        >>> symjax.reset_variables('w')
+        >>> print(f())
+        >>> symjax.reset_variables('*')
+        >>> print(f())
+
+    """
+
     matched = fnmatch.filter(symjax._variables.keys(), name)
+
     for m in matched:
+        if trainable is not None:
+            if symjax._variables[m].trainable != trainable:
+                continue
         symjax._variables[m].reset()
 
 
@@ -142,15 +179,19 @@ def load(name, path):
 
 
 
-def variable(name):
+def get_variables(name, trainable=None):
     matched = fnmatch.filter(symjax._variables.keys(), name)
+    if trainable is not None:
+        assert type(trainable) == bool
+        matched = [m for m in matched
+                    if symjax._variables[m].trainable ==  trainable]
     if len(matched) == 1:
         return symjax._variables[matched[0]]
     elif len(matched) == 0:
         return None
     return [symjax._variables[m] for m in matched]
 
-def placeholder(name):
+def get_placeholders(name):
     
     """
     Same as symjax.variable but for placeholders
@@ -163,7 +204,7 @@ def placeholder(name):
         return None
     return [symjax._placeholders[m] for m in matched]
 
-def op(name):
+def get_ops(name):
     
     """
     Same as symjax.variable but for ops

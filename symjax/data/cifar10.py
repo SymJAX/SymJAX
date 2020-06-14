@@ -22,6 +22,17 @@ class cifar10:
     training batches contain exactly 5000 images from each class. 
     """
 
+    label_to_name = {0: 'airplane',
+            1: 'automobile',
+            2: 'bird',
+            3: 'cat',
+            4: 'deer',
+            5: 'dog',
+            6: 'frog',
+            7: 'horse',
+            8: 'sheep',
+            9: 'truck'}
+
     def download(path):
         """
         Download the MNIST dataset and store the result into the given
@@ -101,5 +112,13 @@ class cifar10:
         test_images = data_dic['data'].reshape((-1,3,32,32)).astype('float32')
         test_labels = np.array(data_dic['labels']).astype('int32')
     
+        data = {'label_to_name': cifar10.label_to_name,
+                'train_set/images': train_images,
+                'train_set/labels': train_labels,
+                'test_set/images': test_images,
+                'test_set/labels': test_labels,
+                'INFOS': cifar10.__doc__}
+
         print('Dataset cifar10 loaded in{0:.2f}s.'.format(time.time()-t0))
-        return train_images, train_labels, test_images, test_labels
+
+        return data

@@ -97,7 +97,7 @@ class irmas:
             f = zipfile.ZipFile(path + base.format(part))
             namelist = f.namelist()
             for filename in tqdm(namelist, ascii=True,
-                                 description='Test data {}/3'.format(part)):
+                                 desc='Test data {}/3'.format(part)):
                 if '.wav' not in filename:
                     continue
 
@@ -105,7 +105,7 @@ class irmas:
                 test_wavs.append(wav_read(byt)[1].astype('float32'))
 
                 byt = io.BytesIO(f.read(filename.replace('.wav', '.txt')))
-                test_labels.append(np.loadtxt(byt, dtype='str')[0])
+                test_labels.append(np.loadtxt(byt, dtype='str'))
 
         unique_cat = np.unique(categories)
         Id = np.eye(len(unique_cat))
@@ -117,5 +117,11 @@ class irmas:
         train_wavs = np.array(train_wavs)
         test_wavs = np.array(test_wavs)
 
+        data = {'train_set/wavs': train_wavs,
+                'train_set/labels': train_labels,
+                'test_wavs': test_wavs,
+                'test_labels': test_labels,
+                'INFOS': irmas.__doc__}
+
         print('Dataset IRMAS loaded in {0:.2f}s.'.format(time.time() - t0))
-        return train_wavs, train_labels, test_wavs, test_labels
+        return data

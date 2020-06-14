@@ -91,7 +91,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Gallery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user/developers.html">Developers’ guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html#datasets">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/developers.html">Development</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -259,10 +260,17 @@
         <span class="n">valid_set</span> <span class="o">=</span> <span class="p">(</span><span class="n">valid_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">),</span>
                      <span class="n">valid_set</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">))</span>
     
-    
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;train_set/images&#39;</span><span class="p">:</span> <span class="n">train_set</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s1">&#39;train_set/labels&#39;</span><span class="p">:</span> <span class="n">train_set</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s1">&#39;test_set/images&#39;</span><span class="p">:</span> <span class="n">test_set</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s1">&#39;test_set/labels&#39;</span><span class="p">:</span> <span class="n">test_set</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s1">&#39;valid_set/images&#39;</span><span class="p">:</span> <span class="n">valid_set</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s1">&#39;valid_set/labels&#39;</span><span class="p">:</span> <span class="n">valid_set</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s1">&#39;INFOS&#39;</span><span class="p">:</span> <span class="n">mnist</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">}</span>
+
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Dataset mnist loaded in </span><span class="si">{0:.2f}</span><span class="s1">s.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t0</span><span class="p">))</span>
     
-        <span class="k">return</span> <span class="n">train_set</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">train_set</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">valid_set</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">valid_set</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">test_set</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">test_set</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="n">data</span></div></div>
 </pre></div>
 
            </div>

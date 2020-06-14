@@ -120,6 +120,12 @@ class picidae:
         for k, name in enumerate(np.sort(unique)):
             y[labels == name] = k
 
+        data = {'wavs': wavs,
+                'labels': y,
+                'names': labels,
+                'XC_identifiers': XC,
+                'INFOS': picidae.__doc__}
+
         print('Dataset picidae loaded in {0:.2f}s.'.format(time.time()-t0))
     
-        return wavs, y, labels, XC
+        return data

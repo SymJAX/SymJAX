@@ -103,8 +103,8 @@ class Layer(T.Tensor):
 
     def add_update(self, update):
         self._updates.update(update)
-        if get_graph() is not None:
-            get_graph().updates.update(update)
+#        if get_graph() is not None:
+#            get_graph().updates.update(update)
 
     def add_variable(self, variable):
         if not hasattr(self, '_variables'):

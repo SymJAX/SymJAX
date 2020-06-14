@@ -40,7 +40,7 @@
   <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Single-station covariance matrix" href="plot_wavelets.html" />
+    <link rel="next" title="Morlet Wavelet in time and Fourier domain" href="plot_wavelets.html" />
     <link rel="prev" title="Examples" href="../user/examples.html" /> 
 </head>
 
@@ -93,10 +93,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user/examples.html">Examples</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Gallery</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="plot_wavelets.html">Single-station covariance matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wavelets.html">Morlet Wavelet in time and Fourier domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_sgd.html">Basic gradient descent (and reset)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wavelets.html">Single-station covariance matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_cifar10_classif.html">CIFAR10 classification</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../user/developers.html">Developers’ guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#datasets">Datasets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="datasets/plot_picidae.html">Speech picidae Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datasets/plot_mnist.html">MNIST Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datasets/plot_cifar10.html">CIFAR10 Dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user/developers.html">Development</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -177,17 +186,54 @@
             
   <div class="section" id="gallery">
 <span id="examples"></span><span id="sphx-glr-auto-examples"></span><h1>Gallery<a class="headerlink" href="#gallery" title="Permalink to this headline">¶</a></h1>
-<div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to calculate the interchannel spectral covariance matrix. It makes use ..."><div class="figure align-default" id="id1">
-<img alt="Single-station covariance matrix" src="../_images/sphx_glr_plot_wavelets_thumb.svg" /><p class="caption"><span class="caption-text"><a class="reference internal" href="plot_wavelets.html#sphx-glr-auto-examples-plot-wavelets-py"><span class="std std-ref">Single-station covariance matrix</span></a></span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+<div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to generate a wavelet filter-bank."><div class="figure align-default" id="id2">
+<img alt="Morlet Wavelet in time and Fourier domain" src="../_images/sphx_glr_plot_wavelets_thumb.png" />
+<p class="caption"><span class="caption-text"><a class="reference internal" href="plot_wavelets.html#sphx-glr-auto-examples-plot-wavelets-py"><span class="std std-ref">Morlet Wavelet in time and Fourier domain</span></a></span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-thumbcontainer" tooltip="demonstration on how to compute a gradient and apply a basic gradient update rule to minimize s..."><div class="figure align-default" id="id3">
+<img alt="Basic gradient descent (and reset)" src="../_images/sphx_glr_plot_sgd_thumb.png" />
+<p class="caption"><span class="caption-text"><a class="reference internal" href="plot_sgd.html#sphx-glr-auto-examples-plot-sgd-py"><span class="std std-ref">Basic gradient descent (and reset)</span></a></span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to calculate the interchannel spectral covariance matrix. It makes use ..."><div class="figure align-default" id="id4">
+<img alt="Single-station covariance matrix" src="../_images/sphx_glr_wavelets_thumb.png" />
+<p class="caption"><span class="caption-text"><a class="reference internal" href="wavelets.html#sphx-glr-auto-examples-wavelets-py"><span class="std std-ref">Single-station covariance matrix</span></a></span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-thumbcontainer" tooltip="example of image classification"><div class="figure align-default" id="id5">
+<img alt="CIFAR10 classification" src="../_images/sphx_glr_plot_cifar10_classif_thumb.png" />
+<p class="caption"><span class="caption-text"><a class="reference internal" href="plot_cifar10_classif.html#sphx-glr-auto-examples-plot-cifar10-classif-py"><span class="std std-ref">CIFAR10 classification</span></a></span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-clear"></div></div>
+<div class="section" id="datasets">
+<span id="id1"></span><h1>Datasets<a class="headerlink" href="#datasets" title="Permalink to this headline">¶</a></h1>
+<div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to download/load/import speech picidae"><div class="figure align-default" id="id6">
+<img alt="Speech picidae Dataset" src="../_images/sphx_glr_plot_picidae_thumb.svg" /><p class="caption"><span class="caption-text"><a class="reference internal" href="datasets/plot_picidae.html#sphx-glr-auto-examples-datasets-plot-picidae-py"><span class="std std-ref">Speech picidae Dataset</span></a></span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to download/load/import MNIST"><div class="figure align-default" id="id7">
+<img alt="MNIST Dataset" src="../_images/sphx_glr_plot_mnist_thumb.svg" /><p class="caption"><span class="caption-text"><a class="reference internal" href="datasets/plot_mnist.html#sphx-glr-auto-examples-datasets-plot-mnist-py"><span class="std std-ref">MNIST Dataset</span></a></span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to download/load/import CIFAR10"><div class="figure align-default" id="id8">
+<img alt="CIFAR10 Dataset" src="../_images/sphx_glr_plot_cifar10_thumb.svg" /><p class="caption"><span class="caption-text"><a class="reference internal" href="datasets/plot_cifar10.html#sphx-glr-auto-examples-datasets-plot-cifar10-py"><span class="std std-ref">CIFAR10 Dataset</span></a></span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
 </div>
 </div><div class="toctree-wrapper compound">
 </div>
 <div class="sphx-glr-clear"></div><div class="sphx-glr-footer class sphx-glr-footer-gallery docutils container">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/3ff7a5ee28de5b319d1aeddf53bf476c/auto_examples_python.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">auto_examples_python.zip</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/eefbb4d283bdebda24b256e429d8d9d0/auto_examples_python.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">auto_examples_python.zip</span></code></a></p>
 </div>
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/df1ef3b303ecf1897e0d344f4a2d57e1/auto_examples_jupyter.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Jupyter</span> <span class="pre">notebooks:</span> <span class="pre">auto_examples_jupyter.zip</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/058942aa407b348edb3becdd8d3525b3/auto_examples_jupyter.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Jupyter</span> <span class="pre">notebooks:</span> <span class="pre">auto_examples_jupyter.zip</span></code></a></p>
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
@@ -201,7 +247,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="plot_wavelets.html" class="btn btn-neutral float-right" title="Single-station covariance matrix" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="plot_wavelets.html" class="btn btn-neutral float-right" title="Morlet Wavelet in time and Fourier domain" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../user/examples.html" class="btn btn-neutral float-left" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

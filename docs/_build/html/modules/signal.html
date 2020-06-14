@@ -93,7 +93,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user/examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Gallery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user/developers.html">Developers’ guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html#datasets">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/developers.html">Development</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -284,9 +285,9 @@
 </div>
 <div class="section" id="detailed-descritpions">
 <h2>Detailed Descritpions<a class="headerlink" href="#detailed-descritpions" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.blackman">
-<code class="sig-name descname">blackman</code><span class="sig-paren">(</span><em class="sig-param">M</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.blackman" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">blackman</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">M</span></em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.blackman" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Blackman window.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.blackman" title="symjax.tensor.signal.blackman"><code class="xref py py-func docutils literal notranslate"><span class="pre">blackman()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -333,7 +334,7 @@ Upper Saddle River, NJ: Prentice-Hall, 1999, pp. 468-471.</p>
 </pre></div>
 </div>
 <p>Plot the window and the frequency response:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="k">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">blackman</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
 <span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
@@ -369,9 +370,9 @@ Upper Saddle River, NJ: Prentice-Hall, 1999, pp. 468-471.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.bartlett">
-<code class="sig-name descname">bartlett</code><span class="sig-paren">(</span><em class="sig-param">M</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.bartlett" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">bartlett</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">M</span></em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.bartlett" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Bartlett window.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.bartlett" title="symjax.tensor.signal.bartlett"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartlett()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -440,7 +441,7 @@ Processing”, Prentice-Hall, 1999, pp. 468-471.</p>
 </pre></div>
 </div>
 <p>Plot the window and its frequency response (requires SciPy and matplotlib):</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="k">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bartlett</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
 <span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
@@ -476,9 +477,9 @@ Processing”, Prentice-Hall, 1999, pp. 468-471.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.hamming">
-<code class="sig-name descname">hamming</code><span class="sig-paren">(</span><em class="sig-param">M</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.hamming" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">hamming</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">M</span></em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.hamming" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Hamming window.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hamming" title="symjax.tensor.signal.hamming"><code class="xref py py-func docutils literal notranslate"><span class="pre">hamming()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -537,7 +538,7 @@ University of Alberta Press, 1975, pp. 109-110.</p>
 </div>
 <p>Plot the window and the frequency response:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="k">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hamming</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
 <span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
@@ -572,9 +573,9 @@ University of Alberta Press, 1975, pp. 109-110.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.hanning">
-<code class="sig-name descname">hanning</code><span class="sig-paren">(</span><em class="sig-param">M</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.hanning" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">hanning</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">M</span></em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.hanning" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Hanning window.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hanning" title="symjax.tensor.signal.hanning"><code class="xref py py-func docutils literal notranslate"><span class="pre">hanning()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -634,7 +635,7 @@ The University of Alberta Press, 1975, pp. 106-108.</p>
 </div>
 <p>Plot the window and its frequency response:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="k">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hanning</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
 <span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
@@ -671,9 +672,9 @@ The University of Alberta Press, 1975, pp. 106-108.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.kaiser">
-<code class="sig-name descname">kaiser</code><span class="sig-paren">(</span><em class="sig-param">M</em>, <em class="sig-param">beta</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.kaiser" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">kaiser</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">M</span></em>, <em class="sig-param"><span class="n">beta</span></em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.kaiser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Kaiser window.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.kaiser" title="symjax.tensor.signal.kaiser"><code class="xref py py-func docutils literal notranslate"><span class="pre">kaiser()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -767,7 +768,7 @@ University of Alberta Press, 1975, pp. 177-178.</p>
 </pre></div>
 </div>
 <p>Plot the window and the frequency response:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="k">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kaiser</span><span class="p">(</span><span class="mi">51</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
 <span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
@@ -802,9 +803,9 @@ University of Alberta Press, 1975, pp. 177-178.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.fft">
-<code class="sig-name descname">fft</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">n=None</em>, <em class="sig-param">axis=-1</em>, <em class="sig-param">norm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.fft" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fft</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mkl_fft/_numpy_fft.html#fft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.fft" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the one-dimensional discrete Fourier Transform.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fft" title="symjax.tensor.signal.fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">fft()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -859,15 +860,16 @@ machine calculation of complex Fourier series,” <em>Math. Comput.</em>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="o">/</span> <span class="mi">8</span><span class="p">))</span>
-<span class="go">array([-2.33486982e-16+1.14423775e-17j,  8.00000000e+00-1.25557246e-15j,</span>
-<span class="go">        2.33486982e-16+2.33486982e-16j,  0.00000000e+00+1.22464680e-16j,</span>
-<span class="go">       -1.14423775e-17+2.33486982e-16j,  0.00000000e+00+5.20784380e-16j,</span>
-<span class="go">        1.14423775e-17+1.14423775e-17j,  0.00000000e+00+1.22464680e-16j])</span>
+<span class="go">array([ -3.44505240e-16 +1.14383329e-17j,</span>
+<span class="go">         8.00000000e+00 -5.71092652e-15j,</span>
+<span class="go">         2.33482938e-16 +1.22460635e-16j,</span>
+<span class="go">         1.64863782e-15 +1.77635684e-15j,</span>
+<span class="go">         9.95839695e-17 +2.33482938e-16j,</span>
+<span class="go">         0.00000000e+00 +1.66837030e-15j,</span>
+<span class="go">         1.14383329e-17 +1.22460635e-16j,</span>
+<span class="go">         -1.64863782e-15 +1.77635684e-15j])</span>
 </pre></div>
 </div>
-<p>In this example, real input has an FFT which is Hermitian, i.e., symmetric
-in the real part and anti-symmetric in the imaginary part, as described in
-the <cite>numpy.fft</cite> documentation:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
@@ -877,11 +879,14 @@ the <cite>numpy.fft</cite> documentation:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
+<p>In this example, real input has an FFT which is Hermitian, i.e., symmetric
+in the real part and anti-symmetric in the imaginary part, as described in
+the <cite>numpy.fft</cite> documentation.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.ifft">
-<code class="sig-name descname">ifft</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">n=None</em>, <em class="sig-param">axis=-1</em>, <em class="sig-param">norm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.ifft" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ifft</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mkl_fft/_numpy_fft.html#ifft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.ifft" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the one-dimensional inverse discrete Fourier Transform.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.ifft" title="symjax.tensor.signal.ifft"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifft()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -900,9 +905,6 @@ i.e.,</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">a[n//2</span> <span class="pre">+</span> <span class="pre">1:]</span></code> should contain the negative-frequency terms, in
 increasing order starting from the most negative frequency.</p></li>
 </ul>
-<p>For an even number of input points, <code class="docutils literal notranslate"><span class="pre">A[n//2]</span></code> represents the sum of
-the values at the positive and negative Nyquist frequencies, as the two
-are aliased together. See <cite>numpy.fft</cite> for details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>out</strong> – The truncated or zero-padded input, transformed along the axis
@@ -935,7 +937,7 @@ approach, it might lead to surprising results.  If a different padding is
 desired, it must be performed before calling <cite>ifft</cite>.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="go">array([ 1.+0.j,  0.+1.j, -1.+0.j,  0.-1.j]) # may vary</span>
+<span class="go">array([ 1.+0.j,  0.+1.j, -1.+0.j,  0.-1.j])</span>
 </pre></div>
 </div>
 <p>Create and plot a band-limited signal with random phases:</p>
@@ -945,17 +947,17 @@ desired, it must be performed before calling <cite>ifft</cite>.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">n</span><span class="p">[</span><span class="mi">40</span><span class="p">:</span><span class="mi">60</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="p">(</span><span class="mi">20</span><span class="p">,)))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="s1">&#39;b-&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="s1">&#39;r--&#39;</span><span class="p">)</span>
-<span class="go">[&lt;matplotlib.lines.Line2D object at ...&gt;, &lt;matplotlib.lines.Line2D object at ...&gt;]</span>
+<span class="gp">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">((</span><span class="s1">&#39;real&#39;</span><span class="p">,</span> <span class="s1">&#39;imaginary&#39;</span><span class="p">))</span>
-<span class="go">&lt;matplotlib.legend.Legend object at ...&gt;</span>
+<span class="gp">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.fft2">
-<code class="sig-name descname">fft2</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">s=None</em>, <em class="sig-param">axes=(-2</em>, <em class="sig-param">-1)</em>, <em class="sig-param">norm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.fft2" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fft2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">s</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">- 2, - 1</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mkl_fft/_numpy_fft.html#fft2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.fft2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the 2-dimensional discrete Fourier Transform</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fft2" title="symjax.tensor.signal.fft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">fft2()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -1008,23 +1010,23 @@ definitions and conventions used.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[:</span><span class="mi">5</span><span class="p">,</span> <span class="p">:</span><span class="mi">5</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft2</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-<span class="go">array([[ 50.  +0.j        ,   0.  +0.j        ,   0.  +0.j        , # may vary</span>
-<span class="go">          0.  +0.j        ,   0.  +0.j        ],</span>
-<span class="go">       [-12.5+17.20477401j,   0.  +0.j        ,   0.  +0.j        ,</span>
-<span class="go">          0.  +0.j        ,   0.  +0.j        ],</span>
-<span class="go">       [-12.5 +4.0614962j ,   0.  +0.j        ,   0.  +0.j        ,</span>
-<span class="go">          0.  +0.j        ,   0.  +0.j        ],</span>
-<span class="go">       [-12.5 -4.0614962j ,   0.  +0.j        ,   0.  +0.j        ,</span>
-<span class="go">          0.  +0.j        ,   0.  +0.j        ],</span>
-<span class="go">       [-12.5-17.20477401j,   0.  +0.j        ,   0.  +0.j        ,</span>
-<span class="go">          0.  +0.j        ,   0.  +0.j        ]])</span>
+<span class="go">array([[ 50.0 +0.j        ,   0.0 +0.j        ,   0.0 +0.j        ,</span>
+<span class="go">          0.0 +0.j        ,   0.0 +0.j        ],</span>
+<span class="go">       [-12.5+17.20477401j,   0.0 +0.j        ,   0.0 +0.j        ,</span>
+<span class="go">          0.0 +0.j        ,   0.0 +0.j        ],</span>
+<span class="go">       [-12.5 +4.0614962j ,   0.0 +0.j        ,   0.0 +0.j        ,</span>
+<span class="go">          0.0 +0.j        ,   0.0 +0.j        ],</span>
+<span class="go">       [-12.5 -4.0614962j ,   0.0 +0.j        ,   0.0 +0.j        ,</span>
+<span class="go">            0.0 +0.j        ,   0.0 +0.j        ],</span>
+<span class="go">       [-12.5-17.20477401j,   0.0 +0.j        ,   0.0 +0.j        ,</span>
+<span class="go">          0.0 +0.j        ,   0.0 +0.j        ]])</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.ifft2">
-<code class="sig-name descname">ifft2</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">s=None</em>, <em class="sig-param">axes=(-2</em>, <em class="sig-param">-1)</em>, <em class="sig-param">norm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.ifft2" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ifft2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">s</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">- 2, - 1</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mkl_fft/_numpy_fft.html#ifft2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.ifft2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the 2-dimensional inverse discrete Fourier Transform.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.ifft2" title="symjax.tensor.signal.ifft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifft2()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -1083,17 +1085,17 @@ padding is desired, it must be performed before <cite>ifft2</cite> is called.</p
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft2</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-<span class="go">array([[1.+0.j,  0.+0.j,  0.+0.j,  0.+0.j], # may vary</span>
-<span class="go">       [0.+0.j,  0.+0.j,  0.+0.j,  1.+0.j],</span>
-<span class="go">       [0.+0.j,  0.+0.j,  1.+0.j,  0.+0.j],</span>
-<span class="go">       [0.+0.j,  1.+0.j,  0.+0.j,  0.+0.j]])</span>
+<span class="go">array([[ 1.+0.j,  0.+0.j,  0.+0.j,  0.+0.j],</span>
+<span class="go">       [ 0.+0.j,  0.+0.j,  0.+0.j,  1.+0.j],</span>
+<span class="go">       [ 0.+0.j,  0.+0.j,  1.+0.j,  0.+0.j],</span>
+<span class="go">       [ 0.+0.j,  1.+0.j,  0.+0.j,  0.+0.j]])</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.fftn">
-<code class="sig-name descname">fftn</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">s=None</em>, <em class="sig-param">axes=None</em>, <em class="sig-param">norm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.fftn" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fftn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">s</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mkl_fft/_numpy_fft.html#fftn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.fftn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the N-dimensional discrete Fourier Transform.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fftn" title="symjax.tensor.signal.fftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">fftn()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -1145,17 +1147,17 @@ axes, in order of decreasingly negative frequency.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftn</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="go">array([[[ 0.+0.j,   0.+0.j,   0.+0.j], # may vary</span>
-<span class="go">        [ 0.+0.j,   0.+0.j,   0.+0.j],</span>
-<span class="go">        [ 0.+0.j,   0.+0.j,   0.+0.j]],</span>
-<span class="go">       [[ 9.+0.j,   0.+0.j,   0.+0.j],</span>
-<span class="go">        [ 0.+0.j,   0.+0.j,   0.+0.j],</span>
-<span class="go">        [ 0.+0.j,   0.+0.j,   0.+0.j]],</span>
-<span class="go">       [[18.+0.j,   0.+0.j,   0.+0.j],</span>
-<span class="go">        [ 0.+0.j,   0.+0.j,   0.+0.j],</span>
-<span class="go">        [ 0.+0.j,   0.+0.j,   0.+0.j]]])</span>
+<span class="go">array([[[  0.+0.j,   0.+0.j,   0.+0.j],</span>
+<span class="go">        [  0.+0.j,   0.+0.j,   0.+0.j],</span>
+<span class="go">        [  0.+0.j,   0.+0.j,   0.+0.j]],</span>
+<span class="go">       [[  9.+0.j,   0.+0.j,   0.+0.j],</span>
+<span class="go">        [  0.+0.j,   0.+0.j,   0.+0.j],</span>
+<span class="go">        [  0.+0.j,   0.+0.j,   0.+0.j]],</span>
+<span class="go">       [[ 18.+0.j,   0.+0.j,   0.+0.j],</span>
+<span class="go">        [  0.+0.j,   0.+0.j,   0.+0.j],</span>
+<span class="go">        [  0.+0.j,   0.+0.j,   0.+0.j]]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftn</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<span class="go">array([[[ 2.+0.j,  2.+0.j,  2.+0.j], # may vary</span>
+<span class="go">array([[[ 2.+0.j,  2.+0.j,  2.+0.j],</span>
 <span class="go">        [ 0.+0.j,  0.+0.j,  0.+0.j]],</span>
 <span class="go">       [[-2.+0.j, -2.+0.j, -2.+0.j],</span>
 <span class="go">        [ 0.+0.j,  0.+0.j,  0.+0.j]]])</span>
@@ -1173,9 +1175,9 @@ axes, in order of decreasingly negative frequency.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.ifftn">
-<code class="sig-name descname">ifftn</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">s=None</em>, <em class="sig-param">axes=None</em>, <em class="sig-param">norm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.ifftn" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ifftn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">s</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mkl_fft/_numpy_fft.html#ifftn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.ifftn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the N-dimensional inverse discrete Fourier Transform.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.ifftn" title="symjax.tensor.signal.ifftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">ifftn()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -1232,10 +1234,10 @@ padding is desired, it must be performed before <cite>ifftn</cite> is called.</p
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftn</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,)),</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
-<span class="go">array([[1.+0.j,  0.+0.j,  0.+0.j,  0.+0.j], # may vary</span>
-<span class="go">       [0.+0.j,  1.+0.j,  0.+0.j,  0.+0.j],</span>
-<span class="go">       [0.+0.j,  0.+0.j,  1.+0.j,  0.+0.j],</span>
-<span class="go">       [0.+0.j,  0.+0.j,  0.+0.j,  1.+0.j]])</span>
+<span class="go">array([[ 1.+0.j,  0.+0.j,  0.+0.j,  0.+0.j],</span>
+<span class="go">       [ 0.+0.j,  1.+0.j,  0.+0.j,  0.+0.j],</span>
+<span class="go">       [ 0.+0.j,  0.+0.j,  1.+0.j,  0.+0.j],</span>
+<span class="go">       [ 0.+0.j,  0.+0.j,  0.+0.j,  1.+0.j]])</span>
 </pre></div>
 </div>
 <p>Create and plot an image with band-limited frequency content:</p>
@@ -1250,9 +1252,9 @@ padding is desired, it must be performed before <cite>ifftn</cite> is called.</p
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.rfft">
-<code class="sig-name descname">rfft</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">n=None</em>, <em class="sig-param">axis=-1</em>, <em class="sig-param">norm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.rfft" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rfft</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mkl_fft/_numpy_fft.html#rfft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.rfft" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the one-dimensional discrete Fourier Transform for real input.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.rfft" title="symjax.tensor.signal.rfft"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfft()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -1307,9 +1309,9 @@ general case.</p>
 <p>If the input <cite>a</cite> contains an imaginary part, it is silently discarded.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="go">array([ 1.+0.j,  0.-1.j, -1.+0.j,  0.+1.j]) # may vary</span>
+<span class="go">array([ 1.+0.j,  0.-1.j, -1.+0.j,  0.+1.j])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="go">array([ 1.+0.j,  0.-1.j, -1.+0.j]) # may vary</span>
+<span class="go">array([ 1.+0.j,  0.-1.j, -1.+0.j])</span>
 </pre></div>
 </div>
 <p>Notice how the final element of the <cite>fft</cite> output is the complex conjugate
@@ -1317,9 +1319,9 @@ of the second element, for real input. For <cite>rfft</cite>, this symmetry is
 exploited to compute only the non-negative frequency terms.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.irfft">
-<code class="sig-name descname">irfft</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">n=None</em>, <em class="sig-param">axis=-1</em>, <em class="sig-param">norm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.irfft" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">irfft</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mkl_fft/_numpy_fft.html#irfft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.irfft" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the inverse of the n-point DFT for real input.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.irfft" title="symjax.tensor.signal.irfft"><code class="xref py py-func docutils literal notranslate"><span class="pre">irfft()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -1373,18 +1375,11 @@ input.</p>
 extra/removed values will be added/removed at high frequencies. One can
 thus resample a series to <cite>m</cite> points via Fourier interpolation by:
 <code class="docutils literal notranslate"><span class="pre">a_resamp</span> <span class="pre">=</span> <span class="pre">irfft(rfft(a),</span> <span class="pre">m)</span></code>.</p>
-<p>The correct interpretation of the hermitian input depends on the length of
-the original data, as given by <cite>n</cite>. This is because each input shape could
-correspond to either an odd or even length signal. By default, <cite>irfft</cite>
-assumes an even output length which puts the last entry at the Nyquist
-frequency; aliasing with its symmetric counterpart. By Hermitian symmetry,
-the value is thus treated as purely real. To avoid losing information, the
-correct length of the real input <strong>must</strong> be given.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="n">j</span><span class="p">])</span>
-<span class="go">array([0.+0.j,  1.+0.j,  0.+0.j,  0.+0.j]) # may vary</span>
+<span class="go">array([ 0.+0.j,  1.+0.j,  0.+0.j,  0.+0.j])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfft</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-<span class="go">array([0.,  1.,  0.,  0.])</span>
+<span class="go">array([ 0.,  1.,  0.,  0.])</span>
 </pre></div>
 </div>
 <p>Notice how the last term in the input to the ordinary <cite>ifft</cite> is the
@@ -1393,9 +1388,9 @@ part everywhere.  When calling <cite>irfft</cite>, the negative frequencies are 
 specified, and the output array is purely real.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.rfft2">
-<code class="sig-name descname">rfft2</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">s=None</em>, <em class="sig-param">axes=(-2</em>, <em class="sig-param">-1)</em>, <em class="sig-param">norm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.rfft2" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rfft2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">s</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">- 2, - 1</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mkl_fft/_numpy_fft.html#rfft2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.rfft2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the 2-dimensional FFT of a real array.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.rfft2" title="symjax.tensor.signal.rfft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfft2()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -1421,9 +1416,9 @@ Original docstring below.</p>
 For more details see <cite>rfftn</cite>.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.irfft2">
-<code class="sig-name descname">irfft2</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">s=None</em>, <em class="sig-param">axes=(-2</em>, <em class="sig-param">-1)</em>, <em class="sig-param">norm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.irfft2" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">irfft2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">s</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">- 2, - 1</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mkl_fft/_numpy_fft.html#irfft2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.irfft2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the 2-dimensional inverse FFT of a real array.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.irfft2" title="symjax.tensor.signal.irfft2"><code class="xref py py-func docutils literal notranslate"><span class="pre">irfft2()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -1449,9 +1444,9 @@ Original docstring below.</p>
 For more details see <cite>irfftn</cite>.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.rfftn">
-<code class="sig-name descname">rfftn</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">s=None</em>, <em class="sig-param">axes=None</em>, <em class="sig-param">norm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.rfftn" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rfftn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">s</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mkl_fft/_numpy_fft.html#rfftn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.rfftn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the N-dimensional discrete Fourier Transform for real input.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.rfftn" title="symjax.tensor.signal.rfftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">rfftn()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -1506,24 +1501,24 @@ transformation axes.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftn</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-<span class="go">array([[[8.+0.j,  0.+0.j], # may vary</span>
-<span class="go">        [0.+0.j,  0.+0.j]],</span>
-<span class="go">       [[0.+0.j,  0.+0.j],</span>
-<span class="go">        [0.+0.j,  0.+0.j]]])</span>
+<span class="go">array([[[ 8.+0.j,  0.+0.j],</span>
+<span class="go">        [ 0.+0.j,  0.+0.j]],</span>
+<span class="go">       [[ 0.+0.j,  0.+0.j],</span>
+<span class="go">        [ 0.+0.j,  0.+0.j]]])</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftn</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-<span class="go">array([[[4.+0.j,  0.+0.j], # may vary</span>
-<span class="go">        [4.+0.j,  0.+0.j]],</span>
-<span class="go">       [[0.+0.j,  0.+0.j],</span>
-<span class="go">        [0.+0.j,  0.+0.j]]])</span>
+<span class="go">array([[[ 4.+0.j,  0.+0.j],</span>
+<span class="go">        [ 4.+0.j,  0.+0.j]],</span>
+<span class="go">       [[ 0.+0.j,  0.+0.j],</span>
+<span class="go">        [ 0.+0.j,  0.+0.j]]])</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.irfftn">
-<code class="sig-name descname">irfftn</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">s=None</em>, <em class="sig-param">axes=None</em>, <em class="sig-param">norm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.irfftn" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">irfftn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">s</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mkl_fft/_numpy_fft.html#irfftn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.irfftn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the inverse of the N-dimensional FFT of real input.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.irfftn" title="symjax.tensor.signal.irfftn"><code class="xref py py-func docutils literal notranslate"><span class="pre">irfftn()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -1576,31 +1571,23 @@ number of output points in the final axis, <cite>s</cite> must be specified.</p>
 <p class="rubric">Notes</p>
 <p>See <cite>fft</cite> for definitions and conventions used.</p>
 <p>See <cite>rfft</cite> for definitions and conventions used for real input.</p>
-<p>The correct interpretation of the hermitian input depends on the shape of
-the original data, as given by <cite>s</cite>. This is because each input shape could
-correspond to either an odd or even length signal. By default, <cite>irfftn</cite>
-assumes an even output length which puts the last entry at the Nyquist
-frequency; aliasing with its symmetric counterpart. When performing the
-final complex to real transform, the last value is thus treated as purely
-real. To avoid losing information, the correct shape of the real input
-<strong>must</strong> be given.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfftn</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-<span class="go">array([[[1.,  1.],</span>
-<span class="go">        [1.,  1.]],</span>
-<span class="go">       [[1.,  1.],</span>
-<span class="go">        [1.,  1.]],</span>
-<span class="go">       [[1.,  1.],</span>
-<span class="go">        [1.,  1.]]])</span>
+<span class="go">array([[[ 1.,  1.],</span>
+<span class="go">        [ 1.,  1.]],</span>
+<span class="go">       [[ 1.,  1.],</span>
+<span class="go">        [ 1.,  1.]],</span>
+<span class="go">       [[ 1.,  1.],</span>
+<span class="go">        [ 1.,  1.]]])</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.fftfreq">
-<code class="sig-name descname">fftfreq</code><span class="sig-paren">(</span><em class="sig-param">n</em>, <em class="sig-param">d=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.fftfreq" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fftfreq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">d</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.fftfreq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Discrete Fourier Transform sample frequencies.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.fftfreq" title="symjax.tensor.signal.fftfreq"><code class="xref py py-func docutils literal notranslate"><span class="pre">fftfreq()</span></code></a>.
 ADDITIONOriginal docstring below.</p>
@@ -1634,9 +1621,9 @@ the sample spacing is in seconds, then the frequency unit is cycles/second.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.rfftfreq">
-<code class="sig-name descname">rfftfreq</code><span class="sig-paren">(</span><em class="sig-param">n</em>, <em class="sig-param">d=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.rfftfreq" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rfftfreq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">d</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.rfftfreq" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Return the Discrete Fourier Transform sample frequencies</dt><dd><p>(for usage with rfft, irfft).</p>
 </dd>
@@ -1678,26 +1665,26 @@ the Nyquist frequency component is considered to be positive.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.mfcc">
 <code class="sig-name descname">mfcc</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">window</em>, <em class="sig-param">hop</em>, <em class="sig-param">n_filter</em>, <em class="sig-param">low_freq</em>, <em class="sig-param">high_freq</em>, <em class="sig-param">nyquist</em>, <em class="sig-param">n_mfcc</em>, <em class="sig-param">nfft=None</em>, <em class="sig-param">mode='valid'</em>, <em class="sig-param">apod=&lt;function hanning&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#mfcc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.mfcc" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference external" href="https://librosa.github.io/librosa/_modules/librosa/feature/spectral.html#mfcc">https://librosa.github.io/librosa/_modules/librosa/feature/spectral.html#mfcc</a></p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.dct">
-<code class="sig-name descname">dct</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">axes=(-1</em>, <em class="sig-param">)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#dct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.dct" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dct</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signal</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">- 1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#dct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.dct" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference external" href="https://dsp.stackexchange.com/questions/2807/fast-cosine-transform-via-fft">https://dsp.stackexchange.com/questions/2807/fast-cosine-transform-via-fft</a></p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.wvd">
 <code class="sig-name descname">wvd</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">window</em>, <em class="sig-param">hop</em>, <em class="sig-param">L</em>, <em class="sig-param">apod=&lt;function hanning&gt;</em>, <em class="sig-param">mode='valid'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#wvd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.wvd" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.tensor.signal.hilbert_transform">
-<code class="sig-name descname">hilbert_transform</code><span class="sig-paren">(</span><em class="sig-param">signal</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#hilbert_transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.hilbert_transform" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">hilbert_transform</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signal</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#hilbert_transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.hilbert_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>the time should be the last dimension
 return the analytical signal</p>
 </dd></dl>

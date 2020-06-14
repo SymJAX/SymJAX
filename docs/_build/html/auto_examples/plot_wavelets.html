@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Single-station covariance matrix &mdash; symjax 0.0.1 documentation</title>
+  <title>Morlet Wavelet in time and Fourier domain &mdash; symjax 0.0.1 documentation</title>
   
 
   
@@ -40,7 +40,7 @@
   <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Developers’ guide" href="../user/developers.html" />
+    <link rel="next" title="Basic gradient descent (and reset)" href="plot_sgd.html" />
     <link rel="prev" title="Gallery" href="index.html" /> 
 </head>
 
@@ -93,10 +93,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user/examples.html">Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Gallery</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Single-station covariance matrix</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Morlet Wavelet in time and Fourier domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_sgd.html">Basic gradient descent (and reset)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wavelets.html">Single-station covariance matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_cifar10_classif.html">CIFAR10 classification</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../user/developers.html">Developers’ guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#datasets">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/developers.html">Development</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -158,7 +162,7 @@
         
           <li><a href="index.html">Gallery</a> &raquo;</li>
         
-      <li>Single-station covariance matrix</li>
+      <li>Morlet Wavelet in time and Fourier domain</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -181,39 +185,10 @@
 <p class="admonition-title">Note</p>
 <p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-plot-wavelets-py"><span class="std std-ref">here</span></a>     to download the full example code</p>
 </div>
-<div class="sphx-glr-example-title section" id="single-station-covariance-matrix">
-<span id="sphx-glr-auto-examples-plot-wavelets-py"></span><h1>Single-station covariance matrix<a class="headerlink" href="#single-station-covariance-matrix" title="Permalink to this headline">¶</a></h1>
-<p>This example shows how to calculate the interchannel spectral covariance matrix. It makes use of the obspy example trace available when installing obspy. This basic example does not apply any synchronization or pre-processing.</p>
-<p>Considering a single seismic station with three channels (NS, EW, and Z), the covariance is of dimensions 3 times 3. The following example use a Fourier estimation window of 1 second and is estimated over 5 consecutive windows.</p>
-<img alt="plot wavelets" class="sphx-glr-single-img" src="../_images/sphx_glr_plot_wavelets_001.svg" /><p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/Users/seydoux/opt/anaconda3/lib/python3.7/site-packages/jax/lib/xla_bridge.py:116: UserWarning: No GPU/TPU found, falling back to CPU.
-  warnings.warn(&#39;No GPU/TPU found, falling back to CPU.&#39;)
-[[ 1.0717734]
- [ 1.235644 ]
- [ 1.4245698]
- [ 1.6423817]
- [ 1.8934964]
- [ 2.1830056]
- [ 2.5167797]
- [ 2.9015868]
- [ 3.3452296]
- [ 3.8567042]
- [ 4.4463816]
- [ 5.1262174]
- [ 5.9099984]
- [ 6.8136187]
- [ 7.8553963]
- [ 9.056461 ]
- [10.441164 ]
- [12.037582 ]
- [13.878087 ]
- [16.       ]]
-</pre></div>
-</div>
-<div class="line-block">
-<div class="line"><br /></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">symjax</span>
+<div class="sphx-glr-example-title section" id="morlet-wavelet-in-time-and-fourier-domain">
+<span id="sphx-glr-auto-examples-plot-wavelets-py"></span><h1>Morlet Wavelet in time and Fourier domain<a class="headerlink" href="#morlet-wavelet-in-time-and-fourier-domain" title="Permalink to this headline">¶</a></h1>
+<p>This example shows how to generate a wavelet filter-bank.</p>
+<img alt="plot wavelets" class="sphx-glr-single-img" src="../_images/sphx_glr_plot_wavelets_001.svg" /><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">symjax</span>
 <span class="kn">import</span> <span class="nn">symjax.tensor</span> <span class="k">as</span> <span class="nn">T</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -223,57 +198,25 @@
 <span class="n">scales</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">T</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">J</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">J</span> <span class="o">*</span> <span class="n">Q</span><span class="p">))</span>
 <span class="n">scales</span> <span class="o">=</span> <span class="n">scales</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">scales</span><span class="p">))</span>
-
 <span class="n">wavelet</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">complex_morlet</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">scales</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span><span class="n">scales</span><span class="p">)</span>
 <span class="n">waveletw</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">fourier_complex_morlet</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">scales</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span><span class="n">scales</span><span class="p">,</span> <span class="n">wavelet</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-<span class="n">waveletlp</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">littewood_paley_normalization</span><span class="p">(</span><span class="n">waveletw</span><span class="p">,</span> <span class="n">down</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">scales</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 
-<span class="n">wavelet</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">wavelet</span><span class="p">)</span>
-<span class="n">waveletw</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">waveletw</span><span class="p">)</span>
-<span class="n">waveletlp</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">waveletlp</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">wavelet</span><span class="p">,</span> <span class="n">waveletw</span><span class="p">])</span>
 
+<span class="n">wavelet</span><span class="p">,</span> <span class="n">waveletw</span> <span class="o">=</span> <span class="n">f</span><span class="p">()</span>
 
-
-<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">321</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">J</span><span class="o">*</span><span class="n">Q</span><span class="p">):</span>
-    <span class="n">fr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">wavelet</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
-    <span class="n">fi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">wavelet</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">fr</span><span class="p">,</span> <span class="s1">&#39;--b&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">fi</span><span class="p">,</span> <span class="s1">&#39;--r&#39;</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">322</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">J</span><span class="o">*</span><span class="n">Q</span><span class="p">):</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="n">wavelet</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="n">wavelet</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">324</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">J</span><span class="o">*</span><span class="n">Q</span><span class="p">):</span>
-    <span class="n">fr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">waveletw</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
-    <span class="n">fi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">waveletw</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">fr</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="s1">&#39;--b&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="n">fi</span> <span class="o">/</span> <span class="n">fi</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="s1">&#39;--r&#39;</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">323</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">J</span><span class="o">*</span><span class="n">Q</span><span class="p">):</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">waveletw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">waveletw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">325</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">J</span><span class="o">*</span><span class="n">Q</span><span class="p">):</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">waveletlp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">waveletlp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">waveletlp</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">326</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">J</span><span class="o">*</span><span class="n">Q</span><span class="p">):</span>
-    <span class="n">fr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">waveletlp</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
-    <span class="n">fi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">waveletlp</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">fr</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="s1">&#39;--b&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="n">fi</span> <span class="o">/</span> <span class="n">fi</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="s1">&#39;--r&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  45.915 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  4.534 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-wavelets-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/56701e445b890e7daf09657ea4f8b394/plot_wavelets.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_wavelets.py</span></code></a></p>
@@ -293,7 +236,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../user/developers.html" class="btn btn-neutral float-right" title="Developers’ guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="plot_sgd.html" class="btn btn-neutral float-right" title="Basic gradient descent (and reset)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral float-left" title="Gallery" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

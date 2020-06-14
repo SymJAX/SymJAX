@@ -41,7 +41,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="symjax.tensor" href="tensor.html" />
-    <link rel="prev" title="Developers’ guide" href="../user/developers.html" /> 
+    <link rel="prev" title="Development" href="../user/developers.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -93,10 +93,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user/examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Gallery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user/developers.html">Developers’ guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html#datasets">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/developers.html">Development</a></li>
 </ul>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-symjax">Graph access/manipulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-0">Derivatives</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="pdfs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.pdfs</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
@@ -173,10 +178,10 @@
            <div itemprop="articleBody">
             
   <div class="section" id="symjax">
-<h1><a class="reference internal" href="#module-symjax" title="symjax"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a><a class="headerlink" href="#symjax" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<h1><a class="reference internal" href="#module-0" title="symjax"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a><a class="headerlink" href="#symjax" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
 <dt id="symjax.function">
-<em class="property">class </em><code class="sig-name descname">function</code><span class="sig-paren">(</span><em class="sig-param">*classargs</em>, <em class="sig-param">outputs=[]</em>, <em class="sig-param">updates=None</em>, <em class="sig-param">device=None</em>, <em class="sig-param">backend=None</em>, <em class="sig-param">default_value=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/base.html#function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.function" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">function</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">classargs</span></em>, <em class="sig-param"><span class="n">outputs</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">updates</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">backend</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">default_value</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/base.html#function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.function" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a user function that compiles a computational graph.</p>
 <p>Based on given inputs, outputs and update policy of variables. This
 function internally jit compile the underlying jax computational
@@ -225,9 +230,44 @@ updates</p>
 </div>
 </dd></dl>
 
-<span class="target" id="module-symjax"></span><dl class="function">
+<div class="section" id="module-symjax">
+<span id="graph-access-manipulation"></span><h2>Graph access/manipulation<a class="headerlink" href="#module-symjax" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="symjax.get_ops">
+<code class="sig-name descname">get_ops</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/base.html#get_ops"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.get_ops" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as symjax.variable but for ops</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="symjax.reset_variables">
+<code class="sig-name descname">reset_variables</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'*'</span></em>, <em class="sig-param"><span class="n">trainable</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/base.html#reset_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.reset_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>utility to reset variables based on their names</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em><em> (</em><em>default=*</em><em>)</em>) – the name (or part of the name) of all the variables that should be
+reset, it can include the glob (*) searching for all matching
+names</p></li>
+<li><p><strong>trainable</strong> (<em>bool</em><em> or </em><em>None</em><em> (</em><em>optional</em><em>, </em><em>default=None</em><em>)</em>) – is not None, it will only reset from the matched variables the ones that
+trainable attribute matches the given one</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-0">
+<span id="derivatives"></span><h2>Derivatives<a class="headerlink" href="#module-0" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
 <dt id="symjax.gradients">
-<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param">scalar</em>, <em class="sig-param">variables</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/base.html#gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.gradients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scalar</span></em>, <em class="sig-param"><span class="n">variables</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/base.html#gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.gradients" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the gradients of a scalar w.r.t to a given list of variables.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -245,9 +285,9 @@ updates</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.jacobians">
-<code class="sig-name descname">jacobians</code><span class="sig-paren">(</span><em class="sig-param">tensor</em>, <em class="sig-param">variables</em>, <em class="sig-param">mode='forward'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/base.html#jacobians"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.jacobians" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">jacobians</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="n">variables</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'forward'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/base.html#jacobians"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.jacobians" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the jacobians of a tensor w.r.t to a given list of variables.</p>
 <p>The tensor needs not to be a vector, but will be treated as such. For
 example if tensor.shape is (10, 3, 3) and a variable shape if (10, 10)
@@ -271,6 +311,7 @@ is faster and vice-versa.</p>
 </dd></dl>
 
 </div>
+</div>
 
 
            </div>
@@ -283,7 +324,7 @@ is faster and vice-versa.</p>
         <a href="tensor.html" class="btn btn-neutral float-right" title="symjax.tensor" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../user/developers.html" class="btn btn-neutral float-left" title="Developers’ guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../user/developers.html" class="btn btn-neutral float-left" title="Development" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

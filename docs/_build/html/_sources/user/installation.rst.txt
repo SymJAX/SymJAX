@@ -1,24 +1,34 @@
 Installation
 ============
 
-This installation is restricted to GPU support only.
+
+SymJAX has a couple of prerequisites that need to be installed first without
+hard version requirements. However, as SymJAX is tightly coupled with Jax, it will
+require a recent version of Jax.
 
 
-Installation with pip
+CPU only installation
 ---------------------
 
-1. Install all GPU divers and compilers (``cuda``, ``cudnn``, and GPU drivers).
-
-2. Install ``jax`` following `Jax Installation <https://github.com/google/jax#installation>`_. Here is a minimal instruction to install the GPU version
+Installation of SymJAX and all its dependencies (including Jax) for CPU only
+support is done simply as follows
 
     .. code-block:: bash
 
-        $ PYTHON_VERSION=cp37  # alternatives: cp35, cp36, cp37, cp38
-        $ CUDA_VERSION=cuda92  # alternatives: cuda92, cuda100, cuda101, cuda102
-        $ PLATFORM=linux_x86_64  # alternatives: linux_x86_64
-        $ BASE_URL='https://storage.googleapis.com/jax-releases'
-        $ pip install --upgrade $BASE_URL/$CUDA_VERSION jaxlib-0.1.38-$PYTHON_VERSION-none-$PLATFORM.whl
+        $ pip install symjax
+ 
 
+GPU installation
+----------------
+
+For the GPU support, the Jax installation needs to be done first and based on the
+local cuda settings following `Jax Installation <https://github.com/google/jax#installation>`_.
+In short, the steps involve
+
+
+1. Installation of GPU drivers/libraries/compilers (``cuda``, ``cudnn``, ``nvcc``).
+
+2. Install ``jax`` following `Jax Installation <https://github.com/google/jax#installation>`_. 
 
 3. Install SymJAX with
 
@@ -26,8 +36,13 @@ Installation with pip
 
         $ pip install symjax
 
-Manual installation
--------------------
+
+
+Manual (bleeding-edge) installation of SymJAX
+---------------------------------------------
+
+In place of the base installation of SymJAX from the latest official release from PyPi, one can install the latest version of SymJAX from the github repository as follows
+
 
 1. Clone this repository with
 
@@ -42,7 +57,5 @@ Manual installation
         $ cd SymJAX
         $ pip install -r requirements.txt
         $ pip install .
-
-
 
 

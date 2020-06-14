@@ -8,12 +8,12 @@ from .base import (
         function,
         gradients,
         jacobians,
-        reset,
+        reset_variables,
         save,
         load,
-        variable,
-        placeholder,
-        op)
+        get_variables,
+        get_placeholders,
+        get_ops)
 
 
 from . import data

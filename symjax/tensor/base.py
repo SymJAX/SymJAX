@@ -184,7 +184,10 @@ class Tensor:
         self._dtype = dtype
         self._givens = {}
         if name is not None:
-            self.name = name
+            assert '/' not in name
+            self._name = name
+        else:
+            self._name = 'unnamed'
         symjax.current_graph().add(self)
 
     def __repr__(self):
@@ -193,6 +196,13 @@ class Tensor:
 
     def __str__(self):
         return self.__repr__()
+
+    @property
+    def name(self):
+        return self._name
+
+    def _set_name(self, new_name):
+        self._name = new_name
 
     @property
     def args(self):
@@ -483,11 +493,10 @@ class Op(Tensor):
         self._kwargs = kwargs
         self._args = args
         self.jax_function = _jax_function
-        self.name = name or _jax_function.__name__
         # set roots
         roots = list(set(getroots(list(kwargs.values())+ list(args)) + _roots))
 
-        super().__init__(_shape, _dtype, roots)
+        super().__init__(_shape, _dtype, roots, name=name)
 
     def __repr__(self):
         name = 'Op(name={}, shape={}, dtype={}, scope={})'
@@ -561,8 +570,7 @@ class TupleItem(Tensor):
     def __init__(self, shape, dtype, index, roots, name=''):
         self._parent = None
         self._index = index
-        self.name = name
-        super().__init__(shape, dtype, roots=roots)
+        super().__init__(shape, dtype, roots=roots, name=name)
 
     def _get(self, tracker, givens, branches):
         return self._parent._get(tracker, givens, branches)[self._index]
@@ -628,14 +636,14 @@ class Variable(Tensor):
             attribute and can be accessed.
     """
 
-    def __init__(self, initializer, name='unnamed_variable', trainable=True):
+    def __init__(self, initializer, name='unnamed_variable', trainable=True, dtype=None):
         
         self.trainable = trainable
-        self.name = name
         self.initializer = initializer
+        self._dtype = dtype
         self.reset()
 
-        super().__init__(numpy.shape(self.value), self.value.dtype if hasattr(self.value, 'dtype') else type(self.value), roots=[self])
+        super().__init__(numpy.shape(self.value), dtype, roots=[self], name=name)
 
 
     def reset(self):
@@ -645,8 +653,13 @@ class Variable(Tensor):
         nothing guarantees that the reset will give back the original value
         as opposed to the array case
         """
+        if isinstance(self.initializer, Tensor):
+            self._value = get(self.initializer)
+        else:
+            self._value = numpy.array(self.initializer)
 
-        self._value = get(self.initializer)
+        if self._dtype is not None:
+            self._value = self._value.astype(self._dtype)
 
     @property
     def value(self):
@@ -695,8 +708,7 @@ class Placeholder(Tensor):
     """
 
     def __init__(self, shape, dtype, name=''):
-        self.name = name
-        super().__init__(shape, dtype, roots=[self])
+        super().__init__(shape, dtype, roots=[self], name=name)
 
     def __repr__(self):
         return '(Placeholder: ' + self.name + ', dtype=' + str(self.dtype) + \

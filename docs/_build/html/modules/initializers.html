@@ -93,7 +93,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user/examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Gallery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user/developers.html">Developers’ guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html#datasets">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/developers.html">Development</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -174,13 +175,13 @@
             
   <div class="section" id="symjax-initializers">
 <h1><a class="reference internal" href="#module-symjax.initializers" title="symjax.initializers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.initializers</span></code></a><a class="headerlink" href="#symjax-initializers" title="Permalink to this headline">¶</a></h1>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="symjax.initializers">
 <code class="sig-name descname">initializers</code><a class="headerlink" href="#symjax.initializers" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#module-symjax.initializers" title="symjax.initializers"><code class="xref py py-class docutils literal notranslate"><span class="pre">symjax.initializers</span></code></a></p>
 </dd></dl>
 
-<span class="target" id="module-symjax.initializers"></span><dl class="function">
+<span class="target" id="module-symjax.initializers"></span><dl class="py function">
 <dt id="symjax.initializers.glorot">
 <code class="sig-name descname">glorot</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">gain=1</em>, <em class="sig-param">distribution=&lt;function normal&gt;</em>, <em class="sig-param">in_axis=0</em>, <em class="sig-param">out_axis=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#glorot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.glorot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Glorot weight initialization.
@@ -227,7 +228,7 @@ and <code class="docutils literal notranslate"><span class="pre">initializer=Uni
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.initializers.he">
 <code class="sig-name descname">he</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">gain=1.4142135623730951</em>, <em class="sig-param">distribution=&lt;function normal&gt;</em>, <em class="sig-param">in_axis=0</em>, <em class="sig-param">out_axis=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#he"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.he" title="Permalink to this definition">¶</a></dt>
 <dd><p>He weight initialization.
@@ -269,7 +270,7 @@ imagenet classification. arXiv preprint arXiv:1502.01852.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.initializers.lecun">
 <code class="sig-name descname">lecun</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">gain=1.0</em>, <em class="sig-param">distribution=&lt;function normal&gt;</em>, <em class="sig-param">in_axis=0</em>, <em class="sig-param">out_axis=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#lecun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.lecun" title="Permalink to this definition">¶</a></dt>
 <dd><p>LeCun weight initialization.
@@ -277,9 +278,9 @@ Weights are initialized with a standard deviation of
 <span class="math notranslate nohighlight">\(\sigma = gain \sqrt{\frac{1}{fan_{in}}}\)</span>.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.initializers.normal">
-<code class="sig-name descname">normal</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">mean=0.0</em>, <em class="sig-param">std=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#normal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.normal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">normal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shape</span></em>, <em class="sig-param"><span class="n">mean</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">std</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#normal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.normal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample initial weights from the Gaussian distribution.
 Initial weight parameters are sampled from N(mean, std).</p>
 <dl class="field-list simple">
@@ -292,9 +293,9 @@ Initial weight parameters are sampled from N(mean, std).</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.initializers.uniform">
-<code class="sig-name descname">uniform</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">range=0.01</em>, <em class="sig-param">std=None</em>, <em class="sig-param">mean=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#uniform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.uniform" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">uniform</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shape</span></em>, <em class="sig-param"><span class="n">range</span><span class="o">=</span><span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">std</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mean</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#uniform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.uniform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample initial weights from the uniform distribution.
 Parameters are sampled from U(a, b).</p>
 <dl class="field-list simple">
@@ -311,7 +312,7 @@ U(mean - np.sqrt(3) * std, mean + np.sqrt(3) * std).</p></li>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="symjax.initializers.variance_scaling">
 <code class="sig-name descname">variance_scaling</code><span class="sig-paren">(</span><em class="sig-param">mode</em>, <em class="sig-param">shape</em>, <em class="sig-param">gain</em>, <em class="sig-param">distribution=&lt;function normal&gt;</em>, <em class="sig-param">in_axis=0</em>, <em class="sig-param">out_axis=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/initializers.html#variance_scaling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.initializers.variance_scaling" title="Permalink to this definition">¶</a></dt>
 <dd><p>Variance Scaling initialization.</p>

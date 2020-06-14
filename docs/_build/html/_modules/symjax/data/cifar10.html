@@ -91,7 +91,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Gallery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user/developers.html">Developers’ guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html#datasets">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/developers.html">Development</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -175,7 +176,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tarfile</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
 
 <div class="viewcode-block" id="cifar10"><a class="viewcode-back" href="../../../modules/data.html#symjax.data.cifar10">[docs]</a><span class="k">class</span> <span class="nc">cifar10</span><span class="p">:</span>
@@ -192,6 +193,17 @@
 <span class="sd">    contain more images from one class than another. Between them, the </span>
 <span class="sd">    training batches contain exactly 5000 images from each class. </span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">label_to_name</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;automobile&#39;</span><span class="p">,</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span>
+            <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;cat&#39;</span><span class="p">,</span>
+            <span class="mi">4</span><span class="p">:</span> <span class="s1">&#39;deer&#39;</span><span class="p">,</span>
+            <span class="mi">5</span><span class="p">:</span> <span class="s1">&#39;dog&#39;</span><span class="p">,</span>
+            <span class="mi">6</span><span class="p">:</span> <span class="s1">&#39;frog&#39;</span><span class="p">,</span>
+            <span class="mi">7</span><span class="p">:</span> <span class="s1">&#39;horse&#39;</span><span class="p">,</span>
+            <span class="mi">8</span><span class="p">:</span> <span class="s1">&#39;sheep&#39;</span><span class="p">,</span>
+            <span class="mi">9</span><span class="p">:</span> <span class="s1">&#39;truck&#39;</span><span class="p">}</span>
 
 <div class="viewcode-block" id="cifar10.download"><a class="viewcode-back" href="../../../modules/data.html#symjax.data.cifar10.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -272,8 +284,16 @@
         <span class="n">test_images</span> <span class="o">=</span> <span class="n">data_dic</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">32</span><span class="p">,</span><span class="mi">32</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
         <span class="n">test_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data_dic</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
     
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;label_to_name&#39;</span><span class="p">:</span> <span class="n">cifar10</span><span class="o">.</span><span class="n">label_to_name</span><span class="p">,</span>
+                <span class="s1">&#39;train_set/images&#39;</span><span class="p">:</span> <span class="n">train_images</span><span class="p">,</span>
+                <span class="s1">&#39;train_set/labels&#39;</span><span class="p">:</span> <span class="n">train_labels</span><span class="p">,</span>
+                <span class="s1">&#39;test_set/images&#39;</span><span class="p">:</span> <span class="n">test_images</span><span class="p">,</span>
+                <span class="s1">&#39;test_set/labels&#39;</span><span class="p">:</span> <span class="n">test_labels</span><span class="p">,</span>
+                <span class="s1">&#39;INFOS&#39;</span><span class="p">:</span> <span class="n">cifar10</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">}</span>
+
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Dataset cifar10 loaded in</span><span class="si">{0:.2f}</span><span class="s1">s.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t0</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">train_images</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">test_images</span><span class="p">,</span> <span class="n">test_labels</span></div></div>
+
+        <span class="k">return</span> <span class="n">data</span></div></div>
 </pre></div>
 
            </div>

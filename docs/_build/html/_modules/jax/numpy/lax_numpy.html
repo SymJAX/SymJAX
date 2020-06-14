@@ -91,7 +91,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Gallery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user/developers.html">Developers’ guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html#datasets">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/developers.html">Development</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -198,34 +199,34 @@
 
 <span class="kn">import</span> <span class="nn">builtins</span>
 <span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="k">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">operator</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">string</span>
 <span class="kn">import</span> <span class="nn">types</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">opt_einsum</span>
 
-<span class="kn">from</span> <span class="nn">jax</span> <span class="k">import</span> <span class="n">jit</span><span class="p">,</span> <span class="n">device_put</span><span class="p">,</span> <span class="n">custom_jvp</span>
-<span class="kn">from</span> <span class="nn">.vectorize</span> <span class="k">import</span> <span class="n">vectorize</span>
-<span class="kn">from</span> <span class="nn">._util</span> <span class="k">import</span> <span class="n">_wraps</span>
-<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">core</span>
-<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">dtypes</span>
-<span class="kn">from</span> <span class="nn">..abstract_arrays</span> <span class="k">import</span> <span class="n">UnshapedArray</span><span class="p">,</span> <span class="n">ShapedArray</span><span class="p">,</span> <span class="n">ConcreteArray</span><span class="p">,</span> <span class="n">canonicalize_shape</span>
-<span class="kn">from</span> <span class="nn">..config</span> <span class="k">import</span> <span class="n">flags</span>
-<span class="kn">from</span> <span class="nn">..interpreters.xla</span> <span class="k">import</span> <span class="n">DeviceArray</span>
-<span class="kn">from</span> <span class="nn">..interpreters.masking</span> <span class="k">import</span> <span class="n">Poly</span>
-<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">lax</span>
-<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">ops</span>
-<span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="p">(</span><span class="n">partial</span><span class="p">,</span> <span class="n">get_module_functions</span><span class="p">,</span> <span class="n">unzip2</span><span class="p">,</span> <span class="n">prod</span> <span class="k">as</span> <span class="n">_prod</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">jit</span><span class="p">,</span> <span class="n">device_put</span><span class="p">,</span> <span class="n">custom_jvp</span>
+<span class="kn">from</span> <span class="nn">.vectorize</span> <span class="kn">import</span> <span class="n">vectorize</span>
+<span class="kn">from</span> <span class="nn">._util</span> <span class="kn">import</span> <span class="n">_wraps</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">core</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">dtypes</span>
+<span class="kn">from</span> <span class="nn">..abstract_arrays</span> <span class="kn">import</span> <span class="n">UnshapedArray</span><span class="p">,</span> <span class="n">ShapedArray</span><span class="p">,</span> <span class="n">ConcreteArray</span><span class="p">,</span> <span class="n">canonicalize_shape</span>
+<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">flags</span>
+<span class="kn">from</span> <span class="nn">..interpreters.xla</span> <span class="kn">import</span> <span class="n">DeviceArray</span>
+<span class="kn">from</span> <span class="nn">..interpreters.masking</span> <span class="kn">import</span> <span class="n">Poly</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">lax</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">ops</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="p">(</span><span class="n">partial</span><span class="p">,</span> <span class="n">get_module_functions</span><span class="p">,</span> <span class="n">unzip2</span><span class="p">,</span> <span class="n">prod</span> <span class="k">as</span> <span class="n">_prod</span><span class="p">,</span>
                     <span class="n">subvals</span><span class="p">,</span> <span class="n">safe_zip</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">..lib</span> <span class="k">import</span> <span class="n">pytree</span>
-<span class="kn">from</span> <span class="nn">..lib</span> <span class="k">import</span> <span class="n">xla_client</span>
+<span class="kn">from</span> <span class="nn">..lib</span> <span class="kn">import</span> <span class="n">pytree</span>
+<span class="kn">from</span> <span class="nn">..lib</span> <span class="kn">import</span> <span class="n">xla_client</span>
 
 <span class="n">FLAGS</span> <span class="o">=</span> <span class="n">flags</span><span class="o">.</span><span class="n">FLAGS</span>
 <span class="n">flags</span><span class="o">.</span><span class="n">DEFINE_enum</span><span class="p">(</span>
@@ -278,7 +279,7 @@
 <span class="k">class</span> <span class="nc">_ArrayMeta</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>  <span class="c1"># type: ignore</span>
   <span class="sd">&quot;&quot;&quot;Metaclass for overriding ndarray isinstance checks.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__instancecheck__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__instancecheck__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
       <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">aval</span><span class="p">,</span> <span class="n">_arraylike_types</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -289,7 +290,7 @@
   <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
   <span class="n">size</span><span class="p">:</span> <span class="nb">int</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;jax.numpy.ndarray() should not be instantiated explicitly.&quot;</span>
                     <span class="s2">&quot; Use jax.numpy.array, or jax.numpy.zeros instead.&quot;</span><span class="p">)</span>
@@ -309,16 +310,16 @@
 <span class="c1"># types return JAX arrays when instantiated.</span>
 
 <span class="k">class</span> <span class="nc">_ScalarMeta</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
-  <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">id</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">other</span>
 
-  <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">_make_scalar_type</span><span class="p">(</span><span class="n">np_scalar_type</span><span class="p">):</span>
@@ -834,9 +835,9 @@
 
 <span class="k">def</span> <span class="nf">_conv</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">precision</span><span class="p">):</span>
   <span class="k">if</span> <span class="n">issubdtype</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">complexfloating</span><span class="p">)</span> <span class="ow">or</span> <span class="n">issubdtype</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">complexfloating</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{op}</span><span class="s2">() does not support complex inputs&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">op</span><span class="si">}</span><span class="s2">() does not support complex inputs&quot;</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">ndim</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{op}</span><span class="s2">() only support 1-dimensional inputs.&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">op</span><span class="si">}</span><span class="s2">() only support 1-dimensional inputs.&quot;</span><span class="p">)</span>
   <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">_promote_dtypes_inexact</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
   <span class="n">out_order</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
@@ -1500,7 +1501,7 @@
 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">bincount</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="k">if</span> <span class="ow">not</span> <span class="n">issubdtype</span><span class="p">(</span><span class="n">_dtype</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">integer</span><span class="p">):</span>
-    <span class="n">msg</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;x argument to bincount must have an integer type; got </span><span class="si">{x.dtype}</span><span class="s2">&quot;</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;x argument to bincount must have an integer type; got </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">length</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
@@ -2627,8 +2628,8 @@
 
   <span class="c1"># repeats must match the dimension along the requested axis</span>
   <span class="k">if</span> <span class="n">repeats_raveled</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">axis</span><span class="p">]:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;repeats shape </span><span class="si">{repeats_raveled.shape}</span><span class="s2"> does not match &quot;</span>
-                     <span class="n">f</span><span class="s2">&quot;the dimension on axis </span><span class="si">{a.shape[axis]}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;repeats shape </span><span class="si">{</span><span class="n">repeats_raveled</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> does not match &quot;</span>
+                     <span class="sa">f</span><span class="s2">&quot;the dimension on axis </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
   <span class="c1"># calculating the new shape</span>
   <span class="n">total</span> <span class="o">=</span> <span class="n">repeats_raveled</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
@@ -3234,9 +3235,9 @@
 <span class="k">def</span> <span class="nf">rollaxis</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
   <span class="n">a_ndim</span> <span class="o">=</span> <span class="n">ndim</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
   <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="n">a_ndim</span> <span class="o">&lt;=</span> <span class="n">axis</span> <span class="o">&lt;</span> <span class="n">a_ndim</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;axis=</span><span class="si">{axis}</span><span class="s2"> is out of bounds for array of dimension </span><span class="si">{a_ndim}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;axis=</span><span class="si">{</span><span class="n">axis</span><span class="si">}</span><span class="s2"> is out of bounds for array of dimension </span><span class="si">{</span><span class="n">a_ndim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
   <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="n">a_ndim</span> <span class="o">&lt;=</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="n">a_ndim</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;start=</span><span class="si">{start}</span><span class="s2"> must satisfy {-a_ndim}&lt;=start&lt;=</span><span class="si">{a_ndim}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;start=</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2"> must satisfy </span><span class="si">{</span><span class="o">-</span><span class="n">a_ndim</span><span class="si">}</span><span class="s2">&lt;=start&lt;=</span><span class="si">{</span><span class="n">a_ndim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
     <span class="n">start</span> <span class="o">+=</span> <span class="n">a_ndim</span>
   <span class="k">if</span> <span class="n">axis</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -3670,7 +3671,7 @@
         <span class="nb">isinstance</span><span class="p">(</span><span class="n">abstract_i</span><span class="p">,</span> <span class="n">ShapedArray</span><span class="p">))</span> <span class="ow">and</span> <span class="n">_int</span><span class="p">(</span><span class="n">abstract_i</span><span class="p">):</span>
       <span class="k">if</span> <span class="n">x_shape</span><span class="p">[</span><span class="n">x_axis</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="c1"># XLA gives error when indexing into an axis of size 0</span>
-        <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;index is out of bounds for axis </span><span class="si">{x_axis}</span><span class="s2"> with size 0&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;index is out of bounds for axis </span><span class="si">{</span><span class="n">x_axis</span><span class="si">}</span><span class="s2"> with size 0&quot;</span><span class="p">)</span>
       <span class="n">i</span> <span class="o">=</span> <span class="n">_normalize_index</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">x_shape</span><span class="p">[</span><span class="n">x_axis</span><span class="p">])</span>
       <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Poly</span><span class="p">:</span>
         <span class="c1"># dummy index if i is polynomial, doesn&#39;t matter for shape inference</span>
@@ -4076,7 +4077,7 @@
   <span class="k">elif</span> <span class="n">interpolation</span> <span class="o">==</span> <span class="s2">&quot;midpoint&quot;</span><span class="p">:</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">low_value</span><span class="p">,</span> <span class="n">high_value</span><span class="p">),</span> <span class="n">_constant_like</span><span class="p">(</span><span class="n">low_value</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
   <span class="k">else</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;interpolation=</span><span class="si">{interpolation!r}</span><span class="s2"> not recognized&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;interpolation=</span><span class="si">{</span><span class="n">interpolation</span><span class="si">!r}</span><span class="s2"> not recognized&quot;</span><span class="p">)</span>
 
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">convert_element_type</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
 
@@ -4167,9 +4168,9 @@
                      <span class="s2">&quot;of the total size in bytes of the last axis of the array.&quot;</span><span class="p">)</span>
   <span class="n">byte_dtypes</span> <span class="o">=</span> <span class="p">{</span><span class="mi">8</span><span class="p">:</span> <span class="n">uint8</span><span class="p">,</span> <span class="mi">16</span><span class="p">:</span> <span class="n">uint16</span><span class="p">,</span> <span class="mi">32</span><span class="p">:</span> <span class="n">uint32</span><span class="p">,</span> <span class="mi">64</span><span class="p">:</span> <span class="n">uint64</span><span class="p">}</span>
   <span class="k">if</span> <span class="n">nbits_in</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">byte_dtypes</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;arr.view() for arr.dtype=</span><span class="si">{arr_dtype}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;arr.view() for arr.dtype=</span><span class="si">{</span><span class="n">arr_dtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">nbits_out</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">byte_dtypes</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;arr.view(dtype) for dtype=</span><span class="si">{dtype}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;arr.view(dtype) for dtype=</span><span class="si">{</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
   <span class="n">dt_in</span> <span class="o">=</span> <span class="n">byte_dtypes</span><span class="p">[</span><span class="n">nbits_in</span><span class="p">]</span>
   <span class="n">dt_out</span> <span class="o">=</span> <span class="n">byte_dtypes</span><span class="p">[</span><span class="n">nbits_out</span><span class="p">]</span>
   <span class="n">arr_bytes</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">bitcast_convert_type</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">dt_in</span><span class="p">)</span>
@@ -4364,14 +4365,14 @@
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;array&quot;</span><span class="p">,)</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">array</span>
 
-  <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">_IndexUpdateRef</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">f</span><span class="s2">&quot;_IndexUpdateHelper({repr(self.array)})&quot;</span>
+  <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;_IndexUpdateHelper(</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">_IndexUpdateRef</span><span class="p">:</span>
@@ -4383,12 +4384,12 @@
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;array&quot;</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">array</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
 
-  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">f</span><span class="s2">&quot;_IndexUpdateRef({repr(self.array)}, {repr(self.index)})&quot;</span>
+  <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;_IndexUpdateRef(</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span><span class="p">)</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
 
   <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Pure equivalent of ``x[idx] = y``.</span>

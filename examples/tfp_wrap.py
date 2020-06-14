@@ -4,8 +4,10 @@
 import symjax as sj
 import symjax.tensor as T
 import jax.numpy as jnp
+import tensorflow as tf
 
 __author__      = "Randall Balestriero"
+
 import tensorflow_probability as tfp
 
 
@@ -16,9 +18,24 @@ nn = tfp.distributions.Normal(1., 5.)
 print(nn.cdf(1))
 
 mean = T.Placeholder((1,), 'float32', name='mean')
+
+def inst(self, instance): 
+    print("instancecheck", self, instance) 
+    return True
+
+
+
+
+
+upgrade_class(mean, T.Tensor, tf.Variable)
+
+
+
 normal_dist = T.wrap_class(tfp.distributions.Normal)
 a = normal_dist(mean, 5.)
 
+print(a._loc is mean)
+asdf
 x = T.Variable(T.ones(1)-5)
 output = a.cdf(x)
 

@@ -91,7 +91,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../user/examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">Gallery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../user/developers.html">Developers’ guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html#datasets">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user/developers.html">Development</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -192,28 +193,28 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">partial</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">onp</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">lax</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">dtypes</span>
-<span class="kn">from</span> <span class="nn">.api</span> <span class="k">import</span> <span class="n">jit</span><span class="p">,</span> <span class="n">vmap</span>
-<span class="kn">from</span> <span class="nn">.numpy.lax_numpy</span> <span class="k">import</span> <span class="n">_constant_like</span><span class="p">,</span> <span class="n">asarray</span>
-<span class="kn">from</span> <span class="nn">jax.lib</span> <span class="k">import</span> <span class="n">xla_bridge</span>
-<span class="kn">from</span> <span class="nn">jax.lib</span> <span class="k">import</span> <span class="n">xla_client</span>
-<span class="kn">from</span> <span class="nn">jax.lib</span> <span class="k">import</span> <span class="n">cuda_prng</span>
-<span class="kn">from</span> <span class="nn">jax</span> <span class="k">import</span> <span class="n">core</span>
-<span class="kn">from</span> <span class="nn">jax</span> <span class="k">import</span> <span class="n">abstract_arrays</span>
-<span class="kn">from</span> <span class="nn">jax.numpy.linalg</span> <span class="k">import</span> <span class="n">cholesky</span>
-<span class="kn">from</span> <span class="nn">jax.scipy.special</span> <span class="k">import</span> <span class="n">logit</span>
-<span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="k">import</span> <span class="n">ad</span>
-<span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="k">import</span> <span class="n">batching</span>
-<span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="k">import</span> <span class="n">xla</span>
-<span class="kn">from</span> <span class="nn">jax.util</span> <span class="k">import</span> <span class="n">prod</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">lax</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">dtypes</span>
+<span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">jit</span><span class="p">,</span> <span class="n">vmap</span>
+<span class="kn">from</span> <span class="nn">.numpy.lax_numpy</span> <span class="kn">import</span> <span class="n">_constant_like</span><span class="p">,</span> <span class="n">asarray</span>
+<span class="kn">from</span> <span class="nn">jax.lib</span> <span class="kn">import</span> <span class="n">xla_bridge</span>
+<span class="kn">from</span> <span class="nn">jax.lib</span> <span class="kn">import</span> <span class="n">xla_client</span>
+<span class="kn">from</span> <span class="nn">jax.lib</span> <span class="kn">import</span> <span class="n">cuda_prng</span>
+<span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">core</span>
+<span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">abstract_arrays</span>
+<span class="kn">from</span> <span class="nn">jax.numpy.linalg</span> <span class="kn">import</span> <span class="n">cholesky</span>
+<span class="kn">from</span> <span class="nn">jax.scipy.special</span> <span class="kn">import</span> <span class="n">logit</span>
+<span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="kn">import</span> <span class="n">ad</span>
+<span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="kn">import</span> <span class="n">batching</span>
+<span class="kn">from</span> <span class="nn">jax.interpreters</span> <span class="kn">import</span> <span class="n">xla</span>
+<span class="kn">from</span> <span class="nn">jax.util</span> <span class="kn">import</span> <span class="n">prod</span>
 
 
 <span class="n">_UINT_DTYPES</span> <span class="o">=</span> <span class="p">{</span><span class="mi">8</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="mi">16</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">,</span> <span class="mi">32</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">,</span> <span class="mi">64</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">}</span>

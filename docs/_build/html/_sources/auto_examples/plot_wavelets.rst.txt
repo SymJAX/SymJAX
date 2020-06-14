@@ -9,13 +9,11 @@
     .. _sphx_glr_auto_examples_plot_wavelets.py:
 
 
-Single-station covariance matrix
-================================
+Morlet Wavelet in time and Fourier domain
+=========================================
 
 
-This example shows how to calculate the interchannel spectral covariance matrix. It makes use of the obspy example trace available when installing obspy. This basic example does not apply any synchronization or pre-processing.
-
-Considering a single seismic station with three channels (NS, EW, and Z), the covariance is of dimensions 3 times 3. The following example use a Fourier estimation window of 1 second and is estimated over 5 consecutive windows.
+This example shows how to generate a wavelet filter-bank.
 
 
 
@@ -24,41 +22,8 @@ Considering a single seismic station with three channels (NS, EW, and Z), the co
     :class: sphx-glr-single-img
 
 
-.. rst-class:: sphx-glr-script-out
-
- Out:
-
- .. code-block:: none
-
-    /Users/seydoux/opt/anaconda3/lib/python3.7/site-packages/jax/lib/xla_bridge.py:116: UserWarning: No GPU/TPU found, falling back to CPU.
-      warnings.warn('No GPU/TPU found, falling back to CPU.')
-    [[ 1.0717734]
-     [ 1.235644 ]
-     [ 1.4245698]
-     [ 1.6423817]
-     [ 1.8934964]
-     [ 2.1830056]
-     [ 2.5167797]
-     [ 2.9015868]
-     [ 3.3452296]
-     [ 3.8567042]
-     [ 4.4463816]
-     [ 5.1262174]
-     [ 5.9099984]
-     [ 6.8136187]
-     [ 7.8553963]
-     [ 9.056461 ]
-     [10.441164 ]
-     [12.037582 ]
-     [13.878087 ]
-     [16.       ]]
 
 
-
-
-
-
-|
 
 
 .. code-block:: default
@@ -75,60 +40,28 @@ Considering a single seismic station with three channels (NS, EW, and Z), the co
     scales = T.power(2,T.linspace(0.1, J - 1, J * Q))
     scales = scales[:, None]
 
-    print(symjax.tensor.get(scales))
-
     wavelet = symjax.tensor.signal.complex_morlet(5 * scales, np.pi /scales)
     waveletw = symjax.tensor.signal.fourier_complex_morlet(5 * scales, np.pi /scales, wavelet.shape[-1])
-    waveletlp = symjax.tensor.signal.littewood_paley_normalization(waveletw, down = np.pi / scales[-1, 0])
 
-    wavelet = symjax.tensor.get(wavelet)
-    waveletw = symjax.tensor.get(waveletw)
-    waveletlp = symjax.tensor.get(waveletlp)
+    f = symjax.function(outputs = [wavelet, waveletw])
 
+    wavelet, waveletw = f()
 
-
-    plt.subplot(321)
-    for i in range(J*Q):
-        fr = np.real(np.fft.fft(np.fft.ifftshift(wavelet[i])))
-        fi = np.imag(np.fft.fft(np.fft.ifftshift(wavelet[i])))
-        plt.plot(i + fr, '--b')
-        plt.plot(i + fi, '--r')
-
-    plt.subplot(322)
+    plt.subplot(121)
     for i in range(J*Q):
         plt.plot(2*i + wavelet[i].real, c='b')
         plt.plot(2*i + wavelet[i].imag, c='r')
 
-    plt.subplot(324)
-    for i in range(J*Q):
-        fr = np.real(np.fft.fftshift(np.fft.ifft(waveletw[i])))
-        fi = np.imag(np.fft.fftshift(np.fft.ifft(waveletw[i])))
-        plt.plot(2 * i + fr / fr.max(), '--b')
-        plt.plot(2 * i + fi / fi.max(), '--r')
-
-    plt.subplot(323)
+    plt.subplot(122)
     for i in range(J*Q):
         plt.plot(i + waveletw[i].real, c='b')
         plt.plot(i + waveletw[i].imag, c='r')
-
-    plt.subplot(325)
-    for i in range(J*Q):
-        plt.plot(i + waveletlp[i].real, c='b')
-        plt.plot(i + waveletlp[i].imag, c='r')
-    plt.plot(np.abs(waveletlp).sum(0), c='g')
-
-    plt.subplot(326)
-    for i in range(J*Q):
-        fr = np.real(np.fft.fftshift(np.fft.ifft(waveletlp[i])))
-        fi = np.imag(np.fft.fftshift(np.fft.ifft(waveletlp[i])))
-        plt.plot(2 * i + fr / fr.max(), '--b')
-        plt.plot(2 * i + fi / fi.max(), '--r')
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  45.915 seconds)
+   **Total running time of the script:** ( 0 minutes  4.534 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_wavelets.py:

@@ -97,11 +97,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#scopes-operations-variables-placeholders-naming-and-accessing">Scopes, Operations/Variables/Placeholders naming and accessing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#graph-saving-and-loading">Graph Saving and Loading</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#wrap-jax-function-computation-to-symjax-op">Wrap: Jax function/computation to SymJAX Op</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wrap-jax-class-to-symjax-class">Wrap: Jax class to SymJAX class</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Gallery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="developers.html">Developers’ guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html#datasets">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers.html">Development</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -250,7 +252,7 @@ SymJAX this is done via  symjax.function as demonstrated below:</p>
 
 <span class="kn">import</span> <span class="nn">symjax.tensor</span> <span class="k">as</span> <span class="nn">T</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">symjax.viz</span> <span class="k">import</span> <span class="n">compute_graph</span>
+<span class="kn">from</span> <span class="nn">symjax.viz</span> <span class="kn">import</span> <span class="n">compute_graph</span>
 
 <span class="n">x</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="mi">10</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
 <span class="n">y</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="mi">10</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
@@ -530,6 +532,61 @@ then wrapping it into a SymJAX symbolic operation as demonstrated below.</p>
 <p>A SymJAX computation graph can not be partially defined with Jax computation,
 the above thus provides an easy way to wrap Jax computations into a SymJAX Op
 which can then be put into the graph as any other SymJAX provided Ops.</p>
+</div>
+<div class="section" id="wrap-jax-class-to-symjax-class">
+<h2>Wrap: Jax class to SymJAX class<a class="headerlink" href="#wrap-jax-class-to-symjax-class" title="Permalink to this headline">¶</a></h2>
+<p>One might have defined a Jax class, with a constructor possibly taking some
+constant values and some jax arrays, performing some computations, setting
+some attributes, and then interacting with those attributes when calling the
+class methods. It would be particularly easy to pair such already implemented
+classes with SymJAX computation graph. This can be done as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">symjax</span> <span class="k">as</span> <span class="nn">sj</span>
+<span class="kn">import</span> <span class="nn">symjax.tensor</span> <span class="k">as</span> <span class="nn">T</span>
+<span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
+
+<span class="n">__author__</span>      <span class="o">=</span> <span class="s2">&quot;Randall Balestriero&quot;</span>
+
+<span class="k">class</span> <span class="nc">product</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">V</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">W</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">V</span> <span class="o">*</span> <span class="n">W</span> <span class="o">*</span> <span class="p">(</span><span class="n">W</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ndim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_ndim</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">feed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">W</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">compute_ndim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">W</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">W</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+
+
+<span class="n">wrapped</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">wrap_class</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="n">method_exceptions</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;compute_ndim&#39;</span><span class="p">])</span>
+
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span> <span class="n">V</span><span class="o">=</span><span class="n">T</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)))</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">W</span><span class="p">)</span>
+<span class="c1"># (Tensor: name=function[0], shape=(10, 10), dtype=float32)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">feed</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="c1"># Op(name=feed, shape=(10, 100), dtype=float32, scope=/)</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">outputs</span><span class="o">=</span><span class="n">a</span><span class="o">.</span><span class="n">feed</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+<span class="n">f</span><span class="p">()</span>
+
+</pre></div>
+</div>
+<p>As can be seen, there is some restrictions. First, the behavior inside the
+constructor of the original class should be fixed as it will be executed once
+by the wrapper in order to map the constructor computations into SymJAX.
+Second, any jax array update done internally will break the conversion as
+such operations are only allowed for Variables in SymJAX, hence some care is
+needed. More flexibility will be provided in future versions.</p>
 </div>
 </div>
 

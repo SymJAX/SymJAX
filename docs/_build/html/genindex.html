@@ -92,7 +92,8 @@
 <li class="toctree-l1"><a class="reference internal" href="user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user/examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="auto_examples/index.html">Gallery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user/developers.html">Developers’ guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_examples/index.html#datasets">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user/developers.html">Development</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -486,6 +487,8 @@
 </li>
       <li><a href="modules/tensor.html#symjax.tensor.geomspace">geomspace() (in module symjax.tensor)</a>
 </li>
+      <li><a href="modules/symjax.html#symjax.get_ops">get_ops() (in module symjax)</a>
+</li>
       <li><a href="modules/initializers.html#symjax.initializers.glorot">glorot() (in module symjax.initializers)</a>
 </li>
   </ul></td>
@@ -692,8 +695,6 @@
 </li>
       <li><a href="modules/signal.html#symjax.tensor.signal.mfcc">mfcc() (in module symjax.tensor.signal)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/tensor.html#symjax.tensor.min">min() (in module symjax.tensor)</a>
 </li>
       <li><a href="modules/tensor.html#symjax.tensor.minimum">minimum() (in module symjax.tensor)</a>
@@ -702,6 +703,35 @@
 </li>
       <li><a href="modules/tensor.html#symjax.tensor.mod">mod() (in module symjax.tensor)</a>
 </li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="modules/symjax.html#module-0">symjax</a>, <a href="modules/symjax.html#module-symjax">[1]</a>
+</li>
+        <li><a href="modules/initializers.html#module-symjax.initializers">symjax.initializers</a>
+</li>
+        <li><a href="modules/layers.html#module-symjax.layers">symjax.layers</a>
+</li>
+        <li><a href="modules/optimizers.html#module-symjax.optimizers">symjax.optimizers</a>
+</li>
+        <li><a href="modules/tensor.html#module-symjax.tensor">symjax.tensor</a>
+</li>
+        <li><a href="modules/tensor.html#module-symjax.tensor.control_flow">symjax.tensor.control_flow</a>
+</li>
+        <li><a href="modules/tensor.html#module-symjax.tensor.index_ops">symjax.tensor.index_ops</a>
+</li>
+        <li><a href="modules/tensor.html#module-symjax.tensor.ops_math">symjax.tensor.ops_math</a>
+</li>
+        <li><a href="modules/pdfs.html#module-symjax.tensor.pdfs">symjax.tensor.pdfs</a>
+</li>
+        <li><a href="modules/random.html#module-symjax.tensor.random">symjax.tensor.random</a>
+</li>
+        <li><a href="modules/signal.html#module-symjax.tensor.signal">symjax.tensor.signal</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/tensor.html#symjax.tensor.moveaxis">moveaxis() (in module symjax.tensor)</a>
 </li>
       <li><a href="modules/tensor.html#symjax.tensor.multiply">multiply() (in module symjax.tensor)</a>
@@ -822,10 +852,12 @@
 </li>
       <li><a href="modules/tensor.html#symjax.tensor.repeat">repeat() (in module symjax.tensor)</a>
 </li>
-      <li><a href="modules/tensor.html#symjax.tensor.reshape">reshape() (in module symjax.tensor)</a>
+      <li><a href="modules/symjax.html#symjax.reset_variables">reset_variables() (in module symjax)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/tensor.html#symjax.tensor.reshape">reshape() (in module symjax.tensor)</a>
+</li>
       <li><a href="modules/signal.html#symjax.tensor.signal.rfft">rfft() (in module symjax.tensor.signal)</a>
 </li>
       <li><a href="modules/signal.html#symjax.tensor.signal.rfft2">rfft2() (in module symjax.tensor.signal)</a>
@@ -878,8 +910,6 @@
 </li>
       <li><a href="modules/tensor.html#symjax.tensor.std">std() (in module symjax.tensor)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/data.html#symjax.data.stl10">stl10 (class in symjax.data)</a>
 </li>
       <li><a href="modules/tensor.html#symjax.tensor.subtract">subtract() (in module symjax.tensor)</a>
@@ -890,28 +920,85 @@
 </li>
       <li><a href="modules/tensor.html#symjax.tensor.swapaxes">swapaxes() (in module symjax.tensor)</a>
 </li>
-      <li><a href="modules/symjax.html#module-symjax">symjax (module)</a>
+      <li>
+    symjax
+
+      <ul>
+        <li><a href="modules/symjax.html#module-0">module</a>, <a href="modules/symjax.html#module-symjax">[1]</a>
 </li>
-      <li><a href="modules/initializers.html#module-symjax.initializers">symjax.initializers (module)</a>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    symjax.initializers
+
+      <ul>
+        <li><a href="modules/initializers.html#module-symjax.initializers">module</a>
 </li>
-      <li><a href="modules/layers.html#module-symjax.layers">symjax.layers (module)</a>
+      </ul></li>
+      <li>
+    symjax.layers
+
+      <ul>
+        <li><a href="modules/layers.html#module-symjax.layers">module</a>
 </li>
-      <li><a href="modules/optimizers.html#module-symjax.optimizers">symjax.optimizers (module)</a>
+      </ul></li>
+      <li>
+    symjax.optimizers
+
+      <ul>
+        <li><a href="modules/optimizers.html#module-symjax.optimizers">module</a>
 </li>
-      <li><a href="modules/tensor.html#module-symjax.tensor">symjax.tensor (module)</a>
+      </ul></li>
+      <li>
+    symjax.tensor
+
+      <ul>
+        <li><a href="modules/tensor.html#module-symjax.tensor">module</a>
 </li>
-      <li><a href="modules/tensor.html#module-symjax.tensor.control_flow">symjax.tensor.control_flow (module)</a>
+      </ul></li>
+      <li>
+    symjax.tensor.control_flow
+
+      <ul>
+        <li><a href="modules/tensor.html#module-symjax.tensor.control_flow">module</a>
 </li>
-      <li><a href="modules/tensor.html#module-symjax.tensor.index_ops">symjax.tensor.index_ops (module)</a>
+      </ul></li>
+      <li>
+    symjax.tensor.index_ops
+
+      <ul>
+        <li><a href="modules/tensor.html#module-symjax.tensor.index_ops">module</a>
 </li>
-      <li><a href="modules/tensor.html#module-symjax.tensor.ops_math">symjax.tensor.ops_math (module)</a>
+      </ul></li>
+      <li>
+    symjax.tensor.ops_math
+
+      <ul>
+        <li><a href="modules/tensor.html#module-symjax.tensor.ops_math">module</a>
 </li>
-      <li><a href="modules/pdfs.html#module-symjax.tensor.pdfs">symjax.tensor.pdfs (module)</a>
+      </ul></li>
+      <li>
+    symjax.tensor.pdfs
+
+      <ul>
+        <li><a href="modules/pdfs.html#module-symjax.tensor.pdfs">module</a>
 </li>
-      <li><a href="modules/random.html#module-symjax.tensor.random">symjax.tensor.random (module)</a>
+      </ul></li>
+      <li>
+    symjax.tensor.random
+
+      <ul>
+        <li><a href="modules/random.html#module-symjax.tensor.random">module</a>
 </li>
-      <li><a href="modules/signal.html#module-symjax.tensor.signal">symjax.tensor.signal (module)</a>
+      </ul></li>
+      <li>
+    symjax.tensor.signal
+
+      <ul>
+        <li><a href="modules/signal.html#module-symjax.tensor.signal">module</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 

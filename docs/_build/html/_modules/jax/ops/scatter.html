@@ -91,7 +91,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Gallery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user/developers.html">Developers’ guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html#datasets">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/developers.html">Development</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -186,8 +187,8 @@
 <span class="c1"># Helpers for indexed updates.</span>
 
 
-<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">lax</span>
-<span class="kn">from</span> <span class="nn">..numpy</span> <span class="k">import</span> <span class="n">lax_numpy</span> <span class="k">as</span> <span class="n">jnp</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">lax</span>
+<span class="kn">from</span> <span class="nn">..numpy</span> <span class="kn">import</span> <span class="n">lax_numpy</span> <span class="k">as</span> <span class="n">jnp</span>
 
 
 <span class="k">def</span> <span class="nf">_scatter_update</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">scatter_op</span><span class="p">):</span>
@@ -257,7 +258,7 @@
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
-  <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">index</span>
 
 <span class="c1">#: Index object singleton</span>

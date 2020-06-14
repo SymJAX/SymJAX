@@ -14,12 +14,12 @@ Gallery
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to calculate the interchannel spectral covariance matrix. It makes use ...">
+    <div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to generate a wavelet filter-bank.">
 
 .. only:: html
 
- .. figure:: /auto_examples/images/thumb/sphx_glr_plot_wavelets_thumb.svg
-     :alt: Single-station covariance matrix
+ .. figure:: /auto_examples/images/thumb/sphx_glr_plot_wavelets_thumb.png
+     :alt: Morlet Wavelet in time and Fourier domain
 
      :ref:`sphx_glr_auto_examples_plot_wavelets.py`
 
@@ -32,6 +32,147 @@ Gallery
    :hidden:
 
    /auto_examples/plot_wavelets
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="demonstration on how to compute a gradient and apply a basic gradient update rule to minimize s...">
+
+.. only:: html
+
+ .. figure:: /auto_examples/images/thumb/sphx_glr_plot_sgd_thumb.png
+     :alt: Basic gradient descent (and reset)
+
+     :ref:`sphx_glr_auto_examples_plot_sgd.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/plot_sgd
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to calculate the interchannel spectral covariance matrix. It makes use ...">
+
+.. only:: html
+
+ .. figure:: /auto_examples/images/thumb/sphx_glr_wavelets_thumb.png
+     :alt: Single-station covariance matrix
+
+     :ref:`sphx_glr_auto_examples_wavelets.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/wavelets
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="example of image classification">
+
+.. only:: html
+
+ .. figure:: /auto_examples/images/thumb/sphx_glr_plot_cifar10_classif_thumb.png
+     :alt: CIFAR10 classification
+
+     :ref:`sphx_glr_auto_examples_plot_cifar10_classif.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/plot_cifar10_classif
+.. raw:: html
+
+    <div class="sphx-glr-clear"></div>
+
+
+
+.. _sphx_glr_auto_examples_datasets:
+
+.. _examples:
+
+Datasets
+========
+
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to download/load/import speech picidae">
+
+.. only:: html
+
+ .. figure:: /auto_examples/datasets/images/thumb/sphx_glr_plot_picidae_thumb.svg
+     :alt: Speech picidae Dataset
+
+     :ref:`sphx_glr_auto_examples_datasets_plot_picidae.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/datasets/plot_picidae
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to download/load/import MNIST">
+
+.. only:: html
+
+ .. figure:: /auto_examples/datasets/images/thumb/sphx_glr_plot_mnist_thumb.svg
+     :alt: MNIST Dataset
+
+     :ref:`sphx_glr_auto_examples_datasets_plot_mnist.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/datasets/plot_mnist
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to download/load/import CIFAR10">
+
+.. only:: html
+
+ .. figure:: /auto_examples/datasets/images/thumb/sphx_glr_plot_cifar10_thumb.svg
+     :alt: CIFAR10 Dataset
+
+     :ref:`sphx_glr_auto_examples_datasets_plot_cifar10.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/datasets/plot_cifar10
 .. raw:: html
 
     <div class="sphx-glr-clear"></div>
@@ -46,13 +187,13 @@ Gallery
 
   .. container:: sphx-glr-download sphx-glr-download-python
 
-    :download:`Download all examples in Python source code: auto_examples_python.zip <//Users/seydoux/GitHub/SymJAX/docs/auto_examples/auto_examples_python.zip>`
+    :download:`Download all examples in Python source code: auto_examples_python.zip <//home/vrael/SymJAX/docs/auto_examples/auto_examples_python.zip>`
 
 
 
   .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-    :download:`Download all examples in Jupyter notebooks: auto_examples_jupyter.zip <//Users/seydoux/GitHub/SymJAX/docs/auto_examples/auto_examples_jupyter.zip>`
+    :download:`Download all examples in Jupyter notebooks: auto_examples_jupyter.zip <//home/vrael/SymJAX/docs/auto_examples/auto_examples_jupyter.zip>`
 
 
 .. only:: html

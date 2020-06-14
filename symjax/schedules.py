@@ -25,7 +25,7 @@ class PiecewiseConstant(Schedule):
         self.init = init
         self.values = values
         self.step = tensor.Variable(
-            0, trainable=False, name='piecewise_constant_step')
+            0, trainable=False, name='piecewise_constant_step', dtype='float32')
         self.value = tensor.PiecewiseConstant(self.init, self.values,
                                               self.step)[0]
         self.updates = {self.step: self.step + 1}
@@ -54,8 +54,8 @@ class Exponential(Schedule):
     def __init__(self, init, slope):
         self.init = init
         self.slope = slope
-        self.value = tensor.Variable(
-            init, trainable=False, name='exponential_variable')
+        self.value = tensor.Variable( init, trainable=False,
+                                     name='exponential_variable', dtype='float32')
         self.updates = {self.value: self.value * slope}
         self.variables = [self.value]
 

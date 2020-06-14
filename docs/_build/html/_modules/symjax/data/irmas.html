@@ -91,7 +91,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user/tutorial.html">Quick Walkthrough Tutorial of SymJAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user/examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Gallery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user/developers.html">Developers’ guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html#datasets">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/developers.html">Development</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
@@ -172,11 +173,11 @@
 <span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">zipfile</span>
 <span class="kn">import</span> <span class="nn">io</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 <span class="kn">import</span> <span class="nn">urllib.request</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">scipy.io.wavfile</span> <span class="k">import</span> <span class="n">read</span> <span class="k">as</span> <span class="n">wav_read</span>
+<span class="kn">from</span> <span class="nn">scipy.io.wavfile</span> <span class="kn">import</span> <span class="n">read</span> <span class="k">as</span> <span class="n">wav_read</span>
 
 
 <div class="viewcode-block" id="irmas"><a class="viewcode-back" href="../../../modules/data.html#symjax.data.irmas">[docs]</a><span class="k">class</span> <span class="nc">irmas</span><span class="p">:</span>
@@ -268,7 +269,7 @@
             <span class="n">f</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="n">base</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">part</span><span class="p">))</span>
             <span class="n">namelist</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">namelist</span><span class="p">,</span> <span class="n">ascii</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                 <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Test data </span><span class="si">{}</span><span class="s1">/3&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">part</span><span class="p">)):</span>
+                                 <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Test data </span><span class="si">{}</span><span class="s1">/3&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">part</span><span class="p">)):</span>
                 <span class="k">if</span> <span class="s1">&#39;.wav&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
                     <span class="k">continue</span>
 
@@ -276,7 +277,7 @@
                 <span class="n">test_wavs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wav_read</span><span class="p">(</span><span class="n">byt</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span>
 
                 <span class="n">byt</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.wav&#39;</span><span class="p">,</span> <span class="s1">&#39;.txt&#39;</span><span class="p">)))</span>
-                <span class="n">test_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">byt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;str&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">test_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">byt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;str&#39;</span><span class="p">))</span>
 
         <span class="n">unique_cat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">categories</span><span class="p">)</span>
         <span class="n">Id</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_cat</span><span class="p">))</span>
@@ -288,8 +289,14 @@
         <span class="n">train_wavs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">train_wavs</span><span class="p">)</span>
         <span class="n">test_wavs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">test_wavs</span><span class="p">)</span>
 
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;train_set/wavs&#39;</span><span class="p">:</span> <span class="n">train_wavs</span><span class="p">,</span>
+                <span class="s1">&#39;train_set/labels&#39;</span><span class="p">:</span> <span class="n">train_labels</span><span class="p">,</span>
+                <span class="s1">&#39;test_wavs&#39;</span><span class="p">:</span> <span class="n">test_wavs</span><span class="p">,</span>
+                <span class="s1">&#39;test_labels&#39;</span><span class="p">:</span> <span class="n">test_labels</span><span class="p">,</span>
+                <span class="s1">&#39;INFOS&#39;</span><span class="p">:</span> <span class="n">irmas</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">}</span>
+
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Dataset IRMAS loaded in </span><span class="si">{0:.2f}</span><span class="s1">s.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">train_wavs</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">test_wavs</span><span class="p">,</span> <span class="n">test_labels</span></div>
+        <span class="k">return</span> <span class="n">data</span></div>
 </pre></div>
 
            </div>
