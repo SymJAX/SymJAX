@@ -1,15 +1,13 @@
-import jax.numpy as jnp
-import jax.lax as jla
-import jax
-
-from .base import Op, Tensor, Variable, jax_wrap
-from .control_flow import cond
-import numpy
-import inspect
 import sys
 
+import jax
+import jax.lax as jla
+import numpy
+
+from .base import Variable, jax_wrap
+
 NAMES = [c[0] for c in inspect.getmembers(jax.nn, callable)]
-module = sys.modules[__name__]                                                                                          
+module = sys.modules[__name__]
 for name in NAMES:
     if name == 'one_hot':
         continue
@@ -19,14 +17,15 @@ for name in NAMES:
 def log_1_minus_sigmoid(x):
     return - softplus(x)
 
-from .ops_math import dynamic_slice_in_dim, equal, where, dynamic_slice, greater, concatenate, full, expand_dims
+
+from .ops_math import dynamic_slice_in_dim, equal, where, concatenate, full, expand_dims
 from . import ops_math as T
 
 # conv
 
 
-
 conv_general_dilated = jax_wrap(jla.conv_general_dilated)
+
 
 def convNd(input, filter, strides=1, padding='VALID', input_format=None,
            filter_format=None, output_format=None, input_dilation=None,
@@ -82,20 +81,19 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
     """
     # setting up the strides
     if numpy.isscalar(strides):
-        strides = (strides,) * (input.ndim-2)
+        strides = (strides,) * (input.ndim - 2)
     elif len(strides) != (input.ndim - 2):
-        msg = 'given strides: {} should match the number'.format(strides) +\
-              'of spatial dim. in input: {}'.format(input.ndim-2)
+        msg = 'given strides: {} should match the number'.format(strides) + \
+              'of spatial dim. in input: {}'.format(input.ndim - 2)
         raise ValueError(msg)
 
     # setting up the padding
     if type(padding) != str:
-        strides = (strides,) * (input.ndim-2)
+        strides = (strides,) * (input.ndim - 2)
         if len(padding) != (input.ndim - 2):
-            msg = 'given padding: {} should match the '.format(padding) +\
-                  'number of spatial dim. in input: {}'.format(input.ndim-2)
+            msg = 'given padding: {} should match the '.format(padding) + \
+                  'number of spatial dim. in input: {}'.format(input.ndim - 2)
             raise ValueError(msg)
-
 
     # setting up the filter_format
     if filter_format is None:
@@ -109,7 +107,7 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
             msg = 'filter_format should be given for >5 dimensions.'
             raise ValueError(msg)
     elif len(filter_format) != filter.ndim:
-        msg = 'given filter_format: {} should'.format(len(filter_format)) +\
+        msg = 'given filter_format: {} should'.format(len(filter_format)) + \
               'match the number of dimension in filter: {}'.format(filter.ndim)
         raise ValueError(msg)
 
@@ -125,10 +123,9 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
             msg = 'input_format should be given for >5 dimensions.'
             raise ValueError(msg)
     elif len(input_format) != input.ndim:
-        msg = 'given input_format: {} should'.format(len(input_format)) +\
+        msg = 'given input_format: {} should'.format(len(input_format)) + \
               'match the number of dimension in input: {}'.format(input.ndim)
         raise ValueError(msg)
-
 
     # setting up the output format
     if output_format is None:
@@ -142,7 +139,7 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
             msg = 'output_format should be given for >5 dimensions.'
             raise ValueError(msg)
     elif len(output_format) != input.ndim:
-        msg = 'given output_format: {} should'.format(len(output_format)) +\
+        msg = 'given output_format: {} should'.format(len(output_format)) + \
               'match the number of dimension in output: {}'.format(input.ndim)
         raise ValueError(msg)
 
@@ -154,15 +151,17 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
 
     specs = (input_format, filter_format, output_format)
     return conv_general_dilated(lhs=input, rhs=filter, window_strides=strides,
-                                 padding=padding, lhs_dilation=input_dilation,
-                                 rhs_dilation=filter_dilation,
-                                 dimension_numbers=specs, precision=None)
+                                padding=padding, lhs_dilation=input_dilation,
+                                rhs_dilation=filter_dilation,
+                                dimension_numbers=specs, precision=None)
+
 
 conv_transpose = jax_wrap(jla.conv_transpose)
 
+
 def convNd_transpose(input, filter, strides=1, padding='VALID', input_format=None,
-           filter_format=None, output_format=None, input_dilation=None,
-           filter_dilation=None, transpose_kernel=False):
+                     filter_format=None, output_format=None, input_dilation=None,
+                     filter_dilation=None, transpose_kernel=False):
     """General n-dimensional convolution operator, with optional dilation.
 
     Wraps Jax's conv_general_dilated functin, and thus also the XLA's `Conv
@@ -215,20 +214,19 @@ def convNd_transpose(input, filter, strides=1, padding='VALID', input_format=Non
     """
     # setting up the strides
     if numpy.isscalar(strides):
-        strides = (strides,) * (input.ndim-2)
+        strides = (strides,) * (input.ndim - 2)
     elif len(strides) != (input.ndim - 2):
-        msg = 'given strides: {} should match the number'.format(strides) +\
-              'of spatial dim. in input: {}'.format(input.ndim-2)
+        msg = 'given strides: {} should match the number'.format(strides) + \
+              'of spatial dim. in input: {}'.format(input.ndim - 2)
         raise ValueError(msg)
 
     # setting up the padding
     if type(padding) != str:
-        strides = (strides,) * (input.ndim-2)
+        strides = (strides,) * (input.ndim - 2)
         if len(padding) != (input.ndim - 2):
-            msg = 'given padding: {} should match the '.format(padding) +\
-                  'number of spatial dim. in input: {}'.format(input.ndim-2)
+            msg = 'given padding: {} should match the '.format(padding) + \
+                  'number of spatial dim. in input: {}'.format(input.ndim - 2)
             raise ValueError(msg)
-
 
     # setting up the filter_format
     if filter_format is None:
@@ -242,7 +240,7 @@ def convNd_transpose(input, filter, strides=1, padding='VALID', input_format=Non
             msg = 'filter_format should be given for >5 dimensions.'
             raise ValueError(msg)
     elif len(filter_format) != filter.ndim:
-        msg = 'given filter_format: {} should'.format(len(filter_format)) +\
+        msg = 'given filter_format: {} should'.format(len(filter_format)) + \
               'match the number of dimension in filter: {}'.format(filter.ndim)
         raise ValueError(msg)
 
@@ -258,10 +256,9 @@ def convNd_transpose(input, filter, strides=1, padding='VALID', input_format=Non
             msg = 'input_format should be given for >5 dimensions.'
             raise ValueError(msg)
     elif len(input_format) != input.ndim:
-        msg = 'given input_format: {} should'.format(len(input_format)) +\
+        msg = 'given input_format: {} should'.format(len(input_format)) + \
               'match the number of dimension in input: {}'.format(input.ndim)
         raise ValueError(msg)
-
 
     # setting up the output format
     if output_format is None:
@@ -275,7 +272,7 @@ def convNd_transpose(input, filter, strides=1, padding='VALID', input_format=Non
             msg = 'output_format should be given for >5 dimensions.'
             raise ValueError(msg)
     elif len(output_format) != input.ndim:
-        msg = 'given output_format: {} should'.format(len(output_format)) +\
+        msg = 'given output_format: {} should'.format(len(output_format)) + \
               'match the number of dimension in output: {}'.format(input.ndim)
         raise ValueError(msg)
 
@@ -287,26 +284,26 @@ def convNd_transpose(input, filter, strides=1, padding='VALID', input_format=Non
 
     specs = (input_format, filter_format, output_format)
     return conv_transpose(lhs=input, rhs=filter, strides=strides,
-                                 padding=padding, rhs_dilation=filter_dilation,
-                                 dimension_numbers=specs, precision=None,
-                                 transpose_kernel=transpose_kernel)
+                          padding=padding, rhs_dilation=filter_dilation,
+                          dimension_numbers=specs, precision=None,
+                          transpose_kernel=transpose_kernel)
 
 
 # pooling
 reduce_window = jax_wrap(jla.reduce_window)
 
-def poolNd(input, window_shape, reducer='MAX', strides=None, padding='VALID',
-          init_val=None, rescalor=None):
 
+def poolNd(input, window_shape, reducer='MAX', strides=None, padding='VALID',
+           init_val=None, rescalor=None):
     # set up the init_val if not given
     if reducer == 'MAX' and init_val is None:
         init_val = -numpy.inf
-    elif (reducer == 'SUM' or reducer=='AVG') and init_val is None:
+    elif (reducer == 'SUM' or reducer == 'AVG') and init_val is None:
         init_val = 0.
 
     # set up rescalor
     if reducer == 'AVG':
-        rescalor = numpy.float32(1./numpy.prod(window_shape))
+        rescalor = numpy.float32(1. / numpy.prod(window_shape))
     else:
         rescalor = numpy.float32(1.)
 
@@ -320,7 +317,7 @@ def poolNd(input, window_shape, reducer='MAX', strides=None, padding='VALID',
     if numpy.isscalar(window_shape):
         window_shape = (window_shape,) * input.ndim
     elif len(window_shape) != input.ndim:
-        msg = 'Given window_shape {} not the same length '.format(strides) +\
+        msg = 'Given window_shape {} not the same length '.format(strides) + \
               'as input shape {}'.format(input.ndim)
         raise ValueError(msg)
 
@@ -330,13 +327,13 @@ def poolNd(input, window_shape, reducer='MAX', strides=None, padding='VALID',
     elif numpy.isscalar(strides):
         strides = (strides,) * len(window_shape)
     elif len(strides) != len(window_shape):
-        msg = 'Given strides {} not the same length '.format(strides) +\
+        msg = 'Given strides {} not the same length '.format(strides) + \
               'as window_shape {}'.format(window_shape)
         raise ValueError(msg)
 
-    out = reduce_window(operand=input*rescalor, init_value=init_val,
-                  computation=reducer, window_dimensions=window_shape,
-                  window_strides=strides, padding=padding)
+    out = reduce_window(operand=input * rescalor, init_value=init_val,
+                        computation=reducer, window_dimensions=window_shape,
+                        window_strides=strides, padding=padding)
     return out
 
 
@@ -347,7 +344,7 @@ def ExponentialMovingAverage(value, alpha, step=None, init=None):
         _step = step
     if init is None:
         var = Variable(numpy.zeros(value.shape), trainable=False,
-                              name='EMA', dtype='float32')
+                       name='EMA', dtype='float32')
     else:
         var = Variable(init, trainable=False, name='EMA', dtype='float32')
 
@@ -376,8 +373,7 @@ def PiecewiseConstant(init, values, step=None):
     keys, values = keys[arg], values[arg]
     index = (step < keys).argmax()
     v = Variable(values, trainable=False, name='PiecewiseConstant_values')
-    return dynamic_slice_in_dim(v, index-1, 1, 0), step
-
+    return dynamic_slice_in_dim(v, index - 1, 1, 0), step
 
 
 def upsample_1d(tensor, repeat, axis=-1, mode='constant', value=0.):
@@ -417,22 +413,21 @@ def upsample_1d(tensor, repeat, axis=-1, mode='constant', value=0.):
 
     if mode == 'constant':
         zshape = list(tensor.shape)
-        zshape.insert(axis+1, repeat)
+        zshape.insert(axis + 1, repeat)
         tensor_aug = concatenate([expand_dims(tensor, axis + 1),
-                             full(zshape, value, dtype=tensor.dtype)], axis+1)
+                                  full(zshape, value, dtype=tensor.dtype)], axis + 1)
 
     elif mode == 'nearest':
-        return T.repeat(tensor, repeat +1, axis)
- 
+        return T.repeat(tensor, repeat + 1, axis)
+
     elif mode == 'linear':
         assert tensor.shape[axis] > 1
         zshape = [1] * (tensor.ndim + 1)
         zshape[axis + 1] = repeat
         coefficients = T.linspace(0, 1, repeat + 2)[1:-1].reshape(zshape)
         augmented_tensor = T.expand_dims(tensor, axis + 1)
-        interpolated = augmented_tensor * (1 - coefficients)\
-                        + T.roll(augmented_tensor, -1, axis) * coefficients
-        tensor_aug = concatenate([augmented_tensor, interpolated], axis+1)
- 
-    return tensor_aug.reshape(out_shape)
+        interpolated = augmented_tensor * (1 - coefficients) \
+                       + T.roll(augmented_tensor, -1, axis) * coefficients
+        tensor_aug = concatenate([augmented_tensor, interpolated], axis + 1)
 
+    return tensor_aug.reshape(out_shape)

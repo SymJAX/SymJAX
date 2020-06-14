@@ -1,9 +1,10 @@
 import os
-import pickle,gzip
-import urllib.request
-import numpy as np
+import pickle
 import tarfile
 import time
+import urllib.request
+
+import numpy as np
 from tqdm import tqdm
 
 
@@ -23,15 +24,15 @@ class cifar10:
     """
 
     label_to_name = {0: 'airplane',
-            1: 'automobile',
-            2: 'bird',
-            3: 'cat',
-            4: 'deer',
-            5: 'dog',
-            6: 'frog',
-            7: 'horse',
-            8: 'sheep',
-            9: 'truck'}
+                     1: 'automobile',
+                     2: 'bird',
+                     3: 'cat',
+                     4: 'deer',
+                     5: 'dog',
+                     6: 'frog',
+                     7: 'horse',
+                     8: 'sheep',
+                     9: 'truck'}
 
     def download(path):
         """
@@ -46,21 +47,19 @@ class cifar10:
                 directory does not exist, it is created.
         """
 
-
         t0 = time.time()
-    
-    
+
         # Check if directory exists
-        if not os.path.isdir(path+'cifar10'):
+        if not os.path.isdir(path + 'cifar10'):
             print('\tCreating cifar10 Directory')
-            os.mkdir(path+'cifar10')
-    
+            os.mkdir(path + 'cifar10')
+
         # Check if file exists
-        if not os.path.exists(path+'cifar10/cifar10.tar.gz'):
+        if not os.path.exists(path + 'cifar10/cifar10.tar.gz'):
             print('\tDownloading cifar10')
             url = 'https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
-            urllib.request.urlretrieve(url,path+'cifar10/cifar10.tar.gz')
-    
+            urllib.request.urlretrieve(url, path + 'cifar10/cifar10.tar.gz')
+
     def load(path=None):
 
         """
@@ -83,35 +82,33 @@ class cifar10:
 
         """
 
-
         if path is None:
             path = os.environ['DATASET_PATH']
-    
+
         cifar10.download(path)
 
         t0 = time.time()
-    
-    
-        tar = tarfile.open(path+'cifar10/cifar10.tar.gz', 'r:gz')
-    
+
+        tar = tarfile.open(path + 'cifar10/cifar10.tar.gz', 'r:gz')
+
         # Load train set
-        train_images  = list()
-        train_labels  = list()
-        for k in tqdm(range(1,6),desc='Loading cifar10', ascii=True):
+        train_images = list()
+        train_labels = list()
+        for k in tqdm(range(1, 6), desc='Loading cifar10', ascii=True):
             f = tar.extractfile(
-                            'cifar-10-batches-py/data_batch_'+str(k)).read()
-            data_dic = pickle.loads(f,encoding='latin1')
-            train_images.append(data_dic['data'].reshape((-1,3,32,32)))
+                'cifar-10-batches-py/data_batch_' + str(k)).read()
+            data_dic = pickle.loads(f, encoding='latin1')
+            train_images.append(data_dic['data'].reshape((-1, 3, 32, 32)))
             train_labels.append(data_dic['labels'])
-        train_images = np.concatenate(train_images,0).astype('float32')
-        train_labels = np.concatenate(train_labels,0).astype('int32')
-    
+        train_images = np.concatenate(train_images, 0).astype('float32')
+        train_labels = np.concatenate(train_labels, 0).astype('int32')
+
         # Load test set
-        f        = tar.extractfile('cifar-10-batches-py/test_batch').read()
-        data_dic = pickle.loads(f,encoding='latin1')
-        test_images = data_dic['data'].reshape((-1,3,32,32)).astype('float32')
+        f = tar.extractfile('cifar-10-batches-py/test_batch').read()
+        data_dic = pickle.loads(f, encoding='latin1')
+        test_images = data_dic['data'].reshape((-1, 3, 32, 32)).astype('float32')
         test_labels = np.array(data_dic['labels']).astype('int32')
-    
+
         data = {'label_to_name': cifar10.label_to_name,
                 'train_set/images': train_images,
                 'train_set/labels': train_labels,
@@ -119,6 +116,6 @@ class cifar10:
                 'test_set/labels': test_labels,
                 'INFOS': cifar10.__doc__}
 
-        print('Dataset cifar10 loaded in{0:.2f}s.'.format(time.time()-t0))
+        print('Dataset cifar10 loaded in{0:.2f}s.'.format(time.time() - t0))
 
         return data

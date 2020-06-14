@@ -1,14 +1,11 @@
-import jax.numpy as jnp
-import numpy
-import jax
-import jax.lax as jla
-from .base import Op, Tuple, jax_wrap
-from .other import stop_gradient
-from .control_flow import cond
-import ast
 import inspect
 import sys
-from .ops_nn import relu
+
+import jax.lax as jla
+import jax.numpy as jnp
+
+from .base import jax_wrap
+from .other import stop_gradient
 
 module = sys.modules[__name__]
 
@@ -135,7 +132,6 @@ _TO_SKIP = [
     'who'
 ]
 
-
 for name in _JNP_NAMES:
     if name in _TO_SKIP:
         continue
@@ -146,8 +142,10 @@ complex = jax_wrap(jla.complex)
 range = arange
 T = transpose
 
+
 def flatten(input):
     return reshape(input, (-1,))
+
 
 def flatten2d(input):
     assert input.ndim > 1
@@ -155,7 +153,7 @@ def flatten2d(input):
         return input
     return reshape(input, (input.shape[0], -1))
 
+
 def logsumexp(x, axis):
     x_max = stop_gradient(x.max(axis, keepdims=True))
     return log(exp(x - x_max).sum(axis)) + squeeze(x_max)
-

@@ -70,6 +70,9 @@ Detailed description (Image)
 .. autoclass:: symjax.data.mnist
    :members:
 
+.. autoclass:: symjax.data.emnist
+   :members:
+
 .. autoclass:: symjax.data.fashionmnist
    :members:
 
@@ -103,6 +106,10 @@ Detailed description (Audio)
 
 .. autoclass:: symjax.data.audiomnist
    :members:
+
+.. autoclass:: symjax.data.univariate_timeseries
+   :members:
+
 
 .. autoclass:: symjax.data.esc
    :members:

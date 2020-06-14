@@ -41,6 +41,12 @@ def patchify_1d(x, window_length, stride):
         new_x[...,n, :] = x[...,n * stride: n * stride + window_length]
     return new_x
 
+
+
+def patchify_2d(x, window_length, stride):
+    #TODO
+    return None
+
 def train_test_split(*args, train_size=0.8, stratify=None, seed=None):
     """split given data into two non overlapping sets
 

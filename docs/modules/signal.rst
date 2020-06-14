@@ -9,11 +9,11 @@ Apodization Windows
 
 .. autosummary::
 
-   blackman
-   bartlett
-   hamming
-   hanning
-   kaiser
+   symjax.tensor.signal.blackman
+   symjax.tensor.signal.bartlett
+   symjax.tensor.signal.hamming
+   symjax.tensor.signal.hanning
+   symjax.tensor.signal.kaiser
 
 
 
@@ -22,29 +22,29 @@ Fourier Transforms
 
 .. autosummary::
 
-  fft
-  ifft
-  fft2
-  ifft2
-  fftn
-  ifftn
-  rfft
-  irfft
-  rfft2
-  irfft2
-  rfftn
-  irfftn
-  fftfreq
-  rfftfreq
+  symjax.tensor.signal.fft
+  symjax.tensor.signal.ifft
+  symjax.tensor.signal.fft2
+  symjax.tensor.signal.ifft2
+  symjax.tensor.signal.fftn
+  symjax.tensor.signal.ifftn
+  symjax.tensor.signal.rfft
+  symjax.tensor.signal.irfft
+  symjax.tensor.signal.rfft2
+  symjax.tensor.signal.irfft2
+  symjax.tensor.signal.rfftn
+  symjax.tensor.signal.irfftn
+  symjax.tensor.signal.fftfreq
+  symjax.tensor.signal.rfftfreq
 
 Additional Time-Frequency Representations
 =========================================
 
 .. autosummary::
-  mfcc
-  dct
-  wvd
-  hilbert_transform
+  symjax.tensor.signal.mfcc
+  symjax.tensor.signal.dct
+  symjax.tensor.signal.wvd
+  symjax.tensor.signal.hilbert_transform
 
 Detailed Descritpions
 =====================
