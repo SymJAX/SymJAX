@@ -150,7 +150,6 @@ def reset_variables(name='*', trainable=None):
     """
 
     matched = fnmatch.filter(symjax._variables.keys(), name)
-
     for m in matched:
         if trainable is not None:
             if symjax._variables[m].trainable != trainable:

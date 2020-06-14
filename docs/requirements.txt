@@ -1,4 +1,3 @@
--r ../requirements.txt
 beautifulsoup4==4.9.0
 bs4==0.0.1
 sphinx
@@ -11,4 +10,4 @@ sphinxcontrib-qthelp
 sphinxcontrib-serializinghtml
 sphinx-execute-code
 sphinx-gallery
-.
+
