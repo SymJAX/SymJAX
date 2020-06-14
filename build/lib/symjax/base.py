@@ -44,20 +44,13 @@ class Graph:
         else:
             symjax._current_scope = '/'
 
-    def save(self, path):
+    def save_variables(self, path):
         """Save graph."""
-        numpy.savez(path, **dict([(name, symjax.tensor.get(v))
-                                  for name, v in self.variables.items()]))
+        numpy.savez(path, **dict([(v.name, symjax.tensor.get(v)) for v in self.variables]))
 
     @property
     def variables(self):
-        variables = {}
-        for name in symjax._variables:
-            if self.full_name in name:
-                cropped_name = name.replace(self.full_name, '')
-                if '/' not in cropped_name:
-                    variables[cropped_name] = symjax._variables[name]
-        return variables
+        return get_variables(self.full_name + '*')
 
     def variable(self, name):
 
@@ -72,7 +65,7 @@ class Graph:
         else:
             RuntimeError('Variable {name} not in graph {self.full_name}')
 
-    def load(self, path):
+    def load_variables(self, path):
 
         """Load graph."""
 
@@ -82,7 +75,7 @@ class Graph:
 
     def reset(self):
 
-        for var in self.variables.values():
+        for var in self.variables:
             var.reset()
 
     def add(self, tensor):
@@ -99,7 +92,7 @@ class Graph:
             names = symjax._variables
         else:
             names = symjax._ops
-
+        # print('in add', names)
         if name not in names.keys():
             names[name] = tensor
             return
@@ -111,16 +104,59 @@ class Graph:
             else:
                 break
         names[name + '_' + str(count)] = tensor
-        tensor.name = tensor.name + '_' + str(count)
+        tensor._set_name(tensor.name + '_' + str(count))
 
 
-def reset(name):
+def reset_variables(name='*', trainable=None):
+    """
+    utility to reset variables based on their names
+
+    Parameters
+    ----------
+
+    name: str (default=*)
+        the name (or part of the name) of all the variables that should be
+        reset, it can include the glob (*) searching for all matching
+        names
+
+    trainable: bool or None (optional, default=None)
+        is not None, it will only reset from the matched variables the ones that
+        trainable attribute matches the given one
+
+
+    Returns
+    -------
+
+    None
+
+    Example
+    -------
+
+    .. doctest::
+
+        >>> import symjax
+        >>> import logging
+        >>> w = symjax.tensor.Variable(1., name='w', dtype='float32')
+        >>> x = symjax.tensor.Variable(2., name='x', dtype='float32')
+        >>> f = symjax.function(outputs=[w, x], updates={w:w + 1,x:x + 1})
+        >>> for i in range(10):
+        ...    f()
+        >>> # reset only the w variable
+        >>> symjax.reset_variables('w')
+        >>> # reset all variables
+        >>> symjax.reset_variables('*')
+
+    """
+
     matched = fnmatch.filter(symjax._variables.keys(), name)
     for m in matched:
+        if trainable is not None:
+            if symjax._variables[m].trainable != trainable:
+                continue
         symjax._variables[m].reset()
 
 
-def save(name, path):
+def save_variables(name, path):
     """Save graph."""
     matched = fnmatch.filter(symjax._variables.keys(), name)
     numpy.savez(path, **dict(
@@ -128,57 +164,67 @@ def save(name, path):
          matched]))
 
 
-def load(name, path):
+def load_variables(name, path_or_file, scope_mapping=None):
     """Load graph."""
 
-    if path[-4:] != '.npz':
-        path += '.npz'
+    if type(path_or_file) == str:
+        if path_or_file[-4:] != '.npz':
+            path_or_file += '.npz'
+
+    scope_mapping = scope_mapping or {}
 
     matched = fnmatch.filter(symjax._variables.keys(), name)
-    data = numpy.load(path)
-    for name, value in data.items():
-        symjax._variables[name].update(value)
+    data = numpy.load(path_or_file)
+    for name in matched:
+        if symjax._variables[name].scope in scope_mapping:
+            name_in_file = scope_mapping[symjax._variables[name].scope] + '/' + symjax._variables[name].name
+        else:
+            name_in_file = name
+        if name_in_file not in data:
+            raise Warning('{} not in loaded file'.format(name_in_file))
+        symjax._variables[name].update(data[name_in_file])
 
 
-def variable(name):
+def get_variables(name, trainable=None):
     matched = fnmatch.filter(symjax._variables.keys(), name)
-    if len(matched) == 1:
-        return symjax._variables[matched[0]]
-    elif len(matched) == 0:
-        return None
+    if trainable is not None:
+        assert type(trainable) == bool
+        matched = [m for m in matched
+                   if symjax._variables[m].trainable == trainable]
     return [symjax._variables[m] for m in matched]
 
 
-def placeholder(name):
+def get_placeholders(name):
     """
     Same as symjax.variable but for placeholders
     """
 
     matched = fnmatch.filter(symjax._placeholders.keys(), name)
-    if len(matched) == 1:
-        return symjax._placeholder[matched[0]]
-    elif len(matched) == 0:
-        return None
     return [symjax._placeholders[m] for m in matched]
 
 
-def op(name):
+def get_ops(name):
     """
     Same as symjax.variable but for ops
     """
 
     matched = fnmatch.filter(symjax._ops.keys(), name)
-    if len(matched) == 1:
-        return symjax._ops[matched[0]]
-    elif len(matched) == 0:
-        return None
+    return [symjax._ops[m] for m in matched]
+
+
+def get_updates(name):
+    """
+    Same as symjax.get_variables but for updates
+    """
+
+    matched = fnmatch.filter(symjax._updates.keys(), name)
     return [symjax._ops[m] for m in matched]
 
 
 def gradients(scalar, variables):
     """Compute the gradients of a scalar w.r.t to a given list of variables.
 
-    Parameter
+    Arguments
     ---------
     scalar: :class:`symjax.tensor.base.Tensor`
         the variable to differentiate
@@ -243,7 +289,7 @@ def jacobians(tensor, variables, mode='forward'):
     to specify the mode forward or backward. For tall jacobians, forward
     is faster and vice-versa.
 
-    Parameter
+    Arguments
     ---------
 
         vector: Tensor
@@ -295,10 +341,9 @@ class function:
 
     Based on given inputs, outputs and update policy of variables. This
     function internally jit compile the underlying jax computational
-    graph for performances and thus should be favored to the get
-    method of tensors.
+    graph for performances.
 
-    Parameter
+    Arguments
     ---------
 
         classargs: trailing tuple
@@ -313,9 +358,6 @@ class function:
         updates: Dict (optional)
             the dictionnary of updates as per {var:new_value} for any
             variable of the graph
-
-        device: ??
-            ??
 
         backend: 'cpu' or 'gpu'
             the backend to use to run the function on

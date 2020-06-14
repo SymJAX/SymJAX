@@ -8,18 +8,17 @@ from .base import (
         function,
         gradients,
         jacobians,
-        reset,
-        save,
-        load,
-        variable,
-        placeholder,
-        op)
+        reset_variables,
+        save_variables,
+        load_variables,
+        get_variables,
+        get_placeholders,
+        get_ops)
 
 
-from . import datasets
+from . import data
 from . import tensor
 from . import losses
-from . import utils
 from . import initializers
 from . import layers
 from . import optimizers
@@ -32,3 +31,4 @@ _variables = {}
 _placeholders = {}
 _updates = {}
 _ops = {}
+_updates = {}
