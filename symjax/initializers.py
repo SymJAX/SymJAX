@@ -4,6 +4,7 @@ import numpy as np
 def constant(shape, value):
     return np.full(shape, value)
 
+
 def uniform(shape, range=0.01, std=None, mean=0.):
     """Sample initial weights from the uniform distribution.
     Parameters are sampled from U(a, b).
@@ -22,6 +23,7 @@ def uniform(shape, range=0.01, std=None, mean=0.):
 
     mean: float
         see std for description.
+        :param shape:
     """
     if std is not None:
         a = mean - np.sqrt(3) * std
@@ -31,6 +33,7 @@ def uniform(shape, range=0.01, std=None, mean=0.):
     else:
         a, b = -range, range  # range is a number
     return np.random.rand(*shape) * (b - a) + a
+
 
 def normal(shape, mean=0., std=1.):
     """Sample initial weights from the Gaussian distribution.
@@ -44,35 +47,37 @@ def normal(shape, mean=0., std=1.):
     
     mean: float
         Mean of initial parameters.
-    
+        :param shape:
+
     """
     return np.random.randn(*shape) * std + mean
 
 
-def orthogonal(shape, gain=1, seed=None):
-     flat_shape = (shape[0], np.prod(shape[1:]))
-     a = np.random.normal(flat_shape, seed=seed)
-     u, _, v = np.linalg.svd(a, full_matrices=False)
-     # pick the one with the correct shape
-     q = u if u.shape == flat_shape else v
-     q = q.reshape(shape)
-     return gain * q
+def orthogonal(shape, gain=1):
+    flat_shape = (shape[0], np.prod(shape[1:]))
+    a = np.random.normal(flat_shape)
+    u, _, v = np.linalg.svd(a, full_matrices=False)
+    # pick the one with the correct shape
+    q = u if u.shape == flat_shape else v
+    q = q.reshape(shape)
+    return gain * q
+
 
 def _compute_fans(shape, in_axis=0, out_axis=1):
-
     print(shape)
     receptive_field_size = np.prod(shape) / (shape[in_axis] * shape[out_axis])
     fan_in = shape[in_axis] * receptive_field_size
     fan_out = shape[out_axis] * receptive_field_size
     return fan_in, fan_out
 
+
 def variance_scaling(mode, shape, gain, distribution=normal, in_axis=0,
-                        out_axis=1):
+                     out_axis=1):
     """Variance Scaling initialization.
     """
     if len(shape) < 2:
         raise RuntimeError(
-                     "This initializer only works with shapes of length >= 2")
+            "This initializer only works with shapes of length >= 2")
 
     fan_in, fan_out = _compute_fans(shape, in_axis, out_axis)
     if mode == "fan_in":
@@ -86,6 +91,7 @@ def variance_scaling(mode, shape, gain, distribution=normal, in_axis=0,
             "mode must be fan_in, fan_out or fan_avg, value passed was {mode}")
     std = gain * np.sqrt(1. / den)
     return distribution(shape, std=std)
+
 
 def glorot(shape, gain=1, distribution=normal, in_axis=0, out_axis=1):
     """Glorot weight initialization.
@@ -131,18 +137,26 @@ def glorot(shape, gain=1, distribution=normal, in_axis=0, out_axis=1):
     .. math::
        \\sigma &= \\sqrt{\\frac{2}{fan_{in}+fan_{out}}}\\\\
        W &\sim N(0, \\sigma)
+       :param shape:
+       :param distribution:
+       :param in_axis:
+       :param out_axis:
     """
     if len(shape) < 2:
         raise RuntimeError(
-                     "This initializer only works with shapes of length >= 2")
+            "This initializer only works with shapes of length >= 2")
 
     return variance_scaling("fan_avg", shape, gain, distribution,
                             in_axis=in_axis, out_axis=out_axis)
-   
+
 
 def he(shape, gain=np.sqrt(2), distribution=normal, in_axis=0, out_axis=1):
     """He weight initialization.
     Weights are initialized with a standard deviation of
+    :param shape:
+    :param distribution:
+    :param in_axis:
+    :param out_axis:
     :math:`\\sigma = gain \\sqrt{\\frac{1}{fan_{in}}}` [1]_.
     
     Parameters

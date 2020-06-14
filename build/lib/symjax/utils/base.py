@@ -1,11 +1,11 @@
 import numpy as np
 from multiprocessing import Pool, Queue, Lock, Process
 
-def create_cmap(values, colors):
 
+def create_cmap(values, colors):
     from matplotlib.pyplot import Normalize
     import matplotlib
-    
+
     norm = Normalize(min(values), max(values))
     tuples = list(zip(map(norm, values), colors))
     cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", tuples)
@@ -38,8 +38,9 @@ def patchify_1d(x, window_length, stride):
     n_windows = (x.shape[-1] - window_length) // stride + 1
     new_x = np.empty(x.shape[:-1] + (n_windows, window_length))
     for n in range(n_windows):
-        new_x[...,n, :] = x[...,n * stride: n * stride + window_length]
+        new_x[..., n, :] = x[..., n * stride: n * stride + window_length]
     return new_x
+
 
 def train_test_split(*args, train_size=0.8, stratify=None, seed=None):
     """split given data into two non overlapping sets
@@ -96,7 +97,7 @@ def train_test_split(*args, train_size=0.8, stratify=None, seed=None):
             if train_size > 1:
                 cutoff = train_size
             else:
-                cutoff = int(len(c_indices)*train_size)
+                cutoff = int(len(c_indices) * train_size)
             train_indices.append(c_indices[:cutoff])
             test_indices.append(c_indices[cutoff:])
         train_indices = np.concatenate(train_indices, 0)
@@ -107,7 +108,7 @@ def train_test_split(*args, train_size=0.8, stratify=None, seed=None):
             assert type(train_size) == int
             cutoff = train_size
         else:
-            cutoff = int(len(args[0])*train_size)
+            cutoff = int(len(args[0]) * train_size)
         print(cutoff)
         train_indices = indices[:cutoff]
         test_indices = indices[cutoff:]
@@ -180,6 +181,7 @@ class batchify:
                     def fn(args, queue, f=load_func[i]):
                         result = np.asarray([f(arg) for arg in args])
                         queue.put(result)
+
                     self.load_func.append(fn)
                 else:
                     def fn(lock, data, queue, f=load_func[i]):
@@ -188,6 +190,7 @@ class batchify:
                             result = pool.map(f, data)
                         queue.put(np.asarray(result))
                         lock.release()
+
                     self.load_func.append(fn)
         assert np.prod([len(args[0]) == len(arg) for arg in args[1:]])
 
@@ -215,7 +218,6 @@ class batchify:
                 p = Process(target=load_func, args=(lock, b, queue))
                 p.start()
 
-
     def __iter__(self):
         return self
 
@@ -234,7 +236,7 @@ class batchify:
         if self.option == 'random_see_all':
             perm = self.permutation[indices[0]:indices[1]]
             batch = [arg[perm] if hasattr(arg, 'shape') else [arg[i] for i in perm]
-                        for arg in self.args]
+                     for arg in self.args]
         elif self.option == 'continuous':
             batch = [arg[indices[0]:indices[1]] for arg in self.args]
         elif self.option == 'random':
@@ -268,36 +270,32 @@ class batchify:
                 batch[i] = load_func(batch[i])
 
 
-
-
-
-
-def vq_to_boundary(states,N,M,duplicate=1):
-    #the following should take as input a collection of points
-    #in the input space and return a list of binary states, each 
-    #element of the list is for 1 specific layer and it is a 2D array
-    if states.ndim>1:
+def vq_to_boundary(states, N, M, duplicate=1):
+    # the following should take as input a collection of points
+    # in the input space and return a list of binary states, each
+    # element of the list is for 1 specific layer and it is a 2D array
+    if states.ndim > 1:
         states = vq_to_values(states)
-    partitioning  = values_to_boundary(states.reshape((N,M)).astype('float32'),duplicate)
+    partitioning = values_to_boundary(states.reshape((N, M)).astype('float32'), duplicate)
     return partitioning
 
-def values_to_boundary(x,duplicate=0):
-    #compute each directional (one step) derivative as a boolean mask
-    #representing jump from one region to another and add them (boolean still)
-    g_vertical   = np.greater(np.pad(np.abs(x[1:]-x[:-1]),((1,0),(0,0)),'constant'),0)
-    g_horizontal = np.greater(np.pad(np.abs(x[:,1:]-x[:,:-1]),[[0,0],[1,0]],'constant'),0)
-    g_diagonaldo = np.greater(np.pad(np.abs(x[1:,1:]-x[:-1,:-1]),[[1,0],[1,0]],'constant'),0)
-    g_diagonalup = np.greater(np.pad(np.abs(x[:-1:,1:]-x[1:,:-1]),[[1,0],[1,0]],'constant'),0)
-    overall      = g_vertical+g_horizontal+g_diagonaldo+g_diagonalup
-    if duplicate>0:
-        overall                 = np.stack([np.roll(overall,k,1) for k in range(duplicate+1)]\
-                                    +[np.roll(overall,k,0) for k in range(duplicate+1)]).sum(0)
-        overall[:duplicate]    *= 0
-        overall[-duplicate:]   *= 0
-        overall[:,:duplicate]  *= 0
-        overall[:,-duplicate:] *= 0
-    return np.greater(overall,0).astype('float32')
 
+def values_to_boundary(x, duplicate=0):
+    # compute each directional (one step) derivative as a boolean mask
+    # representing jump from one region to another and add them (boolean still)
+    g_vertical = np.greater(np.pad(np.abs(x[1:] - x[:-1]), ((1, 0), (0, 0)), 'constant'), 0)
+    g_horizontal = np.greater(np.pad(np.abs(x[:, 1:] - x[:, :-1]), [[0, 0], [1, 0]], 'constant'), 0)
+    g_diagonaldo = np.greater(np.pad(np.abs(x[1:, 1:] - x[:-1, :-1]), [[1, 0], [1, 0]], 'constant'), 0)
+    g_diagonalup = np.greater(np.pad(np.abs(x[:-1:, 1:] - x[1:, :-1]), [[1, 0], [1, 0]], 'constant'), 0)
+    overall = g_vertical + g_horizontal + g_diagonaldo + g_diagonalup
+    if duplicate > 0:
+        overall = np.stack([np.roll(overall, k, 1) for k in range(duplicate + 1)] \
+                           + [np.roll(overall, k, 0) for k in range(duplicate + 1)]).sum(0)
+        overall[:duplicate] *= 0
+        overall[-duplicate:] *= 0
+        overall[:, :duplicate] *= 0
+        overall[:, -duplicate:] *= 0
+    return np.greater(overall, 0).astype('float32')
 
 
 def vq_to_values(states, vq_to_value_dict=None, return_dict=False):
@@ -340,13 +338,12 @@ def vq_to_values(states, vq_to_value_dict=None, return_dict=False):
     if vq_to_value_dict is None:
         vq_to_value_dict = dict()
     if 'count' not in vq_to_value_dict:
-        vq_to_value_dict['count']=0
+        vq_to_value_dict['count'] = 0
     values = np.zeros(states.shape[0])
-    for i,state in enumerate(states):
+    for i, state in enumerate(states):
         str_s = ''.join(state.astype('uint8').astype('str'))
-        if(str_s not in vq_to_value_dict):
-            vq_to_value_dict[str_s]   = vq_to_value_dict['count']
-            vq_to_value_dict['count']+= 0.001
+        if (str_s not in vq_to_value_dict):
+            vq_to_value_dict[str_s] = vq_to_value_dict['count']
+            vq_to_value_dict['count'] += 0.001
         values[i] = vq_to_value_dict[str_s]
     return values
-

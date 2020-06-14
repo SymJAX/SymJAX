@@ -134,6 +134,7 @@ def get_connected(item, parents, _minimal=None):
     Returns
 
     connected: list
+    :param _minimal:
 
     """
     if len(parents) == 0:

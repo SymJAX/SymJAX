@@ -16,6 +16,7 @@ def download_file_from_google_drive(file_id, dest, md5=None):
         file_id (str): id of file to be downloaded
         dist (str): name of file to be saved
         md5 (str, optional): MD5 checksum of the download. If None, do not check
+        :param dest:
     """
     # Based on https://stackoverflow.com/questions/38511444/python-download-files-from-google-drive-using-url
     import requests
@@ -81,7 +82,7 @@ class DLProgress(tqdm):
 def download_extract(path):
     """
     Download and extract database
-    :param database_name: Database name
+    :param path:
     """
     url = 'https://s3-us-west-1.amazonaws.com/udacity-dlnfd/datasets/celeba.zip'
     hash_code = '00d2c5bc6d35e252742224ab0c1e8fcb'

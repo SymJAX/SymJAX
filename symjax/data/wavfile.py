@@ -141,6 +141,13 @@ def read(file, readmarkers=False, readmarkerlabels=False, readmarkerslist=False,
     * The returned sample rate is a Python integer
     * The data is returned as a numpy array with a
       data-type determined from the file.
+      :param readmarkers:
+      :param readmarkerlabels:
+      :param readmarkerslist:
+      :param readloops:
+      :param readpitch:
+      :param normalized:
+      :param forcestereo:
 
     """
     if hasattr(file,'read'):
@@ -234,6 +241,11 @@ def write(filename, rate, data, bitrate=None, markers=None, loops=None, pitch=No
     * The bits-per-sample will be determined by the data-type.
     * To write multiple-channels, use a 2-D array of shape
       (Nsamples, Nchannels).
+      :param bitrate:
+      :param markers:
+      :param loops:
+      :param pitch:
+      :param normalized:
 
     """
 

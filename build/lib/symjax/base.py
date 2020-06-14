@@ -13,7 +13,6 @@ from symjax.tensor import random
 from jax import jacfwd, jacrev
 
 
-
 def current_graph():
     """Current graph."""
     assert len(symjax._current_graph)
@@ -26,7 +25,6 @@ class Graph:
     def __init__(self, name, seed=None):
 
         """Constructor."""
-        
 
         self.name = name
         self.full_name = None
@@ -34,7 +32,7 @@ class Graph:
     def __enter__(self):
         """Set global variables."""
         if len(self.name):
-            symjax._current_scope +=  self.name + '/'
+            symjax._current_scope += self.name + '/'
         self.full_name = symjax._current_scope
         symjax._current_graph.append(self)
 
@@ -60,7 +58,7 @@ class Graph:
                 if '/' not in cropped_name:
                     variables[cropped_name] = symjax._variables[name]
         return variables
-        
+
     def variable(self, name):
 
         # check if the name for given relative or full
@@ -75,7 +73,7 @@ class Graph:
             RuntimeError('Variable {name} not in graph {self.full_name}')
 
     def load(self, path):
-        
+
         """Load graph."""
 
         data = numpy.load(path)
@@ -100,7 +98,7 @@ class Graph:
         elif isinstance(tensor, symjax.tensor.Variable):
             names = symjax._variables
         else:
-            names =  symjax._ops
+            names = symjax._ops
 
         if name not in names.keys():
             names[name] = tensor
@@ -125,11 +123,12 @@ def reset(name):
 def save(name, path):
     """Save graph."""
     matched = fnmatch.filter(symjax._variables.keys(), name)
-    numpy.savez(path, **dict([(symjax._variables[v].scope + symjax._variables[v].name, symjax.tensor.get(symjax._variables[v])) for v in matched]))
+    numpy.savez(path, **dict(
+        [(symjax._variables[v].scope + symjax._variables[v].name, symjax.tensor.get(symjax._variables[v])) for v in
+         matched]))
 
 
 def load(name, path):
-        
     """Load graph."""
 
     if path[-4:] != '.npz':
@@ -141,7 +140,6 @@ def load(name, path):
         symjax._variables[name].update(value)
 
 
-
 def variable(name):
     matched = fnmatch.filter(symjax._variables.keys(), name)
     if len(matched) == 1:
@@ -150,12 +148,12 @@ def variable(name):
         return None
     return [symjax._variables[m] for m in matched]
 
+
 def placeholder(name):
-    
     """
     Same as symjax.variable but for placeholders
     """
-    
+
     matched = fnmatch.filter(symjax._placeholders.keys(), name)
     if len(matched) == 1:
         return symjax._placeholder[matched[0]]
@@ -163,8 +161,8 @@ def placeholder(name):
         return None
     return [symjax._placeholders[m] for m in matched]
 
+
 def op(name):
-    
     """
     Same as symjax.variable but for ops
     """
@@ -180,7 +178,7 @@ def op(name):
 def gradients(scalar, variables):
     """Compute the gradients of a scalar w.r.t to a given list of variables.
 
-    Arguments
+    Parameter
     ---------
     scalar: :class:`symjax.tensor.base.Tensor`
         the variable to differentiate
@@ -245,7 +243,7 @@ def jacobians(tensor, variables, mode='forward'):
     to specify the mode forward or backward. For tall jacobians, forward
     is faster and vice-versa.
 
-    Arguments
+    Parameter
     ---------
 
         vector: Tensor
@@ -259,6 +257,8 @@ def jacobians(tensor, variables, mode='forward'):
 
         jacobians: Tuple
             the sequency of gradients ordered as given in the input variables
+            :param tensor:
+            :param mode:
     """
     # get all the roots of the scalar, this is needed as otherwise they are not
     # as the input of the gradient function and thus a change of
@@ -298,7 +298,7 @@ class function:
     graph for performances and thus should be favored to the get
     method of tensors.
 
-    Arguments
+    Parameter
     ---------
 
         classargs: trailing tuple
@@ -349,7 +349,7 @@ class function:
 
     """
 
-    def __init__(self, *classargs, outputs=[], updates=None,   # noqa
+    def __init__(self, *classargs, outputs=[], updates=None,  # noqa
                  device=None,
                  backend=None, default_value=None):
         """Initialize."""
@@ -418,15 +418,15 @@ class function:
         # function. Now we must ensure that the other ones will also be given
         # as inputs to not be treated as constants by jax.
         # we also remove update keys because we will expicitly feed them
-        self.extra_inputs = set(self.all_roots)\
-            - (set(self.classargs).union(self.updates_keys))
+        self.extra_inputs = set(self.all_roots) \
+                            - (set(self.classargs).union(self.updates_keys))
         self.extra_inputs = list(self.extra_inputs)
 
         def to_jit(*jitargs, seed):
             allargs = list(self.classargs) + self.updates_keys + self.extra_inputs
-            feed_dict = dict(zip(allargs, jitargs))#[(m, {'base': v})
-#                        for m, v in zip(allargs, jitargs)])
-            feed_dict.update({'rng':seed})
+            feed_dict = dict(zip(allargs, jitargs))  # [(m, {'base': v})
+            #                        for m, v in zip(allargs, jitargs)])
+            feed_dict.update({'rng': seed})
             return t.get([self.outputs, self.updates_values], feed_dict)
 
         # we compile our underlying function using jit for performances
@@ -448,15 +448,16 @@ class function:
 
             # retreive the function outputs, updated values and apply them
             jited_add_inputs = t.get(self.updates_keys + self.extra_inputs,
-                                    tracker={'rng': rng})
+                                     tracker={'rng': rng})
             jitoutputs, jitupdates = self.jited(*fnargs, *jited_add_inputs,
-                    seed=rng)
+                                                seed=rng)
             for key, update in zip(self.updates_keys, jitupdates):
                 key.update(update)
             if isinstance(jitoutputs, jax.interpreters.xla.DeviceArray):
                 return jax.api.device_get(jitoutputs)
             else:
-                npy_jitoutputs = [jax.api.device_get(arr) if isinstance(arr, jax.interpreters.xla.DeviceArray) else arr  for arr in jitoutputs]
+                npy_jitoutputs = [jax.api.device_get(arr) if isinstance(arr, jax.interpreters.xla.DeviceArray) else arr
+                                  for arr in jitoutputs]
                 return npy_jitoutputs
 
         self.meta = meta

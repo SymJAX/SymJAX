@@ -34,6 +34,8 @@ class multivariate_normal:
         -------
         pdf : ndarray
             Log of the probability density function evaluated at `x`
+            :param mean:
+            :param cov:
 
         """
 
@@ -59,5 +61,7 @@ class multivariate_normal:
         -------
         pdf : ndarray
             Probability density function evaluated at `x`
+            :param mean:
+            :param cov:
         """
         return tensor.exp(multivariate_normal.logpdf(x, mean, cov))

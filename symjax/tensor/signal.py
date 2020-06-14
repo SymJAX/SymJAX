@@ -47,6 +47,7 @@ def fourier_complex_morlet(bandwidths, centers, N):
 
     freqs: array (optional)
         the frequency sampling in radion going from 0 to pi and back to 0
+        :param N:
 
     """
     freqs = T.linspace(0, 2 * numpy.pi, N)

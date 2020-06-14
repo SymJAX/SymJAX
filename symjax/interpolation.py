@@ -35,6 +35,7 @@ def hermite(samples, knots, values, derivatives):
     -------
         yi: array-like
             The interpolated real-valued function.
+            :param derivatives:
     """
 
     # Concatenate coefficients onto shifted knots (..., N_KNOTS - 1, 2)

@@ -77,6 +77,8 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
     which the labels appear in the `rhs_spec` string, so that `window_strides[0]`
     is matched with the dimension corresponding to the first character
     appearing in rhs_spec that is not `'I'` or `'O'`.
+    :param filter_format:
+    :param output_format:
     """
     # setting up the strides
     if numpy.isscalar(strides):
@@ -207,6 +209,9 @@ def convNd_transpose(input, filter, strides=1, padding='VALID', input_format=Non
     which the labels appear in the `rhs_spec` string, so that `window_strides[0]`
     is matched with the dimension corresponding to the first character
     appearing in rhs_spec that is not `'I'` or `'O'`.
+    :param filter_format:
+    :param output_format:
+    :param transpose_kernel:
     """
     # setting up the strides
     if numpy.isscalar(strides):

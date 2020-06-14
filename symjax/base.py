@@ -13,7 +13,6 @@ from symjax.tensor import random
 from jax import jacfwd, jacrev
 
 
-
 def current_graph():
     """Current graph."""
     assert len(symjax._current_graph)
@@ -26,7 +25,6 @@ class Graph:
     def __init__(self, name, seed=None):
 
         """Constructor."""
-        
 
         self.name = name
         self.full_name = None
@@ -34,7 +32,7 @@ class Graph:
     def __enter__(self):
         """Set global variables."""
         if len(self.name):
-            symjax._current_scope +=  self.name + '/'
+            symjax._current_scope += self.name + '/'
         self.full_name = symjax._current_scope
         symjax._current_graph.append(self)
 
@@ -54,7 +52,7 @@ class Graph:
     @property
     def variables(self):
         return get_variables(self.full_name + '*')
-        
+
     def variable(self, name):
 
         # check if the name for given relative or full
@@ -69,7 +67,7 @@ class Graph:
             RuntimeError('Variable {name} not in graph {self.full_name}')
 
     def load(self, path):
-        
+
         """Load graph."""
 
         data = numpy.load(path)
@@ -95,7 +93,7 @@ class Graph:
             names = symjax._variables
         else:
             names = symjax._ops
-        #print('in add', names)
+        # print('in add', names)
         if name not in names.keys():
             names[name] = tensor
             return
@@ -162,11 +160,12 @@ def reset_variables(name='*', trainable=None):
 def save(name, path):
     """Save graph."""
     matched = fnmatch.filter(symjax._variables.keys(), name)
-    numpy.savez(path, **dict([(symjax._variables[v].scope + symjax._variables[v].name, symjax.tensor.get(symjax._variables[v])) for v in matched]))
+    numpy.savez(path, **dict(
+        [(symjax._variables[v].scope + symjax._variables[v].name, symjax.tensor.get(symjax._variables[v])) for v in
+         matched]))
 
 
 def load(name, path):
-        
     """Load graph."""
 
     if path[-4:] != '.npz':
@@ -178,25 +177,24 @@ def load(name, path):
         symjax._variables[name].update(value)
 
 
-
 def get_variables(name, trainable=None):
     matched = fnmatch.filter(symjax._variables.keys(), name)
     if trainable is not None:
         assert type(trainable) == bool
         matched = [m for m in matched
-                    if symjax._variables[m].trainable ==  trainable]
+                   if symjax._variables[m].trainable == trainable]
     if len(matched) == 1:
         return symjax._variables[matched[0]]
     elif len(matched) == 0:
         return None
     return [symjax._variables[m] for m in matched]
 
+
 def get_placeholders(name):
-    
     """
     Same as symjax.variable but for placeholders
     """
-    
+
     matched = fnmatch.filter(symjax._placeholders.keys(), name)
     if len(matched) == 1:
         return symjax._placeholder[matched[0]]
@@ -204,8 +202,8 @@ def get_placeholders(name):
         return None
     return [symjax._placeholders[m] for m in matched]
 
+
 def get_ops(name):
-    
     """
     Same as symjax.variable but for ops
     """
@@ -300,6 +298,8 @@ def jacobians(tensor, variables, mode='forward'):
 
         jacobians: Tuple
             the sequency of gradients ordered as given in the input variables
+            :param tensor:
+            :param mode:
     """
     # get all the roots of the scalar, this is needed as otherwise they are not
     # as the input of the gradient function and thus a change of
@@ -390,7 +390,7 @@ class function:
 
     """
 
-    def __init__(self, *classargs, outputs=[], updates=None,   # noqa
+    def __init__(self, *classargs, outputs=[], updates=None,  # noqa
                  device=None,
                  backend=None, default_value=None):
         """Initialize."""
@@ -459,15 +459,15 @@ class function:
         # function. Now we must ensure that the other ones will also be given
         # as inputs to not be treated as constants by jax.
         # we also remove update keys because we will expicitly feed them
-        self.extra_inputs = set(self.all_roots)\
-            - (set(self.classargs).union(self.updates_keys))
+        self.extra_inputs = set(self.all_roots) \
+                            - (set(self.classargs).union(self.updates_keys))
         self.extra_inputs = list(self.extra_inputs)
 
         def to_jit(*jitargs, seed):
             allargs = list(self.classargs) + self.updates_keys + self.extra_inputs
-            feed_dict = dict(zip(allargs, jitargs))#[(m, {'base': v})
-#                        for m, v in zip(allargs, jitargs)])
-            feed_dict.update({'rng':seed})
+            feed_dict = dict(zip(allargs, jitargs))  # [(m, {'base': v})
+            #                        for m, v in zip(allargs, jitargs)])
+            feed_dict.update({'rng': seed})
             return t.get([self.outputs, self.updates_values], feed_dict)
 
         # we compile our underlying function using jit for performances
@@ -489,15 +489,16 @@ class function:
 
             # retreive the function outputs, updated values and apply them
             jited_add_inputs = t.get(self.updates_keys + self.extra_inputs,
-                                    tracker={'rng': rng})
+                                     tracker={'rng': rng})
             jitoutputs, jitupdates = self.jited(*fnargs, *jited_add_inputs,
-                    seed=rng)
+                                                seed=rng)
             for key, update in zip(self.updates_keys, jitupdates):
                 key.update(update)
             if isinstance(jitoutputs, jax.interpreters.xla.DeviceArray):
                 return jax.api.device_get(jitoutputs)
             else:
-                npy_jitoutputs = [jax.api.device_get(arr) if isinstance(arr, jax.interpreters.xla.DeviceArray) else arr  for arr in jitoutputs]
+                npy_jitoutputs = [jax.api.device_get(arr) if isinstance(arr, jax.interpreters.xla.DeviceArray) else arr
+                                  for arr in jitoutputs]
                 return npy_jitoutputs
 
         self.meta = meta

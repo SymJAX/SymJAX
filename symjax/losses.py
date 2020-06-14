@@ -24,6 +24,8 @@ def vae(x, x_hat, z_mu, z_logvar, mu, logvar, logvar_x=0., eps=1e-8):
 
     logvar: array
         should be of shape (K,), parameter (logvar of clusters)
+        :param logvar_x:
+        :param eps:
 
     """
 
@@ -70,6 +72,8 @@ def vae_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0., eps=1e-8):
 
     logpi: array
         should be of shape (C,), parameter (prior of clusters)
+        :param logvar_x:
+        :param eps:
 
     """
 
@@ -130,6 +134,8 @@ def vae_comp_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0., eps=1
 
     logpi: array
         should be of shape (I, C), parameter (prior of clusters)
+        :param logvar_x:
+        :param eps:
 
     """
 
@@ -198,6 +204,9 @@ def FGMM_VAE(x, x_rec, x_logvar, z_logvar, q_mu, q_logvar, mu, q_loggamma, q_log
 
     logpia: array
         (parameters) should ve of shape (F,)
+        :param q_logeta:
+        :param mode:
+        :param eps:
 
     """
 
