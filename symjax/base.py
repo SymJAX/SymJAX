@@ -2,15 +2,16 @@
 # -*- coding: utf-8 -*-
 """Base of symjax."""
 
-import jax
-import jax.numpy as np
-import warnings
-import numpy
 import fnmatch
+import warnings
+
+import jax
+import numpy
+from jax import jacfwd, jacrev
+
 import symjax
 from symjax import tensor as t
 from symjax.tensor import random
-from jax import jacfwd, jacrev
 
 
 def current_graph():
@@ -46,7 +47,8 @@ class Graph:
 
     def save_variables(self, path):
         """Save graph."""
-        numpy.savez(path, **dict([(v.name, symjax.tensor.get(v)) for v in self.variables]))
+        numpy.savez(path, **dict(
+            [(v.name, symjax.tensor.get(v)) for v in self.variables]))
 
     @property
     def variables(self):
@@ -160,7 +162,8 @@ def save_variables(name, path):
     """Save graph."""
     matched = fnmatch.filter(symjax._variables.keys(), name)
     numpy.savez(path, **dict(
-        [(symjax._variables[v].scope + symjax._variables[v].name, symjax.tensor.get(symjax._variables[v])) for v in
+        [(symjax._variables[v].scope + symjax._variables[v].name,
+          symjax.tensor.get(symjax._variables[v])) for v in
          matched]))
 
 
@@ -177,7 +180,8 @@ def load_variables(name, path_or_file, scope_mapping=None):
     data = numpy.load(path_or_file)
     for name in matched:
         if symjax._variables[name].scope in scope_mapping:
-            name_in_file = scope_mapping[symjax._variables[name].scope] + '/' + symjax._variables[name].name
+            name_in_file = scope_mapping[symjax._variables[name].scope] + '/' + \
+                           symjax._variables[name].name
         else:
             name_in_file = name
         if name_in_file not in data:
@@ -465,7 +469,8 @@ class function:
         self.extra_inputs = list(self.extra_inputs)
 
         def to_jit(*jitargs, seed):
-            allargs = list(self.classargs) + self.updates_keys + self.extra_inputs
+            allargs = list(
+                self.classargs) + self.updates_keys + self.extra_inputs
             feed_dict = dict(zip(allargs, jitargs))  # [(m, {'base': v})
             #                        for m, v in zip(allargs, jitargs)])
             feed_dict.update({'rng': seed})
@@ -498,7 +503,8 @@ class function:
             if isinstance(jitoutputs, jax.interpreters.xla.DeviceArray):
                 return jax.api.device_get(jitoutputs)
             else:
-                npy_jitoutputs = [jax.api.device_get(arr) if isinstance(arr, jax.interpreters.xla.DeviceArray) else arr
+                npy_jitoutputs = [jax.api.device_get(arr) if isinstance(arr,
+                                                                        jax.interpreters.xla.DeviceArray) else arr
                                   for arr in jitoutputs]
                 return npy_jitoutputs
 

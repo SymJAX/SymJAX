@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import numpy as np
-from . import tensor as T
 
-__author__      = "Randall Balestriero"
+import symjax.tensor as T
 
+__author__ = "Randall Balestriero"
 
 _HERMITE = np.array([[1, 0, -3, 2],
                      [0, 0, 3, -2],
@@ -12,7 +12,7 @@ _HERMITE = np.array([[1, 0, -3, 2],
                      [0, 0, -1, 1]], dtype='float32')
 
 
-def hermite(samples, knots, values, derivatives):
+def hermite_1d(samples, knots, values, derivatives):
     """Real interpolation with hermite cubic spline.
 
     Arguments
@@ -72,3 +72,53 @@ def hermite(samples, knots, values, derivatives):
 
     # linearly combine to produce interpolation
     return (T.expand_dims(yh, -2) * mask_polynome).sum(axis=(-3, -1))
+
+
+def hermite_2d(values, n_x, n_y):
+    """
+    TODO: test and finalize this
+
+    Parameters
+    ----------
+
+    values: array-like
+        the values, and 2 directional derivatives and the cross derivative
+        for the 4 knots per region, hence it should be of shape n,N,M,4
+        values vx vy vxy
+
+    n_x: int
+        the number of points in x per region
+
+    n_y: int
+        the number of points in y per region
+
+    Returns
+    -------
+
+    interpolation: array-like
+
+    """
+    n, N, M = values.shape[:3]
+    R_N = N - 1
+    R_M = M - 1
+    patches = T.extract_image_patches(values,
+                                      (2, 2, 1))  # (n, R_N, R_M, 2, 2, 4)
+
+    F = T.concatenate([T.concatenate([patches[..., 0], patches[..., 1]], -1),
+                       T.concatenate([patches[..., 2], patches[..., 3]], -1)],
+                      axis=-2)  # (n, R_N, R_M, 4, 4)
+
+    M = T.Variable(array([[1, 0, 0, 0],
+                          [0, 0, 1, 0],
+                          [-3, 3, -2, -1],
+                          [2, -2, 1, 1]]).astype('float32'), trainable=False)
+
+    MFM = T.einsum('xnmij,ai,bj->xnmab', F, M, M)  # (n, R_N, R_M, 4, 4)
+
+    # filter shape is (n_x,n_y,(n-1)*self.R_N,(n-1)*self.R_M)
+    t_x = T.linspace(float32(0), float32(1), int32(n_x - 1))
+    t_y = T.linspace(float32(0), float32(1), int32(n_y - 1))
+    x = T.pow(t_x, T.arange(4)[:, None])  # (4,T-1)
+    y = T.pow(t_y, T.arange(4)[:, None])  # (4,T-1)
+    values = T.einsum('xnmij,ia,jb->xnamb', MFM, x, y)
+    return T.reshape(values, (n, (R_N) * (n - 1), (R_M) * (n - 1)))

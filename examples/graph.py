@@ -1,7 +1,6 @@
 import symjax
 import symjax.tensor as T
 
-
 g = symjax.Graph('model1')
 with g:
     learning_rate = T.Variable(T.ones((1,)))
@@ -11,13 +10,14 @@ with g:
     with symjax.Graph('layer2'):
         W2 = T.Variable(T.zeros((1,)), name='W')
         b2 = T.Variable(T.zeros((1,)), name='b')
- 
+
 # define an irrelevant loss function involving the parameters
-loss =  (W1 + b1 + W2 + b2) * learning_rate
+loss = (W1 + b1 + W2 + b2) * learning_rate
 
 # and a train/update function
-train = symjax.function(outputs=loss, updates={W1:W1+1, b1:b1+2, W2: W2+2,
-                                               b2: b2+3})
+train = symjax.function(outputs=loss,
+                        updates={W1: W1 + 1, b1: b1 + 2, W2: W2 + 2,
+                                 b2: b2 + 3})
 
 # pretend we train for a while
 for i in range(4):
@@ -58,7 +58,7 @@ symjax.save_variables('*', 'model1_saved')
 # now suppose that after training or after resetting
 symjax.reset_variables('*')
 
-#one wants to recover the saved weights, one can do
+# one wants to recover the saved weights, one can do
 symjax.load_variables('*', 'model1_saved')
 # in that case all variables will be reloaded as they were in model1_saved,
 # if we used symjax.load('*', 'layer1_saved'), an error would occur as not all

@@ -5,7 +5,6 @@ import jax.lax as jla
 import jax.numpy as jnp
 
 from .base import jax_wrap
-from .other import stop_gradient
 
 module = sys.modules[__name__]
 
@@ -23,7 +22,6 @@ _TO_SKIP = [
     'apply_along_axis',
     'apply_over_axes',
     'array2string',
-    'array_equal',
     'array_equiv',
     'array_repr',
     'array_split',
@@ -115,7 +113,6 @@ _TO_SKIP = [
     'unique',
     'unpackbits',
     'update_numpydoc',
-    'vander',
     'who'
 ]
 
@@ -126,12 +123,12 @@ for name in _JNP_NAMES:
 
 cast = jax_wrap(jla.convert_element_type)
 complex = jax_wrap(jla.complex)
-range = arange
-T = transpose
+range = module.__dict__['arange']
+T = module.__dict__['transpose']
 
 
 def flatten(input):
-    return reshape(input, (-1,))
+    return module.__dict__['reshape'](input, (-1,))
 
 
 def flatten2d(input):
@@ -142,5 +139,7 @@ def flatten2d(input):
 
 
 def logsumexp(x, axis):
-    x_max = stop_gradient(x.max(axis, keepdims=True))
-    return log(exp(x - x_max).sum(axis)) + squeeze(x_max)
+    x_max = module.__dict__['stop_gradient'](x.max(axis, keepdims=True))
+    return module.__dict__['log'](
+        (module.__dict__['exp'](x - x_max)).sum(axis)) + \
+           module.__dict__['squeeze'](x_max)

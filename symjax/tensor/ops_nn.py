@@ -5,6 +5,7 @@ import jax
 import jax.lax as jla
 import numpy
 
+import symjax.tensor as T
 from .base import Variable, jax_wrap
 
 NAMES = [c[0] for c in inspect.getmembers(jax.nn, callable)]
@@ -18,9 +19,6 @@ for name in NAMES:
 def log_1_minus_sigmoid(x):
     return - softplus(x)
 
-
-from .ops_math import dynamic_slice_in_dim, equal, where, concatenate, full, expand_dims
-from . import ops_math as T
 
 # conv
 
@@ -160,8 +158,10 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
 conv_transpose = jax_wrap(jla.conv_transpose)
 
 
-def convNd_transpose(input, filter, strides=1, padding='VALID', input_format=None,
-                     filter_format=None, output_format=None, input_dilation=None,
+def convNd_transpose(input, filter, strides=1, padding='VALID',
+                     input_format=None,
+                     filter_format=None, output_format=None,
+                     input_dilation=None,
                      filter_dilation=None, transpose_kernel=False):
     """General n-dimensional convolution operator, with optional dilation.
 
@@ -349,7 +349,8 @@ def ExponentialMovingAverage(value, alpha, step=None, init=None):
     else:
         var = Variable(init, trainable=False, name='EMA', dtype='float32')
 
-    new_value = where(equal(_step, 0), value, var * alpha + (1 - alpha) * value)
+    new_value = T.where(T.equal(_step, 0), value,
+                        var * alpha + (1 - alpha) * value)
     if step is None:
         updates = {var: new_value, _step: _step + 1}
     else:
@@ -374,7 +375,7 @@ def PiecewiseConstant(init, values, step=None):
     keys, values = keys[arg], values[arg]
     index = (step < keys).argmax()
     v = Variable(values, trainable=False, name='PiecewiseConstant_values')
-    return dynamic_slice_in_dim(v, index - 1, 1, 0), step
+    return T.dynamic_slice_in_dim(v, index - 1, 1, 0), step
 
 
 def upsample_1d(tensor, repeat, axis=-1, mode='constant', value=0.):
@@ -416,7 +417,8 @@ def upsample_1d(tensor, repeat, axis=-1, mode='constant', value=0.):
         zshape = list(tensor.shape)
         zshape.insert(axis + 1, repeat)
         tensor_aug = concatenate([expand_dims(tensor, axis + 1),
-                                  full(zshape, value, dtype=tensor.dtype)], axis + 1)
+                                  full(zshape, value, dtype=tensor.dtype)],
+                                 axis + 1)
 
     elif mode == 'nearest':
         return T.repeat(tensor, repeat + 1, axis)

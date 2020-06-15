@@ -1,20 +1,18 @@
-import jax.numpy as jnp
-import numpy
-import jax
-import jax.lax as jla
-import jaxlib
-from .base import Op, Tuple, jax_wrap
-from .control_flow import cond
-import ast
 import inspect
 import sys
-from .ops_nn import relu
 
+import jax
+import jax.lax as jla
+import jax.numpy as jnp
+import numpy
+
+from .base import jax_wrap
+from .ops_nn import relu
 
 module = sys.modules[__name__]
 
-
 index = jax.ops.index
+
 
 def hat_1D(x, t_left, t_center, t_right):
     """hat basis function in 1-D
@@ -45,9 +43,9 @@ def hat_1D(x, t_left, t_center, t_right):
     eps = 1e-6
     slope_left = 1 / (t_center - t_left)
     slope_right = 1 / (t_right - t_center)
-    output = (relu(x - t_left)) * slope_left\
-        - relu(x - t_center) * (slope_left + slope_right)\
-        + relu(x - t_right) * slope_right
+    output = (relu(x - t_left)) * slope_left \
+             - relu(x - t_center) * (slope_left + slope_right) \
+             + relu(x - t_right) * slope_right
     return output
 
 
@@ -56,13 +54,14 @@ def _extract_signal_patches(signal, window_length, hop=1, data_format='NCW'):
     assert signal.ndim == 3
     if data_format == 'NCW':
         N = (signal.shape[2] - window_length) // hop + 1
-        indices = jnp.arange(window_length) +\
-            jnp.expand_dims(jnp.arange(N) * hop, 1)
+        indices = jnp.arange(window_length) + \
+                  jnp.expand_dims(jnp.arange(N) * hop, 1)
         indices = jnp.reshape(indices, [1, 1, N * window_length])
         patches = jnp.take_along_axis(signal, indices, 2)
         return jnp.reshape(patches, signal.shape[:2] + (N, window_length))
     else:
         error
+
 
 extract_signal_patches = jax_wrap(_extract_signal_patches, module)
 
@@ -108,6 +107,7 @@ def _extract_image_patches(image, window_shape, hop=1, data_format='NCHW',
     else:
         error
 
+
 extract_image_patches = jax_wrap(_extract_image_patches)
 
 
@@ -117,7 +117,9 @@ def _add_n(args):
         start = jnp.add(start, arg)
     return start
 
+
 add_n = jax_wrap(_add_n)
+
 
 def one_hot(i, N, dtype='float32'):
     """Create a one-hot encoding of x of size k."""
@@ -129,7 +131,7 @@ def one_hot(i, N, dtype='float32'):
         return index_add(z, i, 1)
 
 
-#def upsample_1d(x, factors, mode='zeros'):
+# def upsample_1d(x, factors, mode='zeros'):
 #    """
 #
 #    Parameters
@@ -158,158 +160,13 @@ def one_hot(i, N, dtype='float32'):
 #        raise ValueError('Not Implemented upsample')
 
 
-_JNP_NAMES = [c[0] for c in inspect.getmembers(jnp, inspect.isfunction)]
-_TO_SKIP = [
-    '<lambda>',
-    'blackman',
-    'bartlett',
-    'hamming',
-    'hanning',
-    'kaiser',
-    'add_docstring',
-    'add_newdoc',
-    'alen',
-    'apply_along_axis',
-    'apply_over_axes',
-    'array2string',
-    'array_equal',
-    'array_equiv',
-    'array_repr',
-    'array_split',
-    'array_str',
-    'asanyarray',
-    'asarray_chkfinite',
-    'ascontiguousarray',
-    'asfarray',
-    'asfortranarray',
-    'broadcast_arrays',
-    'broadcast_to',
-    'copy',
-    'copysign',
-    'copyto',
-    'custom_tra,nsforms',
-    'delete',
-    'deprecate',
-    'device_put',
-    'digitize',
-    'disp',
-    'ediff1d',
-    'function',
-    'func',
-    'find_common_type',
-    'fix',
-    'format_float_positional',
-    'format_float_scientific',
-    'frexp',
-    'frombuffer',
-    'fromfile',
-    'fromfunction',
-    'fromiter',
-    'frompyfunc',
-    'fromregex',
-    'fromstring',
-    'fv',
-    'genfromtxt',
-    'get_array_wrap',
-    'get_include',
-    'get_module_functions',
-    'get_printoptions',
-    'getbufsize',
-    'geterr',
-    'geterrcall',
-    'geterrobj',
-    'gradient',
-    'histogramdd',
-    'hypot',
-    'int_asbuffer',
-    'is_busday',
-    'isrealobj',
-    'issctype',
-    'issubclass_',
-    'issubdtype',
-    'issubsctype',
-    'iterable',
-    'jit',
-    'load',
-    'loads',
-    'loadtxt',
-    'lookfor',
-    'mafromtxt',
-    'maximum_sctype',
-    'may_share_memory',
-    'mintypecode',
-    'ndfromtxt',
-    'negative',
-    'nested_iters',
-    'nextafter',
-    'nper',
-    'npv',
-    'obj2sctype',
-    'packbits',
-    'printoptions',
-    'ptp',
-    'recfromcsv',
-    'recfromtxt',
-    'reciprocal',
-    'removechars',
-    'result_type',
-    'right_shift',
-    'rint',
-    'safe_eval',
-    'save',
-    'savetxt',
-    'savez',
-    'savez_compressed',
-    'sctype2char',
-    'searchsorted',
-    'select',
-    'shape',
-    'shares_memory',
-    'show',
-    'size',
-    'sometrue',
-    'source',
-    'spacing',
-    'strtobool',
-    'trapz',
-    'typename',
-    'union1d',
-    'unique',
-    'unpackbits',
-    'update_numpydoc',
-    'vander',
-    'who'
-]
-
-
-for name in _JNP_NAMES:
-    if name in _TO_SKIP:
-        continue
-    module.__dict__.update({name: jax_wrap(jnp.__dict__[name])})
 
 for name in ['index_update', 'index_min', 'index_add', 'index_max']:
     module.__dict__.update({name: jax_wrap(jax.ops.__dict__[name])})
 
-
-
-cast = jax_wrap(jla.convert_element_type)
-complex = jax_wrap(jla.complex)
 stop_gradient = jax_wrap(jla.stop_gradient)
 dynamic_slice_in_dim = jax_wrap(jla.dynamic_slice_in_dim)
 dynamic_slice = jax_wrap(jla.dynamic_slice)
-range = arange
-T = transpose
-
-def flatten(input):
-    return reshape(input, (-1,))
-
-def flatten2d(input):
-    assert input.ndim > 1
-    if input.ndim == 2:
-        return input
-    return reshape(input, (input.shape[0], -1))
-
-def logsumexp(x, axis):
-    x_max = stop_gradient(x.max(axis, keepdims=True))
-    return log(exp(x - x_max).sum(axis)) + squeeze(x_max)
+getitem = jax_wrap(jnp.lax_numpy._rewriting_take)
+index = jax.ops.index
 
