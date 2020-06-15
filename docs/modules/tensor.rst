@@ -31,12 +31,11 @@ Control Flow
 .. automodule:: symjax.tensor.control_flow
    :members:
 
+Numpy Like
+==========
 
-Index Operations
-================
-
-.. automodule:: symjax.tensor.index_ops
-   :members: index_update, index_add, index_max, index_min
+.. automodule:: symjax.tensor.numpy
+   :members:
 
 Numpy Like
 ==========
