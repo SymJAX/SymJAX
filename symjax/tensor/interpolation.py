@@ -12,6 +12,78 @@ _HERMITE = np.array([[1, 0, -3, 2],
                      [0, 0, -1, 1]], dtype='float32')
 
 
+def upsample_1d(tensor, repeat, axis=-1, mode='constant', value=0.,
+                boundary_condition='periodic'):
+    """1-d upsampling of tensor
+
+    allow to upsample a tensor by an arbitrary (integer) amount on a given
+    axis by applying a univariate upsampling strategy.
+
+    Parameters
+    ----------
+
+    tensor: tensor
+        the input tensor to upsample
+
+    repeat: int
+        the amount of new values ot insert between each value
+
+    axis: int
+        the axis to upsample
+
+    mode: str
+        the type of upsample to perform (linear, constant, nearest)
+
+    value: float (default=0)
+        the value ot use for the case of constant upsampling
+
+    """
+
+    if axis == -1:
+        axis = tensor.ndim - 1
+
+    if repeat == 0:
+        return tensor
+
+    out_shape = list(tensor.shape)
+    out_shape[axis] *= (1 + repeat)
+
+    if mode == 'constant':
+        zshape = list(tensor.shape)
+        zshape.insert(axis + 1, repeat)
+        tensor_aug = T.concatenate([T.expand_dims(tensor, axis + 1),
+                                    T.full(zshape, value, dtype=tensor.dtype)],
+                                   axis + 1)
+
+    elif mode == 'nearest':
+        if boundary_condition == 'periodic':
+            return T.roll(T.repeat(tensor, repeat + 1, axis), -repeat // 2,
+                          axis)
+        else:
+            raise NotImplemented
+
+    elif mode == 'linear':
+        assert tensor.shape[axis] > 1
+        zshape = [1] * (tensor.ndim + 1)
+        zshape[axis + 1] = repeat
+        coefficients = T.linspace(0, 1, repeat + 2)[1:-1].reshape(zshape)
+        augmented_tensor = T.expand_dims(tensor, axis + 1)
+        if boundary_condition == 'periodic':
+            interpolated = augmented_tensor * (1 - coefficients) \
+                           + T.roll(augmented_tensor, -1, axis) * coefficients
+        elif boundary_condition == 'mirror':
+            assert axis == tensor.ndim - 1
+            other = T.index_update(T.roll(augmented_tensor, -1, axis),
+                                   T.index[..., -1, :],
+                                   augmented_tensor[..., -2, :])
+            interpolated = augmented_tensor * (1 - coefficients) \
+                           + other * coefficients
+
+        tensor_aug = T.concatenate([augmented_tensor, interpolated], axis + 1)
+
+    return tensor_aug.reshape(out_shape)
+
+
 def hermite_1d(samples, knots, values, derivatives):
     """Real interpolation with hermite cubic spline.
 

@@ -1,10 +1,10 @@
 import jax.lax as jla
+
 from .base import jax_wrap, symjax_to_jax_fn
 
 cond = jax_wrap(jla.cond)
 fori_loop = jax_wrap(jla.fori_loop)
 while_loop = jax_wrap(jla.while_loop)
-
 
 
 def _scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
@@ -78,56 +78,93 @@ def _scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
     """
     # get the fully jaxed function
     truef = symjax_to_jax_fn(f)
+
     # now create a dummy function that only takes as input the sequences
     if non_sequences is None:
-        finalf = truef
+        finalf = lambda a, args: truef(a, *args)
     else:
-        finalf = lambda a,b:truef(a,b,*non_sequences)
+        finalf = lambda a, args: truef(a, *args, *non_sequences)
     return jla.scan(finalf, init, sequences)
 
+
 scan = jax_wrap(_scan)
 
 
+def _while_loop(cond_fun, body_fun, sequences, non_sequences_cond=None, non_sequences_body=None):
+    """Call ``body_fun`` repeatedly in a loop while ``cond_fun`` is True.
 
-def _map(f, sequences, non_sequences=None):
-    """Map a function over leading array axes.
-  
-    Like Python's builtin map, except inputs and outputs are in the form of
-    stacked arrays. Consider using the ``jax.vmap`` transform instead, unless you
-    need to apply a function element by element for reduced memory usage or
-    heterogeneous computation with other control flow primitives.
-  
-    When ``xs`` is an array type, the semantics of ``map`` are given by this
-    Python implementation::
-  
-      def map(f, xs):
-        return np.stack([f(x) for x in xs])
-  
-    Like ``scan``, ``map`` is implemented in terms of JAX primitives so many of
-    the same advantages over a Python loop apply: ``xs`` may be an arbitrary
-    nested pytree type, and the mapped computation is compiled only once.
-  
+    The type signature in brief is
+
+    .. code-block:: haskell
+
+      while_loop :: (a -> Bool) -> (a -> a) -> a -> a
+
+    The semantics of ``while_loop`` are given by this Python implementation::
+
+      def while_loop(cond_fun, body_fun, init_val):
+        val = init_val
+        while cond_fun(val):
+          val = body_fun(val)
+        return val
+
+    Unlike that Python version, ``while_loop`` is a JAX primitive and is lowered
+    to a single XLA While HLO. That makes it useful for reducing compilation times
+    for jit-compiled functions, since native Python loop constructs in an ``@jit``
+    function are unrolled, leading to large XLA computations.
+
+    Also unlike the Python analogue, the loop-carried value ``val`` must hold a
+    fixed shape and dtype across all iterations (and not just be consistent up to
+    NumPy rank/shape broadcasting and dtype promotion rules, for example). In
+    other words, the type ``a`` in the type signature above represents an array
+    with a fixed shape and dtype (or a nested tuple/list/dict container data
+    structure with a fixed structure and arrays with fixed shape and dtype at the
+    leaves).
+
+    Another difference from using Python-native loop constructs is that
+    ``while_loop`` is not reverse-mode differentiable because XLA computations
+    require static bounds on memory requirements.
+
     Args:
-      f: a Python function to apply element-wise over the first axis or axes of
-        ``xs``.
-      xs: values over which to map along the leading axis.
-  
+      cond_fun: function of type ``a -> Bool``.
+      body_fun: function of type ``a -> a``.
+      init_val: value of type ``a``, a type that can be a scalar, array, or any
+        pytree (nested Python tuple/list/dict) thereof, representing the initial
+        loop carry value.
+
     Returns:
-      Mapped values.
+      The output from the final iteration of body_fun, of type ``a``.
     """
-    truef = symjax_to_jax_fn(f)
+    # get the fully jaxed function
+    truecond = symjax_to_jax_fn(cond_fun)
+    truebody = symjax_to_jax_fn(body_fun)
+
     # now create a dummy function that only takes as input the sequences
-    if non_sequences is None:
-        finalf = truef
+    if non_sequences_cond is None:
+        finalcond = truecond
     else:
-        finalf = lambda a:truef(a, *non_sequences)
-    return jla.map(finalf, sequences)
+        finalcond = lambda args: truecond(args, *non_sequences_cond)
+    if non_sequences_body is None:
+        finalbody = truebody
+    else:
+        finalbody = lambda args: truebody(args, *non_sequences_body)
 
-scan = jax_wrap(_scan)
+    return jla.while_loop(finalcond, finalbody, sequences)
 
-def map(f, xs):
-    g = lambda _, x: (1, f(x))
-    ys = scan(g, 0, xs)[1]
+while_loop = jax_wrap(_while_loop)
+
+def map(f, sequences, non_sequences=None):
+
+#    truef = symjax_to_jax_fn(f)
+
+    # now create a dummy function that only takes as input the sequences
+#    if non_sequences is None:
+#        finalf = lambda _, args: (1, truef(*args))
+#    else:
+#        finalf = lambda _, args: (1, truef(*args, *non_sequences))
+
+    #return jla.scan(finalf, 0, sequences)[1]
+
+    g = lambda _, *args: (1, f(*args))
+    ys = scan(g, 0, sequences, non_sequences=non_sequences)[1]
     return ys
 #map = jax_wrap(_map)
-
