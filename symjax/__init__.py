@@ -16,14 +16,21 @@ from .base import (
         get_ops)
 
 
-from . import data
-from . import tensor
-from . import losses
-from . import initializers
-from . import layers
-from . import optimizers
-from . import schedules
-
+__all__ = ["data",
+           "tensor",
+           "losses",
+           "initializers",
+           "layers",
+           "optimizers",
+           "schedules"]
+# from . import data
+# from . import tensor
+# from . import losses
+# from . import initializers
+# from . import layers
+# from . import optimizers
+# from . import schedules
+from . import *
 
 _current_scope = '/'
 _current_graph = [Graph('')]
