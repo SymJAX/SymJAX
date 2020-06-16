@@ -412,7 +412,7 @@ class function:
         >>> xs = x.sum() + 1
         >>> f = symjax.function(outputs=xs)
         >>> print(f())
-        17
+        17.0
 
         >>> w = T.Variable(0., name='w')
         >>> increment = symjax.function(updates={w: w + 1})

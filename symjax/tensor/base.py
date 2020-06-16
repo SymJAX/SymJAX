@@ -61,7 +61,8 @@ def reset(item):
             reset(i)
 
 
-def getroots(item, roots=[]):
+def getroots(item, roots=None):
+    roots = roots or []
     if isinstance(item, list) or isinstance(item, tuple):
         return roots + sum([getroots(i, roots) for i in item], [])
     elif hasattr(item, 'roots'):
@@ -90,9 +91,11 @@ def get(item, tracker=None, givens=None, branches=None):
         # we thus have to specialize the tracker for each ''branch''
         current_givens = {**givens, **item._givens}
         minimal = get_connected(item, current_givens.keys())
-        minimal_givens = dict([m for m in current_givens.items() if m[0] in minimal])
+        minimal_givens = dict(
+            [m for m in current_givens.items() if m[0] in minimal])
         if item in minimal_givens:
-            new_givens = dict([m for m in minimal_givens.items() if m[0] != item])
+            new_givens = dict(
+                [m for m in minimal_givens.items() if m[0] != item])
             return get(minimal_givens[item], tracker, new_givens, branches)
         if len(minimal_givens) == 0:
             # if this branch is unchanged, return directly the already
@@ -112,7 +115,8 @@ def get(item, tracker=None, givens=None, branches=None):
                 return branches[item][name]
             branches[item][name] = item._get(tracker, minimal_givens, branches)
         else:
-            branches[item] = {name: item._get(tracker, minimal_givens, branches)}
+            branches[item] = {
+                name: item._get(tracker, minimal_givens, branches)}
         return branches[item][name]
     else:
         return item
@@ -174,9 +178,9 @@ def isvar(item):
 class Tensor:
     __array_priority__ = 1000
 
-    def __init__(self, shape, dtype, roots=[], copyof=None, name=None):
+    def __init__(self, shape, dtype, roots=None, copyof=None, name=None):
         self.copyof = copyof
-        self._roots = roots
+        self._roots = roots or []
         self._shape = tuple(shape)
         self._dtype = dtype
         self._givens = {}
@@ -189,7 +193,8 @@ class Tensor:
 
     def __repr__(self):
         return '(Tensor: name={}, shape={}, dtype={})'.format(self.name,
-                                                              self.shape, self.dtype)
+                                                              self.shape,
+                                                              self.dtype)
 
     def __str__(self):
         return self.__repr__()
@@ -261,7 +266,8 @@ class Tensor:
             return
         for i in tracker:
             if isinstance(tracker[i], Tensor):
-                RuntimeError("incorrect tracker value for {}".format(tracker[i]))
+                RuntimeError(
+                    "incorrect tracker value for {}".format(tracker[i]))
 
 
 _numpy_signature_re = re.compile(r'^([\w., ]+=)?\s*[\w\.]+\(.*\)$')
@@ -423,12 +429,14 @@ def wrap_class(c, method_exceptions=None):
             new_kwargs = {}
             for i in range(len(args)):
                 if isinstance(args[i], Tensor):
-                    new_args.append(jnp.zeros(args[i].shape, dtype=args[i].dtype))
+                    new_args.append(
+                        jnp.zeros(args[i].shape, dtype=args[i].dtype))
                 else:
                     new_args.append(args[i])
             for i in kwargs:
                 if isinstance(kwargs[i], Tensor):
-                    new_kwargs[i] = jnp.zeros(kwargs[i].shape, dtype=kwargs[i].dtype)
+                    new_kwargs[i] = jnp.zeros(kwargs[i].shape,
+                                              dtype=kwargs[i].dtype)
                 else:
                     new_kwargs[i] = kwargs[i]
 
@@ -440,7 +448,8 @@ def wrap_class(c, method_exceptions=None):
             attr_after = instance.__dict__.keys()
 
             news = [i for i in attr_after if i not in attr_before]
-            news = [n for n in news if isinstance(instance.__dict__[n], jax.interpreters.xla.DeviceArray)]
+            news = [n for n in news if isinstance(instance.__dict__[n],
+                                                  jax.interpreters.xla.DeviceArray)]
 
             # this function maps the class inputs to the creator generated
             # class attributes
@@ -476,7 +485,8 @@ def wrap_class(c, method_exceptions=None):
 class Op(Tensor):
     """an Op generates a Tensor object obtained from a function"""
 
-    def __init__(self, *args, _jax_function, _shape, _dtype, _roots=[], name=None,
+    def __init__(self, *args, _jax_function, _shape, _dtype, _roots=[],
+                 name=None,
                  **kwargs):
 
         # save args and kwargs
@@ -543,7 +553,8 @@ class RandomOp(Op):
         (Tensor, dtype=int32, shape=(3, 3))
     """
 
-    def __init__(self, *args, _jax_function, _shape, _dtype, _seed, name, **kwargs):
+    def __init__(self, *args, _jax_function, _shape, _dtype, _seed, name,
+                 **kwargs):
         self._seed = _seed
         super().__init__(*args, _jax_function=_jax_function, _shape=_shape,
                          _dtype=_dtype, name=name, **kwargs)
@@ -569,7 +580,8 @@ class Tuple(tuple):
     def __new__(cls, *args, _jax_function, _shapes, _dtypes, name, **kwargs):
         roots = list(set(getroots(list(kwargs.values()) + list(args))))
         name = name or _jax_function.__name__
-        items = [TupleItem(shape, dtype, i, roots=roots, name=name + '[{}]'.format(i))
+        items = [TupleItem(shape, dtype, i, roots=roots,
+                           name=name + '[{}]'.format(i))
                  for i, (shape, dtype) in enumerate(zip(_shapes, _dtypes))]
         return super(Tuple, cls).__new__(cls, tuple(items))
 
@@ -619,13 +631,15 @@ class Variable(Tensor):
             attribute and can be accessed.
     """
 
-    def __init__(self, initializer, name='unnamed_variable', trainable=True, dtype=None):
+    def __init__(self, initializer, name='unnamed_variable', trainable=True,
+                 dtype=None):
 
         self.trainable = trainable
         self.initializer = initializer
         self._dtype = dtype
 
-        super().__init__(self.value.shape, str(self.value.dtype), roots=[self], name=name)
+        super().__init__(self.value.shape, str(self.value.dtype), roots=[self],
+                         name=name)
 
     def reset(self):
 
@@ -661,7 +675,8 @@ class Variable(Tensor):
 
     def __repr__(self):
         name = 'Variable(name={}, shape={}, dtype={}, trainable={}, scope={})'
-        return name.format(self.name, self.shape, self.dtype, self.trainable, self.scope)
+        return name.format(self.name, self.shape, self.dtype, self.trainable,
+                           self.scope)
 
     def _get(self, tracker, givens, branches):
         return self.value
@@ -717,7 +732,6 @@ def match(l1, l2, output):
 
 
 def symjax_to_jax_fn(func):
-
     def newfn(*args, fn=func):
         pholders = placeholder_like(args)
         symjax_outputs = fn(*pholders)

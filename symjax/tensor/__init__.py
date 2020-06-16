@@ -10,7 +10,7 @@ __all__ = ["random",
 
 from .base import *
 from .control_flow import *
-from .numpy import *
+from .ops_numpy import *
 from .ops_math import *
 from .ops_methods import *
 from .ops_nn import *
