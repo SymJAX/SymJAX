@@ -1,7 +1,9 @@
 import numpy
+
+import symjax
 from . import tensor
 from .base import gradients, function
-import symjax
+
 
 class Optimizer:
 
@@ -24,7 +26,7 @@ class Optimizer:
         else:
             grads = grads_or_loss
         return grads
- 
+
 
 # class PiecewiseConstant(Optimizer):
 #
@@ -67,14 +69,15 @@ class SGD(Optimizer):
     variables: list of variables
 
     """
- 
+
     def __init__(self, grads_or_loss, learning_rate, params=None):
 
         if params is None:
-            params = [v for k, v in get_graph().variables.items() if v.trainable]
+            params = [v for k, v in get_graph().variables.items() if
+                      v.trainable]
         elif type(params) is not list and type(params) is not tuple:
             params = [params]
-        
+
         grads = self._get_grads(grads_or_loss, params)
 
         if not numpy.isscalar(learning_rate) and not isinstance(
@@ -86,6 +89,8 @@ class SGD(Optimizer):
             updates[param] = param - learning_rate * grad
 
         self.updates = updates
+
+
 #        if get_graph() is not None:
 #            get_graph().updates.update(updates)
 
@@ -116,11 +121,12 @@ class NesterovMomentum(Optimizer):
     variables: list of variables
 
     """
- 
+
     def __init__(self, grads_or_loss, learning_rate, momentum, params=None):
 
         if params is None:
-            params = [v for k, v in get_graph().variables.items() if v.trainable]
+            params = [v for k, v in get_graph().variables.items() if
+                      v.trainable]
 
         grads = self._get_grads(grads_or_loss, params)
 
@@ -131,14 +137,15 @@ class NesterovMomentum(Optimizer):
         updates = dict()
         variables = []
         for param, grad in zip(params, grads):
-            velocity = tensor.Variable(numpy.zeros(param.shape, dtype=param.dtype),
-                                    trainable=False)
+            velocity = tensor.Variable(
+                numpy.zeros(param.shape, dtype=param.dtype),
+                trainable=False)
             variables.append(velocity)
             update = param - learning_rate * grad
             x = momentum * velocity + update - param
             updates[velocity] = x
             updates[param] = momentum * x + update
-        
+
         self.variables = variables
         self.updates = updates
         if get_graph() is not None:
@@ -179,6 +186,7 @@ class Adam(Optimizer):
     variables: list of variables
 
     """
+
     def __init__(self, grads_or_loss, learning_rate, beta1=0.9,
                  beta2=0.999, epsilon=1e-6, params=None):
 
@@ -186,7 +194,8 @@ class Adam(Optimizer):
             params = symjax.get_variables("*", trainable=True)
 
         grads = self._get_grads(grads_or_loss, params)
-        step = tensor.Variable(tensor.zeros(1,dtype='float32'), trainable=False, name='step')
+        step = tensor.Variable(tensor.zeros(1, dtype='float32'),
+                               trainable=False, name='step')
         variables = [step]
         # get the learning rate
         if callable(learning_rate):

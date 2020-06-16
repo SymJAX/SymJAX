@@ -717,6 +717,7 @@ def match(l1, l2, output):
 
 
 def symjax_to_jax_fn(func):
+
     def newfn(*args, fn=func):
         pholders = placeholder_like(args)
         symjax_outputs = fn(*pholders)
@@ -724,7 +725,7 @@ def symjax_to_jax_fn(func):
         match(pholders, args, feed_dict)
         if None in feed_dict:
             del feed_dict[None]
-        outputs = [o.get(feed_dict) if hasattr(o, 'get') else o for o in symjax_outputs]
+        outputs = get(symjax_outputs, feed_dict)
         return outputs
 
     return newfn

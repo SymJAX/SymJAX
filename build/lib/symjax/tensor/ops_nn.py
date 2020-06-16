@@ -5,6 +5,7 @@ import jax
 import jax.lax as jla
 import numpy
 
+import symjax.tensor as T
 from .base import Variable, jax_wrap
 
 NAMES = [c[0] for c in inspect.getmembers(jax.nn, callable)]
@@ -18,9 +19,6 @@ for name in NAMES:
 def log_1_minus_sigmoid(x):
     return - softplus(x)
 
-
-from .ops_math import dynamic_slice_in_dim, equal, where, concatenate, full, expand_dims
-from . import ops_math as T
 
 # conv
 
@@ -160,8 +158,10 @@ def convNd(input, filter, strides=1, padding='VALID', input_format=None,
 conv_transpose = jax_wrap(jla.conv_transpose)
 
 
-def convNd_transpose(input, filter, strides=1, padding='VALID', input_format=None,
-                     filter_format=None, output_format=None, input_dilation=None,
+def convNd_transpose(input, filter, strides=1, padding='VALID',
+                     input_format=None,
+                     filter_format=None, output_format=None,
+                     input_dilation=None,
                      filter_dilation=None, transpose_kernel=False):
     """General n-dimensional convolution operator, with optional dilation.
 
@@ -337,98 +337,3 @@ def poolNd(input, window_shape, reducer='MAX', strides=None, padding='VALID',
                         window_strides=strides, padding=padding)
     return out
 
-
-def ExponentialMovingAverage(value, alpha, step=None, init=None):
-    if step is None:
-        _step = Variable(0, trainable=False, name='step', dtype='float32')
-    else:
-        _step = step
-    if init is None:
-        var = Variable(numpy.zeros(value.shape), trainable=False,
-                       name='EMA', dtype='float32')
-    else:
-        var = Variable(init, trainable=False, name='EMA', dtype='float32')
-
-    new_value = where(equal(_step, 0), value, var * alpha + (1 - alpha) * value)
-    if step is None:
-        updates = {var: new_value, _step: _step + 1}
-    else:
-        updates = {var: new_value}
-    return var, updates, _step
-
-
-def PiecewiseConstant(init, values, step=None):
-    """
-    init it the initial value
-    values is a dictionnary mapping the knots and the new value
-    step count the number of steps
-    """
-    if step is None:
-        step = Variable(0, trainable=False, name='PiecewiseConstant_step')
-    keys, values = list(values.keys()), list(values.values())
-    keys.insert(0, 0)
-    values.insert(0, init)
-    keys, values = numpy.array(keys), numpy.array(values)
-    assert numpy.prod(keys >= 0)
-    arg = numpy.argsort(keys)
-    keys, values = keys[arg], values[arg]
-    index = (step < keys).argmax()
-    v = Variable(values, trainable=False, name='PiecewiseConstant_values')
-    return dynamic_slice_in_dim(v, index - 1, 1, 0), step
-
-
-def upsample_1d(tensor, repeat, axis=-1, mode='constant', value=0.):
-    """1-d upsampling of tensor
-
-    allow to upsample a tensor by an arbitrary (integer) amount on a given
-    axis by applying a univariate upsampling strategy.
-
-    Parameters
-    ----------
-
-    tensor: tensor
-        the input tensor to upsample
-
-    repeat: int
-        the amount of new values ot insert between each value
-
-    axis: int
-        the axis to upsample
-
-    mode: str
-        the type of upsample to perform (linear, constant, nearest)
-
-    value: float (default=0)
-        the value ot use for the case of constant upsampling
-
-    """
-
-    if axis == -1:
-        axis = tensor.ndim - 1
-
-    if repeat == 0:
-        return tensor
-
-    out_shape = list(tensor.shape)
-    out_shape[axis] *= (1 + repeat)
-
-    if mode == 'constant':
-        zshape = list(tensor.shape)
-        zshape.insert(axis + 1, repeat)
-        tensor_aug = concatenate([expand_dims(tensor, axis + 1),
-                                  full(zshape, value, dtype=tensor.dtype)], axis + 1)
-
-    elif mode == 'nearest':
-        return T.repeat(tensor, repeat + 1, axis)
-
-    elif mode == 'linear':
-        assert tensor.shape[axis] > 1
-        zshape = [1] * (tensor.ndim + 1)
-        zshape[axis + 1] = repeat
-        coefficients = T.linspace(0, 1, repeat + 2)[1:-1].reshape(zshape)
-        augmented_tensor = T.expand_dims(tensor, axis + 1)
-        interpolated = augmented_tensor * (1 - coefficients) \
-                       + T.roll(augmented_tensor, -1, axis) * coefficients
-        tensor_aug = concatenate([augmented_tensor, interpolated], axis + 1)
-
-    return tensor_aug.reshape(out_shape)

@@ -1,12 +1,10 @@
-import jax.numpy as jnp
-import jax.numpy.fft as jnp
-import jax.lax as jla
-import numpy
-import inspect
-from .. import tensor as T
-from .base import Op, jax_wrap
 import sys
 
+import jax.numpy as jnp
+import numpy
+
+import symjax.tensor.numpy as T
+from .base import jax_wrap
 
 # Add the apodization windows
 
@@ -18,17 +16,17 @@ names = ['blackman',
 
 module = sys.modules[__name__]
 for name in names:
-    module.__dict__.update({name: jax_wrap(numpy.__dict__[name], doc_func=numpy.__dict__[name])})
+    module.__dict__.update({name: jax_wrap(jnp.__dict__[name])})
 
 # Add the fft functions into signal
 
 names = ['fft', 'ifft', 'fft2', 'ifft2', 'fftn', 'ifftn', 'rfft', 'irfft',
-         'rfft2', 'irfft2', 'rfftn', 'irfftn', 'fftfreq', 'rfftfreq', 'ifftshift',
+         'rfft2', 'irfft2', 'rfftn', 'irfftn', 'fftfreq', 'rfftfreq',
+         'ifftshift',
          'fftshift']
-for name in names:
-    module.__dict__.update(
-        {name: jax_wrap(jnp.__dict__[name], doc_func=numpy.fft.__dict__[name])})
 
+for name in names:
+    module.__dict__.update({name: jax_wrap(jnp.fft.__dict__[name])})
 
 
 # Add some utility functions
@@ -50,12 +48,11 @@ def fourier_complex_morlet(bandwidths, centers, N):
         :param N:
 
     """
+
     freqs = T.linspace(0, 2 * numpy.pi, N)
-    envelop = T.exp(- 0.25 * (freqs - centers) ** 2  * bandwidths ** 2)
+    envelop = T.exp(- 0.25 * (freqs - centers) ** 2 * bandwidths ** 2)
     H = (freqs <= numpy.pi).astype('float32')
     return envelop * H
-
-
 
 
 def complex_morlet(bandwidths, centers, time=None):
@@ -66,7 +63,7 @@ def complex_morlet(bandwidths, centers, time=None):
         \phi(t) = \frac{1}{\pi B} e^{-\frac{t^2}{B}}e^{j2\pi C t}
 
     For a filter bank do
-    
+
     J = 8
     Q = 1
     scales = T.power(2,T.linspace(0, J, J*Q))
@@ -94,10 +91,12 @@ def complex_morlet(bandwidths, centers, time=None):
     """
     if time is None:
         B = 6 * bandwidths.max() + 1
-        time = T.linspace(-(B // 2), B // 2, int(B.get()))#, int(B.get()) // 2 + 1)
+        # , int(B.get()) // 2 + 1)
+        time = T.linspace(-(B // 2), B // 2, int(T.get(B)))
     envelop = T.exp(- (time / bandwidths) ** 2)
     wave = T.exp(1j * centers * time)
     return envelop * wave
+
 
 def littewood_paley_normalization(filter_bank, down=None, up=None):
     lp = T.abs(filter_bank).sum(0)
@@ -106,7 +105,6 @@ def littewood_paley_normalization(filter_bank, down=None, up=None):
     up = numpy.pi or up
     lp = T.where(T.logical_and(freq >= down, freq <= up), lp, 1)
     return filter_bank / lp
-
 
 
 def tukey(M, alpha=0.5):
@@ -134,21 +132,20 @@ def tukey(M, alpha=0.5):
     .. [2] Wikipedia, "Window function",
            https://en.wikipedia.org/wiki/Window_function#Tukey_window
     """
-
     n = T.arange(0, M)
-    width = int(numpy.floor(alpha*(M-1)/2.0))
-    n1 = n[0:width+1]
-    n2 = n[width+1:M-width-1]
-    n3 = n[M-width-1:]
+    width = int(numpy.floor(alpha * (M - 1) / 2.0))
+    n1 = n[0:width + 1]
+    n2 = n[width + 1:M - width - 1]
+    n3 = n[M - width - 1:]
 
-    w1 = 0.5 * (1 + T.cos(numpy.pi * (-1 + 2.0*n1/alpha/(M-1))))
+    w1 = 0.5 * (1 + T.cos(numpy.pi * (-1 + 2.0 * n1 / alpha / (M - 1))))
     w2 = T.ones(n2.shape)
-    w3 = 0.5 * (1 + T.cos(numpy.pi * (-2.0/alpha + 1 + 2.0*n3/alpha/(M-1))))
+    w3 = 0.5 * \
+         (1 + T.cos(numpy.pi * (-2.0 / alpha + 1 + 2.0 * n3 / alpha / (M - 1))))
 
     w = T.concatenate((w1, w2, w3))
 
     return w
-
 
 
 def morlet(M, s, w=5):
@@ -191,14 +188,14 @@ def morlet(M, s, w=5):
     """
     limit = 2 * numpy.pi
     x = T.linspace(-limit, limit, M) * s
-    sine = T.cos(w * x)+1j * T.sin(w * x)
-    envelop = T.exp(-0.5 * (x**2))
+    sine = T.cos(w * x) + 1j * T.sin(w * x)
+    envelop = T.exp(-0.5 * (x ** 2))
 
     # apply correction term for admissibility
-    wave = sine - T.exp(-0.5 * (w**2))
+    wave = sine - T.exp(-0.5 * (w ** 2))
 
     # now localize the wave to obtain a wavelet
-    wavelet = wave * envelop * numpy.pi**(-0.25)
+    wavelet = wave * envelop * numpy.pi ** (-0.25)
 
     return wavelet
 
@@ -221,7 +218,7 @@ def mel_to_freq(m, option='linear'):
         # And now the nonlinear scale
         # beginning of log region (Hz)
         min_log_hz = 1000.0
-        min_log_mel = min_log_hz / f_sp   # same (Mels)
+        min_log_mel = min_log_hz / f_sp  # same (Mels)
         # step size for log region
         logstep = numpy.log(6.4) / 27.0
 
@@ -240,9 +237,9 @@ def freq_to_mel(f, option='linear'):
         f_sp = 200.0 / 3
 
         # Fill in the log-scale part
-        min_log_hz = 1000.0    # beginning of log region (Hz)
-        min_log_mel = min_log_hz / f_sp   # same (Mels)
-        logstep = numpy.log(6.4) / 27.0    # step size for log region
+        min_log_hz = 1000.0  # beginning of log region (Hz)
+        min_log_mel = min_log_hz / f_sp  # same (Mels)
+        logstep = numpy.log(6.4) / 27.0  # step size for log region
         mel = min_log_mel + T.log(f / min_log_hz) / logstep
         return T.where(f >= min_log_hz, mel, f / f_sp)
     else:
@@ -250,10 +247,9 @@ def freq_to_mel(f, option='linear'):
 
 
 def power_to_db(S, ref=1.0, amin=1e-10, top_db=80.0):
-    """
-    https://librosa.github.io/librosa/_modules/librosa/core/spectrum.html#power_to_db
-    Convert a power spectrogram (amplitude squared) to decibel (dB) units
+    """Convert a power spectrogram (amplitude squared) to decibel (dB) units.
 
+    https://librosa.github.io/librosa/_modules/librosa/core/spectrum.html#power_to_db.
     This computes the scaling ``10 * log10(S / ref)`` in a numerically
     stable way.
 
@@ -312,7 +308,6 @@ def sinc_bandpass(time, f0, f1):
 
 
 def mel_filterbank(length, n_filter, low, high, nyquist):
-
     # convert the low and high frequency into mel scale
     low_freq_mel = freq_to_mel(low)
     high_freq_mel = freq_to_mel(high)
@@ -380,7 +375,7 @@ def stft(signal, window, hop, apod=T.ones, nfft=None, mode='valid'):
     p = T.extract_signal_patches(
         psignal, window, hop) * apodization
     assert nfft >= window
-    pp = T.pad(p, [[0, 0], [0, 0], [0, 0], [0, nfft-window]])
+    pp = T.pad(p, [[0, 0], [0, 0], [0, 0], [0, nfft - window]])
     S = fft(pp)
     return S[..., : int(numpy.ceil(nfft / 2))].transpose([0, 1, 3, 2])
 
@@ -428,7 +423,7 @@ def wvd(signal, window, hop, L, apod=hanning, mode='valid'):
 
     # extract vertical (freq) partches to perform auto correlation
     patches = T.extract_image_patches(s, (2 * L + 1, 1), (2, 1),
-                                      mode='same')[...,0]  # (N C F' T L)
+                                      mode='same')[..., 0]  # (N C F' T L)
     output = (patches * T.conj(T.flip(patches, -1)) * mask).sum(-1)
     return T.real(output)
 
@@ -519,18 +514,18 @@ def phase_vocoder(D, rate, hop_length=None):
     mag = ((1.0 - alpha) * numpy.abs(D[:, :-1]) + alpha * numpy.abs(D[:, 1:]))
 
     # Compute phase advance
-    dphase = (numpy.angle(D[:, 1:]) - numpy.angle(D[:, :-1]) - phi_advance[:, None])
+    dphase = (numpy.angle(D[:, 1:]) -
+              numpy.angle(D[:, :-1]) - phi_advance[:, None])
     # Wrap to -pi:pi range
     dphase = dphase - 2.0 * numpy.pi * numpy.round(dphase / (2.0 * numpy.pi))
 
     # Phase accumulator; initialize to the first sample
     phase_acc = T.concatenate([numpy.angle(D[:, [0]]),
-                                T.cumsum(phi_advance + dphase, 1)], 1)
-    
+                               T.cumsum(phi_advance + dphase, 1)], 1)
+
     d_stretch = mag * T.complex(T.cos(phase_acc), T.sin(phase_acc))
 
     return d_stretch
-
 
 
 def istft(stft_matrix, hop_length=None, win_length=None, window='hann',
@@ -695,6 +690,7 @@ def istft(stft_matrix, hop_length=None, win_length=None, window='hann',
 
     return y
 
+
 def hilbert_transform(signal):
     """
     the time should be the last dimension
@@ -702,5 +698,5 @@ def hilbert_transform(signal):
     """
     M = signal.shape[-1]
     heavyside = T.array([1, 0], dtype='float32').repeat(M // 2)
-    mask = T.index_add(T.ones(M), T.index[...,1:M//2], 1)
+    mask = T.index_add(T.ones(M), T.index[..., 1:M // 2], 1)
     return T.signal.ifft(T.signal.fft(signal) * mask * heavyside)
