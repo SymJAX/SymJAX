@@ -5,8 +5,7 @@ import jax
 import jax.lax as jla
 import numpy
 
-import symjax.tensor as T
-from .base import Variable, jax_wrap
+from .base import jax_wrap
 
 NAMES = [c[0] for c in inspect.getmembers(jax.nn, callable)]
 module = sys.modules[__name__]
@@ -336,4 +335,3 @@ def poolNd(input, window_shape, reducer='MAX', strides=None, padding='VALID',
                         computation=reducer, window_dimensions=window_shape,
                         window_strides=strides, padding=padding)
     return out
-
