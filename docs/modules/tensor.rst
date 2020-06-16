@@ -25,26 +25,15 @@ of the input data.
 
 Not every function in NumPy is implemented; contributions are welcome!
 
-Control Flow
-============
+For/While/Scan
+==============
 
 .. automodule:: symjax.tensor.control_flow
    :members:
 
-Numpy Like
-==========
-
-.. automodule:: symjax.tensor.numpy
-   :members:
-
-Numpy Like
-==========
-
-.. automodule:: symjax.tensor.ops_math
-   :members:
-
-Other
+Numpy
 =====
+
 
 .. autofunction:: symjax.tensor.abs
 .. autofunction:: symjax.tensor.absolute
@@ -253,4 +242,11 @@ Other
 .. autofunction:: symjax.tensor.vstack
 .. autofunction:: symjax.tensor.zeros
 .. autofunction:: symjax.tensor.zeros_like
+
+Extra
+=====
+
+.. automodule:: symjax.tensor.ops_math
+   :members:
+
 

@@ -5,14 +5,14 @@
 
 Computation times
 =================
-**03:31.527** total execution time for **auto_examples** files:
+**00:01.286** total execution time for **auto_examples** files:
 
 +-------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_auto_examples_plot_cifar10_classif.py` (``plot_cifar10_classif.py``) | 03:31.527 | 0.0 MB |
+| :ref:`sphx_glr_auto_examples_plot_interpolation.py` (``plot_interpolation.py``)     | 00:01.286 | 0.0 MB |
++-------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_plot_cifar10_classif.py` (``plot_cifar10_classif.py``) | 00:00.000 | 0.0 MB |
 +-------------------------------------------------------------------------------------+-----------+--------+
 | :ref:`sphx_glr_auto_examples_plot_sgd.py` (``plot_sgd.py``)                         | 00:00.000 | 0.0 MB |
 +-------------------------------------------------------------------------------------+-----------+--------+
 | :ref:`sphx_glr_auto_examples_plot_wavelets.py` (``plot_wavelets.py``)               | 00:00.000 | 0.0 MB |
-+-------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_auto_examples_wavelets.py` (``wavelets.py``)                         | 00:00.000 | 0.0 MB |
 +-------------------------------------------------------------------------------------+-----------+--------+

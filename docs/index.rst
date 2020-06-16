@@ -28,9 +28,9 @@ Contents
 
   user/installation
   user/tutorial
-  user/examples
   auto_examples/index
   user/developers
+  user/roadmap
 
 API
 ===
@@ -43,6 +43,7 @@ General
 
   modules/symjax
   modules/tensor
+  modules/interpolation
   modules/pdfs
   modules/signal
   modules/random

@@ -22,6 +22,23 @@ SymJAX this is done via  symjax.function as demonstrated below:
 .. literalinclude:: ../../examples/function.py
 
 
+While/Map/Scan
+--------------
+
+An important part of many implementations resides in the use of for/while loops
+and in scans, which allow to maintain and update an additional quantity through
+the iterations. In SymJAX, those operators are different from the Jax ones and
+closers to the Theano ones as they provide an explicit ``sequences`` and
+``non_sequences`` argument. Here are a few examples below:
+
+.. literalinclude:: ../../examples/control_flow.py
+
+the use of the ``non_sequences`` argument allows to keep track of the internal
+function dependencies without requiring to execute the function. Hence all
+tensors used inside a function should be part of the ``sequences`` or
+``non_sequences`` op inputs.
+
+
 Graph visualization
 -------------------
 

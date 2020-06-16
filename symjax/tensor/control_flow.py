@@ -1,5 +1,5 @@
 import jax.lax as jla
-
+import jax
 from .base import jax_wrap, symjax_to_jax_fn
 
 cond = jax_wrap(jla.cond)
@@ -87,10 +87,11 @@ def _scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
     return jla.scan(finalf, init, sequences)
 
 
-scan = jax_wrap(_scan)
 
 
-def _while_loop(cond_fun, body_fun, sequences, non_sequences_cond=None, non_sequences_body=None):
+
+def _while_loop(cond_fun, body_fun, sequences, non_sequences_cond=None,
+                non_sequences_body=None):
     """Call ``body_fun`` repeatedly in a loop while ``cond_fun`` is True.
 
     The type signature in brief is
@@ -150,21 +151,41 @@ def _while_loop(cond_fun, body_fun, sequences, non_sequences_cond=None, non_sequ
 
     return jla.while_loop(finalcond, finalbody, sequences)
 
-while_loop = jax_wrap(_while_loop)
+
+
 
 def map(f, sequences, non_sequences=None):
+    """Map a function over leading array axes.
 
-#    truef = symjax_to_jax_fn(f)
+    Like Python's builtin map, except inputs and outputs are in the form of
+    stacked arrays. Consider using the ``jax.vmap`` transform instead, unless you
+    need to apply a function element by element for reduced memory usage or
+    heterogeneous computation with other control flow primitives.
 
-    # now create a dummy function that only takes as input the sequences
-#    if non_sequences is None:
-#        finalf = lambda _, args: (1, truef(*args))
-#    else:
-#        finalf = lambda _, args: (1, truef(*args, *non_sequences))
+    When ``xs`` is an array type, the semantics of ``map`` are given by this
+    Python implementation::
 
-    #return jla.scan(finalf, 0, sequences)[1]
+      def map(f, xs):
+        return np.stack([f(x) for x in xs])
+
+    Like ``scan``, ``map`` is implemented in terms of JAX primitives so many of
+    the same advantages over a Python loop apply: ``xs`` may be an arbitrary
+    nested pytree type, and the mapped computation is compiled only once.
+
+    Args:
+      f: a Python function to apply element-wise over the first axis or axes of
+        ``xs``.
+      xs: values over which to map along the leading axis.
+
+    Returns:
+      Mapped values.
+    """
 
     g = lambda _, *args: (1, f(*args))
     ys = scan(g, 0, sequences, non_sequences=non_sequences)[1]
     return ys
-#map = jax_wrap(_map)
+
+
+
+scan = jax_wrap(_scan)
+while_loop = jax_wrap(_while_loop)

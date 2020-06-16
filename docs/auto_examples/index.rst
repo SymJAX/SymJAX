@@ -56,14 +56,14 @@ Gallery
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to calculate the interchannel spectral covariance matrix. It makes use ...">
+    <div class="sphx-glr-thumbcontainer" tooltip="demonstration on how to perform basic 1d interpolation">
 
 .. only:: html
 
- .. figure:: /auto_examples/images/thumb/sphx_glr_wavelets_thumb.png
-     :alt: Single-station covariance matrix
+ .. figure:: /auto_examples/images/thumb/sphx_glr_plot_interpolation_thumb.svg
+     :alt: Basic 1d interpolation
 
-     :ref:`sphx_glr_auto_examples_wavelets.py`
+     :ref:`sphx_glr_auto_examples_plot_interpolation.py`
 
 .. raw:: html
 
@@ -73,7 +73,7 @@ Gallery
 .. toctree::
    :hidden:
 
-   /auto_examples/wavelets
+   /auto_examples/plot_interpolation
 
 .. raw:: html
 
