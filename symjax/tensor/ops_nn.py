@@ -16,7 +16,7 @@ for name in NAMES:
 
 
 def log_1_minus_sigmoid(x):
-    return - softplus(x)
+    return - module.__dict__['softplus'](x)
 
 
 # conv

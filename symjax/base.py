@@ -137,12 +137,21 @@ def reset_variables(name='*', trainable=None):
     .. doctest::
 
         >>> import symjax
-        >>> import logging
         >>> w = symjax.tensor.Variable(1., name='w', dtype='float32')
         >>> x = symjax.tensor.Variable(2., name='x', dtype='float32')
         >>> f = symjax.function(outputs=[w, x], updates={w:w + 1,x:x + 1})
         >>> for i in range(10):
-        ...    f()
+        ...    print(f())
+        [array(1., dtype=float32), array(2., dtype=float32)]
+        [array(2., dtype=float32), array(3., dtype=float32)]
+        [array(3., dtype=float32), array(4., dtype=float32)]
+        [array(4., dtype=float32), array(5., dtype=float32)]
+        [array(5., dtype=float32), array(6., dtype=float32)]
+        [array(6., dtype=float32), array(7., dtype=float32)]
+        [array(7., dtype=float32), array(8., dtype=float32)]
+        [array(8., dtype=float32), array(9., dtype=float32)]
+        [array(9., dtype=float32), array(10., dtype=float32)]
+        [array(10., dtype=float32), array(11., dtype=float32)]
         >>> # reset only the w variable
         >>> symjax.reset_variables('w')
         >>> # reset all variables
@@ -241,6 +250,23 @@ def gradients(scalar, variables):
 
         gradients: Tuple
             the sequency of gradients ordered as given in the input variables
+
+    Example
+    -------
+
+    .. doctest::
+
+        >>> import symjax
+        >>> w = symjax.tensor.ones(3)
+        >>> x = symjax.tensor.Variable(2., name='x', dtype='float32')
+        >>> l = (w ** 2).sum() * x
+        >>> g = symjax.gradients(l, [w])[0]
+        >>> f = symjax.function(outputs=g, updates={x:x + 1})
+        >>> for i in range(2):
+        ...    print(f())
+        [4. 4. 4.]
+        [6. 6. 6.]
+
     """
     if numpy.prod(scalar.shape) != 1:
         raise RuntimeError("the variable to differentiate is not a scalar")
@@ -385,13 +411,15 @@ class function:
         >>> x = T.ones((4, 4))
         >>> xs = x.sum() + 1
         >>> f = symjax.function(outputs=xs)
-        >>> print(f()) # returns 17
+        >>> print(f())
+        17
 
         >>> w = T.Variable(0., name='w')
         >>> increment = symjax.function(updates={w: w + 1})
         >>> for i in range(10):
-        >>>     increment()
-        >>> print(w.value) # returns 10
+        ...     increment()
+        >>> print(w.value)
+        10.0
 
     """
 
@@ -519,4 +547,7 @@ class function:
             rng = random._seed
             random._seed += 1
         pargs = [numpy.array(arg) if type(arg) == list else arg for arg in args]
-        return self.meta(*pargs, rng=rng)
+        outputs = self.meta(*pargs, rng=rng)
+        if outputs == []:
+            return None
+        return outputs

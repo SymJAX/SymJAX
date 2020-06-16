@@ -7,6 +7,7 @@ def constant(shape, value):
 
 def uniform(shape, range=0.01, std=None, mean=0.):
     """Sample initial weights from the uniform distribution.
+
     Parameters are sampled from U(a, b).
 
     Parameters
@@ -37,6 +38,7 @@ def uniform(shape, range=0.01, std=None, mean=0.):
 
 def normal(shape, mean=0., std=1.):
     """Sample initial weights from the Gaussian distribution.
+
     Initial weight parameters are sampled from N(mean, std).
 
     Parameters
@@ -95,24 +97,25 @@ def variance_scaling(mode, shape, gain, distribution=normal, in_axis=0,
 
 def glorot(shape, gain=1, distribution=normal, in_axis=0, out_axis=1):
     """Glorot weight initialization.
+
     This is also known as Xavier initialization [1]_.
 
     Parameters
     ----------
     
-    initializer : lasagne.init.Initializer
+    initializer: lasagne.init.Initializer
         Initializer used to sample the weights, must accept `std` in its
         constructor to sample from a distribution with a given standard
         deviation.
     
-    gain : float or 'relu'
+    gain: float or 'relu'
         Scaling factor for the weights. Set this to ``1.0`` for linear and
         sigmoid units, to 'relu' or ``sqrt(2)`` for rectified linear units, and
         to ``sqrt(2/(1+alpha**2))`` for leaky rectified linear units with
         leakiness ``alpha``. Other transfer functions may need different
         factors.
     
-    c01b : bool
+    c01b: bool
         For a :class:`lasagne.layers.cuda_convnet.Conv2DCCLayer` constructed
         with ``dimshuffle=False``, `c01b` must be set to ``True`` to compute
         the correct fan-in and fan-out.

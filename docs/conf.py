@@ -16,15 +16,30 @@ https://www.sphinx-doc.org/en/master/usage/configuration.html
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('.'))
-sys.setrecursionlimit(1500)
 import mock
-
 from sphinx_gallery.scrapers import matplotlib_scraper
+
+sys.path.insert(0, os.path.abspath('..'))
 
 MOCK_MODULES = ['soundfile']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
+
+
+# When building docs, enable `from __future__ import annotations` everywhere.
+def _rewrite(p):
+    with open(p) as f:
+        contents = f.read()
+    with open(p, 'w') as f:
+        f.write('from __future__ import annotations\n')
+        f.write(contents)
+
+
+if 'READTHEDOCS' in os.environ:
+    for path, dirs, files in os.walk('../jax/'):
+        for file in files:
+            if file.endswith('.py'):
+                _rewrite(os.path.abspath(os.path.join(path, file)))
 
 # Project information
 # -------------------
@@ -34,8 +49,8 @@ copyright = '2020, Randall Balestriero'
 author = 'Randall Balestriero'
 
 # The full version, including alpha/beta/rc tags
-release = '0.3.3'
-
+release = ''
+version = ''
 # General configuration
 # ---------------------
 master_doc = 'index'
@@ -103,6 +118,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # unit titles (such as .. function::).
 add_module_names = False
 
+autosummary_generate = True
 # Options for HTML output
 # -----------------------
 
