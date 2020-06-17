@@ -139,6 +139,5 @@ for name in ['index_update', 'index_min', 'index_add', 'index_max']:
 stop_gradient = jax_wrap(jla.stop_gradient)
 dynamic_slice_in_dim = jax_wrap(jla.dynamic_slice_in_dim)
 dynamic_slice = jax_wrap(jla.dynamic_slice)
-getitem = jax_wrap(jnp.lax_numpy._rewriting_take)
 index = jax.ops.index
 
