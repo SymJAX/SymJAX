@@ -30,8 +30,8 @@ If you are willing to help, we recommend to follow the following steps before re
 #. **Docstrings**: we used the `numpydoc docstring guide <https://numpydoc.readthedocs.io/en/latest/format.html>`_ for documenting the functions directly from the docstrings and automatically generating the documentation with `sphinx <https://www.sphinx-doc.org/en/master/>`_. Please provide codes with up-to-date docstrings.
 
 
-Build the doc
-'''''''''''''
+Build/Test the doc
+''''''''''''''''''
 
 
 To rebuild the documentation, install several packages::
@@ -45,7 +45,16 @@ to generate the documentation, you can do in the ``docs`` directory and run::
 You can then see the generated documentation in
 ``docs/_build/html/index.html``.
 
-Once the documentation has been changed and all is pushed to Github ``master`` branch the SymJAX
+If examples/code-blocks are added to the documension, it has to be tested.
+To do so, add the specific module/function in the ``tests/doc.py`` and run::
+
+    >>> python tests/doc.py
+
+if all tests pass, then the changes are ready to be put in a PR.
+Once the documentation has been changed and all tests pass, the change is ready
+for review and should be put in a PR.
+
+Every time changes are pushed to Github ``master`` branch the SymJAX
 documentations (at `symjax.readthedocs.io <https://symjax.readthedocs.io/>`_) is rebuilt based on
 the ``.readthedocs.yml`` and the ``docs/conf.py`` configuration files.
 For each automated documentation build you can see the
@@ -63,7 +72,7 @@ Then, from the repository root directory run::
 
 If all tests pass successfully, the code is ready for a PR.
 
-Push requests
+Pull requests
 '''''''''''''
 
 Once all the tests pass and the documentation is appropriate, commit your changes to a new branch, push

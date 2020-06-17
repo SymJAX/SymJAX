@@ -414,7 +414,7 @@ class function:
         >>> print(f())
         17.0
 
-        >>> w = T.Variable(0., name='w')
+        >>> w = T.Variable(0., name='w', dtype='float32')
         >>> increment = symjax.function(updates={w: w + 1})
         >>> for i in range(10):
         ...     increment()
@@ -548,6 +548,7 @@ class function:
             random._seed += 1
         pargs = [numpy.array(arg) if type(arg) == list else arg for arg in args]
         outputs = self.meta(*pargs, rng=rng)
-        if outputs == []:
-            return None
+        if type(outputs) == list:
+            if len(outputs) == 0:
+                return None
         return outputs

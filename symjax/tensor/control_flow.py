@@ -1,5 +1,5 @@
 import jax.lax as jla
-import jax
+
 from .base import jax_wrap, symjax_to_jax_fn
 
 cond = jax_wrap(jla.cond)
@@ -87,9 +87,6 @@ def _scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
     return jla.scan(finalf, init, sequences)
 
 
-
-
-
 def _while_loop(cond_fun, body_fun, sequences, non_sequences_cond=None,
                 non_sequences_body=None):
     """Call ``body_fun`` repeatedly in a loop while ``cond_fun`` is True.
@@ -152,8 +149,6 @@ def _while_loop(cond_fun, body_fun, sequences, non_sequences_cond=None,
     return jla.while_loop(finalcond, finalbody, sequences)
 
 
-
-
 def map(f, sequences, non_sequences=None):
     """Map a function over leading array axes.
 
@@ -174,17 +169,33 @@ def map(f, sequences, non_sequences=None):
 
     Args:
       f: a Python function to apply element-wise over the first axis or axes of
-        ``xs``.
-      xs: values over which to map along the leading axis.
+        ``sequences``.
+      sequences: list of values over which to map along the leading axis.
+      non_sequences: list of values passed the same at each call
 
     Returns:
       Mapped values.
+
+    Example:
+        example of creating a diagonal matrix:
+        .. doctest::
+
+           >>> import symjax.tensor as T
+           >>> import symjax
+           >>> x = T.ones(3)
+           >>> y = T.zeros(3)
+           >>> w = T.arange(3)
+           >>> out = T.map(lambda x, i, w: T.index_update(w, i, x), sequences=[x, w], non_sequences=[y])
+           >>> f = symjax.function(outputs=out)
+           >>> f()
+           array([[1., 0., 0.],
+                  [0., 1., 0.],
+                  [0., 0., 1.]], dtype=float32)
     """
 
     g = lambda _, *args: (1, f(*args))
     ys = scan(g, 0, sequences, non_sequences=non_sequences)[1]
     return ys
-
 
 
 scan = jax_wrap(_scan)

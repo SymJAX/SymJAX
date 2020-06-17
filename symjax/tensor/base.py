@@ -72,6 +72,15 @@ def getroots(item, roots=None):
 
 
 def get(item, tracker=None, givens=None, branches=None):
+    """
+    Example:
+
+        >>> import symjax.tensor as T
+        >>> w = T.ones(10).sum()+4
+        >>> v = T.Variable(1., name='v', dtype='float32')
+        >>> T.get(w+v)
+        DeviceArray(15., dtype=float32)
+    """
     if tracker is None:
         tracker = {}
     if givens is None:
@@ -545,12 +554,6 @@ class RandomOp(Op):
         msg (str): Human readable string describing the exception.
         code (int): Exception error code.
 
-    Examples:
-        >>> node = RandomTensor(jax.random.bernoulli, 0, args=(0.5, (3, 3)))
-        >>> print(node)
-        (RandomTensor : name=custom, dtype=bool, shape=(3, 3))
-        >>> node + 2
-        (Tensor, dtype=int32, shape=(3, 3))
     """
 
     def __init__(self, *args, _jax_function, _shape, _dtype, _seed, name,
