@@ -495,17 +495,28 @@ class function:
         self.extra_inputs = set(self.all_roots) \
                             - (set(self.classargs).union(self.updates_keys))
         self.extra_inputs = list(self.extra_inputs)
+        allargs = list(self.classargs) + self.updates_keys + self.extra_inputs
 
         def to_jit(*jitargs, seed):
-            allargs = list(
-                self.classargs) + self.updates_keys + self.extra_inputs
-            feed_dict = dict(zip(allargs, jitargs))  # [(m, {'base': v})
-            #                        for m, v in zip(allargs, jitargs)])
+
+            feed_dict = dict(zip(allargs, jitargs))
             feed_dict.update({'rng': seed})
             return t.get([self.outputs, self.updates_values], feed_dict)
 
-        # we compile our underlying function using jit for performances
-        self.jited = jax.jit(to_jit, device=device, backend=backend)
+        # take care of the presence of -1 dimensions
+        to_vectorize = []
+        for a in allargs:
+            if 0 in a.shape:
+                to_vectorize.append(0)
+            else:
+                to_vectorize.append(None)
+
+        if any(to_vectorize):
+            self.jited = jax.jit(jax.vmap(to_jit, to_vectorize), device=device,
+                                 backend=backend)
+        else:
+            # we compile our underlying function using jit for performances
+            self.jited = jax.jit(to_jit, device=device, backend=backend)
 
         # define the frontend function that takes as input the inputs variables
         # and internally compute and update the variables from updates if any
@@ -515,7 +526,7 @@ class function:
             assert len(fnargs) == len(self.classargs)
             for fnarg, classarg in zip(fnargs, self.classargs):
                 if hasattr(fnarg, 'shape'):
-                    if fnarg.shape != classarg.shape:
+                    if fnarg.shape != classarg.shape and 0 not in classarg.shape:
                         raise RuntimeError(
                             "wrong input given for {}".format(classarg) +
                             ", given is {}".format(fnarg) +
@@ -543,6 +554,7 @@ class function:
         # in the presence of RandomTensor(s) in the graph, we keep track of the
         # number of functions calls to keep accumulating the PRNGKey of the jax
         # key, otherwise each function call returns the same realisation
+
         if rng is None:
             rng = random._seed
             random._seed += 1

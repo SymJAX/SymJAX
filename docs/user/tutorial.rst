@@ -38,6 +38,20 @@ function dependencies without requiring to execute the function. Hence all
 tensors used inside a function should be part of the ``sequences`` or
 ``non_sequences`` op inputs.
 
+Variable batch length (shape)
+-----------------------------
+
+In many applications it is required to have length varying inputs to a compiled
+SymJAX function. This can be done by expliciting setting the shape of the corresponding
+``Placeholders`` to 0 (this will likely change in the future) as demonstrated
+below:
+
+.. literalinclude:: ../../examples/vmap.py
+
+in the backend, SymJAX automatically jit the overall (vmapped) functions for
+optimal performances.
+
+
 
 Graph visualization
 -------------------

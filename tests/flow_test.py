@@ -46,3 +46,4 @@ def test_while():
     f = sj.function(v, outputs=out)
     assert np.array_equal(np.array(f(0)), [5, 16])
     assert np.array_equal(f(2), [3, 4])
+

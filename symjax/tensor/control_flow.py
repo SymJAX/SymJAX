@@ -61,11 +61,13 @@ def _scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
         array, or any pytree (nested Python tuple/list/dict) thereof, representing
         the initial loop carry value. This value must have the same structure as
         the first element of the pair returned by ``f``.
-      xs: the value of type ``[a]`` over which to scan along the leading axis,
+      sequences: list of values over which to scan along the leading axis,
         where ``[a]`` can be an array or any pytree (nested Python
         tuple/list/dict) thereof with consistent leading axis sizes.
+      non_sequences: (optional) list of values that do not depend of the
+        iterations but are used in the function
       length: optional integer specifying the number of loop iterations, which
-        must agree with the sizes of leading axes of the arrays in ``xs`` (but can
+        must agree with the sizes of leading axes of the arrays in ``sequences`` (but can
         be used to perform scans where no input ``xs`` are needed).
       reverse: optional boolean specifying whether to run the scan iteration
         forward (the default) or in reverse, equivalent to reversing the leading
@@ -75,6 +77,21 @@ def _scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
       A pair of type ``(c, [b])`` where the first element represents the final
       loop carry value and the second element represents the stacked outputs of
       the second output of ``f`` when scanned over the leading axis of the inputs.
+
+    Example:
+        .. doctest::
+
+           >>> import symjax.tensor as T
+           >>> import symjax
+           >>> indices = T.Placeholder((3,), 'int32')
+           >>> w = T.arange(10)
+           >>> out = T.scan(lambda acc, i, w, : (acc + w[i],i), T.zeros(1), sequences=[indices], non_sequences=[w])
+           >>> # out first element is the carry, the second is the stacked second outputs of the function
+           >>> f = symjax.function(indices, outputs=out)
+           >>> f([0,2,3])
+           [array([5.], dtype=float32), array([0, 2, 3], dtype=int32)]
+           >>> f([1, 1, 1])
+           [array([3.], dtype=float32), array([1, 1, 1], dtype=int32)]
     """
     # get the fully jaxed function
     truef = symjax_to_jax_fn(f)
@@ -84,7 +101,7 @@ def _scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
         finalf = lambda a, args: truef(a, *args)
     else:
         finalf = lambda a, args: truef(a, *args, *non_sequences)
-    return jla.scan(finalf, init, sequences)
+    return jla.scan(finalf, init, sequences, length=length, reverse=reverse)
 
 
 def _while_loop(cond_fun, body_fun, sequences, non_sequences_cond=None,
