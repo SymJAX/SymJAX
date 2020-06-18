@@ -2,8 +2,7 @@
 ![SymJAX logo](./docs/img/symjax_logo.png)
 
 
-# SymJAX: symbolic CPU/GPU/TPU programming ![Continuous integration](https://github.com/SymJAX/SymJAX/workflows/Continuous%20integration/badge.svg) ![doctest](https://github.com/SymJAX/SymJAX/workflows/doc/badge.svg)
-
+# SymJAX: symbolic CPU/GPU/TPU programming ![Continuous integration](https://github.com/SymJAX/SymJAX/workflows/Continuous%20integration/badge.svg) ![doctest](https://github.com/SymJAX/SymJAX/workflows/doc/badge.svg) ![license](https://img.shields.io/badge/license-Apache%202-blue)
 This is an under-development research project, not an official product, expect bugs and sharp edges; please help by trying it out, reporting bugs.
 [**Reference docs**](https://symjax.readthedocs.io/en/latest/)
 

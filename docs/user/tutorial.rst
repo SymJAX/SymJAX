@@ -1,5 +1,5 @@
-Quick Walkthrough Tutorial of SymJAX
-====================================
+Tutorial
+========
 
 .. toctree::
   :hidden:
