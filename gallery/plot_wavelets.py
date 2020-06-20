@@ -17,13 +17,14 @@ import numpy as np
 
 J = 5
 Q = 4
-scales = T.power(2,T.linspace(0.1, J - 1, J * Q))
+scales = T.power(2, T.linspace(0.1, J - 1, J * Q))
 scales = scales[:, None]
 
-wavelet = symjax.tensor.signal.complex_morlet(5 * scales, np.pi /scales)
-waveletw = symjax.tensor.signal.fourier_complex_morlet(5 * scales, np.pi /scales, wavelet.shape[-1])
+wavelet = symjax.tensor.signal.complex_morlet(5 * scales, np.pi / scales)
+waveletw = symjax.tensor.signal.fourier_complex_morlet(
+    5 * scales, np.pi / scales, wavelet.shape[-1])
 
-f = symjax.function(outputs = [wavelet, waveletw])
+f = symjax.function(outputs=[wavelet, waveletw])
 
 wavelet, waveletw = f()
 
@@ -36,4 +37,3 @@ plt.subplot(122)
 for i in range(J*Q):
     plt.plot(i + waveletw[i].real, c='b')
     plt.plot(i + waveletw[i].imag, c='r')
-

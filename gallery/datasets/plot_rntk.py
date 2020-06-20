@@ -10,16 +10,17 @@ import numpy as np
 import symjax
 import symjax.tensor as T
 
+
 def RNTK_first_time_step(x, param):
     # this is for computing the first GP and RNTK for t = 1. Both for relu and erf
     sw = param['sigmaw']
     su = param['sigmau']
     sb = param['sigmab']
     sh = param['sigmah']
-    X = x *x[:, None]
+    X = x * x[:, None]
     print(X)
-    n = X.shape[0] #
-    GP_new = sh ** 2 * sw ** 2 * T.eye(n, n) + (su ** 2 / m) * X + sb ** 2;
+    n = X.shape[0]
+    GP_new = sh ** 2 * sw ** 2 * T.eye(n, n) + (su ** 2 / m) * X + sb ** 2
     RNTK_new = GP_new
     return RNTK_new, GP_new
 
@@ -35,7 +36,8 @@ def RNTK_relu(x, RNTK_old, GP_old, param, output):
     B = a * a[:, None]
     C = T.sqrt(B)  # in R^{n*n}
     D = GP_old / C  # this is lamblda in ReLU analyrucal formula
-    E = T.clip(D, -1, 1)  # clipping E between -1 and 1 for numerical stability.
+    # clipping E between -1 and 1 for numerical stability.
+    E = T.clip(D, -1, 1)
     F = (1 / (2 * np.pi)) * (E * (np.pi - T.arccos(E)) + T.sqrt(1 - E ** 2)) * C
     G = (np.pi - T.arccos(E)) / (2 * np.pi)
     if output:
@@ -58,7 +60,7 @@ param['sigmau'] = 1.45
 param['sigmab'] = 1.2
 param['sigmah'] = 0.4
 param['sigmav'] = 2.34
-m=1
+m = 1
 
 # first time step
 RNTK, GP = RNTK_first_time_step(DATA[:, 0], param)
