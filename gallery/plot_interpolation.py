@@ -46,6 +46,4 @@ plt.plot(samples[3], 'xg', linewidth=3, markersize=15)
 plt.plot([0, 5, 10], [1, 2, 3], 'ok', alpha=0.5)
 plt.title('constant-0')
 
-plt.suptitle('1D linear interpolation')
-
 plt.tight_layout()
