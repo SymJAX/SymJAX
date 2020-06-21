@@ -44,8 +44,8 @@ def hat_1D(x, t_left, t_center, t_right):
     slope_left = 1 / (t_center - t_left)
     slope_right = 1 / (t_right - t_center)
     output = (relu(x - t_left)) * slope_left \
-             - relu(x - t_center) * (slope_left + slope_right) \
-             + relu(x - t_right) * slope_right
+        - relu(x - t_center) * (slope_left + slope_right) \
+        + relu(x - t_right) * slope_right
     return output
 
 
@@ -55,7 +55,7 @@ def _extract_signal_patches(signal, window_length, hop=1, data_format='NCW'):
     if data_format == 'NCW':
         N = (signal.shape[2] - window_length) // hop + 1
         indices = jnp.arange(window_length) + \
-                  jnp.expand_dims(jnp.arange(N) * hop, 1)
+            jnp.expand_dims(jnp.arange(N) * hop, 1)
         indices = jnp.reshape(indices, [1, 1, N * window_length])
         patches = jnp.take_along_axis(signal, indices, 2)
         return jnp.reshape(patches, signal.shape[:2] + (N, window_length))
@@ -131,8 +131,6 @@ def one_hot(i, N, dtype='float32'):
         return index_add(z, i, 1)
 
 
-
-
 for name in ['index_update', 'index_min', 'index_add', 'index_max']:
     module.__dict__.update({name: jax_wrap(jax.ops.__dict__[name])})
 
@@ -141,3 +139,9 @@ dynamic_slice_in_dim = jax_wrap(jla.dynamic_slice_in_dim)
 dynamic_slice = jax_wrap(jla.dynamic_slice)
 index = jax.ops.index
 
+
+def logsumexp(x, axis):
+    x_max = module.__dict__['stop_gradient'](x.max(axis, keepdims=True))
+    return module.__dict__['log'](
+        (module.__dict__['exp'](x - x_max)).sum(axis)) + \
+        module.__dict__['squeeze'](x_max)

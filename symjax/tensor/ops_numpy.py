@@ -1,3 +1,4 @@
+from .base import Tensor, _add_method
 import inspect
 import sys
 
@@ -138,21 +139,13 @@ def flatten2d(input):
     return reshape(input, (input.shape[0], -1))
 
 
-def logsumexp(x, axis):
-    x_max = module.__dict__['stop_gradient'](x.max(axis, keepdims=True))
-    return module.__dict__['log'](
-        (module.__dict__['exp'](x - x_max)).sum(axis)) + \
-           module.__dict__['squeeze'](x_max)
-
-
 ################
 getitem = jax_wrap(jnp.lax_numpy._rewriting_take)
 
-from .base import Tensor, _add_method
 
 _add_method(Tensor)(getitem, '__getitem__')
 
-## overloading the basic arithmetic operators
+# overloading the basic arithmetic operators
 _add_method(Tensor)(module.__dict__['add'], '__add__')
 _add_method(Tensor)(module.__dict__['add'], '__radd__')
 _add_method(Tensor)(module.__dict__['multiply'], '__mul__')
@@ -169,7 +162,7 @@ _add_method(Tensor)(lambda a, b: module.__dict__['subtract'](b, a), '__rsub__')
 _add_method(Tensor)(module.__dict__['power'], '__pow__')
 _add_method(Tensor)(lambda a: 0 - a, '__neg__')
 
-## overloading comparison operators
+# overloading comparison operators
 _add_method(Tensor)(module.__dict__['less'], '__lt__')
 _add_method(Tensor)(module.__dict__['greater_equal'], '__rlt__')
 _add_method(Tensor)(module.__dict__['greater'], '__gt__')
@@ -179,7 +172,7 @@ _add_method(Tensor)(module.__dict__['less'], '__rge__')
 _add_method(Tensor)(module.__dict__['less_equal'], '__le__')
 _add_method(Tensor)(module.__dict__['greater'], '__rle__')
 
-## additional operators
+# additional operators
 _add_method(Tensor)(module.__dict__['sum'], 'sum')
 _add_method(Tensor)(module.__dict__['prod'], 'prod')
 _add_method(Tensor)(module.__dict__['mean'], 'mean')
@@ -190,7 +183,7 @@ _add_method(Tensor)(module.__dict__['var'], 'var')
 _add_method(Tensor)(module.__dict__['argmax'], 'argmax')
 _add_method(Tensor)(module.__dict__['argmin'], 'argmin')
 
-## additional operators
+# additional operators
 
 _add_method(Tensor)(module.__dict__['real'], 'real')
 _add_method(Tensor)(module.__dict__['imag'], 'imag')

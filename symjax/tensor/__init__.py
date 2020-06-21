@@ -1,12 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__all__ = ["random",
-           "signal",
-           "linalg",
-           "pdfs",
-           "interpolation"]
-
 
 from .base import (get,
                    Tensor,
@@ -28,3 +22,9 @@ from .control_flow import (map,
 from .ops_numpy import *
 from .ops_math import *
 from .ops_nn import *
+
+from . import random
+from . import signal
+from . import linalg
+from . import pdfs
+from . import interpolation
