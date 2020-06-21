@@ -10,6 +10,13 @@ __all__ = ['data',
            'optimizers',
            'schedules']
 
+from . import data
+from . import tensor
+from . import losses
+from . import initializers
+from . import layers
+from . import optimizers
+from . import schedules
 
 from .base import (
     current_graph,
@@ -25,13 +32,6 @@ from .base import (
     get_ops,
     get_updates)
 
-from . import data
-from . import tensor
-from . import losses
-from . import initializers
-from . import layers
-from . import optimizers
-from . import schedules
 
 _current_scope = '/'
 _current_graph = [Graph('')]
