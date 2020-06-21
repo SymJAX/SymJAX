@@ -1,0 +1,303 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>symjax.data.cifar100 &mdash; symjax  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/symjax_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/developers.html">Development</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.data</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/interpolation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.interpolation</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/fft.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.fft</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/nn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/initializers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.initializers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/layers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.layers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/optimizers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.optimizers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/schedules.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.schedules</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/losses.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.losses</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/probabilities.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.probabilities</span></code></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">symjax</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>symjax.data.cifar100</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for symjax.data.cifar100</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">tarfile</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">urllib.request</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="cifar100"><a class="viewcode-back" href="../../../modules/data.html#symjax.data.cifar100">[docs]</a><span class="k">class</span> <span class="nc">cifar100</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Image classification.</span>
+
+<span class="sd">    The `CIFAR-100 &lt;https://www.cs.toronto.edu/~kriz/cifar.html&gt;`_ dataset is </span>
+<span class="sd">    just like the CIFAR-10, except it has 100 classes containing 600 images </span>
+<span class="sd">    each. There are 500 training images and 100 testing images per class. </span>
+<span class="sd">    The 100 classes in the CIFAR-100 are grouped into 20 superclasses. Each </span>
+<span class="sd">    image comes with a &quot;fine&quot; label (the class to which it belongs) and a </span>
+<span class="sd">    &quot;coarse&quot; label (the superclass to which it belongs).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">labels_list</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;apple&#39;</span><span class="p">,</span> <span class="s1">&#39;aquarium_fish&#39;</span><span class="p">,</span> <span class="s1">&#39;baby&#39;</span><span class="p">,</span> <span class="s1">&#39;bear&#39;</span><span class="p">,</span> <span class="s1">&#39;beaver&#39;</span><span class="p">,</span> <span class="s1">&#39;bed&#39;</span><span class="p">,</span> <span class="s1">&#39;bee&#39;</span><span class="p">,</span> <span class="s1">&#39;beetle&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;bicycle&#39;</span><span class="p">,</span> <span class="s1">&#39;bottle&#39;</span><span class="p">,</span> <span class="s1">&#39;bowl&#39;</span><span class="p">,</span> <span class="s1">&#39;boy&#39;</span><span class="p">,</span> <span class="s1">&#39;bridge&#39;</span><span class="p">,</span> <span class="s1">&#39;bus&#39;</span><span class="p">,</span> <span class="s1">&#39;butterfly&#39;</span><span class="p">,</span> <span class="s1">&#39;camel&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;can&#39;</span><span class="p">,</span> <span class="s1">&#39;castle&#39;</span><span class="p">,</span> <span class="s1">&#39;caterpillar&#39;</span><span class="p">,</span> <span class="s1">&#39;cattle&#39;</span><span class="p">,</span> <span class="s1">&#39;chair&#39;</span><span class="p">,</span> <span class="s1">&#39;chimpanzee&#39;</span><span class="p">,</span> <span class="s1">&#39;clock&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cloud&#39;</span><span class="p">,</span> <span class="s1">&#39;cockroach&#39;</span><span class="p">,</span> <span class="s1">&#39;couch&#39;</span><span class="p">,</span> <span class="s1">&#39;crab&#39;</span><span class="p">,</span> <span class="s1">&#39;crocodile&#39;</span><span class="p">,</span> <span class="s1">&#39;cup&#39;</span><span class="p">,</span> <span class="s1">&#39;dinosaur&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;dolphin&#39;</span><span class="p">,</span> <span class="s1">&#39;elephant&#39;</span><span class="p">,</span> <span class="s1">&#39;flatfish&#39;</span><span class="p">,</span> <span class="s1">&#39;forest&#39;</span><span class="p">,</span> <span class="s1">&#39;fox&#39;</span><span class="p">,</span> <span class="s1">&#39;girl&#39;</span><span class="p">,</span> <span class="s1">&#39;hamster&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;house&#39;</span><span class="p">,</span> <span class="s1">&#39;kangaroo&#39;</span><span class="p">,</span> <span class="s1">&#39;keyboard&#39;</span><span class="p">,</span> <span class="s1">&#39;lamp&#39;</span><span class="p">,</span> <span class="s1">&#39;lawn_mower&#39;</span><span class="p">,</span> <span class="s1">&#39;leopard&#39;</span><span class="p">,</span> <span class="s1">&#39;lion&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;lizard&#39;</span><span class="p">,</span> <span class="s1">&#39;lobster&#39;</span><span class="p">,</span> <span class="s1">&#39;man&#39;</span><span class="p">,</span> <span class="s1">&#39;maple_tree&#39;</span><span class="p">,</span> <span class="s1">&#39;motorcycle&#39;</span><span class="p">,</span> <span class="s1">&#39;mountain&#39;</span><span class="p">,</span> <span class="s1">&#39;mouse&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;mushroom&#39;</span><span class="p">,</span> <span class="s1">&#39;oak_tree&#39;</span><span class="p">,</span> <span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="s1">&#39;orchid&#39;</span><span class="p">,</span> <span class="s1">&#39;otter&#39;</span><span class="p">,</span> <span class="s1">&#39;palm_tree&#39;</span><span class="p">,</span> <span class="s1">&#39;pear&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;pickup_truck&#39;</span><span class="p">,</span> <span class="s1">&#39;pine_tree&#39;</span><span class="p">,</span> <span class="s1">&#39;plain&#39;</span><span class="p">,</span> <span class="s1">&#39;plate&#39;</span><span class="p">,</span> <span class="s1">&#39;poppy&#39;</span><span class="p">,</span> <span class="s1">&#39;porcupine&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;possum&#39;</span><span class="p">,</span> <span class="s1">&#39;rabbit&#39;</span><span class="p">,</span> <span class="s1">&#39;raccoon&#39;</span><span class="p">,</span> <span class="s1">&#39;ray&#39;</span><span class="p">,</span> <span class="s1">&#39;road&#39;</span><span class="p">,</span> <span class="s1">&#39;rocket&#39;</span><span class="p">,</span> <span class="s1">&#39;rose&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;sea&#39;</span><span class="p">,</span> <span class="s1">&#39;seal&#39;</span><span class="p">,</span> <span class="s1">&#39;shark&#39;</span><span class="p">,</span> <span class="s1">&#39;shrew&#39;</span><span class="p">,</span> <span class="s1">&#39;skunk&#39;</span><span class="p">,</span> <span class="s1">&#39;skyscraper&#39;</span><span class="p">,</span> <span class="s1">&#39;snail&#39;</span><span class="p">,</span> <span class="s1">&#39;snake&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;spider&#39;</span><span class="p">,</span> <span class="s1">&#39;squirrel&#39;</span><span class="p">,</span> <span class="s1">&#39;streetcar&#39;</span><span class="p">,</span> <span class="s1">&#39;sunflower&#39;</span><span class="p">,</span> <span class="s1">&#39;sweet_pepper&#39;</span><span class="p">,</span> <span class="s1">&#39;table&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;tank&#39;</span><span class="p">,</span> <span class="s1">&#39;telephone&#39;</span><span class="p">,</span> <span class="s1">&#39;television&#39;</span><span class="p">,</span> <span class="s1">&#39;tiger&#39;</span><span class="p">,</span> <span class="s1">&#39;tractor&#39;</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;trout&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;tulip&#39;</span><span class="p">,</span> <span class="s1">&#39;turtle&#39;</span><span class="p">,</span> <span class="s1">&#39;wardrobe&#39;</span><span class="p">,</span> <span class="s1">&#39;whale&#39;</span><span class="p">,</span> <span class="s1">&#39;willow_tree&#39;</span><span class="p">,</span> <span class="s1">&#39;wolf&#39;</span><span class="p">,</span> <span class="s1">&#39;woman&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;worm&#39;</span>
+    <span class="p">]</span>
+
+<div class="viewcode-block" id="cifar100.download"><a class="viewcode-back" href="../../../modules/data.html#symjax.data.cifar100.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download the CIFAR100 dataset and store the result into the given</span>
+<span class="sd">        path</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">            path: str</span>
+<span class="sd">                the path where the downloaded files will be stored. If the</span>
+<span class="sd">                directory does not exist, it is created.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Loading cifar100&#39;</span><span class="p">)</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;cifar100&#39;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Creating cifar100 Directory&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;cifar100&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;cifar100/cifar100.tar.gz&#39;</span><span class="p">):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz&#39;</span>
+            <span class="k">with</span> <span class="n">DownloadProgressBar</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">miniters</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                     <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Downloading dataset&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">t</span><span class="p">:</span>
+                <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;cifar100/cifar100.tar.gz&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DATASET_PATH&#39;</span><span class="p">]</span>
+        <span class="n">cifar100</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="c1"># Loading the file</span>
+        <span class="n">tar</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;cifar100/cifar100.tar.gz&#39;</span><span class="p">,</span> <span class="s1">&#39;r:gz&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Loading training set</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">tar</span><span class="o">.</span><span class="n">extractfile</span><span class="p">(</span><span class="s1">&#39;cifar-100-python/train&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;latin1&#39;</span><span class="p">)</span>
+        <span class="n">train_images</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">))</span>
+        <span class="n">train_fine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;fine_labels&#39;</span><span class="p">])</span>
+        <span class="n">train_coarse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;coarse_labels&#39;</span><span class="p">])</span>
+
+        <span class="c1"># Loading test set</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">tar</span><span class="o">.</span><span class="n">extractfile</span><span class="p">(</span><span class="s1">&#39;cifar-100-python/test&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;latin1&#39;</span><span class="p">)</span>
+        <span class="n">test_images</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">))</span>
+        <span class="n">test_fine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;fine_labels&#39;</span><span class="p">])</span>
+        <span class="n">test_coarse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;coarse_labels&#39;</span><span class="p">])</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Dataset cifar100 loaded in </span><span class="si">{0:.2f}</span><span class="s1">s.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">train_images</span><span class="p">,</span> <span class="n">train_fine</span><span class="p">,</span> <span class="n">train_coarse</span><span class="p">,</span> <span class="n">test_images</span><span class="p">,</span> <span class="n">test_fine</span><span class="p">,</span> <span class="n">test_coarse</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Randall Balestriero
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

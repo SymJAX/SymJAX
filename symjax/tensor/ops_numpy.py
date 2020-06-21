@@ -150,7 +150,7 @@ _add_method(Tensor)(module.__dict__['add'], '__radd__')
 _add_method(Tensor)(module.__dict__['multiply'], '__mul__')
 _add_method(Tensor)(module.__dict__['multiply'], '__rmul__')
 _add_method(Tensor)(module.__dict__['true_divide'], '__truediv__')
-_add_method(Tensor)(lambda a, b: module.__dict__['true_divide(b, a)'],
+_add_method(Tensor)(lambda a, b: module.__dict__['true_divide'](b, a),
                     '__rtruediv__')
 _add_method(Tensor)(module.__dict__['floor_divide'], '__floordiv__')
 _add_method(Tensor)(lambda a, b: module.__dict__['floor_divide'](b, a),

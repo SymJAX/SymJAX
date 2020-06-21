@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Gallery &mdash; symjax  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Basic gradient descent (and reset)" href="plot_sgd.html" />
+    <link rel="prev" title="Tutorial" href="../user/tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/symjax_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../user/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Gallery</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-examples">Basic examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="plot_sgd.html">Basic gradient descent (and reset)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_interpolation.html">Basic 1d interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#deep-neural-networks">Deep Neural Networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="01_nns/plot_cifar10_classif.html">CIFAR10 classification</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#datasets">Datasets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="02_datasets/plot_picidae.html">Speech picidae Dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_datasets/plot_mnist.html">MNIST Dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_datasets/plot_cifar10.html">CIFAR10 Dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_datasets/plot_rntk.html">RNTK kernel</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#signal-processing">Signal Processing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="03_sp/plot_wavelets.html">Morlet Wavelet in time and Fourier domain</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user/developers.html">Development</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.data</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/interpolation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.interpolation</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/fft.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.fft</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/nn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/initializers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.initializers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/layers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.layers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/optimizers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.optimizers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/schedules.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.schedules</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/losses.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.losses</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/probabilities.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.probabilities</span></code></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">symjax</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Gallery</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/auto_examples/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="gallery">
+<span id="sphx-glr-auto-examples"></span><h1>Gallery<a class="headerlink" href="#gallery" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="contents">
+<p class="topic-title"><strong>Contents</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#basic-examples" id="id9">Basic examples</a></p></li>
+<li><p><a class="reference internal" href="#deep-neural-networks" id="id10">Deep Neural Networks</a></p></li>
+<li><p><a class="reference internal" href="#datasets" id="id11">Datasets</a></p></li>
+<li><p><a class="reference internal" href="#signal-processing" id="id12">Signal Processing</a></p></li>
+</ul>
+</div>
+<div class="section" id="basic-examples">
+<span id="gallery-basic"></span><h2><a class="toc-backref" href="#id9">Basic examples</a><a class="headerlink" href="#basic-examples" title="Permalink to this headline">¶</a></h2>
+<p>Introductory examples that teach how to use SymJAX.</p>
+<div class="sphx-glr-thumbcontainer" tooltip="demonstration on how to compute a gradient and apply a basic gradient update rule to minimize s..."><div class="figure align-default" id="id1">
+<img alt="Basic gradient descent (and reset)" src="../_images/sphx_glr_plot_sgd_thumb.svg" /><p class="caption"><span class="caption-text"><a class="reference internal" href="plot_sgd.html#sphx-glr-auto-examples-plot-sgd-py"><span class="std std-ref">Basic gradient descent (and reset)</span></a></span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-thumbcontainer" tooltip="demonstration on how to perform basic 1d interpolation"><div class="figure align-default" id="id2">
+<img alt="Basic 1d interpolation" src="../_images/sphx_glr_plot_interpolation_thumb.svg" /><p class="caption"><span class="caption-text"><a class="reference internal" href="plot_interpolation.html#sphx-glr-auto-examples-plot-interpolation-py"><span class="std std-ref">Basic 1d interpolation</span></a></span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-clear"></div></div>
+<div class="section" id="deep-neural-networks">
+<span id="gallery-nns"></span><span id="sphx-glr-auto-examples-01-nns"></span><h2><a class="toc-backref" href="#id10">Deep Neural Networks</a><a class="headerlink" href="#deep-neural-networks" title="Permalink to this headline">¶</a></h2>
+<div class="sphx-glr-thumbcontainer" tooltip="example of image classification"><div class="figure align-default" id="id3">
+<img alt="CIFAR10 classification" src="../_images/sphx_glr_plot_cifar10_classif_thumb.png" />
+<p class="caption"><span class="caption-text"><a class="reference internal" href="01_nns/plot_cifar10_classif.html#sphx-glr-auto-examples-01-nns-plot-cifar10-classif-py"><span class="std std-ref">CIFAR10 classification</span></a></span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-clear"></div></div>
+<div class="section" id="datasets">
+<span id="gallery-datasets"></span><span id="sphx-glr-auto-examples-02-datasets"></span><h2><a class="toc-backref" href="#id11">Datasets</a><a class="headerlink" href="#datasets" title="Permalink to this headline">¶</a></h2>
+<div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to download/load/import speech picidae"><div class="figure align-default" id="id4">
+<img alt="Speech picidae Dataset" src="../_images/sphx_glr_plot_picidae_thumb.svg" /><p class="caption"><span class="caption-text"><a class="reference internal" href="02_datasets/plot_picidae.html#sphx-glr-auto-examples-02-datasets-plot-picidae-py"><span class="std std-ref">Speech picidae Dataset</span></a></span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to download/load/import MNIST"><div class="figure align-default" id="id5">
+<img alt="MNIST Dataset" src="../_images/sphx_glr_plot_mnist_thumb.svg" /><p class="caption"><span class="caption-text"><a class="reference internal" href="02_datasets/plot_mnist.html#sphx-glr-auto-examples-02-datasets-plot-mnist-py"><span class="std std-ref">MNIST Dataset</span></a></span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to download/load/import CIFAR10"><div class="figure align-default" id="id6">
+<img alt="CIFAR10 Dataset" src="../_images/sphx_glr_plot_cifar10_thumb.png" />
+<p class="caption"><span class="caption-text"><a class="reference internal" href="02_datasets/plot_cifar10.html#sphx-glr-auto-examples-02-datasets-plot-cifar10-py"><span class="std std-ref">CIFAR10 Dataset</span></a></span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-thumbcontainer" tooltip="tiem series regression and classification"><div class="figure align-default" id="id7">
+<img alt="RNTK kernel" src="../_images/sphx_glr_plot_rntk_thumb.png" />
+<p class="caption"><span class="caption-text"><a class="reference internal" href="02_datasets/plot_rntk.html#sphx-glr-auto-examples-02-datasets-plot-rntk-py"><span class="std std-ref">RNTK kernel</span></a></span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-clear"></div></div>
+<div class="section" id="signal-processing">
+<span id="gallery-sp"></span><span id="sphx-glr-auto-examples-03-sp"></span><h2><a class="toc-backref" href="#id12">Signal Processing</a><a class="headerlink" href="#signal-processing" title="Permalink to this headline">¶</a></h2>
+<div class="sphx-glr-thumbcontainer" tooltip=" This example shows how to generate a wavelet filter-bank."><div class="figure align-default" id="id8">
+<img alt="Morlet Wavelet in time and Fourier domain" src="../_images/sphx_glr_plot_wavelets_thumb.svg" /><p class="caption"><span class="caption-text"><a class="reference internal" href="03_sp/plot_wavelets.html#sphx-glr-auto-examples-03-sp-plot-wavelets-py"><span class="std std-ref">Morlet Wavelet in time and Fourier domain</span></a></span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-clear"></div><div class="sphx-glr-footer class sphx-glr-footer-gallery docutils container">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/eefbb4d283bdebda24b256e429d8d9d0/auto_examples_python.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">auto_examples_python.zip</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/058942aa407b348edb3becdd8d3525b3/auto_examples_jupyter.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Jupyter</span> <span class="pre">notebooks:</span> <span class="pre">auto_examples_jupyter.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="plot_sgd.html" class="btn btn-neutral float-right" title="Basic gradient descent (and reset)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../user/tutorial.html" class="btn btn-neutral float-left" title="Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Randall Balestriero
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -3,7 +3,7 @@
 
 
 import numpy as np
-from . import ops_numpy as T
+from .. import tensor as T
 
 __author__ = "Randall Balestriero"
 

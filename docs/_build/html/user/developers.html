@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Development &mdash; symjax  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="symjax" href="../modules/symjax.html" />
+    <link rel="prev" title="Morlet Wavelet in time and Fourier domain" href="../auto_examples/03_sp/plot_wavelets.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/symjax_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Gallery</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#philosophy">Philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-contribute">How to contribute</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#build-test-the-doc">Build/Test the doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-the-code">Test the code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pull-requests">Pull requests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules/symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.data</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/interpolation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.interpolation</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/fft.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.fft</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/nn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/initializers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.initializers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/layers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.layers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/optimizers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.optimizers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/schedules.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.schedules</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/losses.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.losses</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/probabilities.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.probabilities</span></code></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">symjax</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Development</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/user/developers.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="development">
+<span id="developer"></span><h1>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h1>
+<p>The SymJAX project was started by Randall Balestriero in early 2020.
+As an open-source project, we highly welcome contributions (<a class="reference external" href="https://github.com/RandallBalestriero/SymJAX/graphs/contributors">current contributors</a>) ! If you are willing to help, we recommand to follow the following steps before requesting a pull request</p>
+<div class="section" id="philosophy">
+<h2>Philosophy<a class="headerlink" href="#philosophy" title="Permalink to this headline">¶</a></h2>
+<p>SymJAX started from the need to combine the best functionalities
+of Theano, Tensorflow (v1) and Lasagne. While we propose various deep learning
+oriented methods, SymJAX shall remain as general as possible in its core,
+methods should be grouped as much as possible into specialized submodules, and
+a complete documentation should be provided, preferably along a working example
+located in the Gallery.</p>
+</div>
+<div class="section" id="how-to-contribute">
+<h2>How to contribute<a class="headerlink" href="#how-to-contribute" title="Permalink to this headline">¶</a></h2>
+<p>If you are willing to help, we recommend to follow the following steps before requesting a pull request. Recall that</p>
+<ol class="arabic simple">
+<li><p><strong>Coding conventions</strong>: we used the <a class="reference external" href="https://www.python.org/dev/peps/pep-0008/">PEP8 style guide for Python Code</a></p></li>
+<li><p><strong>Docstrings</strong>: we used the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc docstring guide</a> for documenting the functions directly from the docstrings and automatically generating the documentation with <a class="reference external" href="https://www.sphinx-doc.org/en/master/">sphinx</a>. Please provide codes with up-to-date docstrings.</p></li>
+</ol>
+<div class="section" id="build-test-the-doc">
+<h3>Build/Test the doc<a class="headerlink" href="#build-test-the-doc" title="Permalink to this headline">¶</a></h3>
+<p>To rebuild the documentation, install several packages:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">docs</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>to generate the documentation, you can do in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> directory and run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">html</span>
+</pre></div>
+</div>
+<p>You can then see the generated documentation in
+<code class="docutils literal notranslate"><span class="pre">docs/_build/html/index.html</span></code>.</p>
+<p>If examples/code-blocks are added to the documension, it has to be tested.
+To do so, add the specific module/function in the <code class="docutils literal notranslate"><span class="pre">tests/doc.py</span></code> and run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">python</span> <span class="n">tests</span><span class="o">/</span><span class="n">doc</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>if all tests pass, then the changes are ready to be put in a PR.
+Once the documentation has been changed and all tests pass, the change is ready
+for review and should be put in a PR.</p>
+<p>Every time changes are pushed to Github <code class="docutils literal notranslate"><span class="pre">master</span></code> branch the SymJAX
+documentations (at <a class="reference external" href="https://symjax.readthedocs.io/">symjax.readthedocs.io</a>) is rebuilt based on
+the <code class="docutils literal notranslate"><span class="pre">.readthedocs.yml</span></code> and the <code class="docutils literal notranslate"><span class="pre">docs/conf.py</span></code> configuration files.
+For each automated documentation build you can see the
+<a class="reference external" href="https://readthedocs.org/projects/symjax/builds/">documentation build logs</a>.</p>
+</div>
+<div class="section" id="test-the-code">
+<h3>Test the code<a class="headerlink" href="#test-the-code" title="Permalink to this headline">¶</a></h3>
+<p>To run all the SymJAX tests, we recommend using <code class="docutils literal notranslate"><span class="pre">pytest</span></code> or <code class="docutils literal notranslate"><span class="pre">pytest-xdist</span></code>. First, install <code class="docutils literal notranslate"><span class="pre">pytest-xdist</span></code> and <code class="docutils literal notranslate"><span class="pre">pytest-benchmark</span></code> by running
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pytest-xdist</span> <span class="pre">pytest-benchmark</span></code>.
+Then, from the repository root directory run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pytest</span>
+</pre></div>
+</div>
+<p>If all tests pass successfully, the code is ready for a PR.</p>
+</div>
+<div class="section" id="pull-requests">
+<h3>Pull requests<a class="headerlink" href="#pull-requests" title="Permalink to this headline">¶</a></h3>
+<p>Once all the tests pass and the documentation is appropriate, commit your changes to a new branch, push
+that branch to your fork and send us a Pull Request via GitHub’s web interface
+(<a class="reference external" href="https://guides.github.com/introduction/flow/">guide</a>), the PR should include a brief description.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../modules/symjax.html" class="btn btn-neutral float-right" title="symjax" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../auto_examples/03_sp/plot_wavelets.html" class="btn btn-neutral float-left" title="Morlet Wavelet in time and Fourier domain" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Randall Balestriero
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

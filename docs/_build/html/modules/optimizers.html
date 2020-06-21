@@ -1,0 +1,355 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>symjax.nn.optimizers &mdash; symjax  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="symjax.nn.schedules" href="schedules.html" />
+    <link rel="prev" title="symjax.nn.layers" href="layers.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/symjax_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/developers.html">Development</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.data</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="interpolation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.interpolation</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.fft</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="initializers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.initializers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="layers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.layers</span></code></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.optimizers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedules.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.schedules</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="losses.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.losses</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="probabilities.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.probabilities</span></code></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">symjax</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.optimizers</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/modules/optimizers.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="symjax-nn-optimizers">
+<span id="id1"></span><h1><a class="reference internal" href="#module-symjax.nn.optimizers" title="symjax.nn.optimizers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.optimizers</span></code></a><a class="headerlink" href="#symjax-nn-optimizers" title="Permalink to this headline">¶</a></h1>
+<dl class="attribute">
+<dt id="symjax.nn.optimizers">
+<code class="sig-name descname">optimizers</code><a class="headerlink" href="#symjax.nn.optimizers" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#module-symjax.nn.optimizers" title="symjax.nn.optimizers"><code class="xref py py-class docutils literal notranslate"><span class="pre">symjax.nn.optimizers</span></code></a></p>
+</dd></dl>
+
+<span class="target" id="module-symjax.nn.optimizers"></span><dl class="class">
+<dt id="symjax.nn.optimizers.Adam">
+<em class="property">class </em><code class="sig-name descname">Adam</code><span class="sig-paren">(</span><em class="sig-param">grads_or_loss</em>, <em class="sig-param">learning_rate</em>, <em class="sig-param">beta1=0.9</em>, <em class="sig-param">beta2=0.999</em>, <em class="sig-param">epsilon=1e-06</em>, <em class="sig-param">params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/nn/optimizers.html#Adam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.nn.optimizers.Adam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adaptive Gradient Based Optimization with renormalization</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grads_or_loss</strong> (<em>scalar tensor</em><em> or </em><em>list of gradients</em>) – either the loss (scalar of Tensor type) to be differentied
+or the list of gradients already computed and possibly altered
+manually (such as clipping)</p></li>
+<li><p><strong>params</strong> (<em>list of parameters to update</em>) – if grads_or_loss is al list then it should be ordered w.r.t. the
+given parameters</p></li>
+<li><p><strong>learning_rate</strong> (<em>constant</em><em> or </em><em>Tensor</em>) – the learning rate use to update the parameters</p></li>
+<li><p><strong>beta1</strong> (<em>constant</em><em> or </em><em>Tensor</em>) – the value of the exponential moving average of the average of the
+gradients through time (updates)</p></li>
+<li><p><strong>beta2</strong> (<em>constant</em><em> or </em><em>Tensor</em>) – the value of the exponential moving average of the variance of the
+gradients through time</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="symjax.nn.optimizers.Adam.updates">
+<code class="sig-name descname">updates</code><a class="headerlink" href="#symjax.nn.optimizers.Adam.updates" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of updates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="symjax.nn.optimizers.Adam.variables">
+<code class="sig-name descname">variables</code><a class="headerlink" href="#symjax.nn.optimizers.Adam.variables" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of variables</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="symjax.nn.optimizers.NesterovMomentum">
+<em class="property">class </em><code class="sig-name descname">NesterovMomentum</code><span class="sig-paren">(</span><em class="sig-param">grads_or_loss</em>, <em class="sig-param">learning_rate</em>, <em class="sig-param">momentum</em>, <em class="sig-param">params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/nn/optimizers.html#NesterovMomentum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.nn.optimizers.NesterovMomentum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Nesterov momentum Optimization</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grads_or_loss</strong> (<em>scalar tensor</em><em> or </em><em>list of gradients</em>) – either the loss (scalar of Tensor type) to be differentied
+or the list of gradients already computed and possibly altered
+manually (such as clipping)</p></li>
+<li><p><strong>params</strong> (<em>list of parameters to update</em>) – if grads_or_loss is al list then it should be ordered w.r.t. the
+given parameters</p></li>
+<li><p><strong>learning_rate</strong> (<em>constant</em><em> or </em><em>Tensor</em>) – the learning rate use to update the parameters</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="symjax.nn.optimizers.NesterovMomentum.updates">
+<code class="sig-name descname">updates</code><a class="headerlink" href="#symjax.nn.optimizers.NesterovMomentum.updates" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of updates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="symjax.nn.optimizers.NesterovMomentum.variables">
+<code class="sig-name descname">variables</code><a class="headerlink" href="#symjax.nn.optimizers.NesterovMomentum.variables" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of variables</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="symjax.nn.optimizers.SGD">
+<em class="property">class </em><code class="sig-name descname">SGD</code><span class="sig-paren">(</span><em class="sig-param">grads_or_loss</em>, <em class="sig-param">learning_rate</em>, <em class="sig-param">params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/nn/optimizers.html#SGD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.nn.optimizers.SGD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gradient Descent Optimization</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grads_or_loss</strong> (<em>scalar tensor</em><em> or </em><em>list of gradients</em>) – either the loss (scalar of Tensor type) to be differentied
+or the list of gradients already computed and possibly altered
+manually (such as clipping)</p></li>
+<li><p><strong>params</strong> (<em>list of parameters to update</em>) – if grads_or_loss is al list then it should be ordered w.r.t. the
+given parameters</p></li>
+<li><p><strong>learning_rate</strong> (<em>constant</em><em> or </em><em>Tensor</em>) – the learning rate use to update the parameters</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="symjax.nn.optimizers.SGD.updates">
+<code class="sig-name descname">updates</code><a class="headerlink" href="#symjax.nn.optimizers.SGD.updates" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of updates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="symjax.nn.optimizers.SGD.variables">
+<code class="sig-name descname">variables</code><a class="headerlink" href="#symjax.nn.optimizers.SGD.variables" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of variables</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="schedules.html" class="btn btn-neutral float-right" title="symjax.nn.schedules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="layers.html" class="btn btn-neutral float-left" title="symjax.nn.layers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Randall Balestriero
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

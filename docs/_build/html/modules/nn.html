@@ -1,0 +1,354 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>symjax.nn &mdash; symjax  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="symjax.nn.initializers" href="initializers.html" />
+    <link rel="prev" title="symjax.tensor.random" href="random.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/symjax_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/developers.html">Development</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.data</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="interpolation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.interpolation</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.fft</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="initializers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.initializers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="layers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.layers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimizers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.optimizers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedules.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.schedules</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="losses.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.losses</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="probabilities.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.probabilities</span></code></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">symjax</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/modules/nn.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="module-symjax.nn">
+<span id="id1"></span><span id="symjax-nn"></span><h1><a class="reference internal" href="#module-symjax.nn" title="symjax.nn"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn</span></code></a><a class="headerlink" href="#module-symjax.nn" title="Permalink to this headline">¶</a></h1>
+<p>Implements the machine learning/deep learning utilities to train and create/adapt any
+state of the art deep neural network, do training, adapt learning rates, etc</p>
+<span class="target" id="module-symjax.nn.ops_nn"></span><dl class="function">
+<dt id="symjax.nn.ops_nn.convNd">
+<code class="sig-name descname">convNd</code><span class="sig-paren">(</span><em class="sig-param">input</em>, <em class="sig-param">filter</em>, <em class="sig-param">strides=1</em>, <em class="sig-param">padding='VALID'</em>, <em class="sig-param">input_format=None</em>, <em class="sig-param">filter_format=None</em>, <em class="sig-param">output_format=None</em>, <em class="sig-param">input_dilation=None</em>, <em class="sig-param">filter_dilation=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/nn/ops_nn.html#convNd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.nn.ops_nn.convNd" title="Permalink to this definition">¶</a></dt>
+<dd><p>General n-dimensional convolution operator, with optional dilation.</p>
+<p>Wraps Jax’s conv_general_dilated functin, and thus also the XLA’s <a class="reference external" href="https://www.tensorflow.org/xla/operation_semantics#conv_convolution">Conv</a>
+operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> (<em>Tensor</em>) – a rank <cite>n+2</cite> dimensional input array.</p></li>
+<li><p><strong>filter</strong> (<em>Tensor</em>) – a rank <cite>n+2</cite> dimensional array of kernel weights.</p></li>
+<li><p><strong>strides</strong> (<em>int</em><em>, </em><em>sequence of int</em><em>, </em><em>optional</em>) – a (sequence) of <cite>n</cite> integers,
+representing the inter-window strides. If a scalar is given, it is
+used <cite>n</cite> times. Defaults to <cite>1</cite>.</p></li>
+<li><p><strong>padding</strong> (sequence of couple, <cite>‘SAME’</cite>, <cite>‘VALID’</cite>, optional) – a sequence of
+<cite>n</cite> <cite>(low, high)</cite> integer pairs that give the padding to apply
+before and after each spatial dimension. For  <cite>‘VALID’</cite>, those are
+<cite>0</cite>. For <cite>‘SAME’</cite>, they are the <cite>input length - filter length + 1</cite>
+for each dim. Defaults to <cite>‘Valid’</cite>.</p></li>
+<li><p><strong>input_format</strong> (<cite>None</cite> or str, optional) – <p>a string of same length as the
+number of dimensions in <cite>input</cite> which specify their role
+(see below). Defaults to <cite>‘NCW’</cite> for 1d conv, <cite>‘NCHW’</cite> for 2d conv,</p>
+<blockquote>
+<div><p>and <cite>‘NDCHW’</cite> for 3d conv.</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>input_dilation</strong> (<cite>None</cite>, int or sequence of int, optional) – giving the
+dilation factor to apply in each spatial dimension of <cite>input</cite>.
+Inumpy.t dilation is also known as transposed convolution as it allows
+to increase the output spatial dimension by inserting in the input
+any number of <a href="#id2"><span class="problematic" id="id3">`</span></a>0`s between each spatial value.</p></li>
+<li><p><strong>filter_dilation</strong> (<cite>None</cite>, int or sequence of int) – giving the dilation
+factor to apply in each spatial dimension of <cite>filter</cite>. Filter
+dilation is also known as atrous convolution as it corresponds to
+inserting any number of <a href="#id4"><span class="problematic" id="id5">`</span></a>0`s in between the filter values, similar
+to performing the non-dilated filter convolution with a subsample
+version of the input across the spatial dimensions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An array containing the convolution result.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+<p>Format of <cite>input</cite>, <cite>filter</cite> and <cite>output</cite>:
+For example, to indicate dimension numbers consistent with the <cite>conv</cite> function
+with two spatial dimensions, one could use <cite>(‘NCHW’, ‘OIHW’, ‘NCHW’)</cite>. As
+another example, to indicate dimension numbers consistent with the TensorFlow
+Conv2D operation, one could use <cite>(‘NHWC’, ‘HWIO’, ‘NHWC’)</cite>. When using the
+latter form of convolution dimension specification, window strides are
+associated with spatial dimension character labels according to the order in
+which the labels appear in the <cite>rhs_spec</cite> string, so that <cite>window_strides[0]</cite>
+is matched with the dimension corresponding to the first character
+appearing in rhs_spec that is not <cite>‘I’</cite> or <cite>‘O’</cite>.
+:param filter_format:
+:param output_format:</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.nn.ops_nn.convNd_transpose">
+<code class="sig-name descname">convNd_transpose</code><span class="sig-paren">(</span><em class="sig-param">input</em>, <em class="sig-param">filter</em>, <em class="sig-param">strides=1</em>, <em class="sig-param">padding='VALID'</em>, <em class="sig-param">input_format=None</em>, <em class="sig-param">filter_format=None</em>, <em class="sig-param">output_format=None</em>, <em class="sig-param">input_dilation=None</em>, <em class="sig-param">filter_dilation=None</em>, <em class="sig-param">transpose_kernel=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/nn/ops_nn.html#convNd_transpose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.nn.ops_nn.convNd_transpose" title="Permalink to this definition">¶</a></dt>
+<dd><p>General n-dimensional convolution operator, with optional dilation.</p>
+<p>Wraps Jax’s conv_general_dilated functin, and thus also the XLA’s <a class="reference external" href="https://www.tensorflow.org/xla/operation_semantics#conv_convolution">Conv</a>
+operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> (<em>Tensor</em>) – a rank <cite>n+2</cite> dimensional input array.</p></li>
+<li><p><strong>filter</strong> (<em>Tensor</em>) – a rank <cite>n+2</cite> dimensional array of kernel weights.</p></li>
+<li><p><strong>strides</strong> (<em>int</em><em>, </em><em>sequence of int</em><em>, </em><em>optional</em>) – a (sequence) of <cite>n</cite> integers,
+representing the inter-window strides. If a scalar is given, it is
+used <cite>n</cite> times. Defaults to <cite>1</cite>.</p></li>
+<li><p><strong>padding</strong> (sequence of couple, <cite>‘SAME’</cite>, <cite>‘VALID’</cite>, optional) – a sequence of
+<cite>n</cite> <cite>(low, high)</cite> integer pairs that give the padding to apply
+before and after each spatial dimension. For  <cite>‘VALID’</cite>, those are
+<cite>0</cite>. For <cite>‘SAME’</cite>, they are the <cite>input length - filter length + 1</cite>
+for each dim. Defaults to <cite>‘Valid’</cite>.</p></li>
+<li><p><strong>input_format</strong> (<cite>None</cite> or str, optional) – <p>a string of same length as the
+number of dimensions in <cite>input</cite> which specify their role
+(see below). Defaults to <cite>‘NCW’</cite> for 1d conv, <cite>‘NCHW’</cite> for 2d conv,</p>
+<blockquote>
+<div><p>and <cite>‘NDCHW’</cite> for 3d conv.</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>input_dilation</strong> (<cite>None</cite>, int or sequence of int, optional) – giving the
+dilation factor to apply in each spatial dimension of <cite>input</cite>.
+Inumpy.t dilation is also known as transposed convolution as it allows
+to increase the output spatial dimension by inserting in the input
+any number of <a href="#id7"><span class="problematic" id="id8">`</span></a>0`s between each spatial value.</p></li>
+<li><p><strong>filter_dilation</strong> (<cite>None</cite>, int or sequence of int) – giving the dilation
+factor to apply in each spatial dimension of <cite>filter</cite>. Filter
+dilation is also known as atrous convolution as it corresponds to
+inserting any number of <a href="#id9"><span class="problematic" id="id10">`</span></a>0`s in between the filter values, similar
+to performing the non-dilated filter convolution with a subsample
+version of the input across the spatial dimensions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An array containing the convolution result.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+<p>Format of <cite>input</cite>, <cite>filter</cite> and <cite>output</cite>:
+For example, to indicate dimension numbers consistent with the <cite>conv</cite> function
+with two spatial dimensions, one could use <cite>(‘NCHW’, ‘OIHW’, ‘NCHW’)</cite>. As
+another example, to indicate dimension numbers consistent with the TensorFlow
+Conv2D operation, one could use <cite>(‘NHWC’, ‘HWIO’, ‘NHWC’)</cite>. When using the
+latter form of convolution dimension specification, window strides are
+associated with spatial dimension character labels according to the order in
+which the labels appear in the <cite>rhs_spec</cite> string, so that <cite>window_strides[0]</cite>
+is matched with the dimension corresponding to the first character
+appearing in rhs_spec that is not <cite>‘I’</cite> or <cite>‘O’</cite>.
+:param filter_format:
+:param output_format:
+:param transpose_kernel:</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="initializers.html" class="btn btn-neutral float-right" title="symjax.nn.initializers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="random.html" class="btn btn-neutral float-left" title="symjax.tensor.random" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Randall Balestriero
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

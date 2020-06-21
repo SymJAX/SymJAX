@@ -3,7 +3,7 @@ import sys
 import jax.numpy as jnp
 import numpy
 
-from . import ops_numpy as T
+from .. import tensor as T
 from .base import jax_wrap
 import jax
 
@@ -87,7 +87,6 @@ def complex_morlet(bandwidths, centers, time=None):
     """
     if time is None:
         B = 6 * bandwidths.max() + 1
-        # , int(B.get()) // 2 + 1)
         time = T.linspace(-(B // 2), B // 2, int(T.get(B)))
     envelop = T.exp(- (time / bandwidths) ** 2)
     wave = T.exp(1j * centers * time)

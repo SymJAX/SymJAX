@@ -1,0 +1,825 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>symjax.tensor.signal &mdash; symjax  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="symjax.tensor.fft" href="fft.html" />
+    <link rel="prev" title="symjax.tensor.interpolation" href="interpolation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/symjax_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/developers.html">Development</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="symjax.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.data</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="interpolation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.interpolation</span></code></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#apodization-windows">Apodization Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#additional-time-frequency-representations">Additional Time-Frequency Representations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#detailed-descritpions">Detailed Descritpions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.fft</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.random</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="initializers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.initializers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="layers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.layers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimizers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.optimizers</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedules.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.schedules</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="losses.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.nn.losses</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="probabilities.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.probabilities</span></code></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">symjax</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/modules/signal.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="module-symjax.tensor.signal">
+<span id="id1"></span><span id="symjax-tensor-signal"></span><h1><a class="reference internal" href="#module-symjax.tensor.signal" title="symjax.tensor.signal"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.signal</span></code></a><a class="headerlink" href="#module-symjax.tensor.signal" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="apodization-windows">
+<h2>Apodization Windows<a class="headerlink" href="#apodization-windows" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.tensor.signal.blackman" title="symjax.tensor.signal.blackman"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.tensor.signal.blackman</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Return the Blackman window.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.tensor.signal.bartlett" title="symjax.tensor.signal.bartlett"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.tensor.signal.bartlett</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Return the Bartlett window.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.tensor.signal.hamming" title="symjax.tensor.signal.hamming"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.tensor.signal.hamming</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Return the Hamming window.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.tensor.signal.hanning" title="symjax.tensor.signal.hanning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.tensor.signal.hanning</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Return the Hanning window.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.tensor.signal.kaiser" title="symjax.tensor.signal.kaiser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.tensor.signal.kaiser</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Return the Kaiser window.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="additional-time-frequency-representations">
+<h2>Additional Time-Frequency Representations<a class="headerlink" href="#additional-time-frequency-representations" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.tensor.signal.mfcc" title="symjax.tensor.signal.mfcc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.tensor.signal.mfcc</span></code></a>(signal, window, …)</p></td>
+<td><p><a class="reference external" href="https://librosa.github.io/librosa/_modules/librosa/feature/spectral.html#mfcc">https://librosa.github.io/librosa/_modules/librosa/feature/spectral.html#mfcc</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.tensor.signal.dct" title="symjax.tensor.signal.dct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.tensor.signal.dct</span></code></a>(signal[, axes])</p></td>
+<td><p><a class="reference external" href="https://dsp.stackexchange.com/questions/2807/fast-cosine-transform-via-fft">https://dsp.stackexchange.com/questions/2807/fast-cosine-transform-via-fft</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#symjax.tensor.signal.wvd" title="symjax.tensor.signal.wvd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.tensor.signal.wvd</span></code></a>(signal, window, hop, L)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#symjax.tensor.signal.hilbert_transform" title="symjax.tensor.signal.hilbert_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symjax.tensor.signal.hilbert_transform</span></code></a>(signal)</p></td>
+<td><p>the time should be the last dimension return the analytical signal</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="detailed-descritpions">
+<h2>Detailed Descritpions<a class="headerlink" href="#detailed-descritpions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="symjax.tensor.signal.blackman">
+<code class="sig-name descname">blackman</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.blackman" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Blackman window.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.blackman" title="symjax.tensor.signal.blackman"><code class="xref py py-func docutils literal notranslate"><span class="pre">blackman()</span></code></a>.
+ADDITIONOriginal docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.blackman" title="symjax.tensor.signal.blackman"><code class="xref py py-func docutils literal notranslate"><span class="pre">blackman()</span></code></a>.
+Original docstring below.</p>
+<blockquote>
+<div><blockquote>
+<div><p>The Blackman window is a taper formed by using the first three
+terms of a summation of cosines. It was designed to have close to the
+minimal leakage possible.  It is close to optimal, only slightly worse
+than a Kaiser window.</p>
+</div></blockquote>
+<dl>
+<dt>Returns</dt><dd><dl class="simple">
+<dt>out<span class="classifier">ndarray</span></dt><dd><p>The window, with the maximum value normalized to one (the value one
+appears only if the number of samples is odd).</p>
+</dd>
+</dl>
+<p>bartlett, hamming, hanning, kaiser</p>
+<p>The Blackman window is defined as</p>
+<div class="math notranslate nohighlight">
+\[w(n) = 0.42 - 0.5 \cos(2\pi n/M) + 0.08 \cos(4\pi n/M)\]</div>
+<p>Most references to the Blackman window come from the signal processing
+literature, where it is used as one of many windowing functions for
+smoothing values.  It is also known as an apodization (which means
+“removing the foot”, i.e. smoothing discontinuities at the beginning
+and end of the sampled signal) or tapering function. It is known as a
+“near optimal” tapering function, almost as good (by some measures)
+as the kaiser window.</p>
+<p>Blackman, R.B. and Tukey, J.W., (1958) The measurement of power spectra,
+Dover Publications, New York.</p>
+<p>Oppenheim, A.V., and R.W. Schafer. Discrete-Time Signal Processing.
+Upper Saddle River, NJ: Prentice-Hall, 1999, pp. 468-471.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">blackman</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<span class="go">array([-1.38777878e-17,   3.26064346e-02,   1.59903635e-01, # may vary</span>
+<span class="go">        4.14397981e-01,   7.36045180e-01,   9.67046769e-01,</span>
+<span class="go">        9.67046769e-01,   7.36045180e-01,   4.14397981e-01,</span>
+<span class="go">        1.59903635e-01,   3.26064346e-02,  -1.38777878e-17])</span>
+</pre></div>
+</div>
+<p>Plot the window and the frequency response:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="k">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">blackman</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Blackman window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Blackman window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Amplitude&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Sample&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Sample&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="go">&lt;Figure size 640x480 with 0 Axes&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)</span> <span class="o">/</span> <span class="mf">25.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fftshift</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">response</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Frequency response of Blackman window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Frequency response of Blackman window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Magnitude [dB]&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Magnitude [dB]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Normalized frequency [cycles per sample]&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Normalized frequency [cycles per sample]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.signal.bartlett">
+<code class="sig-name descname">bartlett</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.bartlett" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Bartlett window.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.bartlett" title="symjax.tensor.signal.bartlett"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartlett()</span></code></a>.
+ADDITIONOriginal docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.bartlett" title="symjax.tensor.signal.bartlett"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartlett()</span></code></a>.
+Original docstring below.</p>
+<blockquote>
+<div><blockquote>
+<div><p>The Bartlett window is very similar to a triangular window, except
+that the end points are at zero.  It is often used in signal
+processing for tapering a signal, without generating too much
+ripple in the frequency domain.</p>
+</div></blockquote>
+<dl>
+<dt>Returns</dt><dd><dl class="simple">
+<dt>out<span class="classifier">array</span></dt><dd><p>The triangular window, with the maximum value normalized to one
+(the value one appears only if the number of samples is odd), with
+the first and last samples equal to zero.</p>
+</dd>
+</dl>
+<p>blackman, hamming, hanning, kaiser</p>
+<p>The Bartlett window is defined as</p>
+<div class="math notranslate nohighlight">
+\[w(n) = \frac{2}{M-1} \left(
+\frac{M-1}{2} - \left|n - \frac{M-1}{2}\right|
+\right)\]</div>
+<p>Most references to the Bartlett window come from the signal
+processing literature, where it is used as one of many windowing
+functions for smoothing values.  Note that convolution with this
+window produces linear interpolation.  It is also known as an
+apodization (which means”removing the foot”, i.e. smoothing
+discontinuities at the beginning and end of the sampled signal) or
+tapering function. The fourier transform of the Bartlett is the product
+of two sinc functions.
+Note the excellent discussion in Kanasewich.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets">1</span></dt>
+<dd><p>M.S. Bartlett, “Periodogram Analysis and Continuous Spectra”,
+Biometrika 37, 1-16, 1950.</p>
+</dd>
+<dt class="label" id="id3"><span class="brackets">2</span></dt>
+<dd><p>E.R. Kanasewich, “Time Sequence Analysis in Geophysics”,
+The University of Alberta Press, 1975, pp. 109-110.</p>
+</dd>
+<dt class="label" id="id4"><span class="brackets">3</span></dt>
+<dd><p>A.V. Oppenheim and R.W. Schafer, “Discrete-Time Signal
+Processing”, Prentice-Hall, 1999, pp. 468-471.</p>
+</dd>
+<dt class="label" id="id5"><span class="brackets">4</span></dt>
+<dd><p>Wikipedia, “Window function”,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Window_function">https://en.wikipedia.org/wiki/Window_function</a></p>
+</dd>
+<dt class="label" id="id6"><span class="brackets">5</span></dt>
+<dd><p>W.H. Press,  B.P. Flannery, S.A. Teukolsky, and W.T. Vetterling,
+“Numerical Recipes”, Cambridge University Press, 1986, page 429.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">bartlett</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<span class="go">array([ 0.        ,  0.18181818,  0.36363636,  0.54545455,  0.72727273, # may vary</span>
+<span class="go">        0.90909091,  0.90909091,  0.72727273,  0.54545455,  0.36363636,</span>
+<span class="go">        0.18181818,  0.        ])</span>
+</pre></div>
+</div>
+<p>Plot the window and its frequency response (requires SciPy and matplotlib):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="k">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bartlett</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Bartlett window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Bartlett window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Amplitude&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Sample&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Sample&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="go">&lt;Figure size 640x480 with 0 Axes&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)</span> <span class="o">/</span> <span class="mf">25.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fftshift</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">response</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Frequency response of Bartlett window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Frequency response of Bartlett window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Magnitude [dB]&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Magnitude [dB]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Normalized frequency [cycles per sample]&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Normalized frequency [cycles per sample]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.signal.hamming">
+<code class="sig-name descname">hamming</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.hamming" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Hamming window.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hamming" title="symjax.tensor.signal.hamming"><code class="xref py py-func docutils literal notranslate"><span class="pre">hamming()</span></code></a>.
+ADDITIONOriginal docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hamming" title="symjax.tensor.signal.hamming"><code class="xref py py-func docutils literal notranslate"><span class="pre">hamming()</span></code></a>.
+Original docstring below.</p>
+<blockquote>
+<div><blockquote>
+<div><p>The Hamming window is a taper formed by using a weighted cosine.</p>
+</div></blockquote>
+<dl>
+<dt>Returns</dt><dd><dl class="simple">
+<dt>out<span class="classifier">ndarray</span></dt><dd><p>The window, with the maximum value normalized to one (the value
+one appears only if the number of samples is odd).</p>
+</dd>
+</dl>
+<p>bartlett, blackman, hanning, kaiser</p>
+<p>The Hamming window is defined as</p>
+<div class="math notranslate nohighlight">
+\[w(n) = 0.54 - 0.46cos\left(\frac{2\pi{n}}{M-1}\right)
+\qquad 0 \leq n \leq M-1\]</div>
+<p>The Hamming was named for R. W. Hamming, an associate of J. W. Tukey
+and is described in Blackman and Tukey. It was recommended for
+smoothing the truncated autocovariance function in the time domain.
+Most references to the Hamming window come from the signal processing
+literature, where it is used as one of many windowing functions for
+smoothing values.  It is also known as an apodization (which means
+“removing the foot”, i.e. smoothing discontinuities at the beginning
+and end of the sampled signal) or tapering function.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id7"><span class="brackets">1</span></dt>
+<dd><p>Blackman, R.B. and Tukey, J.W., (1958) The measurement of power
+spectra, Dover Publications, New York.</p>
+</dd>
+<dt class="label" id="id8"><span class="brackets">2</span></dt>
+<dd><p>E.R. Kanasewich, “Time Sequence Analysis in Geophysics”, The
+University of Alberta Press, 1975, pp. 109-110.</p>
+</dd>
+<dt class="label" id="id9"><span class="brackets">3</span></dt>
+<dd><p>Wikipedia, “Window function”,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Window_function">https://en.wikipedia.org/wiki/Window_function</a></p>
+</dd>
+<dt class="label" id="id10"><span class="brackets">4</span></dt>
+<dd><p>W.H. Press,  B.P. Flannery, S.A. Teukolsky, and W.T. Vetterling,
+“Numerical Recipes”, Cambridge University Press, 1986, page 425.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">hamming</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<span class="go">array([ 0.08      ,  0.15302337,  0.34890909,  0.60546483,  0.84123594, # may vary</span>
+<span class="go">        0.98136677,  0.98136677,  0.84123594,  0.60546483,  0.34890909,</span>
+<span class="go">        0.15302337,  0.08      ])</span>
+</pre></div>
+</div>
+<p>Plot the window and the frequency response:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="k">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hamming</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Hamming window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Hamming window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Amplitude&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Sample&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Sample&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="go">&lt;Figure size 640x480 with 0 Axes&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)</span> <span class="o">/</span> <span class="mf">25.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fftshift</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Frequency response of Hamming window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Frequency response of Hamming window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Magnitude [dB]&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Magnitude [dB]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Normalized frequency [cycles per sample]&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Normalized frequency [cycles per sample]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.signal.hanning">
+<code class="sig-name descname">hanning</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.hanning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Hanning window.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hanning" title="symjax.tensor.signal.hanning"><code class="xref py py-func docutils literal notranslate"><span class="pre">hanning()</span></code></a>.
+ADDITIONOriginal docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.hanning" title="symjax.tensor.signal.hanning"><code class="xref py py-func docutils literal notranslate"><span class="pre">hanning()</span></code></a>.
+Original docstring below.</p>
+<blockquote>
+<div><blockquote>
+<div><p>The Hanning window is a taper formed by using a weighted cosine.</p>
+</div></blockquote>
+<dl>
+<dt>Returns</dt><dd><dl class="simple">
+<dt>out<span class="classifier">ndarray, shape(M,)</span></dt><dd><p>The window, with the maximum value normalized to one (the value
+one appears only if <cite>M</cite> is odd).</p>
+</dd>
+</dl>
+<p>bartlett, blackman, hamming, kaiser</p>
+<p>The Hanning window is defined as</p>
+<div class="math notranslate nohighlight">
+\[w(n) = 0.5 - 0.5cos\left(\frac{2\pi{n}}{M-1}\right)
+\qquad 0 \leq n \leq M-1\]</div>
+<p>The Hanning was named for Julius von Hann, an Austrian meteorologist.
+It is also known as the Cosine Bell. Some authors prefer that it be
+called a Hann window, to help avoid confusion with the very similar
+Hamming window.</p>
+<p>Most references to the Hanning window come from the signal processing
+literature, where it is used as one of many windowing functions for
+smoothing values.  It is also known as an apodization (which means
+“removing the foot”, i.e. smoothing discontinuities at the beginning
+and end of the sampled signal) or tapering function.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id11"><span class="brackets">1</span></dt>
+<dd><p>Blackman, R.B. and Tukey, J.W., (1958) The measurement of power
+spectra, Dover Publications, New York.</p>
+</dd>
+<dt class="label" id="id12"><span class="brackets">2</span></dt>
+<dd><p>E.R. Kanasewich, “Time Sequence Analysis in Geophysics”,
+The University of Alberta Press, 1975, pp. 106-108.</p>
+</dd>
+<dt class="label" id="id13"><span class="brackets">3</span></dt>
+<dd><p>Wikipedia, “Window function”,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Window_function">https://en.wikipedia.org/wiki/Window_function</a></p>
+</dd>
+<dt class="label" id="id14"><span class="brackets">4</span></dt>
+<dd><p>W.H. Press,  B.P. Flannery, S.A. Teukolsky, and W.T. Vetterling,
+“Numerical Recipes”, Cambridge University Press, 1986, page 425.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">hanning</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<span class="go">array([0.        , 0.07937323, 0.29229249, 0.57115742, 0.82743037,</span>
+<span class="go">       0.97974649, 0.97974649, 0.82743037, 0.57115742, 0.29229249,</span>
+<span class="go">       0.07937323, 0.        ])</span>
+</pre></div>
+</div>
+<p>Plot the window and its frequency response:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="k">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hanning</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Hann window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Hann window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Amplitude&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Sample&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Sample&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="go">&lt;Figure size 640x480 with 0 Axes&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)</span> <span class="o">/</span> <span class="mf">25.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fftshift</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">response</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Frequency response of the Hann window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Frequency response of the Hann window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Magnitude [dB]&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Magnitude [dB]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Normalized frequency [cycles per sample]&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Normalized frequency [cycles per sample]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.signal.kaiser">
+<code class="sig-name descname">kaiser</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.signal.kaiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Kaiser window.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.kaiser" title="symjax.tensor.signal.kaiser"><code class="xref py py-func docutils literal notranslate"><span class="pre">kaiser()</span></code></a>.
+ADDITIONOriginal docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signal.kaiser" title="symjax.tensor.signal.kaiser"><code class="xref py py-func docutils literal notranslate"><span class="pre">kaiser()</span></code></a>.
+Original docstring below.</p>
+<blockquote>
+<div><blockquote>
+<div><p>The Kaiser window is a taper formed by using a Bessel function.</p>
+</div></blockquote>
+<dl>
+<dt>Returns</dt><dd><dl class="simple">
+<dt>out<span class="classifier">array</span></dt><dd><p>The window, with the maximum value normalized to one (the value
+one appears only if the number of samples is odd).</p>
+</dd>
+</dl>
+<p>bartlett, blackman, hamming, hanning</p>
+<p>The Kaiser window is defined as</p>
+<div class="math notranslate nohighlight">
+\[w(n) = I_0\left( \beta \sqrt{1-\frac{4n^2}{(M-1)^2}}
+\right)/I_0(\beta)\]</div>
+<p>with</p>
+<div class="math notranslate nohighlight">
+\[\quad -\frac{M-1}{2} \leq n \leq \frac{M-1}{2},\]</div>
+<p>where <span class="math notranslate nohighlight">\(I_0\)</span> is the modified zeroth-order Bessel function.</p>
+<p>The Kaiser was named for Jim Kaiser, who discovered a simple
+approximation to the DPSS window based on Bessel functions.  The Kaiser
+window is a very good approximation to the Digital Prolate Spheroidal
+Sequence, or Slepian window, which is the transform which maximizes the
+energy in the main lobe of the window relative to total energy.</p>
+<p>The Kaiser can approximate many other windows by varying the beta
+parameter.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 85%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>beta</p></th>
+<th class="head"><p>Window shape</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>Rectangular</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>Similar to a Hamming</p></td>
+</tr>
+<tr class="row-even"><td><p>6</p></td>
+<td><p>Similar to a Hanning</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.6</p></td>
+<td><p>Similar to a Blackman</p></td>
+</tr>
+</tbody>
+</table>
+<p>A beta value of 14 is probably a good starting point. Note that as beta
+gets large, the window narrows, and so the number of samples needs to be
+large enough to sample the increasingly narrow spike, otherwise NaNs will
+get returned.</p>
+<p>Most references to the Kaiser window come from the signal processing
+literature, where it is used as one of many windowing functions for
+smoothing values.  It is also known as an apodization (which means
+“removing the foot”, i.e. smoothing discontinuities at the beginning
+and end of the sampled signal) or tapering function.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id15"><span class="brackets">1</span></dt>
+<dd><p>J. F. Kaiser, “Digital Filters” - Ch 7 in “Systems analysis by
+digital computer”, Editors: F.F. Kuo and J.F. Kaiser, p 218-285.
+John Wiley and Sons, New York, (1966).</p>
+</dd>
+<dt class="label" id="id16"><span class="brackets">2</span></dt>
+<dd><p>E.R. Kanasewich, “Time Sequence Analysis in Geophysics”, The
+University of Alberta Press, 1975, pp. 177-178.</p>
+</dd>
+<dt class="label" id="id17"><span class="brackets">3</span></dt>
+<dd><p>Wikipedia, “Window function”,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Window_function">https://en.wikipedia.org/wiki/Window_function</a></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">kaiser</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
+<span class="go"> array([7.72686684e-06, 3.46009194e-03, 4.65200189e-02, # may vary</span>
+<span class="go">        2.29737120e-01, 5.99885316e-01, 9.45674898e-01,</span>
+<span class="go">        9.45674898e-01, 5.99885316e-01, 2.29737120e-01,</span>
+<span class="go">        4.65200189e-02, 3.46009194e-03, 7.72686684e-06])</span>
+</pre></div>
+</div>
+<p>Plot the window and the frequency response:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="k">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kaiser</span><span class="p">(</span><span class="mi">51</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Kaiser window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Kaiser window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Amplitude&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Sample&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Sample&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="go">&lt;Figure size 640x480 with 0 Axes&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)</span> <span class="o">/</span> <span class="mf">25.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fftshift</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+<span class="go">[&lt;matplotlib.lines.Line2D object at 0x...&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Frequency response of Kaiser window&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 1.0, &#39;Frequency response of Kaiser window&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Magnitude [dB]&quot;</span><span class="p">)</span>
+<span class="go">Text(0, 0.5, &#39;Magnitude [dB]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Normalized frequency [cycles per sample]&quot;</span><span class="p">)</span>
+<span class="go">Text(0.5, 0, &#39;Normalized frequency [cycles per sample]&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="go">(-0.5, 0.5, -100.0, ...) # may vary</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.signal.mfcc">
+<code class="sig-name descname">mfcc</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">window</em>, <em class="sig-param">hop</em>, <em class="sig-param">n_filter</em>, <em class="sig-param">low_freq</em>, <em class="sig-param">high_freq</em>, <em class="sig-param">nyquist</em>, <em class="sig-param">n_mfcc</em>, <em class="sig-param">nfft=None</em>, <em class="sig-param">mode='valid'</em>, <em class="sig-param">apod=&lt;function _wrap_numpy_nullary_function.&lt;locals&gt;.wrapper&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#mfcc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.mfcc" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://librosa.github.io/librosa/_modules/librosa/feature/spectral.html#mfcc">https://librosa.github.io/librosa/_modules/librosa/feature/spectral.html#mfcc</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.signal.dct">
+<code class="sig-name descname">dct</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">axes=(-1</em>, <em class="sig-param">)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#dct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.dct" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://dsp.stackexchange.com/questions/2807/fast-cosine-transform-via-fft">https://dsp.stackexchange.com/questions/2807/fast-cosine-transform-via-fft</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.signal.wvd">
+<code class="sig-name descname">wvd</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">window</em>, <em class="sig-param">hop</em>, <em class="sig-param">L</em>, <em class="sig-param">apod=&lt;function _wrap_numpy_nullary_function.&lt;locals&gt;.wrapper&gt;</em>, <em class="sig-param">mode='valid'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#wvd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.wvd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.signal.hilbert_transform">
+<code class="sig-name descname">hilbert_transform</code><span class="sig-paren">(</span><em class="sig-param">signal</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/signal.html#hilbert_transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.signal.hilbert_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>the time should be the last dimension
+return the analytical signal</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="fft.html" class="btn btn-neutral float-right" title="symjax.tensor.fft" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="interpolation.html" class="btn btn-neutral float-left" title="symjax.tensor.interpolation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Randall Balestriero
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
