@@ -24,7 +24,6 @@ class Graph:
     """Graph."""
 
     def __init__(self, name, seed=None):
-
         """Constructor."""
 
         self.name = name
@@ -51,24 +50,23 @@ class Graph:
             [(v.name, symjax.tensor.get(v)) for v in self.variables]))
 
     @property
-    def variables(self):
+    def get_variables(self):
         return get_variables(self.full_name + '*')
 
-    def variable(self, name):
+    # def variable(self, name):
 
-        # check if the name for given relative or full
-        if '/' not in name:
-            full_name = self.full_name + name
-        else:
-            full_name = name
+    #     # check if the name for given relative or full
+    #     if '/' not in name:
+    #         full_name = self.full_name + name
+    #     else:
+    #         full_name = name
 
-        if full_name in symjax._variables:
-            return symjax._variables[full_name]
-        else:
-            RuntimeError('Variable {name} not in graph {self.full_name}')
+    #     if full_name in symjax._variables:
+    #         return symjax._variables[full_name]
+    #     else:
+    #         RuntimeError('Variable {name} not in graph {self.full_name}')
 
     def load_variables(self, path):
-
         """Load graph."""
 
         data = numpy.load(path)
@@ -85,6 +83,11 @@ class Graph:
         # fake graph entrance if not used by user
         if self.full_name is None:
             self.__enter__()
+
+        # in this case we were given updates
+        if type(tensor) == dict:
+            symjax._updates.update(tensor)
+            return
 
         tensor.scope = self.full_name
         name = self.full_name + tensor.name
@@ -107,6 +110,7 @@ class Graph:
                 break
         names[name + '_' + str(count)] = tensor
         tensor._set_name(tensor.name + '_' + str(count))
+
 
 
 def reset_variables(name='*', trainable=None):
@@ -190,7 +194,7 @@ def load_variables(name, path_or_file, scope_mapping=None):
     for name in matched:
         if symjax._variables[name].scope in scope_mapping:
             name_in_file = scope_mapping[symjax._variables[name].scope] + '/' + \
-                           symjax._variables[name].name
+                symjax._variables[name].name
         else:
             name_in_file = name
         if name_in_file not in data:
@@ -198,7 +202,7 @@ def load_variables(name, path_or_file, scope_mapping=None):
         symjax._variables[name].update(data[name_in_file])
 
 
-def get_variables(name, trainable=None):
+def get_variables(name='*', trainable=None):
     matched = fnmatch.filter(symjax._variables.keys(), name)
     if trainable is not None:
         assert type(trainable) == bool
@@ -207,7 +211,7 @@ def get_variables(name, trainable=None):
     return [symjax._variables[m] for m in matched]
 
 
-def get_placeholders(name):
+def get_placeholders(name='*'):
     """
     Same as symjax.variable but for placeholders
     """
@@ -216,7 +220,7 @@ def get_placeholders(name):
     return [symjax._placeholders[m] for m in matched]
 
 
-def get_ops(name):
+def get_ops(name='*'):
     """
     Same as symjax.variable but for ops
     """
@@ -225,13 +229,20 @@ def get_ops(name):
     return [symjax._ops[m] for m in matched]
 
 
-def get_updates(name):
+def add_updates(udpates):
+    current_graph().add_updates(updates)
+
+
+def get_updates(name='*'):
     """
     Same as symjax.get_variables but for updates
     """
-
-    matched = fnmatch.filter(symjax._updates.keys(), name)
-    return [symjax._ops[m] for m in matched]
+    sub = {}
+    for v in symjax._updates:
+        matched = fnmatch.filter([v.name], name)
+        if len(matched):
+            sub[v] = symjax._updates[v]
+    return sub
 
 
 def gradients(scalar, variables):
@@ -493,7 +504,7 @@ class function:
         # as inputs to not be treated as constants by jax.
         # we also remove update keys because we will expicitly feed them
         self.extra_inputs = set(self.all_roots) \
-                            - (set(self.classargs).union(self.updates_keys))
+            - (set(self.classargs).union(self.updates_keys))
         self.extra_inputs = list(self.extra_inputs)
         allargs = list(self.classargs) + self.updates_keys + self.extra_inputs
 
@@ -558,7 +569,8 @@ class function:
         if rng is None:
             rng = random._seed
             random._seed += 1
-        pargs = [numpy.array(arg) if type(arg) == list else arg for arg in args]
+        pargs = [numpy.array(arg) if type(
+            arg) == list else arg for arg in args]
         outputs = self.meta(*pargs, rng=rng)
         if type(outputs) == list:
             if len(outputs) == 0:

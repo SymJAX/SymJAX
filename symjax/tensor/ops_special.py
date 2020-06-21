@@ -147,4 +147,6 @@ _NAMES = [c[0] for c in inspect.getmembers(
 
 
 for name in _NAMES:
-    module.__dict__.update({name: jax_wrap(jnp.__dict__[name])})
+    if name[0] == '_':
+        continue
+    module.__dict__.update({name: jax_wrap(jax.scipy.special.__dict__[name])})

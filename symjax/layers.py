@@ -1,6 +1,7 @@
 from symjax.tensor import ops_methods
 from symjax import tensor as T
 from symjax import initializers
+import symjax
 #from symjax import get_graph
 import numpy
 import inspect
@@ -34,16 +35,6 @@ def forward(input, layers):
     for layer in layers[1:]:
         outputs.append(layer.forward(outputs[-1]))
     return outputs
-
-def get_variables(layers, trainable=True):
-    return sum([l.variables(trainable) for l in layers if hasattr(l, 'variables')], [])
-
-def get_updates(layers):
-    updates = dict()
-    for l in layers:
-        if hasattr(l, 'updates'):
-            updates.update(l.updates)
-    return updates
 
 
 class Layer(T.Tensor):
@@ -94,7 +85,6 @@ class Layer(T.Tensor):
             self.__dict__[name] = T.Variable(t, name=name, trainable=True)
             self.add_variable(self.__dict__[name])
 
-
     @property
     def updates(self):
         if not hasattr(self, '_updates'):
@@ -102,9 +92,7 @@ class Layer(T.Tensor):
         return self._updates
 
     def add_update(self, update):
-        self._updates.update(update)
-#        if get_graph() is not None:
-#            get_graph().updates.update(update)
+        symjax.current_graph().add(update)
 
     def add_variable(self, variable):
         if not hasattr(self, '_variables'):
@@ -117,6 +105,7 @@ class Layer(T.Tensor):
 
 class Identity(Layer):
     name = 'Identity'
+
     def __init__(self, input_or_shape):
 
         self.init_input(input_or_shape)
@@ -128,6 +117,7 @@ class Identity(Layer):
 
 class Upsample1D(Layer):
     name = 'Upsample1D'
+
     def __init__(self, input_or_shape, repeat, axis=-1, mode='constant',
                  value=0.):
 
@@ -145,6 +135,7 @@ class Upsample1D(Layer):
 
 class Upsample2D(Layer):
     name = 'Upsample2D'
+
     def __init__(self, input_or_shape, repeat, axis, mode='constant',
                  value=0.):
 
@@ -157,14 +148,15 @@ class Upsample2D(Layer):
 
     def forward(self, input):
         p1 = T.upsample_1d(input, repeat=self.repeat[0], axis=self.axis[0],
-                             mode=self.mode, value=self.value)
+                           mode=self.mode, value=self.value)
         p2 = T.upsample_1d(p1, repeat=self.repeat[1], axis=self.axis[1],
-                             mode=self.mode, value=self.value)
+                           mode=self.mode, value=self.value)
         return p2
 
 
 class Reshape(Layer):
     name = 'Reshape'
+
     def __init__(self, input_or_shape, shape):
 
         self.init_input(input_or_shape)
@@ -177,6 +169,7 @@ class Reshape(Layer):
 
 class Upsample(Layer):
     name = 'Upsample'
+
     def __init__(self, input_or_shape, factors):
 
         self.init_input(input_or_shape)
@@ -194,6 +187,7 @@ class Lambda(Layer):
     applies a function (such as activation function) onto the input.
     """
     name = 'Lambda'
+
     def __init__(self, input_or_shape, fn):
 
         self.init_input(input_or_shape)
@@ -211,13 +205,14 @@ class Dense(Layer):
     input
     """
     name = 'Dense'
+
     def __init__(self, input_or_shape, units, W=initializers.he,
                  b=numpy.zeros, trainable_W=True, trainable_b=True):
 
         self.init_input(input_or_shape)
 
         self.create_variable('W', W, (numpy.prod(self.input.shape[1:]), units),
-                            trainable=trainable_W)
+                             trainable=trainable_W)
         self.create_variable('b', b, (units,), trainable=trainable_b)
 
         super().__init__(self.forward(self.input))
@@ -237,6 +232,7 @@ class Conv1D(Layer):
 
     """
     name = 'Conv1D'
+
     def __init__(self, input_or_shape, n_filters, filter_length,
                  W=initializers.he, b=numpy.zeros,
                  stride=1, pad='VALID', trainable_W=True, trainable_b=True,
@@ -251,7 +247,7 @@ class Conv1D(Layer):
         self.pad = pad
 
         self.create_variable('W', W, (n_filters, self.input.shape[1],
-                                   filter_length), trainable=trainable_W)
+                                      filter_length), trainable=trainable_W)
         self.create_variable('b', b, (n_filters,), trainable=trainable_b)
 
         super().__init__(self.forward(self.input))
@@ -271,6 +267,7 @@ class Conv2DTranspose(Layer):
 
     """
     name = 'Conv2DTranspose'
+
     def __init__(self, input_or_shape, n_filters, filter_shape, pad='VALID',
                  strides=1, W=initializers.he, b=numpy.zeros,
                  trainable_W=True, trainable_b=True, transpose_W=True,
@@ -283,19 +280,19 @@ class Conv2DTranspose(Layer):
         self.pad = pad
 
         self.create_variable('W', W,
-                        (self.input.shape[1], n_filters) + tuple(filter_shape),
-                            trainable=trainable_W)
+                             (self.input.shape[1], n_filters) +
+                             tuple(filter_shape),
+                             trainable=trainable_W)
         self.create_variable('b', b, (n_filters,), trainable=trainable_b)
 
         super().__init__(self.forward(self.input))
 
     def forward(self, input):
         conv = T.convNd_transpose(input, self.W, strides=self.strides, padding=self.pad,
-                        transpose_kernel=self.transpose_W,
-                        filter_dilation=self.filter_dilation)
+                                  transpose_kernel=self.transpose_W,
+                                  filter_dilation=self.filter_dilation)
 
         return conv + self.b.reshape((-1, 1, 1))
-
 
 
 class Conv2D(Layer):
@@ -303,6 +300,7 @@ class Conv2D(Layer):
 
     """
     name = 'Conv2D'
+
     def __init__(self, input_or_shape, n_filters, filter_shape, pad='VALID',
                  strides=1, W=initializers.he, b=numpy.zeros,
                  trainable_W=True, trainable_b=True,
@@ -315,8 +313,9 @@ class Conv2D(Layer):
         self.pad = pad
 
         self.create_variable('W', W,
-                        (n_filters, self.input.shape[1]) + tuple(filter_shape),
-                            trainable=trainable_W)
+                             (n_filters,
+                              self.input.shape[1]) + tuple(filter_shape),
+                             trainable=trainable_W)
         self.create_variable('b', b, (n_filters,), trainable=trainable_b)
 
         super().__init__(self.forward(self.input))
@@ -336,6 +335,7 @@ class Pool1D(Layer):
 
     """
     name = 'Pool1D'
+
     def __init__(self, input_or_shape, pool_shape, pool_type='MAX',
                  strides=None):
 
@@ -359,6 +359,7 @@ class Pool2D(Layer):
 
     """
     name = 'Pool2D'
+
     def __init__(self, input_or_shape, pool_shape, pool_type='MAX',
                  strides=None):
 
@@ -406,6 +407,7 @@ class Dropout(Layer):
 
     """
     name = 'Dropout'
+
     def __init__(self, input_or_shape, p, deterministic, seed=None):
 
         self.init_input(input_or_shape)
@@ -457,6 +459,7 @@ class RandomFlip(Layer):
     output: the output tensor which containts the internal variables
     """
     name = 'RandomFlip'
+
     def __init__(self, input_or_shape, p, axis, deterministic, seed=None):
 
         self.init_input(input_or_shape)
@@ -517,6 +520,7 @@ class RandomCrop(Layer):
 
     """
     name = 'RandomCrop'
+
     def __init__(self, input_or_shape, crop_shape, deterministic, padding=0,                 seed=None):
 
         self.init_input(input_or_shape)
@@ -542,11 +546,12 @@ class RandomCrop(Layer):
             assert maxval >= 0
             self.start_indices.append(
                 T.random.randint(minval=0, maxval=maxval,
-                    shape=(self.input.shape[0],1),
-                    dtype='int32',
-                    seed=seed + i if seed is not None else seed))
+                                 shape=(self.input.shape[0], 1),
+                                 dtype='int32',
+                                 seed=seed + i if seed is not None else seed))
 
-            self.fixed_indices.append(T.ones((self.input.shape[0],1), 'int32') * (maxval//2))
+            self.fixed_indices.append(
+                T.ones((self.input.shape[0], 1), 'int32') * (maxval//2))
         self.start_indices = T.concatenate(self.start_indices, 1)
         self.fixed_indices = T.concatenate(self.fixed_indices, 1)
 
@@ -559,7 +564,7 @@ class RandomCrop(Layer):
         dirac = T.cast(deterministic, 'float32')
 
         # pad the input
-        pinput = T.pad(input, [(0,0)] + self.pad_shape)
+        pinput = T.pad(input, [(0, 0)] + self.pad_shape)
 
         routput = T.stack(
             [
@@ -578,8 +583,7 @@ class RandomCrop(Layer):
                     self.input.shape[0])],
             0)
 
-
-        return doutput * dirac +  (1 - dirac) * routput
+        return doutput * dirac + (1 - dirac) * routput
 
 
 class BatchNormalization(Layer):
@@ -619,6 +623,7 @@ class BatchNormalization(Layer):
 
     """
     name = 'BatchNormalization'
+
     def __init__(self, input_or_shape, axis, deterministic, const=0.001,
                  beta1=0.99, beta2=0.99, W=numpy.ones, b=numpy.zeros,
                  trainable_W=True, trainable_b=True):

@@ -14,7 +14,8 @@ from .base import (
     load_variables,
     get_variables,
     get_placeholders,
-    get_ops)
+    get_ops,
+    get_updates)
 
 from . import data
 from . import tensor
