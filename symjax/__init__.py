@@ -3,14 +3,6 @@
 # flake8: noqa
 
 
-__all__ = ["data",
-           "tensor",
-           "losses",
-           "initializers",
-           "layers",
-           "optimizers",
-           "schedules"]
-
 from .base import (
     current_graph,
     Graph,
@@ -23,6 +15,14 @@ from .base import (
     get_variables,
     get_placeholders,
     get_ops)
+
+from . import data
+from . import tensor
+from . import losses
+from . import initializers
+from . import layers
+from . import optimizers
+from . import schedules
 
 _current_scope = '/'
 _current_graph = [Graph('')]
