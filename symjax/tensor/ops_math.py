@@ -138,10 +138,10 @@ stop_gradient = jax_wrap(jla.stop_gradient)
 dynamic_slice_in_dim = jax_wrap(jla.dynamic_slice_in_dim)
 dynamic_slice = jax_wrap(jla.dynamic_slice)
 index = jax.ops.index
-
-
-def logsumexp(x, axis):
-    x_max = module.__dict__['stop_gradient'](x.max(axis, keepdims=True))
-    return module.__dict__['log'](
-        (module.__dict__['exp'](x - x_max)).sum(axis)) + \
-        module.__dict__['squeeze'](x_max)
+logsumexp = jax_wrap(jax.scipy.special.logsumexp)
+#
+# def logsumexp(x, axis):
+#    x_max = module.__dict__['stop_gradient'](x.max(axis, keepdims=True))
+#    return module.__dict__['log'](
+#        (module.__dict__['exp'](x - x_max)).sum(axis)) + \
+#        module.__dict__['squeeze'](x_max)
