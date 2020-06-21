@@ -3,7 +3,7 @@ import sys
 import jax.numpy as jnp
 import numpy
 
-import symjax.tensor.ops_numpy as T
+from . import ops_numpy as T
 from .base import jax_wrap
 import jax
 

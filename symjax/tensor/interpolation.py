@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import numpy as np
 
-import symjax.tensor as T
+
+import numpy as np
+from . import ops_numpy as T
 
 __author__ = "Randall Balestriero"
 
@@ -70,14 +71,14 @@ def upsample_1d(tensor, repeat, axis=-1, mode='constant', value=0.,
         augmented_tensor = T.expand_dims(tensor, axis + 1)
         if boundary_condition == 'periodic':
             interpolated = augmented_tensor * (1 - coefficients) \
-                           + T.roll(augmented_tensor, -1, axis) * coefficients
+                + T.roll(augmented_tensor, -1, axis) * coefficients
         elif boundary_condition == 'mirror':
             assert axis == tensor.ndim - 1
             other = T.index_update(T.roll(augmented_tensor, -1, axis),
                                    T.index[..., -1, :],
                                    augmented_tensor[..., -2, :])
             interpolated = augmented_tensor * (1 - coefficients) \
-                           + other * coefficients
+                + other * coefficients
 
         tensor_aug = T.concatenate([augmented_tensor, interpolated], axis + 1)
 
