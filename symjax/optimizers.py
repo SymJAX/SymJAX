@@ -216,5 +216,6 @@ class Adam(Optimizer):
 
         self.variables = variables
         self.updates = updates
-#        if get_graph() is not None:
-#            get_graph().updates.update(updates)
+
+        symjax.current_graph().add(updates)
+
