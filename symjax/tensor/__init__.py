@@ -20,7 +20,7 @@ from .control_flow import (map,
                            while_loop)
 
 from .ops_numpy import *
-from .ops_math import *
+from .ops_special import *
 from .ops_nn import *
 
 from . import random

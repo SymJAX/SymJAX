@@ -19,7 +19,7 @@ def log_1_minus_sigmoid(x):
     return - module.__dict__['softplus'](x)
 
 
-# conv
+
 
 
 conv_general_dilated = jax_wrap(jla.conv_general_dilated)

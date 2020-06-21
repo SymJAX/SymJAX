@@ -5,6 +5,8 @@ import numpy
 
 import symjax.tensor.ops_numpy as T
 from .base import jax_wrap
+import jax
+
 
 # Add the apodization windows
 
@@ -24,6 +26,10 @@ names = ['fft', 'ifft', 'fft2', 'ifft2', 'fftn', 'ifftn', 'rfft', 'irfft',
          'rfft2', 'irfft2', 'rfftn', 'irfftn', 'fftfreq', 'rfftfreq',
          'ifftshift',
          'fftshift']
+
+for name in ['convolve', 'convolve2d', 'correlate', 'correlate2d']:
+    module.__dict__.update({name: jax_wrap(jax.scipy.signal.__dict__[name])})
+
 
 for name in names:
     module.__dict__.update({name: jax_wrap(jnp.fft.__dict__[name])})
@@ -141,7 +147,7 @@ def tukey(M, alpha=0.5):
     w1 = 0.5 * (1 + T.cos(numpy.pi * (-1 + 2.0 * n1 / alpha / (M - 1))))
     w2 = T.ones(n2.shape)
     w3 = 0.5 * \
-         (1 + T.cos(numpy.pi * (-2.0 / alpha + 1 + 2.0 * n3 / alpha / (M - 1))))
+        (1 + T.cos(numpy.pi * (-2.0 / alpha + 1 + 2.0 * n3 / alpha / (M - 1))))
 
     w = T.concatenate((w1, w2, w3))
 
