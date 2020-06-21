@@ -3,6 +3,7 @@
 
 from .base import function
 from . import tensor
+import numpy
 
 
 class Schedule:
