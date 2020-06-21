@@ -16,39 +16,20 @@ CIFAR10 Dataset
 This example shows how to download/load/import CIFAR10
 
 
+
+.. image:: /auto_examples/02_datasets/images/sphx_glr_plot_cifar10_001.svg
+    :alt: 6:frog, 9:truck, 9:truck, 4:deer, 1:automobile, 1:automobile, 2:bird, 7:horse, 8:sheep, 3:cat
+    :class: sphx-glr-single-img
+
+
 .. rst-class:: sphx-glr-script-out
 
+ Out:
 
-.. code-block:: pytb
+ .. code-block:: none
 
-    Traceback (most recent call last):
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/sphinx_gallery/gen_gallery.py", line 159, in call_memory
-        return 0., func()
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/sphinx_gallery/gen_rst.py", line 466, in __call__
-        exec(self.code, self.fake_main.__dict__)
-      File "/home/vrael/SymJAX/gallery/02_datasets/plot_cifar10.py", line 16, in <module>
-        cifar10 = symjax.data.cifar10.load()
-      File "/home/vrael/SymJAX/symjax/data/cifar10.py", line 99, in load
-        'cifar-10-batches-py/data_batch_' + str(k)).read()
-      File "/home/vrael/anaconda3/lib/python3.7/tarfile.py", line 2068, in extractfile
-        tarinfo = self.getmember(member)
-      File "/home/vrael/anaconda3/lib/python3.7/tarfile.py", line 1752, in getmember
-        tarinfo = self._getmember(name)
-      File "/home/vrael/anaconda3/lib/python3.7/tarfile.py", line 2327, in _getmember
-        members = self.getmembers()
-      File "/home/vrael/anaconda3/lib/python3.7/tarfile.py", line 1763, in getmembers
-        self._load()        # all members, we first have to
-      File "/home/vrael/anaconda3/lib/python3.7/tarfile.py", line 2350, in _load
-        tarinfo = self.next()
-      File "/home/vrael/anaconda3/lib/python3.7/tarfile.py", line 2281, in next
-        self.fileobj.seek(self.offset - 1)
-      File "/home/vrael/anaconda3/lib/python3.7/gzip.py", line 368, in seek
-        return self._buffer.seek(offset, whence)
-      File "/home/vrael/anaconda3/lib/python3.7/_compression.py", line 143, in seek
-        data = self.read(min(io.DEFAULT_BUFFER_SIZE, offset))
-      File "/home/vrael/anaconda3/lib/python3.7/gzip.py", line 482, in read
-        raise EOFError("Compressed file ended before the "
-    EOFError: Compressed file ended before the end-of-stream marker was reached
+    Loading cifar10:   0%|          | 0/5 [00:00<?, ?it/s]    Loading cifar10:  20%|##        | 1/5 [00:01<00:07,  1.97s/it]    Loading cifar10:  40%|####      | 2/5 [00:02<00:04,  1.58s/it]    Loading cifar10:  60%|######    | 3/5 [00:03<00:02,  1.25s/it]    Loading cifar10:  80%|########  | 4/5 [00:03<00:00,  1.08it/s]    Loading cifar10: 100%|##########| 5/5 [00:03<00:00,  1.19it/s]    Loading cifar10: 100%|##########| 5/5 [00:03<00:00,  1.27it/s]
+    Dataset cifar10 loaded in4.37s.
 
 
 
@@ -86,7 +67,7 @@ This example shows how to download/load/import CIFAR10
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.295 seconds)
+   **Total running time of the script:** ( 0 minutes  4.664 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_datasets_plot_cifar10.py:

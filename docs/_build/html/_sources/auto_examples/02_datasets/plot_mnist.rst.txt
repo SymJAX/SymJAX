@@ -28,10 +28,8 @@ This example shows how to download/load/import MNIST
 
  .. code-block:: none
 
-    Creating mnist Directory
-    Creating mnist
     Loading mnist
-    Dataset mnist loaded in 0.70s.
+    Dataset mnist loaded in 0.61s.
 
 
 
@@ -63,7 +61,7 @@ This example shows how to download/load/import MNIST
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  5.004 seconds)
+   **Total running time of the script:** ( 0 minutes  0.773 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_datasets_plot_mnist.py:

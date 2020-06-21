@@ -23,14 +23,12 @@ tiem series regression and classification
 
  .. code-block:: none
 
-    /home/vrael/anaconda3/lib/python3.7/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
-      warnings.warn('No GPU/TPU found, falling back to CPU.')
-    Op(name=unnamed_2, shape=(3, 3), dtype=float32, scope=/)
-    [array([[343.6531  ,  49.19514 ,  56.882774],
-           [ 49.19514 , 495.81998 , 174.76382 ],
-           [ 56.882774, 174.76382 , 324.53293 ]], dtype=float32), array([[97.35128 , 34.326176, 32.66122 ],
-           [34.326176, 90.073265, 64.60695 ],
-           [32.66122 , 64.60695 , 65.12095 ]], dtype=float32)]
+    Op(name=unnamed_36, shape=(3, 3), dtype=float32, scope=/)
+    [array([[560.7372 , 116.68406, 114.43712],
+           [116.68406, 460.00244, 199.66608],
+           [114.43712, 199.66608, 377.672  ]], dtype=float32), array([[94.008156, 61.892555, 52.221836],
+           [61.892555, 94.7868  , 67.029205],
+           [52.221836, 67.029205, 63.47615 ]], dtype=float32)]
 
 
 
@@ -120,7 +118,7 @@ tiem series regression and classification
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  2.013 seconds)
+   **Total running time of the script:** ( 0 minutes  2.008 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_datasets_plot_rntk.py:

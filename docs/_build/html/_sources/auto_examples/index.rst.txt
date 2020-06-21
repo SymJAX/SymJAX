@@ -83,10 +83,10 @@ Deep Neural Networks
 
 .. only:: html
 
- .. figure:: /auto_examples/01_nns/images/thumb/sphx_glr_plot_cifar10_classif_thumb.png
+ .. figure:: /auto_examples/01_nns/images/thumb/sphx_glr_cifar10_classif_thumb.png
      :alt: CIFAR10 classification
 
-     :ref:`sphx_glr_auto_examples_01_nns_plot_cifar10_classif.py`
+     :ref:`sphx_glr_auto_examples_01_nns_cifar10_classif.py`
 
 .. raw:: html
 
@@ -96,7 +96,7 @@ Deep Neural Networks
 .. toctree::
    :hidden:
 
-   /auto_examples/01_nns/plot_cifar10_classif
+   /auto_examples/01_nns/cifar10_classif
 .. raw:: html
 
     <div class="sphx-glr-clear"></div>

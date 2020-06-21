@@ -3,58 +3,16 @@
     .. note::
         :class: sphx-glr-download-link-note
 
-        Click :ref:`here <sphx_glr_download_auto_examples_01_nns_plot_cifar10_classif.py>`     to download the full example code
+        Click :ref:`here <sphx_glr_download_auto_examples_01_nns_cifar10_classif.py>`     to download the full example code
     .. rst-class:: sphx-glr-example-title
 
-    .. _sphx_glr_auto_examples_01_nns_plot_cifar10_classif.py:
+    .. _sphx_glr_auto_examples_01_nns_cifar10_classif.py:
 
 
 CIFAR10 classification
 ======================
 
 example of image classification
-
-
-.. rst-class:: sphx-glr-script-out
-
-
-.. code-block:: pytb
-
-    Traceback (most recent call last):
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/sphinx_gallery/gen_gallery.py", line 159, in call_memory
-        return 0., func()
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/sphinx_gallery/gen_rst.py", line 466, in __call__
-        exec(self.code, self.fake_main.__dict__)
-      File "/home/vrael/SymJAX/gallery/01_nns/plot_cifar10_classif.py", line 14, in <module>
-        cifar10 = sj.data.cifar10.load()
-      File "/home/vrael/SymJAX/symjax/data/cifar10.py", line 99, in load
-        'cifar-10-batches-py/data_batch_' + str(k)).read()
-      File "/home/vrael/anaconda3/lib/python3.7/tarfile.py", line 2068, in extractfile
-        tarinfo = self.getmember(member)
-      File "/home/vrael/anaconda3/lib/python3.7/tarfile.py", line 1752, in getmember
-        tarinfo = self._getmember(name)
-      File "/home/vrael/anaconda3/lib/python3.7/tarfile.py", line 2327, in _getmember
-        members = self.getmembers()
-      File "/home/vrael/anaconda3/lib/python3.7/tarfile.py", line 1763, in getmembers
-        self._load()        # all members, we first have to
-      File "/home/vrael/anaconda3/lib/python3.7/tarfile.py", line 2350, in _load
-        tarinfo = self.next()
-      File "/home/vrael/anaconda3/lib/python3.7/tarfile.py", line 2281, in next
-        self.fileobj.seek(self.offset - 1)
-      File "/home/vrael/anaconda3/lib/python3.7/gzip.py", line 368, in seek
-        return self._buffer.seek(offset, whence)
-      File "/home/vrael/anaconda3/lib/python3.7/_compression.py", line 143, in seek
-        data = self.read(min(io.DEFAULT_BUFFER_SIZE, offset))
-      File "/home/vrael/anaconda3/lib/python3.7/gzip.py", line 482, in read
-        raise EOFError("Compressed file ended before the "
-    EOFError: Compressed file ended before the end-of-stream marker was reached
-
-
-
-
-
-
-|
 
 
 .. code-block:: default
@@ -138,10 +96,10 @@ example of image classification
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.400 seconds)
+   **Total running time of the script:** ( 0 minutes  0.000 seconds)
 
 
-.. _sphx_glr_download_auto_examples_01_nns_plot_cifar10_classif.py:
+.. _sphx_glr_download_auto_examples_01_nns_cifar10_classif.py:
 
 
 .. only :: html
@@ -153,13 +111,13 @@ example of image classification
 
   .. container:: sphx-glr-download sphx-glr-download-python
 
-     :download:`Download Python source code: plot_cifar10_classif.py <plot_cifar10_classif.py>`
+     :download:`Download Python source code: cifar10_classif.py <cifar10_classif.py>`
 
 
 
   .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-     :download:`Download Jupyter notebook: plot_cifar10_classif.ipynb <plot_cifar10_classif.ipynb>`
+     :download:`Download Jupyter notebook: cifar10_classif.ipynb <cifar10_classif.ipynb>`
 
 
 .. only:: html

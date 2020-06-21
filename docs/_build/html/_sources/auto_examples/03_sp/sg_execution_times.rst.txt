@@ -5,8 +5,8 @@
 
 Computation times
 =================
-**00:08.038** total execution time for **auto_examples_03_sp** files:
+**00:07.230** total execution time for **auto_examples_03_sp** files:
 
 +-----------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_auto_examples_03_sp_plot_wavelets.py` (``plot_wavelets.py``) | 00:08.038 | 0.0 MB |
+| :ref:`sphx_glr_auto_examples_03_sp_plot_wavelets.py` (``plot_wavelets.py``) | 00:07.230 | 0.0 MB |
 +-----------------------------------------------------------------------------+-----------+--------+

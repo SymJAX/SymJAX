@@ -194,34 +194,15 @@
 <div class="sphx-glr-example-title section" id="cifar10-dataset">
 <span id="sphx-glr-auto-examples-02-datasets-plot-cifar10-py"></span><h1>CIFAR10 Dataset<a class="headerlink" href="#cifar10-dataset" title="Permalink to this headline">¶</a></h1>
 <p>This example shows how to download/load/import CIFAR10</p>
-<div class="sphx-glr-script-out highlight-pytb notranslate"><div class="highlight"><pre><span></span><span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;/home/vrael/anaconda3/lib/python3.7/site-packages/sphinx_gallery/gen_gallery.py&quot;</span>, line <span class="m">159</span>, in <span class="n">call_memory</span>
-    <span class="k">return</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">func</span><span class="p">()</span>
-  File <span class="nb">&quot;/home/vrael/anaconda3/lib/python3.7/site-packages/sphinx_gallery/gen_rst.py&quot;</span>, line <span class="m">466</span>, in <span class="n">__call__</span>
-    <span class="k">exec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fake_main</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
-  File <span class="nb">&quot;/home/vrael/SymJAX/gallery/02_datasets/plot_cifar10.py&quot;</span>, line <span class="m">16</span>, in <span class="n">&lt;module&gt;</span>
-    <span class="n">cifar10</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">cifar10</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
-  File <span class="nb">&quot;/home/vrael/SymJAX/symjax/data/cifar10.py&quot;</span>, line <span class="m">99</span>, in <span class="n">load</span>
-    <span class="s1">&#39;cifar-10-batches-py/data_batch_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">))</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-  File <span class="nb">&quot;/home/vrael/anaconda3/lib/python3.7/tarfile.py&quot;</span>, line <span class="m">2068</span>, in <span class="n">extractfile</span>
-    <span class="n">tarinfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getmember</span><span class="p">(</span><span class="n">member</span><span class="p">)</span>
-  File <span class="nb">&quot;/home/vrael/anaconda3/lib/python3.7/tarfile.py&quot;</span>, line <span class="m">1752</span>, in <span class="n">getmember</span>
-    <span class="n">tarinfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getmember</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-  File <span class="nb">&quot;/home/vrael/anaconda3/lib/python3.7/tarfile.py&quot;</span>, line <span class="m">2327</span>, in <span class="n">_getmember</span>
-    <span class="n">members</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getmembers</span><span class="p">()</span>
-  File <span class="nb">&quot;/home/vrael/anaconda3/lib/python3.7/tarfile.py&quot;</span>, line <span class="m">1763</span>, in <span class="n">getmembers</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">()</span>        <span class="c1"># all members, we first have to</span>
-  File <span class="nb">&quot;/home/vrael/anaconda3/lib/python3.7/tarfile.py&quot;</span>, line <span class="m">2350</span>, in <span class="n">_load</span>
-    <span class="n">tarinfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
-  File <span class="nb">&quot;/home/vrael/anaconda3/lib/python3.7/tarfile.py&quot;</span>, line <span class="m">2281</span>, in <span class="n">next</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">fileobj</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-  File <span class="nb">&quot;/home/vrael/anaconda3/lib/python3.7/gzip.py&quot;</span>, line <span class="m">368</span>, in <span class="n">seek</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">whence</span><span class="p">)</span>
-  File <span class="nb">&quot;/home/vrael/anaconda3/lib/python3.7/_compression.py&quot;</span>, line <span class="m">143</span>, in <span class="n">seek</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">DEFAULT_BUFFER_SIZE</span><span class="p">,</span> <span class="n">offset</span><span class="p">))</span>
-  File <span class="nb">&quot;/home/vrael/anaconda3/lib/python3.7/gzip.py&quot;</span>, line <span class="m">482</span>, in <span class="n">read</span>
-    <span class="k">raise</span> <span class="ne">EOFError</span><span class="p">(</span><span class="s2">&quot;Compressed file ended before the &quot;</span>
-<span class="gr">EOFError</span>: <span class="n">Compressed file ended before the end-of-stream marker was reached</span>
+<img alt="6:frog, 9:truck, 9:truck, 4:deer, 1:automobile, 1:automobile, 2:bird, 7:horse, 8:sheep, 3:cat" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_cifar10_001.svg" /><p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Loading cifar10:   0%|          | 0/5 [00:00&lt;?, ?it/s]
+Loading cifar10:  20%|##        | 1/5 [00:01&lt;00:07,  1.97s/it]
+Loading cifar10:  40%|####      | 2/5 [00:02&lt;00:04,  1.58s/it]
+Loading cifar10:  60%|######    | 3/5 [00:03&lt;00:02,  1.25s/it]
+Loading cifar10:  80%|########  | 4/5 [00:03&lt;00:00,  1.08it/s]
+Loading cifar10: 100%|##########| 5/5 [00:03&lt;00:00,  1.19it/s]
+Loading cifar10: 100%|##########| 5/5 [00:03&lt;00:00,  1.27it/s]
+Dataset cifar10 loaded in4.37s.
 </pre></div>
 </div>
 <div class="line-block">
@@ -249,7 +230,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.295 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  4.664 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-datasets-plot-cifar10-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/8e07b64f800ed2b89388c320101e8691/plot_cifar10.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_cifar10.py</span></code></a></p>
