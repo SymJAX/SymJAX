@@ -85,7 +85,7 @@ def ExponentialMovingAverage(value, alpha, step=None, init=None):
         var = tensor.Variable(init, trainable=False,
                               name='EMA', dtype='float32')
 
-    new_value = tensor.where(T.equal(_step, 0), value,
+    new_value = tensor.where(tensor.equal(_step, 0), value,
                              var * alpha + (1 - alpha) * value)
     if step is None:
         updates = {var: new_value, _step: _step + 1}
