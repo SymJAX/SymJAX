@@ -125,7 +125,6 @@ for name in _JNP_NAMES:
 cast = jax_wrap(jla.convert_element_type)
 complex = jax_wrap(jla.complex)
 range = module.__dict__['arange']
-T = module.__dict__['transpose']
 
 
 def flatten(input):
@@ -194,8 +193,6 @@ _add_method(Tensor)(module.__dict__['cast'], 'astype')
 _add_method(Tensor)(module.__dict__['squeeze'], 'squeeze')
 _add_method(Tensor)(module.__dict__['flatten'], 'flatten')
 _add_method(Tensor)(module.__dict__['reshape'], 'reshape')
-_add_method(Tensor)(module.__dict__['T'], 'T')
-_add_method(Tensor)(module.__dict__['T'], 'transpose')
 _add_method(Tensor)(module.__dict__['dot'], 'dot')
 _add_method(Tensor)(module.__dict__['repeat'], 'repeat')
 _add_method(Tensor)(module.__dict__['expand_dims'], 'expand_dims')

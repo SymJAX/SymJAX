@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from .base import function
-from . import tensor
+from symjax import tensor
 import numpy
 
 

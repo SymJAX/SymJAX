@@ -1,8 +1,9 @@
 import numpy
 
 import symjax
-from . import tensor
-from .base import gradients, function
+from symjax import tensor
+from ..base import gradients
+from ..base import function
 
 
 class Optimizer:
@@ -218,4 +219,3 @@ class Adam(Optimizer):
         self.updates = updates
 
         symjax.current_graph().add(updates)
-

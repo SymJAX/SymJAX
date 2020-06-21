@@ -4,34 +4,15 @@
 
 __all__ = ['data',
            'tensor',
-           'losses',
-           'initializers',
-           'layers',
-           'optimizers',
-           'schedules']
+           'nn',
+           'probabilities']
+
 
 from . import data
 from . import tensor
-from . import losses
-from . import initializers
-from . import layers
-from . import optimizers
-from . import schedules
-
-from .base import (
-    current_graph,
-    Graph,
-    function,
-    gradients,
-    jacobians,
-    reset_variables,
-    save_variables,
-    load_variables,
-    get_variables,
-    get_placeholders,
-    get_ops,
-    get_updates)
-
+from . import nn
+from . import probabilities
+from .base import *
 
 _current_scope = '/'
 _current_graph = [Graph('')]

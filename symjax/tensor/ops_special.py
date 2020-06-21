@@ -7,7 +7,7 @@ import jax.numpy as jnp
 import numpy
 
 from .base import jax_wrap
-from .ops_nn import relu
+from ..nn.ops_nn import relu
 
 module = sys.modules[__name__]
 

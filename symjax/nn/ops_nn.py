@@ -5,7 +5,7 @@ import jax
 import jax.lax as jla
 import numpy
 
-from .base import jax_wrap
+from symjax.tensor import jax_wrap
 
 NAMES = [c[0] for c in inspect.getmembers(jax.nn, callable)]
 module = sys.modules[__name__]
@@ -17,9 +17,6 @@ for name in NAMES:
 
 def log_1_minus_sigmoid(x):
     return - module.__dict__['softplus'](x)
-
-
-
 
 
 conv_general_dilated = jax_wrap(jla.conv_general_dilated)

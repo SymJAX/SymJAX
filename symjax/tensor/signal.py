@@ -20,19 +20,9 @@ module = sys.modules[__name__]
 for name in names:
     module.__dict__.update({name: jax_wrap(jnp.__dict__[name])})
 
-# Add the fft functions into signal
-
-names = ['fft', 'ifft', 'fft2', 'ifft2', 'fftn', 'ifftn', 'rfft', 'irfft',
-         'rfft2', 'irfft2', 'rfftn', 'irfftn', 'fftfreq', 'rfftfreq',
-         'ifftshift',
-         'fftshift']
 
 for name in ['convolve', 'convolve2d', 'correlate', 'correlate2d']:
     module.__dict__.update({name: jax_wrap(jax.scipy.signal.__dict__[name])})
-
-
-for name in names:
-    module.__dict__.update({name: jax_wrap(jnp.fft.__dict__[name])})
 
 
 # Add some utility functions
