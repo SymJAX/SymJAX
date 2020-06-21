@@ -1,2 +1,5 @@
 python3 -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
 python setup.py bdist_wheel
+
+# to use ssh instead of https for github
+git config --global url.ssh://git@github.com/.insteadOf https://github.com/

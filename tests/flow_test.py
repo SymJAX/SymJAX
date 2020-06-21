@@ -12,7 +12,8 @@ import symjax.tensor as T
 def test_map():
     w = T.Variable(1., dtype='float32')
     u = T.Placeholder((), 'float32')
-    out = T.map(lambda a, w, u: (u - w) * a, [T.range(3)], non_sequences=[w, u])
+    out = T.map(lambda a, w, u: (u - w) * a,
+                [T.range(3)], non_sequences=[w, u])
     f = sj.function(u, outputs=out, updates={w: w + 1})
     assert np.array_equal(f(2), np.arange(3))
     assert np.array_equal(f(2), np.zeros(3))
@@ -46,4 +47,3 @@ def test_while():
     f = sj.function(v, outputs=out)
     assert np.array_equal(np.array(f(0)), [5, 16])
     assert np.array_equal(f(2), [3, 4])
-

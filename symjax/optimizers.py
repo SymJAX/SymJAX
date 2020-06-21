@@ -203,7 +203,7 @@ class Adam(Optimizer):
 
         updates = dict()
         for param, grad in zip(params, grads):
-            m, update_m, _ = symjex.schedules.ExponentialMovingAverage(grad, beta1,
+            m, update_m, _ = symjax.schedules.ExponentialMovingAverage(grad, beta1,
                                                                        step=step)
             v, update_v, _ = symjax.schedules.ExponentialMovingAverage(
                 tensor.square(grad), beta2, step, init=numpy.ones(grad.shape))
