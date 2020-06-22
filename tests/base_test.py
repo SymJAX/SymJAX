@@ -81,3 +81,13 @@ def test_pymc():
 
     grad_fn = jax.grad(f_, argnums=[0, 1, 2])
     f_(x_val, s_val, y_val), grad_fn(x_val, s_val, y_val)
+
+
+def test_grad():
+    w = tt.Placeholder((), 'float32')
+    v = tt.Variable(1., dtype='float32')
+    x = w*v+2
+    g = symjax.gradients(x, [v])
+    f = symjax.function(w, outputs=g[0])
+    assert f(1) == 1
+    assert f(10) == 10

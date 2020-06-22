@@ -1,6 +1,7 @@
 
 from symjax import tensor as T
-from symjax.nn import initializers
+from . import ops_nn as nn
+from symjax.nn import initializers, schedules
 import symjax
 import numpy
 import inspect
@@ -252,7 +253,7 @@ class Conv1D(Layer):
         super().__init__(self.forward(self.input))
 
     def forward(self, input):
-        conv = T.convNd(input, self.W, strides=self.stride, padding=self.pad,
+        conv = nn.convNd(input, self.W, strides=self.stride, padding=self.pad,
                         input_dilation=self.input_dilation,
                         filter_dilation=self.filter_dilation)
         if hasattr(self, 'b'):
@@ -320,7 +321,7 @@ class Conv2D(Layer):
         super().__init__(self.forward(self.input))
 
     def forward(self, input):
-        conv = T.convNd(input, self.W, strides=self.strides, padding=self.pad,
+        conv = nn.convNd(input, self.W, strides=self.strides, padding=self.pad,
                         input_dilation=self.input_dilation,
                         filter_dilation=self.filter_dilation)
         if hasattr(self, 'b'):
@@ -376,7 +377,7 @@ class Pool2D(Layer):
         super().__init__(self.forward(self.input))
 
     def forward(self, input):
-        return T.poolNd(input, self.pool_shape, strides=self.strides,
+        return nn.poolNd(input, self.pool_shape, strides=self.strides,
                         reducer=self.pool_type)
 
 
@@ -652,9 +653,9 @@ class BatchNormalization(Layer):
         self.mean = T.mean(input, self.axis, keepdims=True)
         self.var = T.var(input, self.axis, keepdims=True)
         if len(self.updates) == 0:
-            self.avgmean, upm, step = symjax.schedules.ExponentialMovingAverage(
+            self.avgmean, upm, step = schedules.ExponentialMovingAverage(
                 self.mean, self.beta1)
-            self.avgvar, upv, step = symjax.schedules.ExponentialMovingAverage(
+            self.avgvar, upv, step = schedules.ExponentialMovingAverage(
                 self.var, self.beta2, step=step, init=numpy.ones(
                     self.var.shape).astype('float32'))
             self.add_variable(self.avgmean)

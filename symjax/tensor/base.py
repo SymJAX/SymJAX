@@ -109,10 +109,12 @@ def get(item, tracker=None, givens=None, branches=None):
         if len(minimal_givens) == 0:
             # if this branch is unchanged, return directly the already
             # computed one
+            print(item, tracker)
             if item in tracker:
                 return tracker[item]
-            tracker[item] = item._get(tracker, {}, {})
-            return tracker[item]
+            else:
+                tracker[item] = item._get(tracker, {}, {})
+                return tracker[item]
 
         # otherwise we specialize
         names = ['{}{}->{}{}'.format(m.scope, m.name, current_givens[m].scope,
@@ -712,6 +714,7 @@ class Placeholder(Tensor):
                ', shape=' + str(self.shape) + ')'
 
     def _get(self, tracker, givens, branches):
+        print(tracker)
         raise ValueError(' no value given for placeholder {}'.format(self))
 
 

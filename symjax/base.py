@@ -308,6 +308,7 @@ def gradients(scalar, variables):
     # roots
     # to the scalar varible s.t. automatic diffenrentiation can be applied
     def fn(*args):
+        print(list(zip(all_roots, list(args))))
         return symjax.tensor.get(scalar, dict(zip(all_roots, list(args))))
 
     # now we obtain the grad function. In fact, Jax returns a function that,

@@ -192,8 +192,9 @@ class Adam(Optimizer):
                  beta2=0.999, epsilon=1e-6, params=None):
 
         if params is None:
-            params = symjax.get_variables("*", trainable=True)
+            params = symjax.get_variables(trainable=True)
 
+        print(params)
         grads = self._get_grads(grads_or_loss, params)
         step = tensor.Variable(tensor.zeros(1, dtype='float32'),
                                trainable=False, name='step')

@@ -38,7 +38,7 @@ def piecewise_constant(init, values, step=None):
     index = (step < keys).argmax()
     v = tensor.Variable(values, trainable=False,
                         name='PiecewiseConstant_values')
-    return T.dynamic_slice_in_dim(v, index - 1, 1, 0), step
+    return tensor.dynamic_slice_in_dim(v, index - 1, 1, 0), step
 
 
 class PiecewiseConstant(Schedule):
