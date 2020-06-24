@@ -21,8 +21,6 @@ SymJAX this is done via  symjax.function as demonstrated below:
 .. literalinclude:: ../../examples/function.py
 
 
-.. _while:
-
 While/Map/Scan
 --------------
 

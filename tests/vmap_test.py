@@ -27,7 +27,6 @@ def test_vectorize_sgd():
     loss = ((x.dot(w) - y)**2).mean()
 
     g = symjax.gradients(loss, [w])[0]
-    print(g)
 
     other_g = symjax.gradients(x.dot(w).sum(),[w])[0]
 
@@ -40,3 +39,7 @@ def test_vectorize_sgd():
         assert L[-1] < L[-2]
         assert np.array_equal(other_f(np.ones((i + 1, 2))), [i+1.,i+1.])
 
+
+if __name__ == '__main__':
+    test_vectorize_sgd()
+    test_vectorize()

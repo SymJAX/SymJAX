@@ -12,37 +12,255 @@ from jax import jacfwd, jacrev
 import symjax
 from symjax import tensor as t
 from symjax.tensor import random
+import networkx as nx
+
+
+def current_scope():
+    """Current scope."""
+    return current_graph()._scopes[-1]
 
 
 def current_graph():
     """Current graph."""
-    assert len(symjax._current_graph)
-    return symjax._current_graph[-1]
+    assert len(symjax._graphs)
+    return symjax._graphs[-1]
 
 
-class Graph:
-    """Graph."""
+class Graph(nx.DiGraph):
 
-    def __init__(self, name, seed=None):
+    def __init__(self, name, *args, **kwargs):
+        self._current_scope = '/'
+        self._scopes = [Scope('', graph=self)]
+        self._variables = {}
+        self._placeholders = {}
+        self._updates = {}
+        self._ops = {}
+        super().__init__(*args, name=name, **kwargs)
+
+    def add(self, tensor, branch=None, **kwargs):
+        self._scopes[-1].add(tensor)
+
+        if isinstance(tensor, t.Placeholder) or isinstance(tensor, t.Variable):
+            self.add_node(tensor, branch=branch, root=True)
+
+        elif isinstance(tensor, t.RandomOp):
+            self.add_node(tensor, branch=branch, root=True,
+                          jax_function=kwargs['jax_function'],
+                          seed=kwargs['_seed'])
+
+        elif type(tensor) == t.OpTupleItem:
+            self.add_node(tensor, root=False)
+            self.add_edge(kwargs['parent'], tensor, index=kwargs['index'])
+
+        elif type(tensor) == t.Op or type(tensor) == t.OpTuple:
+            self.add_node(tensor, branch=branch, root=False,
+                          jax_function=kwargs['jax_function'])
+            for i, arg in enumerate(kwargs['args']):
+                if not t.isvar(arg):
+                    const_node = t.Constant(arg)
+                    self.add_node(const_node, root=False)
+                    self.add_edge(const_node, tensor,
+                                  name='arg{:02d}'.format(i))
+                else:
+                    if self.has_edge(arg, tensor):
+                        self[arg][tensor]['name'] += '+arg{:02d}'.format(i)
+                    else:
+                        self.add_edge(arg, tensor, name='arg{:02d}'.format(i))
+
+            for i, (key, arg) in enumerate(kwargs['kwargs'].items()):
+                if not t.isvar(arg):
+                    const_node = t.Constant(arg)
+                    self.add_node(const_node, root=False)
+                    self.add_edge(const_node, tensor, name=key)
+                else:
+                    if self.has_edge(arg, tensor):
+                        self[arg][tensor]['name'] += '+' + key
+                    else:
+                        self.add_edge(arg, tensor, name=key)
+
+        elif type(tensor) == t.Constant:
+            self.add_node(tensor, root=False, branch=branch)
+        else:
+            self.add_node(t.Constant(tensor), root=False)
+
+    def roots(self, nodes, roots=None):
+
+        if roots is None:
+            roots = []
+
+        if type(nodes) == tuple or type(nodes) == list:
+            [self.roots(node, roots) for node in nodes]
+        elif t.isvar(nodes) and type(nodes) != t.Constant:
+            if self.get_node_attribute(nodes, 'root'):
+                roots.append(nodes)
+
+            for p in self.predecessors(nodes):
+                self.roots(p, roots)
+
+        return list(set(roots))
+
+    def clone(self, node, givens):
+        names = ['{}{}->{}{}'.format(m.scope, m.name, v.scope,
+                                     v.name) for m, v in givens.items()]
+        names.sort()
+        name = '_'.join(names)
+        branch = givens.copy()
+        for start in givens.keys():
+            for path in nx.all_simple_paths(self, source=start, target=node):
+                for n in path[1:]:
+                    if n in branch:
+                        continue
+                    args, kwargs = self._get_args_kwargs(n, evaluate=False)
+                    args = [branch[arg] if arg in branch else arg
+                            for arg in args]
+                    for arg in kwargs.keys():
+                        if arg in branch:
+                            kwargs[arg] = branch[arg]
+                    fun = self.get_node_attribute(n, 'jax_function')
+                    kwargs.update({'_jax_function': fun,
+                                   '_shape': n._shape,
+                                   '_dtype': n._dtype,
+                                   'name': n.name + '_clone'})
+                    branch[n] = t.Op(*args, **kwargs)
+        return branch[node]
+
+    def get_node_attribute(self, node, attr):
+        return nx.get_node_attributes(self, attr)[node]
+
+    def get(self, item, tracker=None, seed=None):
+        """
+        Example:
+
+            >>> import symjax.tensor as T
+            >>> w = T.ones(10).sum()+4
+            >>> v = T.Variable(1., name='v', dtype='float32')
+            >>> T.get(w+v)
+            DeviceArray(15., dtype=float32)
+        """
+
+        if tracker is None:
+            tracker = {}
+
+        if not t.isvar(item):
+            return item
+
+        if type(item) == list:
+            return [self.get(i, tracker) for i in item]
+        elif type(item) == tuple:
+            return tuple([self.get(i, tracker) for i in item])
+
+        elif item in tracker:
+            return tracker[item]
+
+        elif type(item) == t.Placeholder:
+            if item not in tracker:
+                raise ValueError(
+                    ' no value given for placeholder {}'.format(item))
+
+        elif isinstance(item, t.Variable) or type(item) == t.Constant:
+            tracker[item] = item.value
+            return tracker[item]
+
+        elif type(item) == t.OpTupleItem:
+
+            preds = list(self.predecessors(item))
+            assert len(preds) == 1
+            parent = preds[0]
+            index = self.get_edge_data(parent, item)['index']
+            return self.get(parent, tracker)[index]
+
+        elif type(item) == t.Op or type(item) == t.OpTuple:
+
+            # first get the actual parents nodes (aka inputs to the function)
+            args, kwargs = self._get_args_kwargs(item, tracker)
+            tracker[item] = self.get_node_attribute(
+                item, 'jax_function')(*args, **kwargs)
+
+            return tracker[item]
+
+        elif type(item) == t.RandomOp:
+            seed = seed or numpy.random.randint(0, 1000000)
+            intra_seed = 1 or self.get_node_attribute(item, 'seed')
+            key = jax.random.PRNGKey(seed + intra_seed)
+            args, kwargs = self._get_args_kwargs(item, tracker)
+            tracker[item] = self.get_node_attribute(
+                item, 'jax_function')(key, *args, **kwargs)
+            return tracker[item]
+
+        else:
+            return item
+
+    def _get_args_kwargs(self, node, tracker=None, evaluate=True):
+
+        if evaluate:
+            assert tracker is not None
+
+            all_args = {self.get_edge_data(parent, node)['name']:
+                        self.get(parent, tracker)
+                        for parent in self.predecessors(node)}
+        else:
+            all_args = {self.get_edge_data(parent, node)['name']:
+                        parent
+                        for parent in self.predecessors(node)}
+        # now we inspect if there are duplicate args
+        for arg in list(all_args.keys()):
+            if '+' in arg:
+                items = arg.split('+')
+                for item in items:
+                    all_args.update({item: all_args[arg]})
+                del all_args[arg]
+
+        args_names = [name for name in all_args.keys() if 'arg' == name[:3]]
+        args_names.sort()
+
+        args = [all_args[name] for name in args_names]
+        for name in args_names:
+            del all_args[name]
+
+        return args, all_args
+
+    def variables(self, trainable=True):
+        variables = [n for n in self.nodes if type(n) == t.Variable]
+        if trainable is None:
+            return variables
+        return [v for v in variables if v.trainable == trainable]
+
+    @property
+    def placeholders(self):
+        placeholders = [n for n in self.nodes if type(n) == t.Placeholder]
+        return placeholders
+
+    @property
+    def ops(self):
+        ops = [n for n in self.nodes if type(n) in [t.Op, t.OpTupleItem]]
+        return ops
+
+
+class Scope:
+    """Scope."""
+
+    def __init__(self, name, graph=None, seed=None):
         """Constructor."""
-
+        if graph is None:
+            graph = current_graph()
+        self.graph = graph
         self.name = name
         self.full_name = None
 
     def __enter__(self):
         """Set global variables."""
         if len(self.name):
-            symjax._current_scope += self.name + '/'
-        self.full_name = symjax._current_scope
-        symjax._current_graph.append(self)
+            self.graph._current_scope += self.name + '/'
+        self.full_name = self.graph._current_scope
+        self.graph._scopes.append(self)
 
     def __exit__(self, *a):
         """Delete globals."""
-        symjax._current_graph.pop(-1)
-        if symjax._current_graph[-1].full_name is not None:
-            symjax._current_scope = symjax._current_graph[-1].full_name
+        self.graph._scopes.pop(-1)
+        if self.graph._scopes[-1].full_name is not None:
+            self.graph._current_scope = self.graph._scopes[-1].full_name
         else:
-            symjax._current_scope = '/'
+            self.graph._current_scope = '/'
 
     def save_variables(self, path):
         """Save graph."""
@@ -52,19 +270,6 @@ class Graph:
     @property
     def get_variables(self):
         return get_variables(self.full_name + '*')
-
-    # def variable(self, name):
-
-    #     # check if the name for given relative or full
-    #     if '/' not in name:
-    #         full_name = self.full_name + name
-    #     else:
-    #         full_name = name
-
-    #     if full_name in symjax._variables:
-    #         return symjax._variables[full_name]
-    #     else:
-    #         RuntimeError('Variable {name} not in graph {self.full_name}')
 
     def load_variables(self, path):
         """Load graph."""
@@ -79,6 +284,8 @@ class Graph:
             var.reset()
 
     def add(self, tensor):
+        if not t.isvar(tensor):
+            return
 
         # fake graph entrance if not used by user
         if self.full_name is None:
@@ -86,18 +293,18 @@ class Graph:
 
         # in this case we were given updates
         if type(tensor) == dict:
-            symjax._updates.update(tensor)
+            self.graph._updates.update(tensor)
             return
 
         tensor.scope = self.full_name
         name = self.full_name + tensor.name
         if isinstance(tensor, symjax.tensor.Placeholder):
-            names = symjax._placeholders
+            names = self.graph._placeholders
         elif isinstance(tensor, symjax.tensor.Variable):
-            names = symjax._variables
+            names = self.graph._variables
         else:
-            names = symjax._ops
-        # print('in add', names)
+            names = self.graph._ops
+
         if name not in names.keys():
             names[name] = tensor
             return
@@ -110,7 +317,6 @@ class Graph:
                 break
         names[name + '_' + str(count)] = tensor
         tensor._set_name(tensor.name + '_' + str(count))
-
 
 
 def reset_variables(name='*', trainable=None):
@@ -163,12 +369,9 @@ def reset_variables(name='*', trainable=None):
 
     """
 
-    matched = fnmatch.filter(symjax._variables.keys(), name)
-    for m in matched:
-        if trainable is not None:
-            if symjax._variables[m].trainable != trainable:
-                continue
-        symjax._variables[m].reset()
+    variables = get_variables(name, trainable)
+    for var in variables:
+        var.reset()
 
 
 def save_variables(name, path):
@@ -203,34 +406,40 @@ def load_variables(name, path_or_file, scope_mapping=None):
 
 
 def get_variables(name='*', trainable=None):
-    matched = fnmatch.filter(symjax._variables.keys(), name)
-    if trainable is not None:
-        assert type(trainable) == bool
-        matched = [m for m in matched
-                   if symjax._variables[m].trainable == trainable]
-    return [symjax._variables[m] for m in matched]
+    matched = current_graph().variables(trainable)
+    output = []
+    for m in matched:
+        if len(fnmatch.filter([m.name], name)):
+            output.append(m)
+    return output
 
 
 def get_placeholders(name='*'):
     """
     Same as symjax.variable but for placeholders
     """
-
-    matched = fnmatch.filter(symjax._placeholders.keys(), name)
-    return [symjax._placeholders[m] for m in matched]
+    matched = current_graph().placeholders
+    output = []
+    for m in matched:
+        if len(fnmatch.filter([m.name], name)):
+            output.append(m)
+    return output
 
 
 def get_ops(name='*'):
     """
     Same as symjax.variable but for ops
     """
-
-    matched = fnmatch.filter(symjax._ops.keys(), name)
-    return [symjax._ops[m] for m in matched]
+    matched = current_graph().ops
+    output = []
+    for m in matched:
+        if len(fnmatch.filter([m.name], name)):
+            output.append(m)
+    return output
 
 
 def add_updates(udpates):
-    current_graph().add_updates(updates)
+    current_scope().add_updates(updates)
 
 
 def get_updates(name='*'):
@@ -298,7 +507,7 @@ def gradients(scalar, variables):
     # as the input of the gradient function and thus a change of
     # their value will not change the gradient computation, we also ensure
     # uniqueness
-    all_roots = list(set(scalar.roots + input_variables))
+    all_roots = list(set(current_graph().roots(scalar) + input_variables))
 
     # get the argnum of the variables that we differentiate one
     argnums = [all_roots.index(var) for var in input_variables]
@@ -308,8 +517,7 @@ def gradients(scalar, variables):
     # roots
     # to the scalar varible s.t. automatic diffenrentiation can be applied
     def fn(*args):
-        print(list(zip(all_roots, list(args))))
-        return symjax.tensor.get(scalar, dict(zip(all_roots, list(args))))
+        return current_graph().get(scalar, dict(zip(all_roots, list(args))))
 
     # now we obtain the grad function. In fact, Jax returns a function that,
     # when it is called, returns the gradient values, this function is then
@@ -320,6 +528,7 @@ def gradients(scalar, variables):
         return wrap_fn(*all_roots)
     else:
         return wrap_fn(*all_roots)[0]
+
 
 
 def jacobians(tensor, variables, mode='forward'):
@@ -463,7 +672,7 @@ class function:
         # function
         outs = list(updates.values())
         outs += [outputs] if isinstance(outputs, t.Tensor) else outputs
-        self.all_roots = set(t.getroots(outs))
+        self.all_roots = set(symjax.current_graph().roots(outs))
         self.classargs = classargs
         self.outputs = outputs
         items = list(updates.items())
@@ -513,7 +722,8 @@ class function:
 
             feed_dict = dict(zip(allargs, jitargs))
             feed_dict.update({'rng': seed})
-            return t.get([self.outputs, self.updates_values], feed_dict)
+            outputs = [self.outputs, self.updates_values]
+            return symjax.current_graph().get(outputs, feed_dict)
 
         # take care of the presence of -1 dimensions
         to_vectorize = []
@@ -545,8 +755,8 @@ class function:
                             ", shape={}".format(fnarg.shape))
 
             # retreive the function outputs, updated values and apply them
-            jited_add_inputs = t.get(self.updates_keys + self.extra_inputs,
-                                     tracker={'rng': rng})
+            jited_add_inputs = symjax.current_graph().get(self.updates_keys + self.extra_inputs,
+                                                          tracker={'rng': rng})
             jitoutputs, jitupdates = self.jited(*fnargs, *jited_add_inputs,
                                                 seed=rng)
             for key, update in zip(self.updates_keys, jitupdates):

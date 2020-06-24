@@ -474,9 +474,9 @@
 <span class="k">def</span> <span class="nf">finfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">):</span>
   <span class="k">return</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
 
-<span class="nd">@_wraps</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">)</span>
+<div class="viewcode-block" id="issubdtype"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.signal.issubdtype">[docs]</a><span class="nd">@_wraps</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">issubdtype</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">):</span>
-  <span class="k">return</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="isscalar"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.signal.isscalar">[docs]</a><span class="nd">@_wraps</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">isscalar</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
@@ -484,9 +484,9 @@
 
 <span class="n">iterable</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iterable</span>
 
-<span class="nd">@_wraps</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">result_type</span><span class="p">)</span>
+<div class="viewcode-block" id="result_type"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.signal.result_type">[docs]</a><span class="nd">@_wraps</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">result_type</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">result_type</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-  <span class="k">return</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">result_type</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">result_type</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 <span class="k">def</span> <span class="nf">_one_to_one_unop</span><span class="p">(</span><span class="n">numpy_fn</span><span class="p">,</span> <span class="n">lax_fn</span><span class="p">,</span> <span class="n">promote_to_inexact</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
   <span class="k">if</span> <span class="n">promote_to_inexact</span><span class="p">:</span>
@@ -706,7 +706,7 @@
   <span class="k">return</span> <span class="n">acc</span></div>
 
 
-<span class="nd">@custom_jvp</span>
+<div class="viewcode-block" id="logaddexp"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.signal.logaddexp">[docs]</a><span class="nd">@custom_jvp</span>
 <span class="nd">@_wraps</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logaddexp</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">logaddexp</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">):</span>
   <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">_promote_shapes</span><span class="p">(</span><span class="s2">&quot;logaddexp&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">_promote_dtypes_inexact</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">))</span>
@@ -714,7 +714,7 @@
   <span class="n">delta</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">isnan</span><span class="p">(</span><span class="n">delta</span><span class="p">),</span>
                     <span class="n">lax</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">),</span>  <span class="c1"># NaNs or infinities of the same sign.</span>
-                    <span class="n">lax</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">amax</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">lax</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">delta</span><span class="p">)))))</span>
+                    <span class="n">lax</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">amax</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">lax</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">delta</span><span class="p">)))))</span></div>
 
 <span class="nd">@logaddexp</span><span class="o">.</span><span class="n">defjvp</span>
 <span class="k">def</span> <span class="nf">_logaddexp_jvp</span><span class="p">(</span><span class="n">primals</span><span class="p">,</span> <span class="n">tangents</span><span class="p">):</span>
@@ -730,7 +730,7 @@
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">isposinf</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">x</span><span class="p">)</span>
 
 
-<span class="nd">@custom_jvp</span>
+<div class="viewcode-block" id="logaddexp2"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.signal.logaddexp2">[docs]</a><span class="nd">@custom_jvp</span>
 <span class="nd">@_wraps</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logaddexp2</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">logaddexp2</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">):</span>
   <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">_promote_shapes</span><span class="p">(</span><span class="s2">&quot;logaddexp2&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">_promote_dtypes_inexact</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">))</span>
@@ -739,7 +739,7 @@
   <span class="k">return</span> <span class="n">lax</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">isnan</span><span class="p">(</span><span class="n">delta</span><span class="p">),</span>
                     <span class="n">lax</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">),</span>  <span class="c1"># NaNs or infinities of the same sign.</span>
                     <span class="n">lax</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">amax</span><span class="p">,</span> <span class="n">lax</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">lax</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">exp2</span><span class="p">(</span><span class="o">-</span><span class="n">lax</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">delta</span><span class="p">))),</span>
-                                          <span class="n">_constant_like</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)))))</span>
+                                          <span class="n">_constant_like</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)))))</span></div>
 <span class="nd">@logaddexp2</span><span class="o">.</span><span class="n">defjvp</span>
 <span class="k">def</span> <span class="nf">_logaddexp2_jvp</span><span class="p">(</span><span class="n">primals</span><span class="p">,</span> <span class="n">tangents</span><span class="p">):</span>
   <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">primals</span>
@@ -1453,7 +1453,7 @@
     <span class="k">return</span> <span class="n">_where</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
 
-<span class="nd">@_wraps</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">)</span>
+<div class="viewcode-block" id="select"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.signal.select">[docs]</a><span class="nd">@_wraps</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="n">condlist</span><span class="p">,</span> <span class="n">choicelist</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
   <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">condlist</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">choicelist</span><span class="p">):</span>
     <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;condlist must have length equal to choicelist (</span><span class="si">{}</span><span class="s2"> vs </span><span class="si">{}</span><span class="s2">)&quot;</span>
@@ -1465,7 +1465,7 @@
   <span class="n">output</span> <span class="o">=</span> <span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
   <span class="k">for</span> <span class="n">cond</span><span class="p">,</span> <span class="n">choice</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">condlist</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">choicelist</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">where</span><span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">choice</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">output</span>
+  <span class="k">return</span> <span class="n">output</span></div>
 
 
 <span class="nd">@_wraps</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">,</span> <span class="n">lax_description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>

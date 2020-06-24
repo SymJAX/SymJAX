@@ -23,10 +23,9 @@ class Optimizer:
     def _get_grads(self, grads_or_loss, params):
         # get grads if given is loss
         if isinstance(grads_or_loss, tensor.Tensor):
-            grads = gradients(grads_or_loss, params)
+            return gradients(grads_or_loss, params)
         else:
-            grads = grads_or_loss
-        return grads
+            return grads_or_loss
 
 
 # class PiecewiseConstant(Optimizer):
@@ -194,7 +193,6 @@ class Adam(Optimizer):
         if params is None:
             params = symjax.get_variables(trainable=True)
 
-        print(params)
         grads = self._get_grads(grads_or_loss, params)
         step = tensor.Variable(tensor.zeros(1, dtype='float32'),
                                trainable=False, name='step')
@@ -205,9 +203,9 @@ class Adam(Optimizer):
 
         updates = dict()
         for param, grad in zip(params, grads):
-            m, update_m, _ = symjax.schedules.ExponentialMovingAverage(grad, beta1,
+            m, update_m, _ = symjax.nn.schedules.ExponentialMovingAverage(grad, beta1,
                                                                        step=step)
-            v, update_v, _ = symjax.schedules.ExponentialMovingAverage(
+            v, update_v, _ = symjax.nn.schedules.ExponentialMovingAverage(
                 tensor.square(grad), beta2, step, init=numpy.ones(grad.shape))
             variables += [m, v]
             updates.update(update_m)

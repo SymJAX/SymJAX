@@ -178,149 +178,22 @@
 <span class="n">fori_loop</span> <span class="o">=</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">jla</span><span class="o">.</span><span class="n">fori_loop</span><span class="p">)</span>
 <span class="n">while_loop</span> <span class="o">=</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">jla</span><span class="o">.</span><span class="n">while_loop</span><span class="p">)</span>
 
-
+<span class="nd">@jax_wrap</span>
 <span class="k">def</span> <span class="nf">_scan</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">non_sequences</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Scan a function over leading array axes while carrying along state.</span>
-<span class="sd">  </span>
-<span class="sd">    The type signature in brief is</span>
-<span class="sd">  </span>
-<span class="sd">    .. code-block:: haskell</span>
-<span class="sd">  </span>
-<span class="sd">      scan :: (c -&gt; a -&gt; (c, b)) -&gt; c -&gt; [a] -&gt; (c, [b])</span>
-<span class="sd">  </span>
-<span class="sd">    where we use [t] here to denote the type t with an additional leading axis.</span>
-<span class="sd">    That is, if t is an array type then [t] represents the type with an additional</span>
-<span class="sd">    leading axis, and if t is a pytree (container) type with array leaves then [t]</span>
-<span class="sd">    represents the type with the same pytree structure and corresponding leaves</span>
-<span class="sd">    each with an additional leading axis.</span>
-<span class="sd">  </span>
-<span class="sd">    When ``a`` is an array type or None, and ``b`` is an array type, the semantics</span>
-<span class="sd">    of ``scan`` are given roughly by this Python implementation::</span>
-<span class="sd">  </span>
-<span class="sd">      def scan(f, init, xs, length=None):</span>
-<span class="sd">        if xs is None:</span>
-<span class="sd">          xs = [None] * length</span>
-<span class="sd">        carry = init</span>
-<span class="sd">        ys = []</span>
-<span class="sd">        for x in xs:</span>
-<span class="sd">          carry, y = f(carry, x)</span>
-<span class="sd">          ys.append(y)</span>
-<span class="sd">        return carry, np.stack(ys)</span>
-<span class="sd">  </span>
-<span class="sd">    Unlike that Python version, both ``a`` and ``b`` may be arbitrary pytree</span>
-<span class="sd">    types, and so multiple arrays can be scanned over at once and produce multiple</span>
-<span class="sd">    output arrays. (None is actually an empty pytree.)</span>
-<span class="sd">  </span>
-<span class="sd">    Also unlike that Python version, ``scan`` is a JAX primitive and is lowered to</span>
-<span class="sd">    a single XLA While HLO. That makes it useful for reducing compilation times</span>
-<span class="sd">    for jit-compiled functions, since native Python loop constructs in an ``@jit``</span>
-<span class="sd">    function are unrolled, leading to large XLA computations.</span>
-<span class="sd">  </span>
-<span class="sd">    Finally, the loop-carried value ``carry`` must hold a fixed shape and dtype</span>
-<span class="sd">    across all iterations (and not just be consistent up to NumPy rank/shape</span>
-<span class="sd">    broadcasting and dtype promotion rules, for example). In other words, the type</span>
-<span class="sd">    ``c`` in the type signature above represents an array with a fixed shape and</span>
-<span class="sd">    dtype (or a nested tuple/list/dict container data structure with a fixed</span>
-<span class="sd">    structure and arrays with fixed shape and dtype at the leaves).</span>
-<span class="sd">  </span>
-<span class="sd">    Args:</span>
-<span class="sd">      f: a Python function to be scanned of type ``c -&gt; a -&gt; (c, b)``, meaning</span>
-<span class="sd">        that ``f`` accepts two arguments where the first is a value of the loop</span>
-<span class="sd">        carry and the second is a slice of ``xs`` along its leading axis, and that</span>
-<span class="sd">        ``f`` returns a pair where the first element represents a new value for</span>
-<span class="sd">        the loop carry and the second represents a slice of the output.</span>
-<span class="sd">      init: an initial loop carry value of type ``c``, which can be a scalar,</span>
-<span class="sd">        array, or any pytree (nested Python tuple/list/dict) thereof, representing</span>
-<span class="sd">        the initial loop carry value. This value must have the same structure as</span>
-<span class="sd">        the first element of the pair returned by ``f``.</span>
-<span class="sd">      sequences: list of values over which to scan along the leading axis,</span>
-<span class="sd">        where ``[a]`` can be an array or any pytree (nested Python</span>
-<span class="sd">        tuple/list/dict) thereof with consistent leading axis sizes.</span>
-<span class="sd">      non_sequences: (optional) list of values that do not depend of the</span>
-<span class="sd">        iterations but are used in the function</span>
-<span class="sd">      length: optional integer specifying the number of loop iterations, which</span>
-<span class="sd">        must agree with the sizes of leading axes of the arrays in ``sequences`` (but can</span>
-<span class="sd">        be used to perform scans where no input ``xs`` are needed).</span>
-<span class="sd">      reverse: optional boolean specifying whether to run the scan iteration</span>
-<span class="sd">        forward (the default) or in reverse, equivalent to reversing the leading</span>
-<span class="sd">        axes of the arrays in both ``xs`` and in ``ys``.</span>
-<span class="sd">  </span>
-<span class="sd">    Returns:</span>
-<span class="sd">      A pair of type ``(c, [b])`` where the first element represents the final</span>
-<span class="sd">      loop carry value and the second element represents the stacked outputs of</span>
-<span class="sd">      the second output of ``f`` when scanned over the leading axis of the inputs.</span>
-
-<span class="sd">    Example:</span>
-<span class="sd">        .. doctest::</span>
-
-<span class="sd">           &gt;&gt;&gt; import symjax.tensor as T</span>
-<span class="sd">           &gt;&gt;&gt; import symjax</span>
-<span class="sd">           &gt;&gt;&gt; indices = T.Placeholder((3,), &#39;int32&#39;)</span>
-<span class="sd">           &gt;&gt;&gt; w = T.arange(10)</span>
-<span class="sd">           &gt;&gt;&gt; out = T.scan(lambda acc, i, w, : (acc + w[i],i), T.zeros(1), sequences=[indices], non_sequences=[w])</span>
-<span class="sd">           &gt;&gt;&gt; # out first element is the carry, the second is the stacked second outputs of the function</span>
-<span class="sd">           &gt;&gt;&gt; f = symjax.function(indices, outputs=out)</span>
-<span class="sd">           &gt;&gt;&gt; f([0,2,3])</span>
-<span class="sd">           [array([5.], dtype=float32), array([0, 2, 3], dtype=int32)]</span>
-<span class="sd">           &gt;&gt;&gt; f([1, 1, 1])</span>
-<span class="sd">           [array([3.], dtype=float32), array([1, 1, 1], dtype=int32)]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># get the fully jaxed function</span>
     <span class="n">truef</span> <span class="o">=</span> <span class="n">symjax_to_jax_fn</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
     <span class="c1"># now create a dummy function that only takes as input the sequences</span>
     <span class="k">if</span> <span class="n">non_sequences</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">finalf</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">truef</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">finalf</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span> <span class="k">return</span> <span class="n">truef</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">finalf</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">truef</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">*</span><span class="n">non_sequences</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">finalf</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span> <span class="k">return</span> <span class="n">truef</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">*</span><span class="n">non_sequences</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">jla</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">finalf</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
 
-
+<span class="nd">@jax_wrap</span>
 <span class="k">def</span> <span class="nf">_while_loop</span><span class="p">(</span><span class="n">cond_fun</span><span class="p">,</span> <span class="n">body_fun</span><span class="p">,</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">non_sequences_cond</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">non_sequences_body</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Call ``body_fun`` repeatedly in a loop while ``cond_fun`` is True.</span>
 
-<span class="sd">    The type signature in brief is</span>
-
-<span class="sd">    .. code-block:: haskell</span>
-
-<span class="sd">      while_loop :: (a -&gt; Bool) -&gt; (a -&gt; a) -&gt; a -&gt; a</span>
-
-<span class="sd">    The semantics of ``while_loop`` are given by this Python implementation::</span>
-
-<span class="sd">      def while_loop(cond_fun, body_fun, init_val):</span>
-<span class="sd">        val = init_val</span>
-<span class="sd">        while cond_fun(val):</span>
-<span class="sd">          val = body_fun(val)</span>
-<span class="sd">        return val</span>
-
-<span class="sd">    Unlike that Python version, ``while_loop`` is a JAX primitive and is lowered</span>
-<span class="sd">    to a single XLA While HLO. That makes it useful for reducing compilation times</span>
-<span class="sd">    for jit-compiled functions, since native Python loop constructs in an ``@jit``</span>
-<span class="sd">    function are unrolled, leading to large XLA computations.</span>
-
-<span class="sd">    Also unlike the Python analogue, the loop-carried value ``val`` must hold a</span>
-<span class="sd">    fixed shape and dtype across all iterations (and not just be consistent up to</span>
-<span class="sd">    NumPy rank/shape broadcasting and dtype promotion rules, for example). In</span>
-<span class="sd">    other words, the type ``a`` in the type signature above represents an array</span>
-<span class="sd">    with a fixed shape and dtype (or a nested tuple/list/dict container data</span>
-<span class="sd">    structure with a fixed structure and arrays with fixed shape and dtype at the</span>
-<span class="sd">    leaves).</span>
-
-<span class="sd">    Another difference from using Python-native loop constructs is that</span>
-<span class="sd">    ``while_loop`` is not reverse-mode differentiable because XLA computations</span>
-<span class="sd">    require static bounds on memory requirements.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      cond_fun: function of type ``a -&gt; Bool``.</span>
-<span class="sd">      body_fun: function of type ``a -&gt; a``.</span>
-<span class="sd">      init_val: value of type ``a``, a type that can be a scalar, array, or any</span>
-<span class="sd">        pytree (nested Python tuple/list/dict) thereof, representing the initial</span>
-<span class="sd">        loop carry value.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      The output from the final iteration of body_fun, of type ``a``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># get the fully jaxed function</span>
     <span class="n">truecond</span> <span class="o">=</span> <span class="n">symjax_to_jax_fn</span><span class="p">(</span><span class="n">cond_fun</span><span class="p">)</span>
     <span class="n">truebody</span> <span class="o">=</span> <span class="n">symjax_to_jax_fn</span><span class="p">(</span><span class="n">body_fun</span><span class="p">)</span>
@@ -329,11 +202,11 @@
     <span class="k">if</span> <span class="n">non_sequences_cond</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">finalcond</span> <span class="o">=</span> <span class="n">truecond</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">finalcond</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">args</span><span class="p">:</span> <span class="n">truecond</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="o">*</span><span class="n">non_sequences_cond</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">finalcond</span><span class="p">(</span><span class="n">args</span><span class="p">):</span> <span class="k">return</span> <span class="n">truecond</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="o">*</span><span class="n">non_sequences_cond</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">non_sequences_body</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">finalbody</span> <span class="o">=</span> <span class="n">truebody</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">finalbody</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">args</span><span class="p">:</span> <span class="n">truebody</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="o">*</span><span class="n">non_sequences_body</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">finalbody</span><span class="p">(</span><span class="n">args</span><span class="p">):</span> <span class="k">return</span> <span class="n">truebody</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="o">*</span><span class="n">non_sequences_body</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">jla</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span><span class="n">finalcond</span><span class="p">,</span> <span class="n">finalbody</span><span class="p">,</span> <span class="n">sequences</span><span class="p">)</span>
 
@@ -383,12 +256,167 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">g</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">non_sequences</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">non_sequences</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">non_sequences</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">sequences</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
     <span class="n">ys</span> <span class="o">=</span> <span class="n">scan</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">non_sequences</span><span class="o">=</span><span class="n">non_sequences</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
     <span class="k">return</span> <span class="n">ys</span></div>
 
 
-<span class="n">scan</span> <span class="o">=</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">_scan</span><span class="p">)</span>
-<span class="n">while_loop</span> <span class="o">=</span> <span class="n">jax_wrap</span><span class="p">(</span><span class="n">_while_loop</span><span class="p">)</span>
+
+<div class="viewcode-block" id="scan"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.control_flow.scan">[docs]</a><span class="k">def</span> <span class="nf">scan</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">non_sequences</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Scan a function over leading array axes while carrying along state.</span>
+
+<span class="sd">    The type signature in brief is</span>
+
+<span class="sd">    .. code-block:: haskell</span>
+
+<span class="sd">      scan :: (c -&gt; a -&gt; (c, b)) -&gt; c -&gt; [a] -&gt; (c, [b])</span>
+
+<span class="sd">    where we use [t] here to denote the type t with an additional leading axis.</span>
+<span class="sd">    That is, if t is an array type then [t] represents the type with an additional</span>
+<span class="sd">    leading axis, and if t is a pytree (container) type with array leaves then [t]</span>
+<span class="sd">    represents the type with the same pytree structure and corresponding leaves</span>
+<span class="sd">    each with an additional leading axis.</span>
+
+<span class="sd">    When ``a`` is an array type or None, and ``b`` is an array type, the semantics</span>
+<span class="sd">    of ``scan`` are given roughly by this Python implementation::</span>
+
+<span class="sd">      def scan(f, init, xs, length=None):</span>
+<span class="sd">        if xs is None:</span>
+<span class="sd">          xs = [None] * length</span>
+<span class="sd">        carry = init</span>
+<span class="sd">        ys = []</span>
+<span class="sd">        for x in xs:</span>
+<span class="sd">          carry, y = f(carry, x)</span>
+<span class="sd">          ys.append(y)</span>
+<span class="sd">        return carry, np.stack(ys)</span>
+
+<span class="sd">    Unlike that Python version, both ``a`` and ``b`` may be arbitrary pytree</span>
+<span class="sd">    types, and so multiple arrays can be scanned over at once and produce multiple</span>
+<span class="sd">    output arrays. (None is actually an empty pytree.)</span>
+
+<span class="sd">    Also unlike that Python version, ``scan`` is a JAX primitive and is lowered to</span>
+<span class="sd">    a single XLA While HLO. That makes it useful for reducing compilation times</span>
+<span class="sd">    for jit-compiled functions, since native Python loop constructs in an ``@jit``</span>
+<span class="sd">    function are unrolled, leading to large XLA computations.</span>
+
+<span class="sd">    Finally, the loop-carried value ``carry`` must hold a fixed shape and dtype</span>
+<span class="sd">    across all iterations (and not just be consistent up to NumPy rank/shape</span>
+<span class="sd">    broadcasting and dtype promotion rules, for example). In other words, the type</span>
+<span class="sd">    ``c`` in the type signature above represents an array with a fixed shape and</span>
+<span class="sd">    dtype (or a nested tuple/list/dict container data structure with a fixed</span>
+<span class="sd">    structure and arrays with fixed shape and dtype at the leaves).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      f: a Python function to be scanned of type ``c -&gt; a -&gt; (c, b)``, meaning</span>
+<span class="sd">        that ``f`` accepts two arguments where the first is a value of the loop</span>
+<span class="sd">        carry and the second is a slice of ``xs`` along its leading axis, and that</span>
+<span class="sd">        ``f`` returns a pair where the first element represents a new value for</span>
+<span class="sd">        the loop carry and the second represents a slice of the output.</span>
+<span class="sd">      init: an initial loop carry value of type ``c``, which can be a scalar,</span>
+<span class="sd">        array, or any pytree (nested Python tuple/list/dict) thereof, representing</span>
+<span class="sd">        the initial loop carry value. This value must have the same structure as</span>
+<span class="sd">        the first element of the pair returned by ``f``.</span>
+<span class="sd">      sequences: list of values over which to scan along the leading axis,</span>
+<span class="sd">        where ``[a]`` can be an array or any pytree (nested Python</span>
+<span class="sd">        tuple/list/dict) thereof with consistent leading axis sizes.</span>
+<span class="sd">      non_sequences: (optional) list of values that do not depend of the</span>
+<span class="sd">        iterations but are used in the function</span>
+<span class="sd">      length: optional integer specifying the number of loop iterations, which</span>
+<span class="sd">        must agree with the sizes of leading axes of the arrays in ``sequences`` (but can</span>
+<span class="sd">        be used to perform scans where no input ``xs`` are needed).</span>
+<span class="sd">      reverse: optional boolean specifying whether to run the scan iteration</span>
+<span class="sd">        forward (the default) or in reverse, equivalent to reversing the leading</span>
+<span class="sd">        axes of the arrays in both ``xs`` and in ``ys``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A pair of type ``(c, [b])`` where the first element represents the final</span>
+<span class="sd">      loop carry value and the second element represents the stacked outputs of</span>
+<span class="sd">      the second output of ``f`` when scanned over the leading axis of the inputs.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. doctest::</span>
+
+<span class="sd">           &gt;&gt;&gt; import symjax.tensor as T</span>
+<span class="sd">           &gt;&gt;&gt; import symjax</span>
+<span class="sd">           &gt;&gt;&gt; indices = T.Placeholder((3,), &#39;int32&#39;)</span>
+<span class="sd">           &gt;&gt;&gt; w = T.arange(10)</span>
+<span class="sd">           &gt;&gt;&gt; out = T.scan(lambda acc, i, w, : (acc + w[i],i), T.zeros(1), sequences=[indices], non_sequences=[w])</span>
+<span class="sd">           &gt;&gt;&gt; # out first element is the carry, the second is the stacked second outputs of the function</span>
+<span class="sd">           &gt;&gt;&gt; f = symjax.function(indices, outputs=out)</span>
+<span class="sd">           &gt;&gt;&gt; f([0,2,3])</span>
+<span class="sd">           [array([5.], dtype=float32), array([0, 2, 3], dtype=int32)]</span>
+<span class="sd">           &gt;&gt;&gt; f([1, 1, 1])</span>
+<span class="sd">           [array([3.], dtype=float32), array([1, 1, 1], dtype=int32)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">non_sequences</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">non_sequences</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">non_sequences</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">sequences</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_scan</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">non_sequences</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">reverse</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="while_loop"><a class="viewcode-back" href="../../../modules/tensor.html#symjax.tensor.control_flow.while_loop">[docs]</a><span class="k">def</span> <span class="nf">while_loop</span><span class="p">(</span><span class="n">cond_fun</span><span class="p">,</span> <span class="n">body_fun</span><span class="p">,</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">non_sequences_cond</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">non_sequences_body</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Call ``body_fun`` repeatedly in a loop while ``cond_fun`` is True.</span>
+
+<span class="sd">     The type signature in brief is</span>
+
+<span class="sd">     .. code-block:: haskell</span>
+
+<span class="sd">       while_loop :: (a -&gt; Bool) -&gt; (a -&gt; a) -&gt; a -&gt; a</span>
+
+<span class="sd">     The semantics of ``while_loop`` are given by this Python implementation::</span>
+
+<span class="sd">       def while_loop(cond_fun, body_fun, init_val):</span>
+<span class="sd">         val = init_val</span>
+<span class="sd">         while cond_fun(val):</span>
+<span class="sd">           val = body_fun(val)</span>
+<span class="sd">         return val</span>
+
+<span class="sd">     Unlike that Python version, ``while_loop`` is a JAX primitive and is lowered</span>
+<span class="sd">     to a single XLA While HLO. That makes it useful for reducing compilation times</span>
+<span class="sd">     for jit-compiled functions, since native Python loop constructs in an ``@jit``</span>
+<span class="sd">     function are unrolled, leading to large XLA computations.</span>
+
+<span class="sd">     Also unlike the Python analogue, the loop-carried value ``val`` must hold a</span>
+<span class="sd">     fixed shape and dtype across all iterations (and not just be consistent up to</span>
+<span class="sd">     NumPy rank/shape broadcasting and dtype promotion rules, for example). In</span>
+<span class="sd">     other words, the type ``a`` in the type signature above represents an array</span>
+<span class="sd">     with a fixed shape and dtype (or a nested tuple/list/dict container data</span>
+<span class="sd">     structure with a fixed structure and arrays with fixed shape and dtype at the</span>
+<span class="sd">     leaves).</span>
+
+<span class="sd">     Another difference from using Python-native loop constructs is that</span>
+<span class="sd">     ``while_loop`` is not reverse-mode differentiable because XLA computations</span>
+<span class="sd">     require static bounds on memory requirements.</span>
+
+<span class="sd">     Args:</span>
+<span class="sd">       cond_fun: function of type ``a -&gt; Bool``.</span>
+<span class="sd">       body_fun: function of type ``a -&gt; a``.</span>
+<span class="sd">       init_val: value of type ``a``, a type that can be a scalar, array, or any</span>
+<span class="sd">         pytree (nested Python tuple/list/dict) thereof, representing the initial</span>
+<span class="sd">         loop carry value.</span>
+
+<span class="sd">     Returns:</span>
+<span class="sd">       The output from the final iteration of body_fun, of type ``a``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">non_sequences_cond</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">non_sequences_cond</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">non_sequences_cond</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">non_sequences_body</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">non_sequences_body</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">non_sequences_body</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">sequences</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_while_loop</span><span class="p">(</span><span class="n">cond_fun</span><span class="p">,</span> <span class="n">body_fun</span><span class="p">,</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">non_sequences_cond</span><span class="p">,</span>
+                       <span class="n">non_sequences_body</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

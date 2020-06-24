@@ -184,37 +184,255 @@
 <span class="kn">import</span> <span class="nn">symjax</span>
 <span class="kn">from</span> <span class="nn">symjax</span> <span class="k">import</span> <span class="n">tensor</span> <span class="k">as</span> <span class="n">t</span>
 <span class="kn">from</span> <span class="nn">symjax.tensor</span> <span class="k">import</span> <span class="n">random</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+
+
+<span class="k">def</span> <span class="nf">current_scope</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Current scope.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">current_graph</span><span class="p">()</span><span class="o">.</span><span class="n">_scopes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">current_graph</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Current graph.&quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">symjax</span><span class="o">.</span><span class="n">_graphs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_graphs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">Graph</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Graph.&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">Graph</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_scope</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Scope</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">graph</span><span class="o">=</span><span class="bp">self</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_placeholders</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_updates</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ops</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">Placeholder</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">Variable</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">RandomOp</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">jax_function</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;jax_function&#39;</span><span class="p">],</span>
+                          <span class="n">seed</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;_seed&#39;</span><span class="p">])</span>
+
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">OpTupleItem</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">],</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">])</span>
+
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">Op</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">OpTuple</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">jax_function</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;jax_function&#39;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">t</span><span class="o">.</span><span class="n">isvar</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+                    <span class="n">const_node</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">const_node</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">const_node</span><span class="p">,</span> <span class="n">tensor</span><span class="p">,</span>
+                                  <span class="n">name</span><span class="o">=</span><span class="s1">&#39;arg</span><span class="si">{:02d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">tensor</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="p">[</span><span class="n">arg</span><span class="p">][</span><span class="n">tensor</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="s1">&#39;+arg</span><span class="si">{:02d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;arg</span><span class="si">{:02d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;kwargs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">t</span><span class="o">.</span><span class="n">isvar</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+                    <span class="n">const_node</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">const_node</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">const_node</span><span class="p">,</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">tensor</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="p">[</span><span class="n">arg</span><span class="p">][</span><span class="n">tensor</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="s1">&#39;+&#39;</span> <span class="o">+</span> <span class="n">key</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">Constant</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">tensor</span><span class="p">),</span> <span class="n">root</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">roots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">roots</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">roots</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">roots</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">roots</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">roots</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">t</span><span class="o">.</span><span class="n">isvar</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">!=</span> <span class="n">t</span><span class="o">.</span><span class="n">Constant</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_node_attribute</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="s1">&#39;root&#39;</span><span class="p">):</span>
+                <span class="n">roots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">nodes</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">roots</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">roots</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">roots</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">givens</span><span class="p">):</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">-&gt;</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span>
+                                     <span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">givens</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+        <span class="n">branch</span> <span class="o">=</span> <span class="n">givens</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="n">givens</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">all_simple_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">node</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                    <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">branch</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_args_kwargs</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">evaluate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">branch</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span> <span class="k">if</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">branch</span> <span class="k">else</span> <span class="n">arg</span>
+                            <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">branch</span><span class="p">:</span>
+                            <span class="n">kwargs</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span> <span class="o">=</span> <span class="n">branch</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+                    <span class="n">fun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_node_attribute</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s1">&#39;jax_function&#39;</span><span class="p">)</span>
+                    <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;_jax_function&#39;</span><span class="p">:</span> <span class="n">fun</span><span class="p">,</span>
+                                   <span class="s1">&#39;_shape&#39;</span><span class="p">:</span> <span class="n">n</span><span class="o">.</span><span class="n">_shape</span><span class="p">,</span>
+                                   <span class="s1">&#39;_dtype&#39;</span><span class="p">:</span> <span class="n">n</span><span class="o">.</span><span class="n">_dtype</span><span class="p">,</span>
+                                   <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">n</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_clone&#39;</span><span class="p">})</span>
+                    <span class="n">branch</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">Op</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">branch</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_node_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">nx</span><span class="o">.</span><span class="n">get_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)[</span><span class="n">node</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">tracker</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Example:</span>
+
+<span class="sd">            &gt;&gt;&gt; import symjax.tensor as T</span>
+<span class="sd">            &gt;&gt;&gt; w = T.ones(10).sum()+4</span>
+<span class="sd">            &gt;&gt;&gt; v = T.Variable(1., name=&#39;v&#39;, dtype=&#39;float32&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; T.get(w+v)</span>
+<span class="sd">            DeviceArray(15., dtype=float32)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">tracker</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tracker</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">t</span><span class="o">.</span><span class="n">isvar</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">item</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">tracker</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">item</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">tracker</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">item</span><span class="p">])</span>
+
+        <span class="k">elif</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">tracker</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tracker</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">Placeholder</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tracker</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39; no value given for placeholder </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">Variable</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">Constant</span><span class="p">:</span>
+            <span class="n">tracker</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">return</span> <span class="n">tracker</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">OpTupleItem</span><span class="p">:</span>
+
+            <span class="n">preds</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">preds</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="n">preds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">item</span><span class="p">)[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">tracker</span><span class="p">)[</span><span class="n">index</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">Op</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">OpTuple</span><span class="p">:</span>
+
+            <span class="c1"># first get the actual parents nodes (aka inputs to the function)</span>
+            <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_args_kwargs</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">tracker</span><span class="p">)</span>
+            <span class="n">tracker</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_node_attribute</span><span class="p">(</span>
+                <span class="n">item</span><span class="p">,</span> <span class="s1">&#39;jax_function&#39;</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">tracker</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">RandomOp</span><span class="p">:</span>
+            <span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span> <span class="ow">or</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span>
+            <span class="n">intra_seed</span> <span class="o">=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_node_attribute</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s1">&#39;seed&#39;</span><span class="p">)</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="n">seed</span> <span class="o">+</span> <span class="n">intra_seed</span><span class="p">)</span>
+            <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_args_kwargs</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">tracker</span><span class="p">)</span>
+            <span class="n">tracker</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_node_attribute</span><span class="p">(</span>
+                <span class="n">item</span><span class="p">,</span> <span class="s1">&#39;jax_function&#39;</span><span class="p">)(</span><span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">tracker</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">item</span>
+
+    <span class="k">def</span> <span class="nf">_get_args_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">tracker</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">evaluate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">evaluate</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">tracker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+            <span class="n">all_args</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">node</span><span class="p">)[</span><span class="s1">&#39;name&#39;</span><span class="p">]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">tracker</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">node</span><span class="p">)}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">all_args</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">node</span><span class="p">)[</span><span class="s1">&#39;name&#39;</span><span class="p">]:</span>
+                        <span class="n">parent</span>
+                        <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">node</span><span class="p">)}</span>
+        <span class="c1"># now we inspect if there are duplicate args</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">all_args</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="s1">&#39;+&#39;</span> <span class="ow">in</span> <span class="n">arg</span><span class="p">:</span>
+                <span class="n">items</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                    <span class="n">all_args</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">item</span><span class="p">:</span> <span class="n">all_args</span><span class="p">[</span><span class="n">arg</span><span class="p">]})</span>
+                <span class="k">del</span> <span class="n">all_args</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+
+        <span class="n">args_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">all_args</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;arg&#39;</span> <span class="o">==</span> <span class="n">name</span><span class="p">[:</span><span class="mi">3</span><span class="p">]]</span>
+        <span class="n">args_names</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_args</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">args_names</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">args_names</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">all_args</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">args</span><span class="p">,</span> <span class="n">all_args</span>
+
+    <span class="k">def</span> <span class="nf">variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">Variable</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">trainable</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">variables</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">trainable</span> <span class="o">==</span> <span class="n">trainable</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">placeholders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">placeholders</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">Placeholder</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">placeholders</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Op</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">OpTupleItem</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">ops</span>
+
+
+<span class="k">class</span> <span class="nc">Scope</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Scope.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">graph</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Constructor.&quot;&quot;&quot;</span>
-
+        <span class="k">if</span> <span class="n">graph</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">current_graph</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set global variables.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
-            <span class="n">symjax</span><span class="o">.</span><span class="n">_current_scope</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_current_scope</span>
-        <span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">_current_scope</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">_current_scope</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">_scopes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Delete globals.&quot;&quot;&quot;</span>
-        <span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">full_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">symjax</span><span class="o">.</span><span class="n">_current_scope</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_current_graph</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">full_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">_scopes</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">_scopes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">full_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">_current_scope</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">_scopes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">full_name</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">symjax</span><span class="o">.</span><span class="n">_current_scope</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">_current_scope</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span>
 
     <span class="k">def</span> <span class="nf">save_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Save graph.&quot;&quot;&quot;</span>
@@ -224,19 +442,6 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span><span class="p">)</span>
-
-    <span class="c1"># def variable(self, name):</span>
-
-    <span class="c1">#     # check if the name for given relative or full</span>
-    <span class="c1">#     if &#39;/&#39; not in name:</span>
-    <span class="c1">#         full_name = self.full_name + name</span>
-    <span class="c1">#     else:</span>
-    <span class="c1">#         full_name = name</span>
-
-    <span class="c1">#     if full_name in symjax._variables:</span>
-    <span class="c1">#         return symjax._variables[full_name]</span>
-    <span class="c1">#     else:</span>
-    <span class="c1">#         RuntimeError(&#39;Variable {name} not in graph {self.full_name}&#39;)</span>
 
     <span class="k">def</span> <span class="nf">load_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Load graph.&quot;&quot;&quot;</span>
@@ -251,6 +456,8 @@
             <span class="n">var</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensor</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">t</span><span class="o">.</span><span class="n">isvar</span><span class="p">(</span><span class="n">tensor</span><span class="p">):</span>
+            <span class="k">return</span>
 
         <span class="c1"># fake graph entrance if not used by user</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -258,18 +465,18 @@
 
         <span class="c1"># in this case we were given updates</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
-            <span class="n">symjax</span><span class="o">.</span><span class="n">_updates</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">_updates</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="n">tensor</span><span class="o">.</span><span class="n">scope</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span>
         <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="o">+</span> <span class="n">tensor</span><span class="o">.</span><span class="n">name</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">Placeholder</span><span class="p">):</span>
-            <span class="n">names</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_placeholders</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">_placeholders</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">Variable</span><span class="p">):</span>
-            <span class="n">names</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">_variables</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">names</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_ops</span>
-        <span class="c1"># print(&#39;in add&#39;, names)</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">_ops</span>
+
         <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">names</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tensor</span>
             <span class="k">return</span>
@@ -282,7 +489,6 @@
                 <span class="k">break</span>
         <span class="n">names</span><span class="p">[</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">)]</span> <span class="o">=</span> <span class="n">tensor</span>
         <span class="n">tensor</span><span class="o">.</span><span class="n">_set_name</span><span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>
-
 
 
 <div class="viewcode-block" id="reset_variables"><a class="viewcode-back" href="../../modules/symjax.html#symjax.reset_variables">[docs]</a><span class="k">def</span> <span class="nf">reset_variables</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -335,12 +541,9 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">matched</span> <span class="o">=</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">trainable</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">trainable</span> <span class="o">!=</span> <span class="n">trainable</span><span class="p">:</span>
-                <span class="k">continue</span>
-        <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">get_variables</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">trainable</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
 
 
 <span class="k">def</span> <span class="nf">save_variables</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
@@ -375,34 +578,40 @@
 
 
 <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">matched</span> <span class="o">=</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">trainable</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">trainable</span><span class="p">)</span> <span class="o">==</span> <span class="nb">bool</span>
-        <span class="n">matched</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matched</span>
-                   <span class="k">if</span> <span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">trainable</span> <span class="o">==</span> <span class="n">trainable</span><span class="p">]</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">symjax</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">]</span>
+    <span class="n">matched</span> <span class="o">=</span> <span class="n">current_graph</span><span class="p">()</span><span class="o">.</span><span class="n">variables</span><span class="p">(</span><span class="n">trainable</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fnmatch</span><span class="o">.</span><span class="n">filter</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">],</span> <span class="n">name</span><span class="p">)):</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output</span>
 
 
 <span class="k">def</span> <span class="nf">get_placeholders</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Same as symjax.variable but for placeholders</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">matched</span> <span class="o">=</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">symjax</span><span class="o">.</span><span class="n">_placeholders</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">symjax</span><span class="o">.</span><span class="n">_placeholders</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">]</span>
+    <span class="n">matched</span> <span class="o">=</span> <span class="n">current_graph</span><span class="p">()</span><span class="o">.</span><span class="n">placeholders</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fnmatch</span><span class="o">.</span><span class="n">filter</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">],</span> <span class="n">name</span><span class="p">)):</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output</span>
 
 
 <div class="viewcode-block" id="get_ops"><a class="viewcode-back" href="../../modules/symjax.html#symjax.get_ops">[docs]</a><span class="k">def</span> <span class="nf">get_ops</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Same as symjax.variable but for ops</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">matched</span> <span class="o">=</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">symjax</span><span class="o">.</span><span class="n">_ops</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">symjax</span><span class="o">.</span><span class="n">_ops</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">]</span></div>
+    <span class="n">matched</span> <span class="o">=</span> <span class="n">current_graph</span><span class="p">()</span><span class="o">.</span><span class="n">ops</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fnmatch</span><span class="o">.</span><span class="n">filter</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">],</span> <span class="n">name</span><span class="p">)):</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output</span></div>
 
 
 <span class="k">def</span> <span class="nf">add_updates</span><span class="p">(</span><span class="n">udpates</span><span class="p">):</span>
-    <span class="n">current_graph</span><span class="p">()</span><span class="o">.</span><span class="n">add_updates</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span>
+    <span class="n">current_scope</span><span class="p">()</span><span class="o">.</span><span class="n">add_updates</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">get_updates</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
@@ -470,7 +679,7 @@
     <span class="c1"># as the input of the gradient function and thus a change of</span>
     <span class="c1"># their value will not change the gradient computation, we also ensure</span>
     <span class="c1"># uniqueness</span>
-    <span class="n">all_roots</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">scalar</span><span class="o">.</span><span class="n">roots</span> <span class="o">+</span> <span class="n">input_variables</span><span class="p">))</span>
+    <span class="n">all_roots</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">current_graph</span><span class="p">()</span><span class="o">.</span><span class="n">roots</span><span class="p">(</span><span class="n">scalar</span><span class="p">)</span> <span class="o">+</span> <span class="n">input_variables</span><span class="p">))</span>
 
     <span class="c1"># get the argnum of the variables that we differentiate one</span>
     <span class="n">argnums</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_roots</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">input_variables</span><span class="p">]</span>
@@ -480,7 +689,7 @@
     <span class="c1"># roots</span>
     <span class="c1"># to the scalar varible s.t. automatic diffenrentiation can be applied</span>
     <span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">symjax</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">scalar</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">all_roots</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">))))</span>
+        <span class="k">return</span> <span class="n">current_graph</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">scalar</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">all_roots</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">))))</span>
 
     <span class="c1"># now we obtain the grad function. In fact, Jax returns a function that,</span>
     <span class="c1"># when it is called, returns the gradient values, this function is then</span>
@@ -491,6 +700,7 @@
         <span class="k">return</span> <span class="n">wrap_fn</span><span class="p">(</span><span class="o">*</span><span class="n">all_roots</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">wrap_fn</span><span class="p">(</span><span class="o">*</span><span class="n">all_roots</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
 
 
 <div class="viewcode-block" id="jacobians"><a class="viewcode-back" href="../../modules/symjax.html#symjax.jacobians">[docs]</a><span class="k">def</span> <span class="nf">jacobians</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">):</span>
@@ -634,7 +844,7 @@
         <span class="c1"># function</span>
         <span class="n">outs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">updates</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
         <span class="n">outs</span> <span class="o">+=</span> <span class="p">[</span><span class="n">outputs</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">outputs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">all_roots</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">getroots</span><span class="p">(</span><span class="n">outs</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_roots</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">symjax</span><span class="o">.</span><span class="n">current_graph</span><span class="p">()</span><span class="o">.</span><span class="n">roots</span><span class="p">(</span><span class="n">outs</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">classargs</span> <span class="o">=</span> <span class="n">classargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span>
         <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">updates</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
@@ -684,7 +894,8 @@
 
             <span class="n">feed_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">allargs</span><span class="p">,</span> <span class="n">jitargs</span><span class="p">))</span>
             <span class="n">feed_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;rng&#39;</span><span class="p">:</span> <span class="n">seed</span><span class="p">})</span>
-            <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">updates_values</span><span class="p">],</span> <span class="n">feed_dict</span><span class="p">)</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">updates_values</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">symjax</span><span class="o">.</span><span class="n">current_graph</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">feed_dict</span><span class="p">)</span>
 
         <span class="c1"># take care of the presence of -1 dimensions</span>
         <span class="n">to_vectorize</span> <span class="o">=</span> <span class="p">[]</span>
@@ -716,8 +927,8 @@
                             <span class="s2">&quot;, shape=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fnarg</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
 
             <span class="c1"># retreive the function outputs, updated values and apply them</span>
-            <span class="n">jited_add_inputs</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_inputs</span><span class="p">,</span>
-                                     <span class="n">tracker</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;rng&#39;</span><span class="p">:</span> <span class="n">rng</span><span class="p">})</span>
+            <span class="n">jited_add_inputs</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">current_graph</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_inputs</span><span class="p">,</span>
+                                                          <span class="n">tracker</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;rng&#39;</span><span class="p">:</span> <span class="n">rng</span><span class="p">})</span>
             <span class="n">jitoutputs</span><span class="p">,</span> <span class="n">jitupdates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jited</span><span class="p">(</span><span class="o">*</span><span class="n">fnargs</span><span class="p">,</span> <span class="o">*</span><span class="n">jited_add_inputs</span><span class="p">,</span>
                                                 <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">update</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updates_keys</span><span class="p">,</span> <span class="n">jitupdates</span><span class="p">):</span>

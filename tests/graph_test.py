@@ -55,7 +55,6 @@ def test_update():
         w = symjax.tensor.index_update(w, i, i)
     f = symjax.function(outputs=w)
     assert np.array_equal(f(), np.arange(10))
-
     w2 = symjax.tensor.zeros(10)
     for i in range(10):
         w2 = symjax.tensor.index_update(w2, [i], i)
@@ -67,11 +66,18 @@ def test_update():
         w3 = symjax.tensor.index_update(w3, symjax.tensor.index[i], i)
     f = symjax.function(outputs=w3)
     assert np.array_equal(f(), np.arange(10))
-
+    
     w4 = symjax.tensor.Variable(symjax.tensor.zeros(10))
     i = symjax.tensor.Variable(0, dtype='int32')
-    update = symjax.tensor.index_update(w4, symjax.tensor.index[i], i)
+    update = symjax.tensor.index_update(w4, i, i)
     f = symjax.function(updates={w4:update, i:i+1})
     for i in range(10):
         f()
     assert np.array_equal(w4.value, np.arange(10))
+
+
+if __name__ == '__main__':
+    test_update()
+    test_updating_variables()
+    test_accessing_variables()
+    test_reset()

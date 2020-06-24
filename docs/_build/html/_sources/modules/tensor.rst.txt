@@ -248,7 +248,7 @@ Numpy
 Extra
 =====
 
-.. automodule:: symjax.tensor.ops_math
+.. automodule:: symjax.tensor.ops_special
    :members:
 
 

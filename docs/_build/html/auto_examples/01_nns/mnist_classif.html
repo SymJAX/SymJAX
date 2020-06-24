@@ -40,8 +40,8 @@
   <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Speech picidae Dataset" href="../02_datasets/plot_picidae.html" />
-    <link rel="prev" title="CIFAR10 classification" href="mnist_classif.html" /> 
+    <link rel="next" title="CIFAR10 classification" href="cifar10_classif.html" />
+    <link rel="prev" title="Basic 1d interpolation" href="../plot_interpolation.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -94,8 +94,8 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Gallery</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../index.html#basic-examples">Basic examples</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html#deep-neural-networks">Deep Neural Networks</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="mnist_classif.html">CIFAR10 classification</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">CIFAR10 classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cifar10_classif.html">CIFAR10 classification</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#datasets">Datasets</a></li>
@@ -172,7 +172,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/auto_examples/01_nns/cifar10_classif.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/auto_examples/01_nns/mnist_classif.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -187,45 +187,47 @@
             
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-01-nns-cifar10-classif-py"><span class="std std-ref">here</span></a>     to download the full example code</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-01-nns-mnist-classif-py"><span class="std std-ref">here</span></a>     to download the full example code</p>
 </div>
 <div class="sphx-glr-example-title section" id="cifar10-classification">
-<span id="sphx-glr-auto-examples-01-nns-cifar10-classif-py"></span><h1>CIFAR10 classification<a class="headerlink" href="#cifar10-classification" title="Permalink to this headline">¶</a></h1>
+<span id="sphx-glr-auto-examples-01-nns-mnist-classif-py"></span><h1>CIFAR10 classification<a class="headerlink" href="#cifar10-classification" title="Permalink to this headline">¶</a></h1>
 <p>example of image classification</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">symjax.tensor</span> <span class="k">as</span> <span class="nn">T</span>
 <span class="kn">import</span> <span class="nn">symjax</span> <span class="k">as</span> <span class="nn">sj</span>
+<span class="kn">from</span> <span class="nn">symjax</span> <span class="k">import</span> <span class="n">nn</span>
+<span class="kn">import</span> <span class="nn">symjax</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DATASET_PATH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/home/vrael/DATASETS/&#39;</span>
 
 <span class="c1"># load the dataset</span>
-<span class="n">cifar10</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">cifar10</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+<span class="n">mnist</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">mnist</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
 
 <span class="c1"># some renormalization</span>
-<span class="n">cifar10</span><span class="p">[</span><span class="s1">&#39;train_set/images&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">cifar10</span><span class="p">[</span><span class="s1">&#39;train_set/images&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">cifar10</span><span class="p">[</span><span class="s1">&#39;test_set/images&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">cifar10</span><span class="p">[</span><span class="s1">&#39;test_set/images&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">mnist</span><span class="p">[</span><span class="s1">&#39;train_set/images&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">mnist</span><span class="p">[</span><span class="s1">&#39;train_set/images&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">mnist</span><span class="p">[</span><span class="s1">&#39;test_set/images&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">mnist</span><span class="p">[</span><span class="s1">&#39;test_set/images&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># create the network</span>
 <span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">32</span>
-<span class="n">images</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Placeholder</span><span class="p">((</span><span class="n">BATCH_SIZE</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span> <span class="s1">&#39;float32&#39;</span><span class="p">)</span>
-<span class="n">labels</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Placeholder</span><span class="p">((</span><span class="n">BATCH_SIZE</span><span class="p">,),</span> <span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+<span class="n">images</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Placeholder</span><span class="p">((</span><span class="n">BATCH_SIZE</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">),</span> <span class="s1">&#39;float32&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;images&#39;</span><span class="p">)</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Placeholder</span><span class="p">((</span><span class="n">BATCH_SIZE</span><span class="p">,),</span> <span class="s1">&#39;int32&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;labels&#39;</span><span class="p">)</span>
 <span class="n">deterministic</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Placeholder</span><span class="p">((</span><span class="mi">1</span><span class="p">,),</span> <span class="s1">&#39;bool&#39;</span><span class="p">)</span>
 
-<span class="n">layer</span> <span class="o">=</span> <span class="p">[</span><span class="n">sj</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">RandomCrop</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">crop_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span>
-                <span class="n">padding</span><span class="o">=</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)],</span>
-                <span class="n">deterministic</span><span class="o">=</span><span class="n">deterministic</span><span class="p">)]</span>
 
-<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
-    <span class="n">layer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sj</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="s1">&#39;SAME&#39;</span><span class="p">))</span>
-    <span class="n">layer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sj</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="n">layer</span> <span class="o">=</span> <span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Identity</span><span class="p">(</span><span class="n">images</span><span class="p">)]</span>
+
+<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">layer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="s1">&#39;SAME&#39;</span><span class="p">))</span>
+    <span class="n">layer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
                                     <span class="n">deterministic</span><span class="p">))</span>
-    <span class="n">layer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sj</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">T</span><span class="o">.</span><span class="n">leaky_relu</span><span class="p">))</span>
+    <span class="n">layer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">nn</span><span class="o">.</span><span class="n">leaky_relu</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">l</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">layer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sj</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Pool2D</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Pool2D</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
 
-<span class="n">layer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sj</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Pool2D</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="n">pool_type</span><span class="o">=</span><span class="s1">&#39;AVG&#39;</span><span class="p">))</span>
-
-<span class="n">layer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sj</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">layer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Pool2D</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="n">pool_type</span><span class="o">=</span><span class="s1">&#39;AVG&#39;</span><span class="p">))</span>
+<span class="n">layer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">10</span><span class="p">))</span>
 
 <span class="c1"># each layer is itself a tensor which represents its output and thus</span>
 <span class="c1"># any tensor operation can be used on the layer instance, for example</span>
@@ -233,31 +235,35 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
 
-<span class="n">loss</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">sparse_crossentropy_logits</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<span class="n">accuracy</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">sparse_crossentropy_logits</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">accuracy</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
-<span class="n">lr</span><span class="o">=</span><span class="n">sj</span><span class="o">.</span><span class="n">schedules</span><span class="o">.</span><span class="n">PiecewiseConstant</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mi">25</span><span class="p">:</span> <span class="mf">0.0001</span><span class="p">})</span>
-<span class="n">opt</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">lr</span><span class="p">)</span>
+<span class="n">lr</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">schedules</span><span class="o">.</span><span class="n">PiecewiseConstant</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mi">25</span><span class="p">:</span> <span class="mf">0.0001</span><span class="p">})</span>
 
-<span class="n">network_updates</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">get_updates</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">variables</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">roots</span><span class="p">)</span>
+<span class="n">symjax</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span><span class="n">layer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">variables</span><span class="p">())</span>
+<span class="n">asdf</span>
 
-<span class="n">test</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">deterministic</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">loss</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">])</span>
+<span class="n">nn</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">lr</span><span class="p">)</span>
 
-<span class="n">train</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">deterministic</span><span class="p">,</span>
-                    <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">loss</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">],</span> <span class="n">updates</span><span class="o">=</span><span class="p">{</span><span class="o">**</span><span class="n">opt</span><span class="o">.</span><span class="n">updates</span><span class="p">,</span>
-                                                <span class="o">**</span><span class="n">network_updates</span><span class="p">})</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">deterministic</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">loss</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">])</span>
+
+<span class="n">train</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">deterministic</span><span class="p">,</span>
+                    <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">loss</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">],</span> <span class="n">updates</span><span class="o">=</span><span class="n">symjax</span><span class="o">.</span><span class="n">get_updates</span><span class="p">())</span>
 
 <span class="n">test_accuracy</span> <span class="o">=</span> <span class="p">[]</span>
 
 <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
     <span class="n">L</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">sj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">batchify</span><span class="p">(</span><span class="n">cifar10</span><span class="p">[</span><span class="s1">&#39;test_set/images&#39;</span><span class="p">],</span> <span class="n">cifar10</span><span class="p">[</span><span class="s1">&#39;test_set/labels&#39;</span><span class="p">],</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span>
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">sj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">batchify</span><span class="p">(</span><span class="n">mnist</span><span class="p">[</span><span class="s1">&#39;test_set/images&#39;</span><span class="p">],</span> <span class="n">mnist</span><span class="p">[</span><span class="s1">&#39;test_set/labels&#39;</span><span class="p">],</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span>
                                       <span class="n">option</span><span class="o">=</span><span class="s1">&#39;continuous&#39;</span><span class="p">):</span>
         <span class="n">L</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Test Loss and Accu:&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
     <span class="n">test_accuracy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
     <span class="n">L</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">sj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">batchify</span><span class="p">(</span><span class="n">cifar10</span><span class="p">[</span><span class="s1">&#39;train_set/images&#39;</span><span class="p">],</span> <span class="n">cifar10</span><span class="p">[</span><span class="s1">&#39;train_set/labels&#39;</span><span class="p">],</span>
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">sj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">batchify</span><span class="p">(</span><span class="n">mnist</span><span class="p">[</span><span class="s1">&#39;train_set/images&#39;</span><span class="p">],</span> <span class="n">mnist</span><span class="p">[</span><span class="s1">&#39;train_set/labels&#39;</span><span class="p">],</span>
+
                             <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="s1">&#39;random_see_all&#39;</span><span class="p">):</span>
         <span class="n">L</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">train</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Train Loss and Accu&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
@@ -270,12 +276,12 @@
 </pre></div>
 </div>
 <p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.000 seconds)</p>
-<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-01-nns-cifar10-classif-py">
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-01-nns-mnist-classif-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
-<p><a class="reference download internal" download="" href="../../_downloads/c33f72ee652129f5855544fa25a061ab/cifar10_classif.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">cifar10_classif.py</span></code></a></p>
+<p><a class="reference download internal" download="" href="../../_downloads/d25fe7e6cdac85c294dc181353c0cf0e/mnist_classif.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">mnist_classif.py</span></code></a></p>
 </div>
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
-<p><a class="reference download internal" download="" href="../../_downloads/f759b6c9deed24dc9b300af7b05844e2/cifar10_classif.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">cifar10_classif.ipynb</span></code></a></p>
+<p><a class="reference download internal" download="" href="../../_downloads/f54bf9d46d49e3bf41bfb82ab91b45c1/mnist_classif.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">mnist_classif.ipynb</span></code></a></p>
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
@@ -289,10 +295,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../02_datasets/plot_picidae.html" class="btn btn-neutral float-right" title="Speech picidae Dataset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="cifar10_classif.html" class="btn btn-neutral float-right" title="CIFAR10 classification" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="mnist_classif.html" class="btn btn-neutral float-left" title="CIFAR10 classification" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../plot_interpolation.html" class="btn btn-neutral float-left" title="Basic 1d interpolation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

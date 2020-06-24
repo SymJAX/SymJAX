@@ -100,7 +100,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-symjax.tensor.control_flow">For/While/Scan</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#numpy">Numpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#extra">Extra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-symjax.tensor.ops_special">Extra</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="interpolation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">symjax.tensor.interpolation</span></code></a></li>
@@ -252,10 +252,9 @@ nested pytree type, and the mapped computation is compiled only once.</p>
 
 <dl class="function">
 <dt id="symjax.tensor.control_flow.scan">
-<code class="sig-name descname">scan</code><span class="sig-paren">(</span><em class="sig-param">f</em>, <em class="sig-param">init</em>, <em class="sig-param">sequences</em>, <em class="sig-param">non_sequences=None</em>, <em class="sig-param">length=None</em>, <em class="sig-param">reverse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.control_flow.scan" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scan</code><span class="sig-paren">(</span><em class="sig-param">f</em>, <em class="sig-param">init</em>, <em class="sig-param">sequences</em>, <em class="sig-param">non_sequences=None</em>, <em class="sig-param">length=None</em>, <em class="sig-param">reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/control_flow.html#scan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.control_flow.scan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scan a function over leading array axes while carrying along state.</p>
-<blockquote>
-<div><p>The type signature in brief is</p>
+<p>The type signature in brief is</p>
 <div class="highlight-haskell notranslate"><div class="highlight"><pre><span></span><span class="nf">scan</span> <span class="ow">::</span> <span class="p">(</span><span class="n">c</span> <span class="ow">-&gt;</span> <span class="n">a</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span> <span class="ow">-&gt;</span> <span class="n">c</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">[</span><span class="n">b</span><span class="p">])</span>
 </pre></div>
 </div>
@@ -290,51 +289,95 @@ broadcasting and dtype promotion rules, for example). In other words, the type
 <code class="docutils literal notranslate"><span class="pre">c</span></code> in the type signature above represents an array with a fixed shape and
 dtype (or a nested tuple/list/dict container data structure with a fixed
 structure and arrays with fixed shape and dtype at the leaves).</p>
-<dl class="simple">
-<dt>Args:</dt><dd><dl class="simple">
-<dt>f: a Python function to be scanned of type <code class="docutils literal notranslate"><span class="pre">c</span> <span class="pre">-&gt;</span> <span class="pre">a</span> <span class="pre">-&gt;</span> <span class="pre">(c,</span> <span class="pre">b)</span></code>, meaning</dt><dd><p>that <code class="docutils literal notranslate"><span class="pre">f</span></code> accepts two arguments where the first is a value of the loop
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> – a Python function to be scanned of type <code class="docutils literal notranslate"><span class="pre">c</span> <span class="pre">-&gt;</span> <span class="pre">a</span> <span class="pre">-&gt;</span> <span class="pre">(c,</span> <span class="pre">b)</span></code>, meaning
+that <code class="docutils literal notranslate"><span class="pre">f</span></code> accepts two arguments where the first is a value of the loop
 carry and the second is a slice of <code class="docutils literal notranslate"><span class="pre">xs</span></code> along its leading axis, and that
 <code class="docutils literal notranslate"><span class="pre">f</span></code> returns a pair where the first element represents a new value for
-the loop carry and the second represents a slice of the output.</p>
-</dd>
-<dt>init: an initial loop carry value of type <code class="docutils literal notranslate"><span class="pre">c</span></code>, which can be a scalar,</dt><dd><p>array, or any pytree (nested Python tuple/list/dict) thereof, representing
+the loop carry and the second represents a slice of the output.</p></li>
+<li><p><strong>init</strong> – an initial loop carry value of type <code class="docutils literal notranslate"><span class="pre">c</span></code>, which can be a scalar,
+array, or any pytree (nested Python tuple/list/dict) thereof, representing
 the initial loop carry value. This value must have the same structure as
-the first element of the pair returned by <code class="docutils literal notranslate"><span class="pre">f</span></code>.</p>
+the first element of the pair returned by <code class="docutils literal notranslate"><span class="pre">f</span></code>.</p></li>
+<li><p><strong>sequences</strong> – list of values over which to scan along the leading axis,
+where <code class="docutils literal notranslate"><span class="pre">[a]</span></code> can be an array or any pytree (nested Python
+tuple/list/dict) thereof with consistent leading axis sizes.</p></li>
+<li><p><strong>non_sequences</strong> – (optional) list of values that do not depend of the
+iterations but are used in the function</p></li>
+<li><p><strong>length</strong> – optional integer specifying the number of loop iterations, which
+must agree with the sizes of leading axes of the arrays in <code class="docutils literal notranslate"><span class="pre">sequences</span></code> (but can
+be used to perform scans where no input <code class="docutils literal notranslate"><span class="pre">xs</span></code> are needed).</p></li>
+<li><p><strong>reverse</strong> – optional boolean specifying whether to run the scan iteration
+forward (the default) or in reverse, equivalent to reversing the leading
+axes of the arrays in both <code class="docutils literal notranslate"><span class="pre">xs</span></code> and in <code class="docutils literal notranslate"><span class="pre">ys</span></code>.</p></li>
+</ul>
 </dd>
-<dt>sequences: list of values over which to scan along the leading axis,</dt><dd><p>where <code class="docutils literal notranslate"><span class="pre">[a]</span></code> can be an array or any pytree (nested Python
-tuple/list/dict) thereof with consistent leading axis sizes.</p>
-</dd>
-<dt>non_sequences: (optional) list of values that do not depend of the</dt><dd><p>iterations but are used in the function</p>
-</dd>
-<dt>length: optional integer specifying the number of loop iterations, which</dt><dd><p>must agree with the sizes of leading axes of the arrays in <code class="docutils literal notranslate"><span class="pre">sequences</span></code> (but can
-be used to perform scans where no input <code class="docutils literal notranslate"><span class="pre">xs</span></code> are needed).</p>
-</dd>
-<dt>reverse: optional boolean specifying whether to run the scan iteration</dt><dd><p>forward (the default) or in reverse, equivalent to reversing the leading
-axes of the arrays in both <code class="docutils literal notranslate"><span class="pre">xs</span></code> and in <code class="docutils literal notranslate"><span class="pre">ys</span></code>.</p>
-</dd>
-</dl>
-</dd>
-<dt>Returns:</dt><dd><p>A pair of type <code class="docutils literal notranslate"><span class="pre">(c,</span> <span class="pre">[b])</span></code> where the first element represents the final
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A pair of type <code class="docutils literal notranslate"><span class="pre">(c,</span> <span class="pre">[b])</span></code> where the first element represents the final
 loop carry value and the second element represents the stacked outputs of
 the second output of <code class="docutils literal notranslate"><span class="pre">f</span></code> when scanned over the leading axis of the inputs.</p>
 </dd>
 </dl>
-</div></blockquote>
-<p>LAX-backend implementation of <code class="xref py py-func docutils literal notranslate"><span class="pre">_scan()</span></code>.
-ADDITIONOriginal docstring below.</p>
-<p>Ex)]</p>
+<p class="rubric">Example</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">symjax.tensor</span> <span class="k">as</span> <span class="nn">T</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">symjax</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">indices</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Placeholder</span><span class="p">((</span><span class="mi">3</span><span class="p">,),</span> <span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">w</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="k">lambda</span> <span class="n">acc</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="p">:</span> <span class="p">(</span><span class="n">acc</span> <span class="o">+</span> <span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">i</span><span class="p">),</span> <span class="n">T</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">sequences</span><span class="o">=</span><span class="p">[</span><span class="n">indices</span><span class="p">],</span> <span class="n">non_sequences</span><span class="o">=</span><span class="p">[</span><span class="n">w</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># out first element is the carry, the second is the stacked second outputs of the function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">symjax</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="go">[array([5.], dtype=float32), array([0, 2, 3], dtype=int32)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="go">[array([3.], dtype=float32), array([1, 1, 1], dtype=int32)]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
 <dt id="symjax.tensor.control_flow.while_loop">
-<code class="sig-name descname">while_loop</code><span class="sig-paren">(</span><em class="sig-param">cond_fun</em>, <em class="sig-param">body_fun</em>, <em class="sig-param">sequences</em>, <em class="sig-param">non_sequences_cond=None</em>, <em class="sig-param">non_sequences_body=None</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.control_flow.while_loop" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">while_loop</code><span class="sig-paren">(</span><em class="sig-param">cond_fun</em>, <em class="sig-param">body_fun</em>, <em class="sig-param">sequences</em>, <em class="sig-param">non_sequences_cond=None</em>, <em class="sig-param">non_sequences_body=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/control_flow.html#while_loop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.control_flow.while_loop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call <code class="docutils literal notranslate"><span class="pre">body_fun</span></code> repeatedly in a loop while <code class="docutils literal notranslate"><span class="pre">cond_fun</span></code> is True.</p>
-<p>LAX-backend implementation of <code class="xref py py-func docutils literal notranslate"><span class="pre">_while_loop()</span></code>.
-ADDITIONOriginal docstring below.</p>
-<p>Th</p>
+<p>The type signature in brief is</p>
+<div class="highlight-haskell notranslate"><div class="highlight"><pre><span></span><span class="nf">while_loop</span> <span class="ow">::</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="kt">Bool</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">a</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">a</span>
+</pre></div>
+</div>
+<p>The semantics of <code class="docutils literal notranslate"><span class="pre">while_loop</span></code> are given by this Python implementation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">while_loop</span><span class="p">(</span><span class="n">cond_fun</span><span class="p">,</span> <span class="n">body_fun</span><span class="p">,</span> <span class="n">init_val</span><span class="p">):</span>
+  <span class="n">val</span> <span class="o">=</span> <span class="n">init_val</span>
+  <span class="k">while</span> <span class="n">cond_fun</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">body_fun</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">val</span>
+</pre></div>
+</div>
+<p>Unlike that Python version, <code class="docutils literal notranslate"><span class="pre">while_loop</span></code> is a JAX primitive and is lowered
+to a single XLA While HLO. That makes it useful for reducing compilation times
+for jit-compiled functions, since native Python loop constructs in an <code class="docutils literal notranslate"><span class="pre">&#64;jit</span></code>
+function are unrolled, leading to large XLA computations.</p>
+<p>Also unlike the Python analogue, the loop-carried value <code class="docutils literal notranslate"><span class="pre">val</span></code> must hold a
+fixed shape and dtype across all iterations (and not just be consistent up to
+NumPy rank/shape broadcasting and dtype promotion rules, for example). In
+other words, the type <code class="docutils literal notranslate"><span class="pre">a</span></code> in the type signature above represents an array
+with a fixed shape and dtype (or a nested tuple/list/dict container data
+structure with a fixed structure and arrays with fixed shape and dtype at the
+leaves).</p>
+<p>Another difference from using Python-native loop constructs is that
+<code class="docutils literal notranslate"><span class="pre">while_loop</span></code> is not reverse-mode differentiable because XLA computations
+require static bounds on memory requirements.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The output from the final iteration of body_fun, of type <code class="docutils literal notranslate"><span class="pre">a</span></code>.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cond_fun</strong> – function of type <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">-&gt;</span> <span class="pre">Bool</span></code>.</p></li>
+<li><p><strong>body_fun</strong> – function of type <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">-&gt;</span> <span class="pre">a</span></code>.</p></li>
+<li><p><strong>init_val</strong> – value of type <code class="docutils literal notranslate"><span class="pre">a</span></code>, a type that can be a scalar, array, or any
+pytree (nested Python tuple/list/dict) thereof, representing the initial
+loop carry value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The output from the final iteration of body_fun, of type <code class="docutils literal notranslate"><span class="pre">a</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1280,7 +1323,7 @@ This is a scalar if both <cite>x1</cite> and <cite>x2</cite> are scalars.</p>
 <p class="rubric">Notes</p>
 <p><em>arctan2</em> is identical to the <cite>atan2</cite> function of the underlying
 C library.  The following special values are defined in the C
-standard: <a href="#id182"><span class="problematic" id="id24">[1]_</span></a></p>
+standard: <a href="#id190"><span class="problematic" id="id24">[1]_</span></a></p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 21%" />
@@ -1901,7 +1944,7 @@ operator <code class="docutils literal notranslate"><span class="pre">~</span></
 <p>For signed integer inputs, the two’s complement is returned.  In a
 two’s-complement system negative numbers are represented by the two’s
 complement of the absolute value. This is the most common method of
-representing signed integers on computers <a href="#id183"><span class="problematic" id="id34">[1]_</span></a>. A N-bit
+representing signed integers on computers <a href="#id191"><span class="problematic" id="id34">[1]_</span></a>. A N-bit
 two’s-complement system can represent every integer in the range
 <span class="math notranslate nohighlight">\(-2^{N-1}\)</span> to <span class="math notranslate nohighlight">\(+2^{N-1}-1\)</span>.</p>
 <dl class="field-list simple">
@@ -2292,7 +2335,7 @@ to an integer.</p>
 ADDITIONOriginal docstring below.</p>
 <blockquote>
 <div><blockquote>
-<div><p>can_cast(<a href="#id184"><span class="problematic" id="id185">from_</span></a>, to, casting=’safe’)</p>
+<div><p>can_cast(<a href="#id192"><span class="problematic" id="id193">from_</span></a>, to, casting=’safe’)</p>
 </div></blockquote>
 <dl>
 <dt>Returns</dt><dd><dl class="simple">
@@ -5523,7 +5566,7 @@ This is a scalar if <cite>x</cite> is a scalar.</p>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference internal" href="#symjax.tensor.isinf" title="symjax.tensor.isinf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isinf()</span></code></a>, <code class="xref py py-func docutils literal notranslate"><span class="pre">isneginf()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">isposinf()</span></code>, <a class="reference internal" href="#symjax.tensor.isnan" title="symjax.tensor.isnan"><code class="xref py py-func docutils literal notranslate"><span class="pre">isnan()</span></code></a></p>
+<p><a class="reference internal" href="#symjax.tensor.isinf" title="symjax.tensor.isinf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isinf()</span></code></a>, <a class="reference internal" href="#symjax.tensor.isneginf" title="symjax.tensor.isneginf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isneginf()</span></code></a>, <a class="reference internal" href="#symjax.tensor.isposinf" title="symjax.tensor.isposinf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isposinf()</span></code></a>, <a class="reference internal" href="#symjax.tensor.isnan" title="symjax.tensor.isnan"><code class="xref py py-func docutils literal notranslate"><span class="pre">isnan()</span></code></a></p>
 </div>
 <p class="rubric">Notes</p>
 <p>Not a Number, positive infinity and negative infinity are considered
@@ -5581,7 +5624,7 @@ This is a scalar if <cite>x</cite> is a scalar.</p>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><code class="xref py py-func docutils literal notranslate"><span class="pre">isneginf()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">isposinf()</span></code>, <a class="reference internal" href="#symjax.tensor.isnan" title="symjax.tensor.isnan"><code class="xref py py-func docutils literal notranslate"><span class="pre">isnan()</span></code></a>, <a class="reference internal" href="#symjax.tensor.isfinite" title="symjax.tensor.isfinite"><code class="xref py py-func docutils literal notranslate"><span class="pre">isfinite()</span></code></a></p>
+<p><a class="reference internal" href="#symjax.tensor.isneginf" title="symjax.tensor.isneginf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isneginf()</span></code></a>, <a class="reference internal" href="#symjax.tensor.isposinf" title="symjax.tensor.isposinf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isposinf()</span></code></a>, <a class="reference internal" href="#symjax.tensor.isnan" title="symjax.tensor.isnan"><code class="xref py py-func docutils literal notranslate"><span class="pre">isnan()</span></code></a>, <a class="reference internal" href="#symjax.tensor.isfinite" title="symjax.tensor.isfinite"><code class="xref py py-func docutils literal notranslate"><span class="pre">isfinite()</span></code></a></p>
 </div>
 <p class="rubric">Notes</p>
 <p>NumPy uses the IEEE Standard for Binary Floating-Point for Arithmetic
@@ -5630,7 +5673,7 @@ This is a scalar if <cite>x</cite> is a scalar.</p>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference internal" href="#symjax.tensor.isinf" title="symjax.tensor.isinf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isinf()</span></code></a>, <code class="xref py py-func docutils literal notranslate"><span class="pre">isneginf()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">isposinf()</span></code>, <a class="reference internal" href="#symjax.tensor.isfinite" title="symjax.tensor.isfinite"><code class="xref py py-func docutils literal notranslate"><span class="pre">isfinite()</span></code></a>, <code class="xref py py-func docutils literal notranslate"><span class="pre">isnat()</span></code></p>
+<p><a class="reference internal" href="#symjax.tensor.isinf" title="symjax.tensor.isinf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isinf()</span></code></a>, <a class="reference internal" href="#symjax.tensor.isneginf" title="symjax.tensor.isneginf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isneginf()</span></code></a>, <a class="reference internal" href="#symjax.tensor.isposinf" title="symjax.tensor.isposinf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isposinf()</span></code></a>, <a class="reference internal" href="#symjax.tensor.isfinite" title="symjax.tensor.isfinite"><code class="xref py py-func docutils literal notranslate"><span class="pre">isfinite()</span></code></a>, <code class="xref py py-func docutils literal notranslate"><span class="pre">isnat()</span></code></p>
 </div>
 <p class="rubric">Notes</p>
 <p>NumPy uses the IEEE Standard for Binary Floating-Point for Arithmetic
@@ -5644,6 +5687,112 @@ This is a scalar if <cite>x</cite> is a scalar.</p>
 <span class="go">array([ True, False, False])</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.isneginf">
+<code class="sig-name descname">isneginf</code><span class="sig-paren">(</span><em class="sig-param">infinity</em>, <em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.isneginf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test element-wise for negative infinity, return result as bool array.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.isneginf" title="symjax.tensor.isneginf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isneginf()</span></code></a>.
+ADDITIONOriginal docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.isneginf" title="symjax.tensor.isneginf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isneginf()</span></code></a>.
+Original docstring below.</p>
+<blockquote>
+<div><blockquote>
+<div></div></blockquote>
+<dl>
+<dt>Returns</dt><dd><dl>
+<dt>out<span class="classifier">ndarray</span></dt><dd><p>A boolean array with the same dimensions as the input.
+If second argument is not supplied then a numpy boolean array is
+returned with values True where the corresponding element of the
+input is negative infinity and values False where the element of
+the input is not negative infinity.</p>
+<p>If a second argument is supplied the result is stored there. If the
+type of that array is a numeric type the result is represented as
+zeros and ones, if the type is boolean then as False and True. The
+return value <cite>out</cite> is then a reference to that array.</p>
+</dd>
+</dl>
+<p>isinf, isposinf, isnan, isfinite</p>
+<p>NumPy uses the IEEE Standard for Binary Floating-Point for Arithmetic
+(IEEE 754).</p>
+<p>Errors result if the second argument is also supplied when x is a scalar
+input, if first and second arguments have different shapes, or if the
+first argument has complex values.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">isneginf</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NINF</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">isneginf</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">isneginf</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">PINF</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">isneginf</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+<span class="go">array([ True, False, False])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">isneginf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="go">array([1, 0, 0])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span>
+<span class="go">array([1, 0, 0])</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.isposinf">
+<code class="sig-name descname">isposinf</code><span class="sig-paren">(</span><em class="sig-param">infinity</em>, <em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.isposinf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test element-wise for positive infinity, return result as bool array.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.isposinf" title="symjax.tensor.isposinf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isposinf()</span></code></a>.
+ADDITIONOriginal docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.isposinf" title="symjax.tensor.isposinf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isposinf()</span></code></a>.
+Original docstring below.</p>
+<blockquote>
+<div><blockquote>
+<div></div></blockquote>
+<dl>
+<dt>Returns</dt><dd><dl>
+<dt>out<span class="classifier">ndarray</span></dt><dd><p>A boolean array with the same dimensions as the input.
+If second argument is not supplied then a boolean array is returned
+with values True where the corresponding element of the input is
+positive infinity and values False where the element of the input is
+not positive infinity.</p>
+<p>If a second argument is supplied the result is stored there. If the
+type of that array is a numeric type the result is represented as zeros
+and ones, if the type is boolean then as False and True.
+The return value <cite>out</cite> is then a reference to that array.</p>
+</dd>
+</dl>
+<p>isinf, isneginf, isfinite, isnan</p>
+<p>NumPy uses the IEEE Standard for Binary Floating-Point for Arithmetic
+(IEEE 754).</p>
+<p>Errors result if the second argument is also supplied when x is a scalar
+input, if first and second arguments have different shapes, or if the
+first argument has complex values</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">isposinf</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">PINF</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">isposinf</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">isposinf</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NINF</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">isposinf</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+<span class="go">array([False, False,  True])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">isposinf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="go">array([0, 0, 1])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span>
+<span class="go">array([0, 0, 1])</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="function">
@@ -5775,6 +5924,68 @@ objects</p></td>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numbers</span> <span class="k">import</span> <span class="n">Number</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">Number</span><span class="p">())</span>
 <span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.issubdtype">
+<code class="sig-name descname">issubdtype</code><span class="sig-paren">(</span><em class="sig-param">arg1</em>, <em class="sig-param">arg2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/jax/numpy/lax_numpy.html#issubdtype"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.issubdtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if first argument is a typecode lower/equal in type hierarchy.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.issubdtype" title="symjax.tensor.issubdtype"><code class="xref py py-func docutils literal notranslate"><span class="pre">issubdtype()</span></code></a>.
+ADDITIONOriginal docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.issubdtype" title="symjax.tensor.issubdtype"><code class="xref py py-func docutils literal notranslate"><span class="pre">issubdtype()</span></code></a>.
+Original docstring below.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#symjax.tensor.issubsctype" title="symjax.tensor.issubsctype"><code class="xref py py-func docutils literal notranslate"><span class="pre">issubsctype()</span></code></a>, <code class="xref py py-func docutils literal notranslate"><span class="pre">issubclass_()</span></code></p>
+<dl class="simple">
+<dt><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.core.numerictypes()</span></code></dt><dd><p>Overview of numpy type hierarchy.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="s1">&#39;S1&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">string_</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.issubsctype">
+<code class="sig-name descname">issubsctype</code><span class="sig-paren">(</span><em class="sig-param">arg1</em>, <em class="sig-param">arg2</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.issubsctype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine if the first argument is a subclass of the second argument.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.issubsctype" title="symjax.tensor.issubsctype"><code class="xref py py-func docutils literal notranslate"><span class="pre">issubsctype()</span></code></a>.
+ADDITIONOriginal docstring below.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The result.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">issctype()</span></code>, <a class="reference internal" href="#symjax.tensor.issubdtype" title="symjax.tensor.issubdtype"><code class="xref py py-func docutils literal notranslate"><span class="pre">issubdtype()</span></code></a>, <code class="xref py py-func docutils literal notranslate"><span class="pre">obj2sctype()</span></code></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">issubsctype</span><span class="p">(</span><span class="s1">&#39;S8&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">issubsctype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">issubsctype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">float</span><span class="p">)</span>
+<span class="go">False</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -6339,6 +6550,98 @@ number, conforming to the C99 standard.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="symjax.tensor.logaddexp">
+<code class="sig-name descname">logaddexp</code><span class="sig-paren">(</span><em class="sig-param">x1</em>, <em class="sig-param">x2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/jax/numpy/lax_numpy.html#logaddexp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.logaddexp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logarithm of the sum of exponentiations of the inputs.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.logaddexp" title="symjax.tensor.logaddexp"><code class="xref py py-func docutils literal notranslate"><span class="pre">logaddexp()</span></code></a>.
+ADDITIONOriginal docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.logaddexp" title="symjax.tensor.logaddexp"><code class="xref py py-func docutils literal notranslate"><span class="pre">logaddexp()</span></code></a>.
+Original docstring below.</p>
+<p>logaddexp(x1, x2, /, out=None, <a href="#id118"><span class="problematic" id="id119">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>Calculates <code class="docutils literal notranslate"><span class="pre">log(exp(x1)</span> <span class="pre">+</span> <span class="pre">exp(x2))</span></code>. This function is useful in
+statistics where the calculated probabilities of events may be so small
+as to exceed the range of normal floating point numbers.  In such cases
+the logarithm of the calculated probability is stored. This function
+allows adding probabilities stored in such a fashion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>result</strong> – Logarithm of <code class="docutils literal notranslate"><span class="pre">exp(x1)</span> <span class="pre">+</span> <span class="pre">exp(x2)</span></code>.
+This is a scalar if both <cite>x1</cite> and <cite>x2</cite> are scalars.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#symjax.tensor.logaddexp2" title="symjax.tensor.logaddexp2"><code class="xref py py-func docutils literal notranslate"><span class="pre">logaddexp2()</span></code></a></dt><dd><p>Logarithm of the sum of exponentiations of inputs in base 2.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.3.0.</span></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">prob1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1e-50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prob2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.5e-50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prob12</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logaddexp</span><span class="p">(</span><span class="n">prob1</span><span class="p">,</span> <span class="n">prob2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prob12</span>
+<span class="go">-113.87649168120691</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">prob12</span><span class="p">)</span>
+<span class="go">3.5000000000000057e-50</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.logaddexp2">
+<code class="sig-name descname">logaddexp2</code><span class="sig-paren">(</span><em class="sig-param">x1</em>, <em class="sig-param">x2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/jax/numpy/lax_numpy.html#logaddexp2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.logaddexp2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logarithm of the sum of exponentiations of the inputs in base-2.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.logaddexp2" title="symjax.tensor.logaddexp2"><code class="xref py py-func docutils literal notranslate"><span class="pre">logaddexp2()</span></code></a>.
+ADDITIONOriginal docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.logaddexp2" title="symjax.tensor.logaddexp2"><code class="xref py py-func docutils literal notranslate"><span class="pre">logaddexp2()</span></code></a>.
+Original docstring below.</p>
+<p>logaddexp2(x1, x2, /, out=None, <a href="#id120"><span class="problematic" id="id121">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>Calculates <code class="docutils literal notranslate"><span class="pre">log2(2**x1</span> <span class="pre">+</span> <span class="pre">2**x2)</span></code>. This function is useful in machine
+learning when the calculated probabilities of events may be so small as
+to exceed the range of normal floating point numbers.  In such cases
+the base-2 logarithm of the calculated probability can be used instead.
+This function allows adding probabilities stored in such a fashion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>result</strong> – Base-2 logarithm of <code class="docutils literal notranslate"><span class="pre">2**x1</span> <span class="pre">+</span> <span class="pre">2**x2</span></code>.
+This is a scalar if both <cite>x1</cite> and <cite>x2</cite> are scalars.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#symjax.tensor.logaddexp" title="symjax.tensor.logaddexp"><code class="xref py py-func docutils literal notranslate"><span class="pre">logaddexp()</span></code></a></dt><dd><p>Logarithm of the sum of exponentiations of the inputs.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.3.0.</span></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">prob1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="mf">1e-50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prob2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="mf">2.5e-50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prob12</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logaddexp2</span><span class="p">(</span><span class="n">prob1</span><span class="p">,</span> <span class="n">prob2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prob1</span><span class="p">,</span> <span class="n">prob2</span><span class="p">,</span> <span class="n">prob12</span>
+<span class="go">(-166.09640474436813, -164.77447664948076, -164.28904982231052)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="mi">2</span><span class="o">**</span><span class="n">prob12</span>
+<span class="go">3.4999999999999914e-50</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
 <dt id="symjax.tensor.logical_and">
 <code class="sig-name descname">logical_and</code><span class="sig-paren">(</span><em class="sig-param">*args</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.logical_and" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the truth value of x1 AND x2 element-wise.</p>
@@ -6346,7 +6649,7 @@ number, conforming to the C99 standard.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.logical_and" title="symjax.tensor.logical_and"><code class="xref py py-func docutils literal notranslate"><span class="pre">logical_and()</span></code></a>.
 Original docstring below.</p>
-<p>logical_and(x1, x2, /, out=None, <a href="#id118"><span class="problematic" id="id119">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>logical_and(x1, x2, /, out=None, <a href="#id122"><span class="problematic" id="id123">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>y</strong> – Boolean result of the logical OR operation applied to the elements
@@ -6383,7 +6686,7 @@ This is a scalar if both <cite>x1</cite> and <cite>x2</cite> are scalars.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.logical_not" title="symjax.tensor.logical_not"><code class="xref py py-func docutils literal notranslate"><span class="pre">logical_not()</span></code></a>.
 Original docstring below.</p>
-<p>logical_not(x, /, out=None, <a href="#id120"><span class="problematic" id="id121">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>logical_not(x, /, out=None, <a href="#id124"><span class="problematic" id="id125">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>y</strong> – Boolean result with the same shape as <cite>x</cite> of the NOT operation
@@ -6420,7 +6723,7 @@ This is a scalar if <cite>x</cite> is a scalar.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.logical_or" title="symjax.tensor.logical_or"><code class="xref py py-func docutils literal notranslate"><span class="pre">logical_or()</span></code></a>.
 Original docstring below.</p>
-<p>logical_or(x1, x2, /, out=None, <a href="#id122"><span class="problematic" id="id123">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>logical_or(x1, x2, /, out=None, <a href="#id126"><span class="problematic" id="id127">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>y</strong> – Boolean result of the logical OR operation applied to the elements
@@ -6457,7 +6760,7 @@ This is a scalar if both <cite>x1</cite> and <cite>x2</cite> are scalars.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.logical_xor" title="symjax.tensor.logical_xor"><code class="xref py py-func docutils literal notranslate"><span class="pre">logical_xor()</span></code></a>.
 Original docstring below.</p>
-<p>logical_xor(x1, x2, /, out=None, <a href="#id124"><span class="problematic" id="id125">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>logical_xor(x1, x2, /, out=None, <a href="#id128"><span class="problematic" id="id129">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>y</strong> – Boolean result of the logical XOR operation applied to the elements
@@ -6574,7 +6877,7 @@ In addition to the original NumPy arguments listed below, also supports
 <code class="docutils literal notranslate"><span class="pre">precision</span></code> for extra control over matrix-multiplication precision
 on supported devices. See <code class="xref py py-func docutils literal notranslate"><span class="pre">jax.lax.dot()</span></code> for details.</p>
 <p>Original docstring below.</p>
-<p>matmul(x1, x2, /, out=None, <a href="#id126"><span class="problematic" id="id127">*</span></a>, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>matmul(x1, x2, /, out=None, <a href="#id130"><span class="problematic" id="id131">*</span></a>, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>y</strong> – The matrix product of the inputs.
@@ -6774,7 +7077,7 @@ function, which is only used for empty iterables.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.maximum" title="symjax.tensor.maximum"><code class="xref py py-func docutils literal notranslate"><span class="pre">maximum()</span></code></a>.
 Original docstring below.</p>
-<p>maximum(x1, x2, /, out=None, <a href="#id128"><span class="problematic" id="id129">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>maximum(x1, x2, /, out=None, <a href="#id132"><span class="problematic" id="id133">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <p>Compare two arrays and returns a new array containing the element-wise
 maxima. If one of the elements being compared is a NaN, then that
 element is returned. If both elements are NaNs then the first is
@@ -7130,7 +7433,7 @@ function, which is only used for empty iterables.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.minimum" title="symjax.tensor.minimum"><code class="xref py py-func docutils literal notranslate"><span class="pre">minimum()</span></code></a>.
 Original docstring below.</p>
-<p>minimum(x1, x2, /, out=None, <a href="#id130"><span class="problematic" id="id131">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>minimum(x1, x2, /, out=None, <a href="#id134"><span class="problematic" id="id135">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <p>Compare two arrays and returns a new array containing the element-wise
 minima. If one of the elements being compared is a NaN, then that
 element is returned. If both elements are NaNs then the first is
@@ -7190,7 +7493,7 @@ broadcasting.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.remainder" title="symjax.tensor.remainder"><code class="xref py py-func docutils literal notranslate"><span class="pre">remainder()</span></code></a>.
 Original docstring below.</p>
-<p>remainder(x1, x2, /, out=None, <a href="#id132"><span class="problematic" id="id133">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>remainder(x1, x2, /, out=None, <a href="#id136"><span class="problematic" id="id137">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <p>Computes the remainder complementary to the <cite>floor_divide</cite> function.  It is
 equivalent to the Python modulus operator``x1 % x2`` and has the same sign
 as the divisor <cite>x2</cite>. The MATLAB function equivalent to <code class="docutils literal notranslate"><span class="pre">np.remainder</span></code>
@@ -7298,7 +7601,7 @@ Original docstring below.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.multiply" title="symjax.tensor.multiply"><code class="xref py py-func docutils literal notranslate"><span class="pre">multiply()</span></code></a>.
 Original docstring below.</p>
-<p>multiply(x1, x2, /, out=None, <a href="#id134"><span class="problematic" id="id135">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>multiply(x1, x2, /, out=None, <a href="#id138"><span class="problematic" id="id139">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>y</strong> – The product of <cite>x1</cite> and <cite>x2</cite>, element-wise.
@@ -7360,9 +7663,9 @@ be <cite>x</cite> itself.</p>
 <dl class="simple">
 <dt><a class="reference internal" href="#symjax.tensor.isinf" title="symjax.tensor.isinf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isinf()</span></code></a></dt><dd><p>Shows which elements are positive or negative infinity.</p>
 </dd>
-<dt><code class="xref py py-func docutils literal notranslate"><span class="pre">isneginf()</span></code></dt><dd><p>Shows which elements are negative infinity.</p>
+<dt><a class="reference internal" href="#symjax.tensor.isneginf" title="symjax.tensor.isneginf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isneginf()</span></code></a></dt><dd><p>Shows which elements are negative infinity.</p>
 </dd>
-<dt><code class="xref py py-func docutils literal notranslate"><span class="pre">isposinf()</span></code></dt><dd><p>Shows which elements are positive infinity.</p>
+<dt><a class="reference internal" href="#symjax.tensor.isposinf" title="symjax.tensor.isposinf"><code class="xref py py-func docutils literal notranslate"><span class="pre">isposinf()</span></code></a></dt><dd><p>Shows which elements are positive infinity.</p>
 </dd>
 <dt><a class="reference internal" href="#symjax.tensor.isnan" title="symjax.tensor.isnan"><code class="xref py py-func docutils literal notranslate"><span class="pre">isnan()</span></code></a></dt><dd><p>Shows which elements are Not a Number (NaN).</p>
 </dd>
@@ -7774,7 +8077,7 @@ A Number (NaN).</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.negative" title="symjax.tensor.negative"><code class="xref py py-func docutils literal notranslate"><span class="pre">negative()</span></code></a>.
 Original docstring below.</p>
-<p>negative(x, /, out=None, <a href="#id136"><span class="problematic" id="id137">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>negative(x, /, out=None, <a href="#id140"><span class="problematic" id="id141">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>y</strong> – Returned array or scalar: <cite>y = -x</cite>.
@@ -7787,6 +8090,34 @@ This is a scalar if <cite>x</cite> is a scalar.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">negative</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span><span class="o">-</span><span class="mf">1.</span><span class="p">])</span>
 <span class="go">array([-1.,  1.])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.nextafter">
+<code class="sig-name descname">nextafter</code><span class="sig-paren">(</span><em class="sig-param">x1</em>, <em class="sig-param">x2</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.nextafter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the next floating-point value after x1 towards x2, element-wise.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.nextafter" title="symjax.tensor.nextafter"><code class="xref py py-func docutils literal notranslate"><span class="pre">nextafter()</span></code></a>.
+ADDITIONOriginal docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.nextafter" title="symjax.tensor.nextafter"><code class="xref py py-func docutils literal notranslate"><span class="pre">nextafter()</span></code></a>.
+Original docstring below.</p>
+<p>nextafter(x1, x2, /, out=None, <a href="#id142"><span class="problematic" id="id143">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – The next representable values of <cite>x1</cite> in the direction of <cite>x2</cite>.
+This is a scalar if both <cite>x1</cite> and <cite>x2</cite> are scalars.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray or scalar</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">nextafter</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="n">eps</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">nextafter</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="p">[</span><span class="n">eps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">eps</span><span class="p">]</span>
+<span class="go">array([ True,  True])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -7893,7 +8224,7 @@ yields the indices of the <cite>a</cite> where the condition is true.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.not_equal" title="symjax.tensor.not_equal"><code class="xref py py-func docutils literal notranslate"><span class="pre">not_equal()</span></code></a>.
 Original docstring below.</p>
-<p>not_equal(x1, x2, /, out=None, <a href="#id138"><span class="problematic" id="id139">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>not_equal(x1, x2, /, out=None, <a href="#id144"><span class="problematic" id="id145">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>out</strong> – Output array, element-wise comparison of <cite>x1</cite> and <cite>x2</cite>.
@@ -8038,7 +8369,7 @@ ADDITIONOriginal docstring below.</p>
 Original docstring below.</p>
 <p>Given two vectors, <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">=</span> <span class="pre">[a0,</span> <span class="pre">a1,</span> <span class="pre">...,</span> <span class="pre">aM]</span></code> and
 <code class="docutils literal notranslate"><span class="pre">b</span> <span class="pre">=</span> <span class="pre">[b0,</span> <span class="pre">b1,</span> <span class="pre">...,</span> <span class="pre">bN]</span></code>,
-the outer product <a href="#id186"><span class="problematic" id="id140">[1]_</span></a> is:</p>
+the outer product <a href="#id194"><span class="problematic" id="id146">[1]_</span></a> is:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">a0</span><span class="o">*</span><span class="n">b0</span>  <span class="n">a0</span><span class="o">*</span><span class="n">b1</span> <span class="o">...</span> <span class="n">a0</span><span class="o">*</span><span class="n">bN</span> <span class="p">]</span>
  <span class="p">[</span><span class="n">a1</span><span class="o">*</span><span class="n">b0</span>    <span class="o">.</span>
  <span class="p">[</span> <span class="o">...</span>          <span class="o">.</span>
@@ -8065,7 +8396,7 @@ the outer product <a href="#id186"><span class="problematic" id="id140">[1]_</sp
 </div>
 <p class="rubric">References</p>
 <dl class="footnote brackets">
-<dt class="label" id="id141"><span class="brackets">1</span></dt>
+<dt class="label" id="id147"><span class="brackets">1</span></dt>
 <dd><p>: G. H. Golub and C. F. Van Loan, <em>Matrix Computations</em>, 3rd
 ed., Baltimore, MD, Johns Hopkins University Press, 1996,
 pg. 8.</p>
@@ -8353,13 +8684,13 @@ array_like, <cite>x</cite> a poly1d object =&gt; <cite>values</cite> is also.</p
 </dl>
 </div>
 <p class="rubric">Notes</p>
-<p>Horner’s scheme <a href="#id187"><span class="problematic" id="id142">[1]_</span></a> is used to evaluate the polynomial. Even so,
+<p>Horner’s scheme <a href="#id195"><span class="problematic" id="id148">[1]_</span></a> is used to evaluate the polynomial. Even so,
 for polynomials of high degree the values may be inaccurate due to
 rounding errors. Use carefully.</p>
 <p>If <cite>x</cite> is a subtype of <cite>ndarray</cite> the return value will be of the same type.</p>
 <p class="rubric">References</p>
 <dl class="footnote brackets">
-<dt class="label" id="id143"><span class="brackets">1</span></dt>
+<dt class="label" id="id149"><span class="brackets">1</span></dt>
 <dd><p>I. N. Bronshtein, K. A. Semendyayev, and K. A. Hirsch (Eng.
 trans. Ed.), <em>Handbook of Mathematics</em>, New York, Van Nostrand
 Reinhold Co., 1985, pg. 720.</p>
@@ -8386,7 +8717,7 @@ Reinhold Co., 1985, pg. 720.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.power" title="symjax.tensor.power"><code class="xref py py-func docutils literal notranslate"><span class="pre">power()</span></code></a>.
 Original docstring below.</p>
-<p>power(x1, x2, /, out=None, <a href="#id144"><span class="problematic" id="id145">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>power(x1, x2, /, out=None, <a href="#id150"><span class="problematic" id="id151">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <p>Raise each base in <cite>x1</cite> to the positionally-corresponding power in
 <cite>x2</cite>.  <cite>x1</cite> and <cite>x2</cite> must be broadcastable to the same shape. Note that an
 integer type raised to a negative integer power will raise a ValueError.</p>
@@ -8441,7 +8772,7 @@ This is a scalar if both <cite>x1</cite> and <cite>x2</cite> are scalars.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.positive" title="symjax.tensor.positive"><code class="xref py py-func docutils literal notranslate"><span class="pre">positive()</span></code></a>.
 Original docstring below.</p>
-<p>positive(x, /, out=None, <a href="#id146"><span class="problematic" id="id147">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>positive(x, /, out=None, <a href="#id152"><span class="problematic" id="id153">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.13.0.</span></p>
 </div>
@@ -8768,7 +9099,7 @@ same as the maximum if <code class="docutils literal notranslate"><span class="p
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.rad2deg" title="symjax.tensor.rad2deg"><code class="xref py py-func docutils literal notranslate"><span class="pre">rad2deg()</span></code></a>.
 Original docstring below.</p>
-<p>rad2deg(x, /, out=None, <a href="#id148"><span class="problematic" id="id149">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>rad2deg(x, /, out=None, <a href="#id154"><span class="problematic" id="id155">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>y</strong> – The corresponding angle in degrees.
@@ -8807,7 +9138,7 @@ This is a scalar if <cite>x</cite> is a scalar.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.deg2rad" title="symjax.tensor.deg2rad"><code class="xref py py-func docutils literal notranslate"><span class="pre">deg2rad()</span></code></a>.
 Original docstring below.</p>
-<p>deg2rad(x, /, out=None, <a href="#id150"><span class="problematic" id="id151">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>deg2rad(x, /, out=None, <a href="#id156"><span class="problematic" id="id157">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>y</strong> – The corresponding angle in radians.
@@ -8972,7 +9303,7 @@ returned type is float.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.reciprocal" title="symjax.tensor.reciprocal"><code class="xref py py-func docutils literal notranslate"><span class="pre">reciprocal()</span></code></a>.
 Original docstring below.</p>
-<p>reciprocal(x, /, out=None, <a href="#id152"><span class="problematic" id="id153">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>reciprocal(x, /, out=None, <a href="#id158"><span class="problematic" id="id159">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <p>Calculates <code class="docutils literal notranslate"><span class="pre">1/x</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -9008,7 +9339,7 @@ integer zero the result is an overflow.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.remainder" title="symjax.tensor.remainder"><code class="xref py py-func docutils literal notranslate"><span class="pre">remainder()</span></code></a>.
 Original docstring below.</p>
-<p>remainder(x1, x2, /, out=None, <a href="#id154"><span class="problematic" id="id155">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>remainder(x1, x2, /, out=None, <a href="#id160"><span class="problematic" id="id161">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <p>Computes the remainder complementary to the <cite>floor_divide</cite> function.  It is
 equivalent to the Python modulus operator``x1 % x2`` and has the same sign
 as the divisor <cite>x2</cite>. The MATLAB function equivalent to <code class="docutils literal notranslate"><span class="pre">np.remainder</span></code>
@@ -9187,6 +9518,71 @@ raveling.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="symjax.tensor.result_type">
+<code class="sig-name descname">result_type</code><span class="sig-paren">(</span><em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/jax/numpy/lax_numpy.html#result_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.result_type" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Returns the type that results from applying the NumPy</dt><dd><p>type promotion rules to the arguments.</p>
+</dd>
+</dl>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.result_type" title="symjax.tensor.result_type"><code class="xref py py-func docutils literal notranslate"><span class="pre">result_type()</span></code></a>.
+ADDITIONOriginal docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.result_type" title="symjax.tensor.result_type"><code class="xref py py-func docutils literal notranslate"><span class="pre">result_type()</span></code></a>.
+Original docstring below.</p>
+<blockquote>
+<div><blockquote>
+<div><p>result_type(<a href="#id162"><span class="problematic" id="id163">*</span></a>arrays_and_dtypes)</p>
+<p>Type promotion in NumPy works similarly to the rules in languages
+like C++, with some slight differences.  When both scalars and
+arrays are used, the array’s type takes precedence and the actual value
+of the scalar is taken into account.</p>
+<p>For example, calculating 3*a, where a is an array of 32-bit floats,
+intuitively should result in a 32-bit float output.  If the 3 is a
+32-bit integer, the NumPy rules indicate it can’t convert losslessly
+into a 32-bit float, so a 64-bit float should be the result type.
+By examining the value of the constant, ‘3’, we see that it fits in
+an 8-bit integer, which can be cast losslessly into the 32-bit float.</p>
+</div></blockquote>
+<dl>
+<dt>Returns</dt><dd><dl class="simple">
+<dt>out<span class="classifier">dtype</span></dt><dd><p>The result type.</p>
+</dd>
+</dl>
+<p>dtype, promote_types, min_scalar_type, can_cast</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.6.0.</span></p>
+</div>
+<p>The specific algorithm used is as follows.</p>
+<p>Categories are determined by first checking which of boolean,
+integer (int/uint), or floating point (float/complex) the maximum
+kind of all the arrays and the scalars are.</p>
+<p>If there are only scalars or the maximum category of the scalars
+is higher than the maximum category of the arrays,
+the data types are combined with <a class="reference internal" href="#symjax.tensor.promote_types" title="symjax.tensor.promote_types"><code class="xref py py-func docutils literal notranslate"><span class="pre">promote_types()</span></code></a>
+to produce the return value.</p>
+<p>Otherwise, <cite>min_scalar_type</cite> is called on each array, and
+the resulting data types are all combined with <a class="reference internal" href="#symjax.tensor.promote_types" title="symjax.tensor.promote_types"><code class="xref py py-func docutils literal notranslate"><span class="pre">promote_types()</span></code></a>
+to produce the return value.</p>
+<p>The set of int values is not a subset of the uint values for types
+with the same number of bits, something not reflected in
+<code class="xref py py-func docutils literal notranslate"><span class="pre">min_scalar_type()</span></code>, but handled as a special case in <cite>result_type</cite>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">result_type</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;i1&#39;</span><span class="p">))</span>
+<span class="go">dtype(&#39;int8&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">result_type</span><span class="p">(</span><span class="s1">&#39;i4&#39;</span><span class="p">,</span> <span class="s1">&#39;c8&#39;</span><span class="p">)</span>
+<span class="go">dtype(&#39;complex128&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">result_type</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">dtype(&#39;float64&#39;)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
 <dt id="symjax.tensor.right_shift">
 <code class="sig-name descname">right_shift</code><span class="sig-paren">(</span><em class="sig-param">x1</em>, <em class="sig-param">x2</em><span class="sig-paren">)</span><a class="headerlink" href="#symjax.tensor.right_shift" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shift the bits of an integer to the right.</p>
@@ -9194,7 +9590,7 @@ raveling.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.right_shift" title="symjax.tensor.right_shift"><code class="xref py py-func docutils literal notranslate"><span class="pre">right_shift()</span></code></a>.
 Original docstring below.</p>
-<p>right_shift(x1, x2, /, out=None, <a href="#id156"><span class="problematic" id="id157">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>right_shift(x1, x2, /, out=None, <a href="#id164"><span class="problematic" id="id165">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <p>Bits are shifted to the right <cite>x2</cite>.  Because the internal
 representation of numbers is in binary format, this operation is
 equivalent to dividing <cite>x1</cite> by <code class="docutils literal notranslate"><span class="pre">2**x2</span></code>.</p>
@@ -9418,6 +9814,42 @@ and r/g/b channels (third axis). The functions <cite>concatenate</cite>, <cite>s
 </dd></dl>
 
 <dl class="function">
+<dt id="symjax.tensor.select">
+<code class="sig-name descname">select</code><span class="sig-paren">(</span><em class="sig-param">condlist</em>, <em class="sig-param">choicelist</em>, <em class="sig-param">default=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/jax/numpy/lax_numpy.html#select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.select" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an array drawn from elements in choicelist, depending on conditions.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.select" title="symjax.tensor.select"><code class="xref py py-func docutils literal notranslate"><span class="pre">select()</span></code></a>.
+ADDITIONOriginal docstring below.</p>
+<p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.select" title="symjax.tensor.select"><code class="xref py py-func docutils literal notranslate"><span class="pre">select()</span></code></a>.
+Original docstring below.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>output</strong> – The output at position m is the m-th element of the array in
+<cite>choicelist</cite> where the m-th element of the corresponding array in
+<cite>condlist</cite> is True.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-func docutils literal notranslate"><span class="pre">where()</span></code></dt><dd><p>Return elements from one of two arrays depending on condition.</p>
+</dd>
+</dl>
+<p><a class="reference internal" href="#symjax.tensor.take" title="symjax.tensor.take"><code class="xref py py-func docutils literal notranslate"><span class="pre">take()</span></code></a>, <code class="xref py py-func docutils literal notranslate"><span class="pre">choose()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">compress()</span></code>, <a class="reference internal" href="#symjax.tensor.diag" title="symjax.tensor.diag"><code class="xref py py-func docutils literal notranslate"><span class="pre">diag()</span></code></a>, <a class="reference internal" href="#symjax.tensor.diagonal" title="symjax.tensor.diagonal"><code class="xref py py-func docutils literal notranslate"><span class="pre">diagonal()</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">condlist</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">&lt;</span><span class="mi">3</span><span class="p">,</span> <span class="n">x</span><span class="o">&gt;</span><span class="mi">5</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">choicelist</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">condlist</span><span class="p">,</span> <span class="n">choicelist</span><span class="p">)</span>
+<span class="go">array([ 0,  1,  2, ..., 49, 64, 81])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
 <dt id="symjax.tensor.sign">
 <code class="sig-name descname">sign</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/jax/numpy/lax_numpy.html#sign"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.sign" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an element-wise indication of the sign of a number.</p>
@@ -9425,7 +9857,7 @@ and r/g/b channels (third axis). The functions <cite>concatenate</cite>, <cite>s
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.sign" title="symjax.tensor.sign"><code class="xref py py-func docutils literal notranslate"><span class="pre">sign()</span></code></a>.
 Original docstring below.</p>
-<p>sign(x, /, out=None, <a href="#id158"><span class="problematic" id="id159">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>sign(x, /, out=None, <a href="#id166"><span class="problematic" id="id167">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <p>The <cite>sign</cite> function returns <code class="docutils literal notranslate"><span class="pre">-1</span> <span class="pre">if</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">0,</span> <span class="pre">0</span> <span class="pre">if</span> <span class="pre">x==0,</span> <span class="pre">1</span> <span class="pre">if</span> <span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>.  nan
 is returned for nan inputs.</p>
 <p>For complex inputs, the <cite>sign</cite> function returns
@@ -9463,7 +9895,7 @@ which is different from a common alternative, <span class="math notranslate nohi
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.signbit" title="symjax.tensor.signbit"><code class="xref py py-func docutils literal notranslate"><span class="pre">signbit()</span></code></a>.
 Original docstring below.</p>
-<p>signbit(x, /, out=None, <a href="#id160"><span class="problematic" id="id161">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>signbit(x, /, out=None, <a href="#id168"><span class="problematic" id="id169">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>result</strong> – Output array, or reference to <cite>out</cite> if that was supplied.
@@ -9490,7 +9922,7 @@ This is a scalar if <cite>x</cite> is a scalar.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.sin" title="symjax.tensor.sin"><code class="xref py py-func docutils literal notranslate"><span class="pre">sin()</span></code></a>.
 Original docstring below.</p>
-<p>sin(x, /, out=None, <a href="#id162"><span class="problematic" id="id163">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>sin(x, /, out=None, <a href="#id170"><span class="problematic" id="id171">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>y</strong> – The sine of each element of x.
@@ -9564,11 +9996,11 @@ filter, and in interpolation.</p>
 <p>For bandlimited interpolation of discrete-time signals, the ideal
 interpolation kernel is proportional to the sinc function.</p>
 <dl class="footnote brackets">
-<dt class="label" id="id164"><span class="brackets">1</span></dt>
+<dt class="label" id="id172"><span class="brackets">1</span></dt>
 <dd><p>Weisstein, Eric W. “Sinc Function.” From MathWorld–A Wolfram Web
 Resource. <a class="reference external" href="http://mathworld.wolfram.com/SincFunction.html">http://mathworld.wolfram.com/SincFunction.html</a></p>
 </dd>
-<dt class="label" id="id165"><span class="brackets">2</span></dt>
+<dt class="label" id="id173"><span class="brackets">2</span></dt>
 <dd><p>Wikipedia, “Sinc function”,
 <a class="reference external" href="https://en.wikipedia.org/wiki/Sinc_function">https://en.wikipedia.org/wiki/Sinc_function</a></p>
 </dd>
@@ -9623,7 +10055,7 @@ Resource. <a class="reference external" href="http://mathworld.wolfram.com/SincF
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.sinh" title="symjax.tensor.sinh"><code class="xref py py-func docutils literal notranslate"><span class="pre">sinh()</span></code></a>.
 Original docstring below.</p>
-<p>sinh(x, /, out=None, <a href="#id166"><span class="problematic" id="id167">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>sinh(x, /, out=None, <a href="#id174"><span class="problematic" id="id175">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <p>Equivalent to <code class="docutils literal notranslate"><span class="pre">1/2</span> <span class="pre">*</span> <span class="pre">(np.exp(x)</span> <span class="pre">-</span> <span class="pre">np.exp(-x))</span></code> or
 <code class="docutils literal notranslate"><span class="pre">-1j</span> <span class="pre">*</span> <span class="pre">np.sin(1j*x)</span></code>.</p>
 <dl class="field-list simple">
@@ -9956,7 +10388,7 @@ Original docstring below.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.sqrt" title="symjax.tensor.sqrt"><code class="xref py py-func docutils literal notranslate"><span class="pre">sqrt()</span></code></a>.
 Original docstring below.</p>
-<p>sqrt(x, /, out=None, <a href="#id168"><span class="problematic" id="id169">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>sqrt(x, /, out=None, <a href="#id176"><span class="problematic" id="id177">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>y</strong> – An array of the same shape as <cite>x</cite>, containing the positive
@@ -10006,7 +10438,7 @@ complex function fails to be continuous.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.square" title="symjax.tensor.square"><code class="xref py py-func docutils literal notranslate"><span class="pre">square()</span></code></a>.
 Original docstring below.</p>
-<p>square(x, /, out=None, <a href="#id170"><span class="problematic" id="id171">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>square(x, /, out=None, <a href="#id178"><span class="problematic" id="id179">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>out</strong> – Element-wise <cite>x*x</cite>, of the same shape and dtype as <cite>x</cite>.
@@ -10222,7 +10654,7 @@ alleviate this issue.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.subtract" title="symjax.tensor.subtract"><code class="xref py py-func docutils literal notranslate"><span class="pre">subtract()</span></code></a>.
 Original docstring below.</p>
-<p>subtract(x1, x2, /, out=None, <a href="#id172"><span class="problematic" id="id173">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>subtract(x1, x2, /, out=None, <a href="#id180"><span class="problematic" id="id181">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>y</strong> – The difference of <cite>x1</cite> and <cite>x2</cite>, element-wise.
@@ -10567,7 +10999,7 @@ indices first</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.tan" title="symjax.tensor.tan"><code class="xref py py-func docutils literal notranslate"><span class="pre">tan()</span></code></a>.
 Original docstring below.</p>
-<p>tan(x, /, out=None, <a href="#id174"><span class="problematic" id="id175">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>tan(x, /, out=None, <a href="#id182"><span class="problematic" id="id183">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <p>Equivalent to <code class="docutils literal notranslate"><span class="pre">np.sin(x)/np.cos(x)</span></code> element-wise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -10613,7 +11045,7 @@ New York, NY: Dover, 1972.</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.tanh" title="symjax.tensor.tanh"><code class="xref py py-func docutils literal notranslate"><span class="pre">tanh()</span></code></a>.
 Original docstring below.</p>
-<p>tanh(x, /, out=None, <a href="#id176"><span class="problematic" id="id177">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>tanh(x, /, out=None, <a href="#id184"><span class="problematic" id="id185">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <p>Equivalent to <code class="docutils literal notranslate"><span class="pre">np.sinh(x)/np.cosh(x)</span></code> or <code class="docutils literal notranslate"><span class="pre">-1j</span> <span class="pre">*</span> <span class="pre">np.tan(1j*x)</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -10629,12 +11061,12 @@ This is a scalar if <cite>x</cite> is a scalar.</p>
 and returns a reference to <cite>out</cite>.  (See Examples)</p>
 <p class="rubric">References</p>
 <dl class="footnote brackets">
-<dt class="label" id="id178"><span class="brackets">1</span></dt>
+<dt class="label" id="id186"><span class="brackets">1</span></dt>
 <dd><p>M. Abramowitz and I. A. Stegun, Handbook of Mathematical Functions.
 New York, NY: Dover, 1972, pg. 83.
 <a class="reference external" href="http://www.math.sfu.ca/~cbm/aands/">http://www.math.sfu.ca/~cbm/aands/</a></p>
 </dd>
-<dt class="label" id="id179"><span class="brackets">2</span></dt>
+<dt class="label" id="id187"><span class="brackets">2</span></dt>
 <dd><p>Wikipedia, “Hyperbolic function”,
 <a class="reference external" href="https://en.wikipedia.org/wiki/Hyperbolic_function">https://en.wikipedia.org/wiki/Hyperbolic_function</a></p>
 </dd>
@@ -11174,7 +11606,7 @@ of the main one):</p>
 ADDITIONOriginal docstring below.</p>
 <p>LAX-backend implementation of <a class="reference internal" href="#symjax.tensor.true_divide" title="symjax.tensor.true_divide"><code class="xref py py-func docutils literal notranslate"><span class="pre">true_divide()</span></code></a>.
 Original docstring below.</p>
-<p>true_divide(x1, x2, /, out=None, <a href="#id180"><span class="problematic" id="id181">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
+<p>true_divide(x1, x2, /, out=None, <a href="#id188"><span class="problematic" id="id189">*</span></a>, where=True, casting=’same_kind’, order=’K’, dtype=None, subok=True[, signature, extobj])</p>
 <p>Instead of the Python traditional ‘floor division’, this returns a true
 division.  True division adjusts the output type to present the best
 answer, regardless of input types.</p>
@@ -11585,8 +12017,37 @@ Original docstring below.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="extra">
-<h2>Extra<a class="headerlink" href="#extra" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-symjax.tensor.ops_special">
+<span id="extra"></span><h2>Extra<a class="headerlink" href="#module-symjax.tensor.ops_special" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="symjax.tensor.ops_special.hat_1D">
+<code class="sig-name descname">hat_1D</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">t_left</em>, <em class="sig-param">t_center</em>, <em class="sig-param">t_right</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/ops_special.html#hat_1D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.ops_special.hat_1D" title="Permalink to this definition">¶</a></dt>
+<dd><p>hat basis function in 1-D</p>
+<p>Hat function, continuous piecewise linear</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array-like</em>) – the sampled input space</p></li>
+<li><p><strong>t_left</strong> (<em>scalar</em>) – the position of the left knot</p></li>
+<li><p><strong>t_center</strong> (<em>scalar</em>) – the position of the center knot</p></li>
+<li><p><strong>t_right</strong> (<em>scalar</em>) – the position of the right knot</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>output</strong> – same shape as x with applied hat function</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="symjax.tensor.ops_special.one_hot">
+<code class="sig-name descname">one_hot</code><span class="sig-paren">(</span><em class="sig-param">i</em>, <em class="sig-param">N</em>, <em class="sig-param">dtype='float32'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/symjax/tensor/ops_special.html#one_hot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#symjax.tensor.ops_special.one_hot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a one-hot encoding of x of size k.</p>
+</dd></dl>
+
 </div>
 </div>
 

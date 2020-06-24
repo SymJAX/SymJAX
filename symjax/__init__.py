@@ -14,9 +14,4 @@ from . import nn
 from . import probabilities
 from .base import *
 
-_current_scope = '/'
-_current_graph = [Graph('')]
-_variables = {}
-_placeholders = {}
-_updates = {}
-_ops = {}
+_graphs = [Graph('')]

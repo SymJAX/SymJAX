@@ -1,20 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__author__      = "Randall Balestriero"
+__author__ = "Randall Balestriero"
 
 
 import symjax
 import numpy as np
 import symjax.tensor as tt
-
 import jax
 import jax.numpy as jnp
 import jax.scipy as jsp
 
+
 def test_add():
     a = symjax.tensor.ones(2)
-    assert symjax.tensor.get(a.max()) == 1
+    assert symjax.current_graph().get(a.max()) == 1
+
 
 def test_pymc():
     class RandomVariable(symjax.tensor.Variable):
@@ -23,36 +24,35 @@ def test_pymc():
                 super().__init__(np.zeros(shape), name=name)
             else:
                 super().__init__(observed, name=name, trainable=False)
-    
+
         def logp(self, value):
             raise NotImplementedError()
-    
+
         def random(self, sample_shape):
             raise NotImplementedError()
-    
+
         @property
         def logpt(self):
             return self.logp(self)
-    
-    
+
     class Normal(RandomVariable):
         def __init__(self, name, mu, sigma, shape=None, observed=None):
             self.mu = mu
             self.sigma = sigma
             super().__init__(name, shape, observed)
-    
+
         def logp(self, value):
             tau = self.sigma ** -2.
             return (-tau * (value - self.mu)**2 + tt.log(tau / np.pi / 2.)) / 2.
-    
+
         def random(self, sample_shape):
             return np.random.randn(sample_shape) * self.sigma + self.mu
-    
+
     x = Normal('x', 0, 10.)
     s = Normal('s', 0., 5.)
     y = Normal('y', x, tt.exp(s))
 
-    assert tt.get(y) == 0.
+    assert symjax.current_graph().get(y) == 0.
 
     #################
     model_logpt = x.logpt + s.logpt + y.logpt
@@ -61,17 +61,17 @@ def test_pymc():
 
     normal_loglike = jsp.stats.norm.logpdf
 
-    f_ = lambda x, s, y: (normal_loglike(x, 0., 10.) +
-                      normal_loglike(s, 0., 5.) +
-                      normal_loglike(y, x, jnp.exp(s)))
-
+    def f_(x, s, y): return (normal_loglike(x, 0., 10.) +
+                             normal_loglike(s, 0., 5.) +
+                             normal_loglike(y, x, jnp.exp(s)))
 
     for i in range(10):
         x_val = np.random.randn() * 10.
         s_val = np.random.randn() * 5.
         y_val = np.random.randn() * .1 + x_val
 
-        np.testing.assert_allclose(f(x_val, s_val, y_val), f_(x_val, s_val, y_val), rtol=1e-06)
+        np.testing.assert_allclose(
+            f(x_val, s_val, y_val), f_(x_val, s_val, y_val), rtol=1e-06)
 
     model_dlogpt = symjax.gradients(model_logpt, [x, s, y])
 
@@ -87,7 +87,13 @@ def test_grad():
     w = tt.Placeholder((), 'float32')
     v = tt.Variable(1., dtype='float32')
     x = w*v+2
+    symjax.nn.optimizers.Adam(x, 0.001)
     g = symjax.gradients(x, [v])
     f = symjax.function(w, outputs=g[0])
     assert f(1) == 1
     assert f(10) == 10
+
+if __name__ == '__main__':
+    test_grad()
+    test_add()
+    test_pymc()

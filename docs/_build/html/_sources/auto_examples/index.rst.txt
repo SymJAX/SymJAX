@@ -83,6 +83,27 @@ Deep Neural Networks
 
 .. only:: html
 
+ .. figure:: /auto_examples/01_nns/images/thumb/sphx_glr_mnist_classif_thumb.png
+     :alt: CIFAR10 classification
+
+     :ref:`sphx_glr_auto_examples_01_nns_mnist_classif.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/01_nns/mnist_classif
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="example of image classification">
+
+.. only:: html
+
  .. figure:: /auto_examples/01_nns/images/thumb/sphx_glr_cifar10_classif_thumb.png
      :alt: CIFAR10 classification
 

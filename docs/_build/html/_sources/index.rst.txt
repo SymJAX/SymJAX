@@ -14,8 +14,10 @@ Welcome to SymJAX's documentation!
 
 - `JAX`_ is a `XLA`_ python interface that provides a `Numpy`_-like user experience with just-in-time compilation and `Autograd`_ powered automatic differenciation.
 
+- `NetworkX`_ is a Python package for the creation, manipulation, and study of directed and undirected graphs
+
 - `SymJAX`_ is a symbolic programming version of `JAX`_ 
-  providing a `Theano`_-like user experience. In addition of simplifying graph input/output, variable updates and graph utilities, `SymJAX`_ also features machine learning and deep learning tools combining `Lasagne`_ and `Tensorflow1`_ aspects for the better.
+  providing a `Theano`_-like user experience thanks to a `NetworkX`_ powered computational graph backend. In addition of simplifying graph input/output, variable updates and graph utilities, `SymJAX`_ also features machine learning and deep learning tools similar to `Lasagne`_ and `Tensorflow1`_ .
 
 
 *This is an under development research project, not an official product, expect bugs and sharp edges; please help by trying it out, reporting bugs and missing pieces.*
@@ -113,3 +115,4 @@ Gallery
 .. _Lasagne: https://github.com/Lasagne/Lasagne
 .. _Numpy: https://numpy.org
 .. _Tensorflow1: https://www.tensorflow.org/
+.. _NetworkX: https://networkx.github.io/

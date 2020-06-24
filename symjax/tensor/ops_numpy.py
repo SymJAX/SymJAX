@@ -122,6 +122,10 @@ for name in _JNP_NAMES:
         continue
     module.__dict__.update({name: jax_wrap(jnp.__dict__[name])})
 
+for name in ['issubsctype', 'issubdtype', 'nextafter', 'result_type', 'select', 'isneginf', 'isposinf', 'logaddexp', 'logaddexp2']:
+    module.__dict__.update({name: jax_wrap(jnp.__dict__[name])})
+
+
 cast = jax_wrap(jla.convert_element_type)
 complex = jax_wrap(jla.complex)
 range = module.__dict__['arange']
