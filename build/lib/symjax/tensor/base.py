@@ -51,109 +51,6 @@ def _args_formatting(args, extra_args, indices):
     return output
 
 
-def reset(item):
-    if isinstance(item, list) or isinstance(item, tuple):
-        [reset(i) for i in item]
-    elif hasattr(item, 'eval_value'):
-        item.eval_value = None
-    if hasattr(item, 'kwargs'):
-        for i in item.kwargs.values():
-            reset(i)
-
-
-def getroots(item, roots=[]):
-    if isinstance(item, list) or isinstance(item, tuple):
-        return roots + sum([getroots(i, roots) for i in item], [])
-    elif hasattr(item, 'roots'):
-        return roots + item.roots
-    else:
-        return []
-
-
-def get(item, tracker=None, givens=None, branches=None):
-    if tracker is None:
-        tracker = {}
-    if givens is None:
-        givens = {}
-    if branches is None:
-        branches = {}
-
-    if isinstance(item, list):
-        return [get(i, tracker, givens, branches) for i in item]
-    elif isinstance(item, tuple):
-        return tuple([get(i, tracker, givens, branches) for i in item])
-
-    if isinstance(item, Tensor):
-        # if the item is already in tracker, we might just return the already
-        # computed one unless it has to be altered by clone, in that case
-        # the actual output value will not be the one from the tracker and 
-        # we thus have to specialize the tracker for each ''branch''
-        current_givens = {**givens, **item._givens}
-        minimal = get_connected(item, current_givens.keys())
-        minimal_givens = dict([m for m in current_givens.items() if m[0] in minimal])
-        if item in minimal_givens:
-            new_givens = dict([m for m in minimal_givens.items() if m[0] != item])
-            return get(minimal_givens[item], tracker, new_givens, branches)
-        if len(minimal_givens) == 0:
-            # if this branch is unchanged, return directly the already
-            # computed one
-            if item in tracker:
-                return tracker[item]
-            tracker[item] = item._get(tracker, {}, {})
-            return tracker[item]
-
-        # otherwise we specialize
-        names = ['{}{}->{}{}'.format(m.scope, m.name, current_givens[m].scope,
-                                     current_givens[m].name) for m in minimal]
-        names.sort()
-        name = '_'.join(names)
-        if item in branches:
-            if name in branches[item]:
-                return branches[item][name]
-            branches[item][name] = item._get(tracker, minimal_givens, branches)
-        else:
-            branches[item] = {name: item._get(tracker, minimal_givens, branches)}
-        return branches[item][name]
-    else:
-        return item
-
-
-def get_connected(item, parents, _minimal=None):
-    """
-    Utility function returning the list of connected guys from the provided one
-
-    Parameters
-    ----------
-
-    item: Tensor or any value
-
-    parents: list of things
-
-    Returns
-
-    connected: list
-    :param _minimal:
-
-    """
-    if len(parents) == 0:
-        return []
-    if _minimal is None:
-        _minimal = []
-    if hasattr(item, 'args'):
-        for arg in item.args:
-            if arg in parents and arg not in _minimal:
-                _minimal.append(arg)
-            _minimal = get_connected(arg, parents, _minimal)
-    if hasattr(item, 'kwargs'):
-        for arg in item.kwargs.values():
-            if arg in parents and arg not in _minimal:
-                _minimal.append(arg)
-            _minimal = get_connected(arg, parents, _minimal)
-    if item in parents and item not in _minimal:
-        _minimal.append(item)
-    return _minimal
-
-
 def isvar(item):
     """ check whether an item (possibly a nested list etc) contains a variable
     (any subtype of Tensor) """
@@ -165,103 +62,10 @@ def isvar(item):
     # otherwise cheack that it is a subtype of Tensor or a Tracer and not
     # a callable
     else:
-        cond1 = isinstance(item, Tensor)
+        cond1 = isinstance(item, Tensor) or type(item) in [Constant, OpTuple]
         #        cond2 = isinstance(item, jax.interpreters.partial_eval.JaxprTracer)
         cond3 = callable(item)
         return cond1 and not cond3  # (cond1 or cond2) and cond3
-
-
-class Tensor:
-    __array_priority__ = 1000
-
-    def __init__(self, shape, dtype, roots=[], copyof=None, name=None):
-        self.copyof = copyof
-        self._roots = roots
-        self._shape = tuple(shape)
-        self._dtype = dtype
-        self._givens = {}
-        if name is not None:
-            assert '/' not in name
-            self._name = name
-        else:
-            self._name = 'unnamed'
-        symjax.current_graph().add(self)
-
-    def __repr__(self):
-        return '(Tensor: name={}, shape={}, dtype={})'.format(self.name,
-                                                              self.shape, self.dtype)
-
-    def __str__(self):
-        return self.__repr__()
-
-    @property
-    def name(self):
-        return self._name
-
-    def _set_name(self, new_name):
-        self._name = new_name
-
-    @property
-    def args(self):
-        if self.copyof is not None:
-            return self.copyof.args
-        elif hasattr(self, '_args'):
-            return self._args
-        else:
-            return []
-
-    @property
-    def roots(self):
-        if self.copyof is not None:
-            return self.copyof.roots
-        elif hasattr(self, '_roots'):
-            return self._roots
-        else:
-            return []
-
-    @property
-    def kwargs(self):
-        if self.copyof is not None:
-            return self.copyof.kwargs
-        elif hasattr(self, '_kwargs'):
-            return self._kwargs
-        else:
-            return {}
-
-    @property
-    def shape(self):
-        return self._shape
-
-    @property
-    def dtype(self):
-        return self._dtype
-
-    @property
-    def ndim(self):
-        return len(self.shape)
-
-    def _get(self, tracker, givens, branches):
-        """ this method implements only the case where the tensor is a copy
-            of another one such as a variable etc. In this case we simply refer
-            to the original get method. Otherwise, there should never be a call
-            of get on a Tensor but always on an Op etc"""
-        if self.copyof is not None:
-            return self.copyof._get(tracker, givens, branches)
-
-    def clone(self, givens):
-        for g in givens:
-            assert isinstance(givens[g], Tensor)
-        new_object = Tensor(self.shape, self.dtype, self.roots, copyof=self,
-                            name=self.name + '_clone')
-        new_object._givens = givens
-        return new_object
-
-    def _check_tracker(self, tracker):
-        if tracker is None:
-            return
-        for i in tracker:
-            if isinstance(tracker[i], Tensor):
-                RuntimeError("incorrect tracker value for {}".format(tracker[i]))
 
 
 _numpy_signature_re = re.compile(r'^([\w., ]+=)?\s*[\w\.]+\(.*\)$')
@@ -360,7 +164,7 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
         if type(tree) == list or type(tree) == tuple:
             shapes = [t.shape for t in tree]
             dtypes = [t.dtype for t in tree]
-            return Tuple(
+            return OpTuple(
                 *args,
                 _jax_function=func,
                 _shapes=shapes,
@@ -402,8 +206,8 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
         docstr = (
             "{summary}\n\nLAX-backend implementation of :func:`{fun}`.\n"
             "{lax_description}Original docstring below.\n\n{body}"
-                .format(summary=summary, lax_description=desc,
-                        fun=func.__name__, body=body))
+            .format(summary=summary, lax_description=desc,
+                    fun=func.__name__, body=body))
 
         op.__name__ = func.__name__
         op.__doc__ = docstr
@@ -423,12 +227,14 @@ def wrap_class(c, method_exceptions=None):
             new_kwargs = {}
             for i in range(len(args)):
                 if isinstance(args[i], Tensor):
-                    new_args.append(jnp.zeros(args[i].shape, dtype=args[i].dtype))
+                    new_args.append(
+                        jnp.zeros(args[i].shape, dtype=args[i].dtype))
                 else:
                     new_args.append(args[i])
             for i in kwargs:
                 if isinstance(kwargs[i], Tensor):
-                    new_kwargs[i] = jnp.zeros(kwargs[i].shape, dtype=kwargs[i].dtype)
+                    new_kwargs[i] = jnp.zeros(kwargs[i].shape,
+                                              dtype=kwargs[i].dtype)
                 else:
                     new_kwargs[i] = kwargs[i]
 
@@ -440,7 +246,8 @@ def wrap_class(c, method_exceptions=None):
             attr_after = instance.__dict__.keys()
 
             news = [i for i in attr_after if i not in attr_before]
-            news = [n for n in news if isinstance(instance.__dict__[n], jax.interpreters.xla.DeviceArray)]
+            news = [n for n in news if isinstance(instance.__dict__[n],
+                                                  jax.interpreters.xla.DeviceArray)]
 
             # this function maps the class inputs to the creator generated
             # class attributes
@@ -473,47 +280,126 @@ def wrap_class(c, method_exceptions=None):
     return meta
 
 
+class Tensor:
+
+    __array_priority__ = 1000
+
+    def __init__(self, _shape, _dtype, name=None, **kwargs):
+
+        self._shape = tuple(_shape)
+        self._dtype = _dtype
+
+        if name is not None:
+            assert '/' not in name
+            self._name = name
+        else:
+            self._name = 'unnamed'
+
+        symjax.current_graph().add(self, **kwargs)
+
+    @property
+    def name(self):
+        return self._name
+
+    def _set_name(self, new_name):
+        self._name = new_name
+
+    def clone(self, givens):
+        return symjax.current_graph().clone(self, givens)
+
+    @property
+    def shape(self):
+        return self._shape
+
+    @property
+    def dtype(self):
+        return self._dtype
+
+    @property
+    def ndim(self):
+        return len(self.shape)
+
+
+class Constant:
+    def __init__(self, value):
+        self.value = value
+
+
 class Op(Tensor):
     """an Op generates a Tensor object obtained from a function"""
 
-    def __init__(self, *args, _jax_function, _shape, _dtype, _roots=[], name=None,
+    def __init__(self, *args, _jax_function, _shape, _dtype, name=None,
                  **kwargs):
-
-        # save args and kwargs
-        self._kwargs = kwargs
-        self._args = args
-        self.jax_function = _jax_function
-        # set roots
-        roots = list(set(getroots(list(kwargs.values()) + list(args)) + _roots))
-
-        super().__init__(_shape, _dtype, roots, name=name)
+        self._fn = _jax_function.__name__
+        super().__init__(_shape, _dtype, name=name, args=args, kwargs=kwargs,
+                         jax_function=_jax_function, **kwargs)
 
     def __repr__(self):
-        name = 'Op(name={}, shape={}, dtype={}, scope={})'
+
+        name = 'Op(name={}, fn, shape={}, dtype={}, scope={})'
+        return name.format(self.name, self._fn, self.shape, self.dtype,
+                           self.scope)
+
+    def __str__(self):
+
+        return self.__repr__()
+
+
+class OpTuple:
+
+    def __init__(self, *args, _jax_function, _shapes, _dtypes,
+                 name=None, **kwargs):
+
+        if name is None:
+            name = _jax_function.__name__
+        self._name = name
+        symjax.current_graph().add(self, jax_function=_jax_function, args=args,
+                                   kwargs=kwargs, **kwargs)
+        for i, (shape, dtype) in enumerate(zip(_shapes, _dtypes)):
+            OpTupleItem(shape, dtype, index=i, parent=self,
+                        name=name + '[{}]'.format(i))
+
+    def __repr__(self):
+        successors = symjax.current_graph().successors(self)
+
+        return '(' + ', '.join([str(a) for a in successors]) + ')'
+
+    @property
+    def name(self):
+        return self._name
+
+    def _set_name(self, name):
+        self._name = name
+
+    def __str__(self):
+
+        return self.__repr__()
+
+    def __iter__(self):
+        ''' Returns the Iterator object '''
+        return symjax.current_graph().successors(self)
+
+    def __getitem__(self, item):
+        assert type(item) == int
+        for node in symjax.current_graph().successors(self):
+            if symjax.current_graph()[self][node]['index'] == item:
+                return node
+
+
+class OpTupleItem(Tensor):
+
+    def __init__(self, shape, dtype, index, parent, name):
+        super().__init__(shape, dtype, name=name, parent=parent, index=index)
+
+    def __repr__(self):
+
+        name = 'OpTupleItem(name={}, shape={}, dtype={}, scope={})'
         return name.format(self.name, self.shape, self.dtype,
                            self.scope)
 
     def __str__(self):
+
         return self.__repr__()
-
-    def _get(self, tracker, givens, branches):
-
-        self._check_tracker(tracker)
-
-        # evaluate the function kwargs as explicit jax arrays
-        kwargs = dict([(name, get(var, tracker, givens, branches))
-                       for name, var in self.kwargs.items()])
-        args = [get(var, tracker, givens) for var in self.args]
-
-        if isinstance(self, RandomOp):
-            seed = self._seed or numpy.random.randint(0, 1000000)
-            if 'rng' in tracker:
-                key = jax.random.PRNGKey(seed + tracker['rng'])
-            else:
-                key = jax.random.PRNGKey(seed)
-            return self.jax_function(key, *args, **kwargs)
-        else:
-            return self.jax_function(*args, **kwargs)
 
 
 class RandomOp(Op):
@@ -535,63 +421,24 @@ class RandomOp(Op):
         msg (str): Human readable string describing the exception.
         code (int): Exception error code.
 
-    Examples:
-        >>> node = RandomTensor(jax.random.bernoulli, 0, args=(0.5, (3, 3)))
-        >>> print(node)
-        (RandomTensor : name=custom, dtype=bool, shape=(3, 3))
-        >>> node + 2
-        (Tensor, dtype=int32, shape=(3, 3))
     """
 
-    def __init__(self, *args, _jax_function, _shape, _dtype, _seed, name, **kwargs):
-        self._seed = _seed
+    def __init__(self, *args, _jax_function, _shape, _dtype, _seed, name,
+                 **kwargs):
+        self._shape = _shape
+        self._dtype = _dtype
+        self._fn = _jax_function.__name__
         super().__init__(*args, _jax_function=_jax_function, _shape=_shape,
-                         _dtype=_dtype, name=name, **kwargs)
+                         _dtype=_dtype, name=name, _seed=_seed, **kwargs)
 
     def __repr__(self):
-        name = 'RandomTensor(Op={}, shape={}, dtype={})'
-        return name.format(self.name, self.shape, self.dtype)
-
-
-class TupleItem(Tensor):
-
-    def __init__(self, shape, dtype, index, roots, name=''):
-        self._parent = None
-        self._index = index
-        super().__init__(shape, dtype, roots=roots, name=name)
-
-    def _get(self, tracker, givens, branches):
-        return self._parent._get(tracker, givens, branches)[self._index]
-
-
-class Tuple(tuple):
-
-    def __new__(cls, *args, _jax_function, _shapes, _dtypes, name, **kwargs):
-        roots = list(set(getroots(list(kwargs.values()) + list(args))))
-        name = name or _jax_function.__name__
-        items = [TupleItem(shape, dtype, i, roots=roots, name=name + '[{}]'.format(i))
-                 for i, (shape, dtype) in enumerate(zip(_shapes, _dtypes))]
-        return super(Tuple, cls).__new__(cls, tuple(items))
-
-    def __init__(self, *args, _jax_function, _shapes, _dtypes, name, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
-        self.jax_function = _jax_function
-        self.name = name
-
-        # set the parent link with the inside items and set the roots too
-        for item in self:
-            item._parent = self
-
-    def _get(self, tracker, givens, branches):
-        # kwarg dictionnary
-        args = [get(var, tracker, givens, branches) for var in self.args]
-        kwargs = dict([(name, get(var, tracker, givens, branches))
-                       for name, var in self.kwargs.items()])
-        return tuple(self.jax_function(*args, **kwargs))
+        name = 'RandomTensor(name={}, fn={}, shape={}, dtype={}, scope={})'
+        return name.format(self.name, self._fn, self.shape, self.dtype,
+                           self.scope)
 
 
 class Variable(Tensor):
+
     """variable that is a standalone persistent tensor. this tensor
     can be updated and differentiated.
 
@@ -619,23 +466,23 @@ class Variable(Tensor):
             attribute and can be accessed.
     """
 
-    def __init__(self, initializer, name='unnamed_variable', trainable=True, dtype=None):
+    def __init__(self, initializer, name='unnamed_variable', trainable=True,
+                 dtype=None):
 
         self.trainable = trainable
         self.initializer = initializer
         self._dtype = dtype
 
-        super().__init__(self.value.shape, str(self.value.dtype), roots=[self], name=name)
+        super().__init__(self.value.shape, str(self.value.dtype), name=name)
 
     def reset(self):
-
         """reset the value of the variable based on the initial one, whether
         it was an array or initializer. If it was a random initializer,
         nothing guarantees that the reset will give back the original value
         as opposed to the array case
         """
         if isinstance(self.initializer, Tensor):
-            self._value = get(self.initializer)
+            self._value = symjax.current_graph().get(self.initializer)
         else:
             self._value = numpy.array(self.initializer)
 
@@ -644,7 +491,6 @@ class Variable(Tensor):
 
     @property
     def value(self):
-
         """ utility function that takes the input and return
             the actual value. It deals with cases where the input
             was a function or not etc
@@ -654,17 +500,14 @@ class Variable(Tensor):
         return self._value
 
     def update(self, update_value):
-
         """assign a new value for the variable"""
 
-        self._value = get(update_value)
+        self._value = symjax.current_graph().get(update_value)
 
     def __repr__(self):
         name = 'Variable(name={}, shape={}, dtype={}, trainable={}, scope={})'
-        return name.format(self.name, self.shape, self.dtype, self.trainable, self.scope)
-
-    def _get(self, tracker, givens, branches):
-        return self.value
+        return name.format(self.name, self.shape, self.dtype, self.trainable,
+                           self.scope)
 
 
 class Placeholder(Tensor):
@@ -686,15 +529,13 @@ class Placeholder(Tensor):
             the name of the variable, there is no test of name duplication
     """
 
-    def __init__(self, shape, dtype, name=''):
-        super().__init__(shape, dtype, roots=[self], name=name)
+    def __init__(self, shape, dtype, name='unnamed'):
+        super().__init__(shape, dtype, name=name)
 
     def __repr__(self):
-        return '(Placeholder: ' + self.name + ', dtype=' + str(self.dtype) + \
-               ', shape=' + str(self.shape) + ')'
-
-    def _get(self, tracker, givens, branches):
-        raise ValueError(' no value given for placeholder {}'.format(self))
+        name = 'Placeholder(name={}, shape={}, dtype={}, scope={})'
+        return name.format(self.name, self.shape, self.dtype,
+                           self.scope)
 
 
 def placeholder_like(item, name=''):
@@ -717,7 +558,6 @@ def match(l1, l2, output):
 
 
 def symjax_to_jax_fn(func):
-
     def newfn(*args, fn=func):
         pholders = placeholder_like(args)
         symjax_outputs = fn(*pholders)
@@ -725,7 +565,7 @@ def symjax_to_jax_fn(func):
         match(pholders, args, feed_dict)
         if None in feed_dict:
             del feed_dict[None]
-        outputs = get(symjax_outputs, feed_dict)
+        outputs = symjax.current_graph().get(symjax_outputs, feed_dict)
         return outputs
 
     return newfn
@@ -733,3 +573,6 @@ def symjax_to_jax_fn(func):
 
 def clone(tensor, givens):
     return tensor.clone(givens)
+
+def get(tensor, tracker=None):
+    return symjax.current_graph().get(tensor, tracker)

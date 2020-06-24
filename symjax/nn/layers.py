@@ -40,7 +40,7 @@ def forward(input, layers):
 class Layer(T.Tensor):
 
     def __init__(self, output):
-        super().__init__(output.shape, output.dtype, output.roots, copyof=output)
+        super().__init__(copyof=output)
 
     def variables(self, trainable=True):
         if not hasattr(self, '_variables'):

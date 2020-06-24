@@ -90,12 +90,10 @@ class Graph(nx.DiGraph):
 
         if type(nodes) == tuple or type(nodes) == list:
             [self.roots(node, roots) for node in nodes]
-        elif t.isvar(nodes) and type(nodes) != t.Constant:
-            if self.get_node_attribute(nodes, 'root'):
-                roots.append(nodes)
-
-            for p in self.predecessors(nodes):
-                self.roots(p, roots)
+        else:
+            for i in nx.algorithms.ancestors(self, nodes):
+                if self.nodes[i]['root']:
+                    roots.append(i)
 
         return list(set(roots))
 

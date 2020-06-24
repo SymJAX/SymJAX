@@ -9,6 +9,7 @@ tiem series regression and classification
 import numpy as np
 import symjax
 import symjax.tensor as T
+import networkx as nx
 
 
 def RNTK_first_time_step(x, param):
@@ -52,7 +53,7 @@ def RNTK_relu(x, RNTK_old, GP_old, param, output):
 
 L = 10
 N = 3
-DATA = T.Placeholder((N, L), 'float32')
+DATA = T.Placeholder((N, L), 'float32', name='data')
 # parameters
 param = {}
 param['sigmaw'] = 1.33
@@ -72,7 +73,6 @@ RNTK, GP = RNTK_relu(0, RNTK, GP, param, True)
 
 
 f = symjax.function(DATA, outputs=[RNTK, GP])
-
 
 # three data of length T
 a = np.random.randn(L)
