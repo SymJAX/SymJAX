@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__author__      = "Randall Balestriero"
+__author__ = "Randall Balestriero"
 import os
-import pickle,gzip
+import pickle, gzip
 import urllib.request
 import numpy as np
 import time
@@ -82,19 +82,18 @@ class birdvox_70k:
         """
 
         # Check if directory exists
-        if not os.path.isdir(path+'birdvox_70k'):
-            print('Creating birdvox_70k Directory')
-            os.mkdir(path+'birdvox_70k')
-        base = 'https://zenodo.org/record/1226427/files/'
-        basefile = 'BirdVox-70k_unit{}.hdf5'
-        names = ['01', '02', '03', '05', '07', '10']
+        if not os.path.isdir(path + "birdvox_70k"):
+            print("Creating birdvox_70k Directory")
+            os.mkdir(path + "birdvox_70k")
+        base = "https://zenodo.org/record/1226427/files/"
+        basefile = "BirdVox-70k_unit{}.hdf5"
+        names = ["01", "02", "03", "05", "07", "10"]
         # Check if file exists
         for name in names:
             filename = basefile.format(name)
-            if not os.path.exists(path+'birdvox_70k/' + filename):
-                url = base + filename + '?download=1'
-                urllib.request.urlretrieve(url, path + 'birdvox_70k/' +\
-                                        filename)
+            if not os.path.exists(path + "birdvox_70k/" + filename):
+                url = base + filename + "?download=1"
+                urllib.request.urlretrieve(url, path + "birdvox_70k/" + filename)
 
     @staticmethod
     def load(path=None):
@@ -118,33 +117,34 @@ class birdvox_70k:
                 the file number from which the sample has been extracted
 
         """
-    
+
         if path is None:
-            path = os.environ['DATASET_PATH']
+            path = os.environ["DATASET_PATH"]
 
         birdvox_70k.download(path)
-    
+
         t0 = time.time()
-    
+
         # Loading the file
-        path += 'birdvox_70k/'
-        names = ['01', '02', '03', '05', '07', '10']
-        basefile = 'BirdVox-70k_unit{}.hdf5'
+        path += "birdvox_70k/"
+        names = ["01", "02", "03", "05", "07", "10"]
+        basefile = "BirdVox-70k_unit{}.hdf5"
         wavs = list()
         label = list()
         recording = list()
         for name in names:
-            f = h5py.File(path + basefile.format(name), 'r')
-            for filename in tqdm(f['waveforms'].keys(), ascii=True,
-                                 desc='recording {}'.format(name)):
-                wavs.append(f['waveforms'][filename][...])
+            f = h5py.File(path + basefile.format(name), "r")
+            for filename in tqdm(
+                f["waveforms"].keys(), ascii=True, desc="recording {}".format(name)
+            ):
+                wavs.append(f["waveforms"][filename][...])
                 label.append(int(filename[-1]))
                 recording.append(int(name))
-    
-        wavs = np.array(wavs).astype('float32')
-        label = np.array(label).astype('int32')
-        recording = np.array(recording).astype('int32')
-    
-        print('Dataset birdvox_70k loaded in {0:.2f}s.'.format(time.time()-t0))
-    
+
+        wavs = np.array(wavs).astype("float32")
+        label = np.array(label).astype("int32")
+        recording = np.array(recording).astype("int32")
+
+        print("Dataset birdvox_70k loaded in {0:.2f}s.".format(time.time() - t0))
+
         return wavs, label, recording

@@ -19,5 +19,5 @@ def test_base():
     print([f() for i in range(100)])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_base()

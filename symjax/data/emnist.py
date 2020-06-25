@@ -143,45 +143,45 @@ class emnist:
         """
 
         # Check if directory exists
-        if not os.path.isdir(path + 'emnist'):
-            print('Creating emnist Directory')
-            os.mkdir(path + 'emnist')
+        if not os.path.isdir(path + "emnist"):
+            print("Creating emnist Directory")
+            os.mkdir(path + "emnist")
 
         # Check if file exists
-        if not os.path.exists(path + 'emnist/gzip.zip'):
+        if not os.path.exists(path + "emnist/gzip.zip"):
             td = time.time()
-            print('Downloading emnist')
-            url = 'http://www.itl.nist.gov/iaui/vip/cs_links/EMNIST/gzip.zip'
-            urllib.request.urlretrieve(url, path + 'emnist/gzip.zip')
+            print("Downloading emnist")
+            url = "http://www.itl.nist.gov/iaui/vip/cs_links/EMNIST/gzip.zip"
+            urllib.request.urlretrieve(url, path + "emnist/gzip.zip")
 
     @staticmethod
     def _read_images(filename, folder):
 
         mat = folder.read(filename)
-        f = gzip.open(io.BytesIO(mat), 'rb')
+        f = gzip.open(io.BytesIO(mat), "rb")
 
         magic = f.read(4)
-        magic = int.from_bytes(magic, 'big')
+        magic = int.from_bytes(magic, "big")
         print("Magic is:", magic)
 
         # Number of images in next 4 bytes
         noimg = f.read(4)
-        noimg = int.from_bytes(noimg, 'big')
+        noimg = int.from_bytes(noimg, "big")
 
         # Number of rows in next 4 bytes
         norow = f.read(4)
-        norow = int.from_bytes(norow, 'big')
+        norow = int.from_bytes(norow, "big")
 
         # Number of columns in next 4 bytes
         nocol = f.read(4)
-        nocol = int.from_bytes(nocol, 'big')
+        nocol = int.from_bytes(nocol, "big")
 
-        images = np.empty((noimg, norow, nocol), 'float32')
+        images = np.empty((noimg, norow, nocol), "float32")
 
         for i in tqdm.tqdm(range(noimg), ascii=True):
             for r in range(norow):
                 for c in range(nocol):
-                    images[i, c, r] = float(int.from_bytes(f.read(1), 'big'))
+                    images[i, c, r] = float(int.from_bytes(f.read(1), "big"))
 
         f.close()
 
@@ -191,25 +191,25 @@ class emnist:
     def _read_labels(filename, folder):
 
         mat = folder.read(filename)
-        f = gzip.open(io.BytesIO(mat), 'rb')
+        f = gzip.open(io.BytesIO(mat), "rb")
 
         magic = f.read(4)
-        magic = int.from_bytes(magic, 'big')
+        magic = int.from_bytes(magic, "big")
         print("Magic is:", magic)
 
         # Number of images in next 4 bytes
         nolab = f.read(4)
-        nolab = int.from_bytes(nolab, 'big')
+        nolab = int.from_bytes(nolab, "big")
 
         labels = [f.read(1) for i in range(nolab)]
-        labels = [int.from_bytes(label, 'big') for label in labels]
+        labels = [int.from_bytes(label, "big") for label in labels]
 
         f.close()
 
         return np.array(labels)
 
     @staticmethod
-    def load(option='byclass', path=None):
+    def load(option="byclass", path=None):
         """
         Parameters
         ----------
@@ -240,23 +240,27 @@ class emnist:
         """
 
         if path is None:
-            path = os.environ['DATASET_PATH']
+            path = os.environ["DATASET_PATH"]
 
         emnist.download(path)
 
         t0 = time.time()
 
         # Loading the file
-        print('Loading emnist')
-        folder = zipfile.ZipFile(path + 'emnist/gzip.zip')
-        filename = 'gzip/emnist-{}-{}-{}-idx{}-ubyte.gz'
-        x_test = emnist._read_images(filename.format(option, 'test', 'images',
-                                                     3), folder)
-        x_train = emnist._read_images(filename.format(option, 'train', 'images',
-                                                      3), folder)
-        y_test = emnist._read_labels(filename.format(option, 'test', 'labels',
-                                                     1), folder)
-        y_train = emnist._read_labels(filename.format(option, 'train', 'labels',
-                                                      1), folder)
+        print("Loading emnist")
+        folder = zipfile.ZipFile(path + "emnist/gzip.zip")
+        filename = "gzip/emnist-{}-{}-{}-idx{}-ubyte.gz"
+        x_test = emnist._read_images(
+            filename.format(option, "test", "images", 3), folder
+        )
+        x_train = emnist._read_images(
+            filename.format(option, "train", "images", 3), folder
+        )
+        y_test = emnist._read_labels(
+            filename.format(option, "test", "labels", 1), folder
+        )
+        y_train = emnist._read_labels(
+            filename.format(option, "train", "labels", 1), folder
+        )
 
         return x_train, y_train, x_test, y_test

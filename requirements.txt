@@ -10,3 +10,4 @@ requests==2.22.0
 scikit_learn==0.23.1
 networkx==2.4
 wheel
+black>=19.3b0; platform.python_implementation!='PyPy'

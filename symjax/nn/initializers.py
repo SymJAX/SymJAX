@@ -5,7 +5,7 @@ def constant(shape, value):
     return np.full(shape, value)
 
 
-def uniform(shape, range=0.01, std=None, mean=0.):
+def uniform(shape, range=0.01, std=None, mean=0.0):
     """Sample initial weights from the uniform distribution.
 
     Parameters are sampled from U(a, b).
@@ -29,14 +29,14 @@ def uniform(shape, range=0.01, std=None, mean=0.):
     if std is not None:
         a = mean - np.sqrt(3) * std
         b = mean + np.sqrt(3) * std
-    elif hasattr(range, '__len__'):
+    elif hasattr(range, "__len__"):
         a, b = range  # range is a tuple
     else:
         a, b = -range, range  # range is a number
     return np.random.rand(*shape) * (b - a) + a
 
 
-def normal(shape, mean=0., std=1.):
+def normal(shape, mean=0.0, std=1.0):
     """Sample initial weights from the Gaussian distribution.
 
     Initial weight parameters are sampled from N(mean, std).
@@ -73,13 +73,11 @@ def _compute_fans(shape, in_axis=0, out_axis=1):
     return fan_in, fan_out
 
 
-def variance_scaling(mode, shape, gain, distribution=normal, in_axis=0,
-                     out_axis=1):
+def variance_scaling(mode, shape, gain, distribution=normal, in_axis=0, out_axis=1):
     """Variance Scaling initialization.
     """
     if len(shape) < 2:
-        raise RuntimeError(
-            "This initializer only works with shapes of length >= 2")
+        raise RuntimeError("This initializer only works with shapes of length >= 2")
 
     fan_in, fan_out = _compute_fans(shape, in_axis, out_axis)
     if mode == "fan_in":
@@ -87,11 +85,12 @@ def variance_scaling(mode, shape, gain, distribution=normal, in_axis=0,
     elif mode == "fan_out":
         den = fan_out
     elif mode == "fan_avg":
-        den = (fan_in + fan_out) / 2.
+        den = (fan_in + fan_out) / 2.0
     else:
         raise ValueError(
-            "mode must be fan_in, fan_out or fan_avg, value passed was {mode}")
-    std = gain * np.sqrt(1. / den)
+            "mode must be fan_in, fan_out or fan_avg, value passed was {mode}"
+        )
+    std = gain * np.sqrt(1.0 / den)
     return distribution(shape, std=std)
 
 
@@ -146,11 +145,11 @@ def glorot(shape, gain=1, distribution=normal, in_axis=0, out_axis=1):
        :param out_axis:
     """
     if len(shape) < 2:
-        raise RuntimeError(
-            "This initializer only works with shapes of length >= 2")
+        raise RuntimeError("This initializer only works with shapes of length >= 2")
 
-    return variance_scaling("fan_avg", shape, gain, distribution,
-                            in_axis=in_axis, out_axis=out_axis)
+    return variance_scaling(
+        "fan_avg", shape, gain, distribution, in_axis=in_axis, out_axis=out_axis
+    )
 
 
 def he(shape, gain=np.sqrt(2), distribution=normal, in_axis=0, out_axis=1):
@@ -195,8 +194,9 @@ def he(shape, gain=np.sqrt(2), distribution=normal, in_axis=0, out_axis=1):
     HeNormal  : Shortcut with Gaussian initializer.
     HeUniform : Shortcut with uniform initializer.
     """
-    return variance_scaling("fan_in", shape, gain, distribution,
-                            in_axis=in_axis, out_axis=out_axis)
+    return variance_scaling(
+        "fan_in", shape, gain, distribution, in_axis=in_axis, out_axis=out_axis
+    )
 
 
 def lecun(shape, gain=1.0, distribution=normal, in_axis=0, out_axis=1):
@@ -204,5 +204,6 @@ def lecun(shape, gain=1.0, distribution=normal, in_axis=0, out_axis=1):
     Weights are initialized with a standard deviation of
     :math:`\\sigma = gain \\sqrt{\\frac{1}{fan_{in}}}`.
    """
-    return variance_scaling("fan_in", shape, gain, distribution,
-                            in_axis=in_axis, out_axis=out_axis)
+    return variance_scaling(
+        "fan_in", shape, gain, distribution, in_axis=in_axis, out_axis=out_axis
+    )

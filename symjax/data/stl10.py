@@ -4,7 +4,6 @@ import sys
 import os, sys, tarfile, io
 import numpy as np
 import matplotlib.pyplot as plt
-    
 
 
 class stl10:
@@ -25,22 +24,31 @@ class stl10:
 
     """
 
-    classes = ["airplane", "bird", "car", "cat", "deer", "dog", "horse",
-               "monkey", "ship", "truck"]
+    classes = [
+        "airplane",
+        "bird",
+        "car",
+        "cat",
+        "deer",
+        "dog",
+        "horse",
+        "monkey",
+        "ship",
+        "truck",
+    ]
 
     @staticmethod
     def download(path):
         # Check if directory exists
-        if not os.path.isdir(path+'stl10'):
-            print('\tCreating stl10 Directory')
-            os.mkdir(path+'stl10')
-    
-        # Check if data file exists
-        if not os.path.exists(path+'stl10/stl10_binary.tar.gz'):
-            print('\tDownloading stl10 Dataset...')
-            url = 'http://ai.stanford.edu/~acoates/stl10/stl10_binary.tar.gz'
-            urllib.request.urlretrieve(url,path+'stl10/stl10_binary.tar.gz')  
+        if not os.path.isdir(path + "stl10"):
+            print("\tCreating stl10 Directory")
+            os.mkdir(path + "stl10")
 
+        # Check if data file exists
+        if not os.path.exists(path + "stl10/stl10_binary.tar.gz"):
+            print("\tDownloading stl10 Dataset...")
+            url = "http://ai.stanford.edu/~acoates/stl10/stl10_binary.tar.gz"
+            urllib.request.urlretrieve(url, path + "stl10/stl10_binary.tar.gz")
 
     @staticmethod
     def load(path=None):
@@ -73,41 +81,45 @@ class stl10:
             the unlabeled additional images
         """
         if path is None:
-            path = os.environ['DATASET_path']
-    
+            path = os.environ["DATASET_path"]
+
         # Load the dataset (download if necessary) and set
         # the class attributes.
-            
+
         print("Loading stl10")
-        t    = time.time()
-    
+        t = time.time()
+
         stl10.download(path)
-    
+
         # Loading Dataset
-        file_ = tarfile.open(path+'stl10/stl10_binary.tar.gz', 'r:gz')
+        file_ = tarfile.open(path + "stl10/stl10_binary.tar.gz", "r:gz")
         # loading test label
-        read_file = file_.extractfile('stl10_binary/test_y.bin').read()
-        test_y = np.frombuffer(io.BytesIO(read_file).read(), dtype=np.uint8)-1
+        read_file = file_.extractfile("stl10_binary/test_y.bin").read()
+        test_y = np.frombuffer(io.BytesIO(read_file).read(), dtype=np.uint8) - 1
         # loading train label
-        read_file = file_.extractfile('stl10_binary/train_y.bin').read()
-        train_y = np.frombuffer(io.BytesIO(read_file).read(), dtype=np.uint8)-1
+        read_file = file_.extractfile("stl10_binary/train_y.bin").read()
+        train_y = np.frombuffer(io.BytesIO(read_file).read(), dtype=np.uint8) - 1
         # load test images
-        read_file = file_.extractfile('stl10_binary/test_X.bin').read()
-        test_X = np.frombuffer(io.BytesIO(read_file).read(), 
-                        dtype=np.uint8).reshape((-1,3,96,96)).transpose([0,1,3,2])
+        read_file = file_.extractfile("stl10_binary/test_X.bin").read()
+        test_X = (
+            np.frombuffer(io.BytesIO(read_file).read(), dtype=np.uint8)
+            .reshape((-1, 3, 96, 96))
+            .transpose([0, 1, 3, 2])
+        )
         # load train images
-        read_file = file_.extractfile('stl10_binary/train_X.bin').read()
-        train_X = np.frombuffer(io.BytesIO(read_file).read(), 
-                        dtype=np.uint8).reshape((-1,3,96,96)).transpose([0,1,3,2])
+        read_file = file_.extractfile("stl10_binary/train_X.bin").read()
+        train_X = (
+            np.frombuffer(io.BytesIO(read_file).read(), dtype=np.uint8)
+            .reshape((-1, 3, 96, 96))
+            .transpose([0, 1, 3, 2])
+        )
         # load unlabelled images
-        read_file = file_.extractfile('stl10_binary/unlabeled_X.bin').read()
-        unlabeled_X = np.frombuffer(io.BytesIO(read_file).read(), 
-                dtype=np.uint8).reshape((-1,3,96,96)).transpose([0,1,3,2])
-    
-    
-        print('Dataset stl10 loaded in','{0:.2f}'.format(time.time()-t),'s.')
+        read_file = file_.extractfile("stl10_binary/unlabeled_X.bin").read()
+        unlabeled_X = (
+            np.frombuffer(io.BytesIO(read_file).read(), dtype=np.uint8)
+            .reshape((-1, 3, 96, 96))
+            .transpose([0, 1, 3, 2])
+        )
+
+        print("Dataset stl10 loaded in", "{0:.2f}".format(time.time() - t), "s.")
         return train_X, train_y, test_X, test_y, unlabeled_X
-
-
-
-

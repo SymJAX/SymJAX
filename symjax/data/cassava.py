@@ -9,7 +9,8 @@ import urllib
 import numpy as np
 
 
-__author__      = "Randall Balestriero"
+__author__ = "Randall Balestriero"
+
 
 class cassava:
     """Plant images classification.
@@ -29,7 +30,7 @@ class cassava:
 
     """
 
-    classes = ['cbb', 'cmd', 'cbsd', 'cgm', 'healthy']
+    classes = ["cbb", "cmd", "cbsd", "cgm", "healthy"]
 
     @staticmethod
     def download(path):
@@ -46,15 +47,15 @@ class cassava:
         """
 
         # Check if directory exists
-        if not os.path.isdir(path+'cassava'):
-            print('Creating cassava Directory')
-            os.mkdir(path+'cassava')
+        if not os.path.isdir(path + "cassava"):
+            print("Creating cassava Directory")
+            os.mkdir(path + "cassava")
         # Check if file exists
-        if not os.path.exists(path+'cassava/cassavaleafdata.zip'):
-            url = 'https://storage.googleapis.com/emcassavadata/'+\
-                            'cassavaleafdata.zip'
-            urllib.request.urlretrieve(url, path + 'cassava/cassavaleafdata.zip')
-
+        if not os.path.exists(path + "cassava/cassavaleafdata.zip"):
+            url = (
+                "https://storage.googleapis.com/emcassavadata/" + "cassavaleafdata.zip"
+            )
+            urllib.request.urlretrieve(url, path + "cassava/cassavaleafdata.zip")
 
     @staticmethod
     def load(path=None):
@@ -81,34 +82,41 @@ class cassava:
             test_labels: array
 
         """
-    
+
         if path is None:
-            path = os.environ['DATASET_PATH']
+            path = os.environ["DATASET_PATH"]
 
         cassava.download(path)
-    
-        t0 = time.time()
-    
-        # Loading the file
-        data = {'train': [[], []], 'test':[[], []], 'validation':[[], []]}
 
-        f = zipfile.ZipFile(path+'cassava/cassavaleafdata.zip')
+        t0 = time.time()
+
+        # Loading the file
+        data = {"train": [[], []], "test": [[], []], "validation": [[], []]}
+
+        f = zipfile.ZipFile(path + "cassava/cassavaleafdata.zip")
         for filename in f.namelist():
-            if '.jpg' not in filename:
+            if ".jpg" not in filename:
                 continue
-            setname, foldername = filename.split('/')[1:3]
-            img = mpimg.imread(io.BytesIO(f.read(filename)),'jpg')
+            setname, foldername = filename.split("/")[1:3]
+            img = mpimg.imread(io.BytesIO(f.read(filename)), "jpg")
             data[setname][0].append(img)
             data[setname][1].append(cassava.classes.index(foldername))
 
-        train_images = np.array(data['train'][0])
-        test_images = np.array(data['test'][0])
-        valid_images = np.array(data['validation'][0])
+        train_images = np.array(data["train"][0])
+        test_images = np.array(data["test"][0])
+        valid_images = np.array(data["validation"][0])
 
-        train_labels = np.array(data['train'][1])
-        test_labels = np.array(data['test'][1])
-        valid_labels = np.array(data['validation'][1])
+        train_labels = np.array(data["train"][1])
+        test_labels = np.array(data["test"][1])
+        valid_labels = np.array(data["validation"][1])
 
-        print('Dataset cassava loaded in {0:.2f}s.'.format(time.time()-t0))
-    
-        return train_images, train_labels, valid_images, valid_labels, test_images, test_labels
+        print("Dataset cassava loaded in {0:.2f}s.".format(time.time() - t0))
+
+        return (
+            train_images,
+            train_labels,
+            valid_images,
+            valid_labels,
+            test_images,
+            test_labels,
+        )

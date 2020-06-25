@@ -1,12 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__all__ = ['layers',
-           'initializers',
-           'losses',
-           'schedules',
-           'optimizers']
-
+__all__ = ["layers", "initializers", "losses", "schedules", "optimizers"]
 
 
 from .ops_nn import *

@@ -9,6 +9,7 @@ from .wavfile import read as wav_read
 from tqdm import tqdm
 import soundfile as sf
 
+
 class TUTacousticscences2017:
     """
     Acoustic Scene classification
@@ -40,15 +41,28 @@ class TUTacousticscences2017:
         Urban park (outdoor)
     """
 
-    classes = ['metro_station', 'office', 'park', 'residential_area', 'train',
-              'tram', 'library', 'home', 'grocery_store', 'forest_path',
-              'city_center', 'car', 'cafe/restaurant', 'bus', 'beach']
-
+    classes = [
+        "metro_station",
+        "office",
+        "park",
+        "residential_area",
+        "train",
+        "tram",
+        "library",
+        "home",
+        "grocery_store",
+        "forest_path",
+        "city_center",
+        "car",
+        "cafe/restaurant",
+        "bus",
+        "beach",
+    ]
 
     def download(path):
 
         if path is None:
-            path = os.environ['DATASET_path']
+            path = os.environ["DATASET_path"]
 
         # Load the dataset (download if necessary) and set
         # the class attributes.
@@ -56,102 +70,127 @@ class TUTacousticscences2017:
         print("Downloading TUTacousticscences2017")
         t = time.time()
 
-        if not os.path.isdir(path+'TUTacousticscences2017'):
-            print('\tCreating TUTacousticscences2017 Directory')
-            os.mkdir(path+'TUTacousticscences2017')
+        if not os.path.isdir(path + "TUTacousticscences2017"):
+            print("\tCreating TUTacousticscences2017 Directory")
+            os.mkdir(path + "TUTacousticscences2017")
 
         # training set
-        url = 'https://zenodo.org/record/400515/files/' +\
-                    'TUT-acoustic-scenes-2017-development.audio.{}.zip'
+        url = (
+            "https://zenodo.org/record/400515/files/"
+            + "TUT-acoustic-scenes-2017-development.audio.{}.zip"
+        )
         for part in range(1, 11):
-            filename = path+'TUTacousticscences2017/'\
-                    + 'TUT-acoustic-scenes-2017-development.audio.{}.zip'
+            filename = (
+                path
+                + "TUTacousticscences2017/"
+                + "TUT-acoustic-scenes-2017-development.audio.{}.zip"
+            )
             if os.path.exists(filename.format(part)):
                 continue
-            print('\tDownloading train part {}'.format(part))
+            print("\tDownloading train part {}".format(part))
             urllib.request.urlretrieve(url.format(part), filename.format(part))
 
         # meta data
-        url = 'https://zenodo.org/record/400515/files/' +\
-                        'TUT-acoustic-scenes-2017-development.meta.zip'
-        filename = path+'TUTacousticscences2017/'\
-                    + 'TUT-acoustic-scenes-2017-development.meta.zip'
+        url = (
+            "https://zenodo.org/record/400515/files/"
+            + "TUT-acoustic-scenes-2017-development.meta.zip"
+        )
+        filename = (
+            path
+            + "TUTacousticscences2017/"
+            + "TUT-acoustic-scenes-2017-development.meta.zip"
+        )
         if not os.path.exists(filename):
             urllib.request.urlretrieve(url, filename)
 
         # test set
-        url = 'https://zenodo.org/record/1040168/files/' +\
-                    'TUT-acoustic-scenes-2017-evaluation.audio.{}.zip'
+        url = (
+            "https://zenodo.org/record/1040168/files/"
+            + "TUT-acoustic-scenes-2017-evaluation.audio.{}.zip"
+        )
         for part in range(1, 5):
-            filename = path+'TUTacousticscences2017/'\
-                    + 'TUT-acoustic-scenes-2017-evaluation.audio.{}.zip'
+            filename = (
+                path
+                + "TUTacousticscences2017/"
+                + "TUT-acoustic-scenes-2017-evaluation.audio.{}.zip"
+            )
             if os.path.exists(filename.format(part)):
                 continue
-            print('\tDownloading test part {}'.format(part))
+            print("\tDownloading test part {}".format(part))
             urllib.request.urlretrieve(url.format(part), filename.format(part))
 
         # meta data
-        url = 'https://zenodo.org/record/1040168/files/' +\
-                        'TUT-acoustic-scenes-2017-evaluation.meta.zip'
-        filename = path+'TUTacousticscences2017/'\
-                    + 'TUT-acoustic-scenes-2017-evaluation.meta.zip'
+        url = (
+            "https://zenodo.org/record/1040168/files/"
+            + "TUT-acoustic-scenes-2017-evaluation.meta.zip"
+        )
+        filename = (
+            path
+            + "TUTacousticscences2017/"
+            + "TUT-acoustic-scenes-2017-evaluation.meta.zip"
+        )
         if not os.path.exists(filename):
             urllib.request.urlretrieve(url, filename)
 
-
-
-
-        t = time.time()-t
+        t = time.time() - t
         print("TUT-acoustic-scenes-2017 downloaded in {} sec.".format(t))
-
 
     def load(path=None):
         if path is None:
-            path = os.environ['DATASET_PATH']
+            path = os.environ["DATASET_PATH"]
 
         TUTacousticscences2017.download(path)
         t = time.time()
 
         # meta data
-        filename = path+'TUTacousticscences2017/'\
-                    + 'TUT-acoustic-scenes-2017-development.meta.zip'
+        filename = (
+            path
+            + "TUTacousticscences2017/"
+            + "TUT-acoustic-scenes-2017-development.meta.zip"
+        )
         meta = zipfile.ZipFile(filename)
         meta_names = list()
         wav_names = list()
         wav_labels = list()
         for filename in meta.namelist():
-            if 'train' not in filename and 'evaluate' not in filename:
+            if "train" not in filename and "evaluate" not in filename:
                 continue
-            meta_names.append(filename.split('/')[-1][:-4])
-            content = np.loadtxt(io.BytesIO(meta.read(filename)),
-                                 delimiter='\t', dtype='str')
+            meta_names.append(filename.split("/")[-1][:-4])
+            content = np.loadtxt(
+                io.BytesIO(meta.read(filename)), delimiter="\t", dtype="str"
+            )
             wav_names.append(list(content[:, 0]))
             wav_labels.append(list(content[:, 1]))
             for j in range(len(wav_names[-1])):
-                wav_names[-1][j] = wav_names[-1][j].split('/')[-1]
+                wav_names[-1][j] = wav_names[-1][j].split("/")[-1]
 
         folds = list()
         wavs = list()
         labels = list()
 
-        filename = path+'TUTacousticscences2017/'\
-                    + 'TUT-acoustic-scenes-2017-development.audio.{}.zip'
+        filename = (
+            path
+            + "TUTacousticscences2017/"
+            + "TUT-acoustic-scenes-2017-development.audio.{}.zip"
+        )
 
         for part in range(1, 11):
             # load wavs
             f = zipfile.ZipFile(filename.format(part))
-            for name in tqdm(f.namelist(), ascii=True,
-                             desc='Train Part:{}/10'.format(part)):
-                if '.wav' not in name:
+            for name in tqdm(
+                f.namelist(), ascii=True, desc="Train Part:{}/10".format(part)
+            ):
+                if ".wav" not in name:
                     continue
                 wavfile = f.read(name)
                 byt = io.BytesIO(wavfile)
-                wavs.append(sf.read(byt)[0].astype('float32'))
-                nn = name.split('/')[-1]
+                wavs.append(sf.read(byt)[0].astype("float32"))
+                nn = name.split("/")[-1]
                 add_label = 1
                 folds.append([])
-                for meta_name, wav_name, wav_label in zip(meta_names,
-                                                    wav_names, wav_labels):
+                for meta_name, wav_name, wav_label in zip(
+                    meta_names, wav_names, wav_labels
+                ):
                     if nn in wav_name:
                         if add_label:
                             index = wav_name.index(nn)
@@ -159,65 +198,72 @@ class TUTacousticscences2017:
                             add_label = 0
                         folds[-1].append(meta_name)
 
-
         # now format the folds
-        train_folds = np.zeros((len(folds), 4), dtype='bool')
+        train_folds = np.zeros((len(folds), 4), dtype="bool")
         for i in range(len(folds)):
             for fold in folds[i]:
-                if 'train' in fold:
-                    train_folds[i, int(fold.split('_')[0][-1])-1] = 1
+                if "train" in fold:
+                    train_folds[i, int(fold.split("_")[0][-1]) - 1] = 1
 
-        # now deal with the test set 
-
+        # now deal with the test set
 
         # meta data
-        filename = path+'TUTacousticscences2017/'\
-                    + 'TUT-acoustic-scenes-2017-evaluation.meta.zip'
+        filename = (
+            path
+            + "TUTacousticscences2017/"
+            + "TUT-acoustic-scenes-2017-evaluation.meta.zip"
+        )
         meta = zipfile.ZipFile(filename)
         for filename in meta.namelist():
-#            if 'map.txt' in filename:
-#                content = np.loadtxt(io.BytesIO(meta.read(filename)),
-#                                     delimiter='\t', dtype='str')
-            if 'evaluate.txt' in filename:
-                targets = np.loadtxt(io.BytesIO(meta.read(filename)),
-                                     delimiter='\t', dtype='str')
-#        content_0 = [c.split('/')[1] for c in content[:, 0]]
-#        content_1 = [c.split('/')[1] for c in content[:, 1]]
-        targets_0 = [c.split('/')[1] for c in targets[:, 0]]
+            #            if 'map.txt' in filename:
+            #                content = np.loadtxt(io.BytesIO(meta.read(filename)),
+            #                                     delimiter='\t', dtype='str')
+            if "evaluate.txt" in filename:
+                targets = np.loadtxt(
+                    io.BytesIO(meta.read(filename)), delimiter="\t", dtype="str"
+                )
+        #        content_0 = [c.split('/')[1] for c in content[:, 0]]
+        #        content_1 = [c.split('/')[1] for c in content[:, 1]]
+        targets_0 = [c.split("/")[1] for c in targets[:, 0]]
         targets_1 = list(targets[:, 1])
 
-#        for i in range(len(content_0)):
-#            content_1[i] = targets_1[targets_0.index(content_1[i])]
+        #        for i in range(len(content_0)):
+        #            content_1[i] = targets_1[targets_0.index(content_1[i])]
         mapping = dict(zip(targets_0, targets_1))
 
         test_wavs = list()
         test_labels = list()
-        filename = path+'TUTacousticscences2017/'\
-                    + 'TUT-acoustic-scenes-2017-evaluation.audio.{}.zip'
+        filename = (
+            path
+            + "TUTacousticscences2017/"
+            + "TUT-acoustic-scenes-2017-evaluation.audio.{}.zip"
+        )
 
         for part in range(1, 5):
             # load wavs
             f = zipfile.ZipFile(filename.format(part))
-            for name in tqdm(f.namelist(), ascii=True,
-                             desc='Test Data Part{}/4'.format(part)):
-                if '.wav' not in name:
+            for name in tqdm(
+                f.namelist(), ascii=True, desc="Test Data Part{}/4".format(part)
+            ):
+                if ".wav" not in name:
                     continue
                 byt = io.BytesIO(f.read(name))
-                test_wavs.append(sf.read(byt)[0].astype('float32'))
-                test_labels.append(mapping[name.split('/')[-1]])
+                test_wavs.append(sf.read(byt)[0].astype("float32"))
+                test_labels.append(mapping[name.split("/")[-1]])
 
         # turn the labels into integers
         mapping = dict(zip(TUTacousticscences2017.classes, list(range(15))))
         labels = [mapping[l] for l in labels]
         test_labels = [mapping[l] for l in test_labels]
 
-        return np.array(wavs), np.array(labels), np.array(test_wavs), np.array(test_labels), train_folds
+        return (
+            np.array(wavs),
+            np.array(labels),
+            np.array(test_wavs),
+            np.array(test_labels),
+            train_folds,
+        )
 
 
-
-
-
-
-#for i in range(1, 22):
+# for i in range(1, 22):
 #    filename = 'https://zenodo.org/record/2589280/files/TAU-urban-acoustic-scenes-2019-development.audio.{}.zip?download=1'.format(i)
-

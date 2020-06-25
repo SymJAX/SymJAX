@@ -6,6 +6,7 @@ cond = jax_wrap(jla.cond)
 fori_loop = jax_wrap(jla.fori_loop)
 while_loop = jax_wrap(jla.while_loop)
 
+
 @jax_wrap
 def _scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
     # get the fully jaxed function
@@ -13,14 +14,22 @@ def _scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
 
     # now create a dummy function that only takes as input the sequences
     if non_sequences is None:
-        def finalf(a, args): return truef(a, *args)
+
+        def finalf(a, args):
+            return truef(a, *args)
+
     else:
-        def finalf(a, args): return truef(a, *args, *non_sequences)
+
+        def finalf(a, args):
+            return truef(a, *args, *non_sequences)
+
     return jla.scan(finalf, init, sequences, length=length, reverse=reverse)
 
+
 @jax_wrap
-def _while_loop(cond_fun, body_fun, sequences, non_sequences_cond=None,
-                non_sequences_body=None):
+def _while_loop(
+    cond_fun, body_fun, sequences, non_sequences_cond=None, non_sequences_body=None
+):
 
     # get the fully jaxed function
     truecond = symjax_to_jax_fn(cond_fun)
@@ -30,11 +39,16 @@ def _while_loop(cond_fun, body_fun, sequences, non_sequences_cond=None,
     if non_sequences_cond is None:
         finalcond = truecond
     else:
-        def finalcond(args): return truecond(args, *non_sequences_cond)
+
+        def finalcond(args):
+            return truecond(args, *non_sequences_cond)
+
     if non_sequences_body is None:
         finalbody = truebody
     else:
-        def finalbody(args): return truebody(args, *non_sequences_body)
+
+        def finalbody(args):
+            return truebody(args, *non_sequences_body)
 
     return jla.while_loop(finalcond, finalbody, sequences)
 
@@ -92,7 +106,6 @@ def map(f, sequences, non_sequences=None):
     ys = scan(g, 0, sequences, non_sequences=non_sequences)[1]
 
     return ys
-
 
 
 def scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
@@ -183,15 +196,16 @@ def scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
     """
     if type(non_sequences) == list:
         non_sequences = tuple(non_sequences)
-    
+
     if type(sequences) == list:
         sequences = tuple(sequences)
 
     return _scan(f, init, sequences, non_sequences, length, reverse)
 
 
-def while_loop(cond_fun, body_fun, sequences, non_sequences_cond=None,
-               non_sequences_body=None):
+def while_loop(
+    cond_fun, body_fun, sequences, non_sequences_cond=None, non_sequences_body=None
+):
     """Call ``body_fun`` repeatedly in a loop while ``cond_fun`` is True.
 
      The type signature in brief is
@@ -243,5 +257,6 @@ def while_loop(cond_fun, body_fun, sequences, non_sequences_cond=None,
     if type(sequences) == list:
         sequences = tuple(sequences)
 
-    return _while_loop(cond_fun, body_fun, sequences, non_sequences_cond,
-                       non_sequences_body)
+    return _while_loop(
+        cond_fun, body_fun, sequences, non_sequences_cond, non_sequences_body
+    )

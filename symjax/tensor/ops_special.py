@@ -43,19 +43,20 @@ def hat_1D(x, t_left, t_center, t_right):
     eps = 1e-6
     slope_left = 1 / (t_center - t_left)
     slope_right = 1 / (t_right - t_center)
-    output = (relu(x - t_left)) * slope_left \
-        - relu(x - t_center) * (slope_left + slope_right) \
+    output = (
+        (relu(x - t_left)) * slope_left
+        - relu(x - t_center) * (slope_left + slope_right)
         + relu(x - t_right) * slope_right
+    )
     return output
 
 
-def _extract_signal_patches(signal, window_length, hop=1, data_format='NCW'):
-    assert not hasattr(window_length, '__len__')
+def _extract_signal_patches(signal, window_length, hop=1, data_format="NCW"):
+    assert not hasattr(window_length, "__len__")
     assert signal.ndim == 3
-    if data_format == 'NCW':
+    if data_format == "NCW":
         N = (signal.shape[2] - window_length) // hop + 1
-        indices = jnp.arange(window_length) + \
-            jnp.expand_dims(jnp.arange(N) * hop, 1)
+        indices = jnp.arange(window_length) + jnp.expand_dims(jnp.arange(N) * hop, 1)
         indices = jnp.reshape(indices, [1, 1, N * window_length])
         patches = jnp.take_along_axis(signal, indices, 2)
         return jnp.reshape(patches, signal.shape[:2] + (N, window_length))
@@ -66,20 +67,24 @@ def _extract_signal_patches(signal, window_length, hop=1, data_format='NCW'):
 extract_signal_patches = jax_wrap(_extract_signal_patches, module)
 
 
-def _extract_image_patches(image, window_shape, hop=1, data_format='NCHW',
-                           mode='valid'):
-    if mode == 'same':
-        p1 = (window_shape[0] - 1)
-        p2 = (window_shape[1] - 1)
-        image = jnp.pad(image, [(0, 0), (0, 0), (p1 // 2, p1 - p1 // 2),
-                                (p2 // 2, p2 - p2 // 2)])
-    if not hasattr(hop, '__len__'):
+def _extract_image_patches(
+    image, window_shape, hop=1, data_format="NCHW", mode="valid"
+):
+    if mode == "same":
+        p1 = window_shape[0] - 1
+        p2 = window_shape[1] - 1
+        image = jnp.pad(
+            image, [(0, 0), (0, 0), (p1 // 2, p1 - p1 // 2), (p2 // 2, p2 - p2 // 2)]
+        )
+    if not hasattr(hop, "__len__"):
         hop = (hop, hop)
-    if data_format == 'NCHW':
+    if data_format == "NCHW":
 
         # compute the number of windows in both dimensions
-        N = ((image.shape[2] - window_shape[0]) // hop[0] + 1,
-             (image.shape[3] - window_shape[1]) // hop[1] + 1)
+        N = (
+            (image.shape[2] - window_shape[0]) // hop[0] + 1,
+            (image.shape[3] - window_shape[1]) // hop[1] + 1,
+        )
 
         # compute the base indices of a 2d patch
         patch = jnp.arange(numpy.prod(window_shape)).reshape(window_shape)
@@ -88,22 +93,19 @@ def _extract_image_patches(image, window_shape, hop=1, data_format='NCHW',
 
         # create all the shifted versions of it
         ver_shifts = jnp.reshape(
-            jnp.arange(
-                N[0]) * hop[0] * image.shape[3], (-1, 1, 1, 1))
+            jnp.arange(N[0]) * hop[0] * image.shape[3], (-1, 1, 1, 1)
+        )
         hor_shifts = jnp.reshape(jnp.arange(N[1]) * hop[1], (-1, 1, 1))
-        all_cols = patch_indices + jnp.reshape(jnp.arange(N[1]) * hop[1],
-                                               (-1, 1, 1))
+        all_cols = patch_indices + jnp.reshape(jnp.arange(N[1]) * hop[1], (-1, 1, 1))
         indices = patch_indices + ver_shifts + hor_shifts
 
         # now extract shape (1, 1, H'W'a'b')
         flat_indices = jnp.reshape(indices, [1, 1, -1])
         # shape is now (N, C, W*H)
-        flat_image = jnp.reshape(
-            image, (image.shape[0], image.shape[1], -1))
+        flat_image = jnp.reshape(image, (image.shape[0], image.shape[1], -1))
         # shape is now (N, C)
         patches = jnp.take_along_axis(flat_image, flat_indices, 2)
-        return jnp.reshape(patches,
-                           image.shape[:2] + N + tuple(window_shape))
+        return jnp.reshape(patches, image.shape[:2] + N + tuple(window_shape))
     else:
         error
 
@@ -121,9 +123,9 @@ def _add_n(args):
 add_n = jax_wrap(_add_n)
 
 
-def one_hot(i, N, dtype='float32'):
+def one_hot(i, N, dtype="float32"):
     """Create a one-hot encoding of x of size k."""
-    if hasattr(i, 'shape'):
+    if hasattr(i, "shape"):
         return (x[:, None] == arange(k)).astype(dtype)
     else:
         z = zeros(N, dtype)
@@ -131,7 +133,7 @@ def one_hot(i, N, dtype='float32'):
         return index_add(z, i, 1)
 
 
-for name in ['index_update', 'index_min', 'index_add', 'index_max']:
+for name in ["index_update", "index_min", "index_add", "index_max"]:
     module.__dict__.update({name: jax_wrap(jax.ops.__dict__[name])})
 
 stop_gradient = jax_wrap(jla.stop_gradient)
@@ -142,11 +144,10 @@ index = jax.ops.index
 
 module = sys.modules[__name__]
 
-_NAMES = [c[0] for c in inspect.getmembers(
-    jax.scipy.special, inspect.isfunction)]
+_NAMES = [c[0] for c in inspect.getmembers(jax.scipy.special, inspect.isfunction)]
 
 
 for name in _NAMES:
-    if name[0] == '_':
+    if name[0] == "_":
         continue
     module.__dict__.update({name: jax_wrap(jax.scipy.special.__dict__[name])})

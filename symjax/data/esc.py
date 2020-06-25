@@ -1,5 +1,5 @@
 import os
-import pickle,gzip
+import pickle, gzip
 import urllib.request
 import numpy as np
 import time
@@ -35,37 +35,72 @@ class esc:
     single fold.
 
     """
-    fine_to_coarse = {'dog': 0, 'rooster': 0, 'pig': 0, 'cow': 0, 'frog': 0,
-                          'cat': 0, 'hen': 0, 'insects': 0, 'sheep': 0, 'crow': 0,
-                          'rain': 1, 'sea_waves': 1, 'crackling_fire': 1,
-                          'crickets': 1, 'chirping_birds': 1, 'water_drops': 1,
-                          'wind': 1, 'pouring_water': 1, 'toilet_flush': 1,
-                          'thunderstorm': 1, 'crying_baby': 2, 'sneezing': 2,
-                          'clapping': 2, 'breathing': 2, 'coughing': 2,
-                          'footsteps': 2, 'laughing': 2, 'brushing_teeth': 2,
-                          'snoring': 2, 'drinking_sipping': 2, 'door_wood_knock': 3,
-                          'mouse_click': 3, 'keyboard_typing': 3,
-                          'door_wood_creaks': 3, 'can_opening': 3,
-                          'washing_machine': 3, 'vacuum_cleaner': 3,
-                          'clock_alarm': 3, 'clock_tick': 3, 'glass_breaking': 3,
-                          'helicopter': 4, 'chainsaw': 4, 'siren': 4,
-                          'car_horn': 4, 'engine': 4, 'train': 4,
-                          'church_bells': 4, 'airplane': 4, 'fireworks': 4,
-                          'hand_saw': 4}
- 
+
+    fine_to_coarse = {
+        "dog": 0,
+        "rooster": 0,
+        "pig": 0,
+        "cow": 0,
+        "frog": 0,
+        "cat": 0,
+        "hen": 0,
+        "insects": 0,
+        "sheep": 0,
+        "crow": 0,
+        "rain": 1,
+        "sea_waves": 1,
+        "crackling_fire": 1,
+        "crickets": 1,
+        "chirping_birds": 1,
+        "water_drops": 1,
+        "wind": 1,
+        "pouring_water": 1,
+        "toilet_flush": 1,
+        "thunderstorm": 1,
+        "crying_baby": 2,
+        "sneezing": 2,
+        "clapping": 2,
+        "breathing": 2,
+        "coughing": 2,
+        "footsteps": 2,
+        "laughing": 2,
+        "brushing_teeth": 2,
+        "snoring": 2,
+        "drinking_sipping": 2,
+        "door_wood_knock": 3,
+        "mouse_click": 3,
+        "keyboard_typing": 3,
+        "door_wood_creaks": 3,
+        "can_opening": 3,
+        "washing_machine": 3,
+        "vacuum_cleaner": 3,
+        "clock_alarm": 3,
+        "clock_tick": 3,
+        "glass_breaking": 3,
+        "helicopter": 4,
+        "chainsaw": 4,
+        "siren": 4,
+        "car_horn": 4,
+        "engine": 4,
+        "train": 4,
+        "church_bells": 4,
+        "airplane": 4,
+        "fireworks": 4,
+        "hand_saw": 4,
+    }
+
     def download(path):
-    
+
         # Check if directory exists
-        if not os.path.isdir(path+'esc50'):
-            print('\tCreating esc50 Directory')
-            os.mkdir(path +'esc50')
-        url = 'https://github.com/karoldvl/ESC-50/archive/master.zip'
+        if not os.path.isdir(path + "esc50"):
+            print("\tCreating esc50 Directory")
+            os.mkdir(path + "esc50")
+        url = "https://github.com/karoldvl/ESC-50/archive/master.zip"
         # Check if file exists
-        if not os.path.exists(path+'esc50/master.zip'):
-            print('\tDownloading esc50')
-            urllib.request.urlretrieve(url, path+'esc50/master.zip')
-    
-    
+        if not os.path.exists(path + "esc50/master.zip"):
+            print("\tDownloading esc50")
+            urllib.request.urlretrieve(url, path + "esc50/master.zip")
+
     def load(path=None):
         """ESC 50.
     
@@ -105,38 +140,42 @@ class esc:
             dataset simply load ESC-50 and use this boolean vector to extract
             only the ESC-10 data.
         """
-    
+
         if path is None:
-            path = os.environ['DATASET_PATH']
+            path = os.environ["DATASET_PATH"]
         esc.download(path)
         t0 = time.time()
-    
-        f = zipfile.ZipFile(path+'esc50/master.zip')
-    
-        meta = np.loadtxt(io.BytesIO(f.read('ESC-50-master/meta/esc50.csv')),
-                          delimiter=',', skiprows=1, dtype='str')
+
+        f = zipfile.ZipFile(path + "esc50/master.zip")
+
+        meta = np.loadtxt(
+            io.BytesIO(f.read("ESC-50-master/meta/esc50.csv")),
+            delimiter=",",
+            skiprows=1,
+            dtype="str",
+        )
         filenames = list(meta[:, 0])
-        folds = meta[:, 1].astype('int32')
-        fine_labels = meta[:, 2].astype('int32')
+        folds = meta[:, 1].astype("int32")
+        fine_labels = meta[:, 2].astype("int32")
         categories = meta[:, 3]
-        esc10 = meta[:, 4] == 'True'
+        esc10 = meta[:, 4] == "True"
         coarse_labels = np.array([esc.fine_to_coarse[c] for c in categories])
-        coarse_labels = coarse_labels.astype('int32')
-    
+        coarse_labels = coarse_labels.astype("int32")
+
         wavs = list()
         order = list()
         N = 0
         for filename in tqdm(f.namelist(), ascii=True):
-            if '.wav' not in filename:
+            if ".wav" not in filename:
                 continue
-            wavfile   = f.read(filename)
-            byt       = io.BytesIO(wavfile)
-            wavs.append(wav_read(byt)[1].astype('float32'))
-            order.append(filenames.index(filename.split('/')[-1]))
+            wavfile = f.read(filename)
+            byt = io.BytesIO(wavfile)
+            wavs.append(wav_read(byt)[1].astype("float32"))
+            order.append(filenames.index(filename.split("/")[-1]))
             N = max(N, len(wavs[-1]))
-    
+
         all_wavs = np.zeros((len(wavs), N))
         for i in range(len(wavs)):
-            left = (N-len(wavs[i])) // 2
-            all_wavs[order[i], left: left + len(wavs[i])] = wavs[i]
+            left = (N - len(wavs[i])) // 2
+            all_wavs[order[i], left : left + len(wavs[i])] = wavs[i]
         return all_wavs, fine_labels, coarse_labels, folds, esc10

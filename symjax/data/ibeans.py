@@ -9,7 +9,8 @@ import urllib
 import numpy as np
 
 
-__author__      = "Randall Balestriero"
+__author__ = "Randall Balestriero"
+
 
 class ibeans:
     """Plant images classification.
@@ -52,7 +53,7 @@ class ibeans:
     Credits     Makerere AI Lab
     """
 
-    classes = ['angular_leaf_spot', 'bean_rust', 'healthy']
+    classes = ["angular_leaf_spot", "bean_rust", "healthy"]
 
     @staticmethod
     def download(path):
@@ -69,24 +70,23 @@ class ibeans:
         """
 
         # Check if directory exists
-        if not os.path.isdir(path+'ibeans'):
-            print('Creating mnist Directory')
-            os.mkdir(path+'ibeans')
+        if not os.path.isdir(path + "ibeans"):
+            print("Creating mnist Directory")
+            os.mkdir(path + "ibeans")
         # Check if file exists
-        if not os.path.exists(path+'ibeans/train.zip'):
-            url = 'https://storage.googleapis.com/ibeans/train.zip'
-            urllib.request.urlretrieve(url, path + 'ibeans/train.zip')
+        if not os.path.exists(path + "ibeans/train.zip"):
+            url = "https://storage.googleapis.com/ibeans/train.zip"
+            urllib.request.urlretrieve(url, path + "ibeans/train.zip")
 
         # Check if file exists
-        if not os.path.exists(path+'ibeans/test.zip'):
-            url = 'https://storage.googleapis.com/ibeans/test.zip'
-            urllib.request.urlretrieve(url,path + 'ibeans/test.zip')
+        if not os.path.exists(path + "ibeans/test.zip"):
+            url = "https://storage.googleapis.com/ibeans/test.zip"
+            urllib.request.urlretrieve(url, path + "ibeans/test.zip")
 
         # Check if file exists
-        if not os.path.exists(path+'ibeans/validation.zip'):
-            url = 'https://storage.googleapis.com/ibeans/validation.zip'
-            urllib.request.urlretrieve(url,path + 'ibeans/validation.zip')
-
+        if not os.path.exists(path + "ibeans/validation.zip"):
+            url = "https://storage.googleapis.com/ibeans/validation.zip"
+            urllib.request.urlretrieve(url, path + "ibeans/validation.zip")
 
     @staticmethod
     def load(path=None):
@@ -113,43 +113,43 @@ class ibeans:
             test_labels: array
 
         """
-    
+
         if path is None:
-            path = os.environ['DATASET_PATH']
+            path = os.environ["DATASET_PATH"]
 
         ibeans.download(path)
-    
+
         t0 = time.time()
-    
+
         # Loading the file
         train_images = list()
         train_labels = list()
-        f       = zipfile.ZipFile(path+'ibeans/train.zip')
+        f = zipfile.ZipFile(path + "ibeans/train.zip")
         for filename in f.namelist():
-            if '.jpg' not in filename:
+            if ".jpg" not in filename:
                 continue
-            train_images.append(mpimg.imread(io.BytesIO(f.read(filename)),'jpg'))
-            train_labels.append(ibeans.classes.index(filename.split('/')[1]))
+            train_images.append(mpimg.imread(io.BytesIO(f.read(filename)), "jpg"))
+            train_labels.append(ibeans.classes.index(filename.split("/")[1]))
 
         # Loading the file
         test_images = list()
         test_labels = list()
-        f       = zipfile.ZipFile(path+'ibeans/test.zip')
+        f = zipfile.ZipFile(path + "ibeans/test.zip")
         for filename in f.namelist():
-            if '.jpg' not in filename:
+            if ".jpg" not in filename:
                 continue
-            test_images.append(mpimg.imread(io.BytesIO(f.read(filename)),'jpg'))
-            test_labels.append(ibeans.classes.index(filename.split('/')[1]))
+            test_images.append(mpimg.imread(io.BytesIO(f.read(filename)), "jpg"))
+            test_labels.append(ibeans.classes.index(filename.split("/")[1]))
 
         # Loading the file
         valid_images = list()
         valid_labels = list()
-        f       = zipfile.ZipFile(path+'ibeans/validation.zip')
+        f = zipfile.ZipFile(path + "ibeans/validation.zip")
         for filename in f.namelist():
-            if '.jpg' not in filename:
+            if ".jpg" not in filename:
                 continue
-            valid_images.append(mpimg.imread(io.BytesIO(f.read(filename)),'jpg'))
-            valid_labels.append(ibeans.classes.index(filename.split('/')[1]))
+            valid_images.append(mpimg.imread(io.BytesIO(f.read(filename)), "jpg"))
+            valid_labels.append(ibeans.classes.index(filename.split("/")[1]))
 
         train_images = np.array(train_images)
         test_images = np.array(test_images)
@@ -159,6 +159,13 @@ class ibeans:
         test_labels = np.array(test_labels)
         valid_labels = np.array(valid_labels)
 
-        print('Dataset ibeans loaded in {0:.2f}s.'.format(time.time()-t0))
-    
-        return train_images, train_labels, valid_images, valid_labels, test_images, test_labels
+        print("Dataset ibeans loaded in {0:.2f}s.".format(time.time() - t0))
+
+        return (
+            train_images,
+            train_labels,
+            valid_images,
+            valid_labels,
+            test_images,
+            test_labels,
+        )
