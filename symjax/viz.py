@@ -3,7 +3,11 @@
 
 __author__      = "Randall Balestriero"
 
-import pygraphviz as pgv
+try:
+    import pygraphviz as pgv
+except ImportError:
+    raise ImportError("Missing pygraphviz dependency.")
+
 from . import tensor as T
 
 
@@ -39,5 +43,3 @@ def compute_graph(var, graph=None):
                 graph = compute_graph(var.kwargs[v], graph)
                 graph.add_edge(str(var.kwargs[v]), str(var))
     return graph
-
-
