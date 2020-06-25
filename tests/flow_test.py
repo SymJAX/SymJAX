@@ -9,20 +9,20 @@ import symjax as sj
 import symjax.tensor as T
 import networkx as nx
 
+
 def test_map():
-    w = T.Variable(1., dtype='float32')
-    u = T.Placeholder((), 'float32')
-    out = T.map(lambda a, w, u: (u - w) * a,
-                [T.range(3)], non_sequences=[w, u])
+    w = T.Variable(1.0, dtype="float32")
+    u = T.Placeholder((), "float32")
+    out = T.map(lambda a, w, u: (u - w) * a, [T.range(3)], non_sequences=[w, u])
     f = sj.function(u, outputs=out, updates={w: w + 1})
     assert np.array_equal(f(2), np.arange(3))
     assert np.array_equal(f(2), np.zeros(3))
-    assert np.array_equal(f(0), - np.arange(3) * 3)
+    assert np.array_equal(f(0), -np.arange(3) * 3)
 
 
 def test_grad_map():
-    w = T.Variable(1., dtype='float32')
-    u = T.Placeholder((), 'float32', name='u')
+    w = T.Variable(1.0, dtype="float32")
+    u = T.Placeholder((), "float32", name="u")
     out = T.map(lambda a, w, u: w * a * u, (T.range(3),), non_sequences=(w, u))
     g = sj.gradients(out.sum(), w)
     f = sj.function(u, outputs=g)
@@ -39,17 +39,20 @@ def test_grad_map_v2():
 
 
 def test_while():
-    w = T.Variable(1., dtype='float32')
-    v = T.Placeholder((), 'float32')
-    out = T.while_loop(lambda i, u: i[0] + u < 5,
-                       lambda i: (i[0] + 1., i[0] ** 2), (w, 1.),
-                       non_sequences_cond=(v,))
+    w = T.Variable(1.0, dtype="float32")
+    v = T.Placeholder((), "float32")
+    out = T.while_loop(
+        lambda i, u: i[0] + u < 5,
+        lambda i: (i[0] + 1.0, i[0] ** 2),
+        (w, 1.0),
+        non_sequences_cond=(v,),
+    )
     f = sj.function(v, outputs=out)
     assert np.array_equal(np.array(f(0)), [5, 16])
     assert np.array_equal(f(2), [3, 4])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_while()
     test_map()
     test_grad_map()

@@ -26,30 +26,29 @@ class vocalset:
     on many different vocal techniques, sung in contexts of scales,
     arpeggios, long tones, and excerpts.
     """
- 
+
     def download(path):
-    
+
         if path is None:
-            path = os.environ['DATASET_path']
-    
+            path = os.environ["DATASET_path"]
+
         # Load the dataset (download if necessary) and set
         # the class attributes.
-    
+
         t = time.time()
-    
-        if not os.path.isdir(path+'vocalset'):
 
-            print('\tCreating Directory')
-            os.mkdir(path+'vocalset')
-    
-        if not os.path.exists(path+'vocalset/VocalSet11.zip'):
+        if not os.path.isdir(path + "vocalset"):
+
+            print("\tCreating Directory")
+            os.mkdir(path + "vocalset")
+
+        if not os.path.exists(path + "vocalset/VocalSet11.zip"):
             print("Downloading Vocalset")
-            url = 'https://zenodo.org/record/1442513/files/VocalSet11.zip?download=1'
-            urllib.request.urlretrieve(url,path+'vocalset/VocalSet11.zip')
-    
-            print("vocalset downloaded in {} sec.".format(time.time()-t))
+            url = "https://zenodo.org/record/1442513/files/VocalSet11.zip?download=1"
+            urllib.request.urlretrieve(url, path + "vocalset/VocalSet11.zip")
 
-    
+            print("vocalset downloaded in {} sec.".format(time.time() - t))
+
     def load(path=None):
         """
         Parameters
@@ -76,34 +75,32 @@ class vocalset:
 
         """
         if path is None:
-            path = os.environ['DATASET_PATH']
-    
+            path = os.environ["DATASET_PATH"]
+
         vocalset.download(path)
         t = time.time()
-    
+
         # load wavs
-        f       = zipfile.ZipFile(path+'vocalset/VocalSet11.zip')
+        f = zipfile.ZipFile(path + "vocalset/VocalSet11.zip")
 
         # init. the data array
         singers = []
         genders = []
         vowels = []
-#        techniques = []
+        #        techniques = []
         data = []
         for filename in tqdm(f.namelist(), ascii=True):
-            if '.wav' not in filename or 'excerpts' in filename or '_' == filename[0]:
+            if ".wav" not in filename or "excerpts" in filename or "_" == filename[0]:
                 continue
             vowel = filename[-5]
-            if vowel not in ['a', 'e', 'i' , 'o', 'u']:
+            if vowel not in ["a", "e", "i", "o", "u"]:
                 continue
             vowels.append(vowel)
             bytes_ = io.BytesIO(f.read(filename))
-            data.append(wav_read(bytes_)[1].astype('float32'))
-            split = filename.split('/')
-            genders.append(''.join(x for x in split[1] if x.isalpha()))
+            data.append(wav_read(bytes_)[1].astype("float32"))
+            split = filename.split("/")
+            genders.append("".join(x for x in split[1] if x.isalpha()))
             singers.append(split[1])
-#            techniques.append(split[-1][3:-6])
+        #            techniques.append(split[-1][3:-6])
 
         return singers, genders, vowels, data
-    
-    

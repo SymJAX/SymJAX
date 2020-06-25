@@ -42,17 +42,17 @@ def test_pymc():
             super().__init__(name, shape, observed)
 
         def logp(self, value):
-            tau = self.sigma ** -2.
-            return (-tau * (value - self.mu)**2 + tt.log(tau / np.pi / 2.)) / 2.
+            tau = self.sigma ** -2.0
+            return (-tau * (value - self.mu) ** 2 + tt.log(tau / np.pi / 2.0)) / 2.0
 
         def random(self, sample_shape):
             return np.random.randn(sample_shape) * self.sigma + self.mu
 
-    x = Normal('x', 0, 10.)
-    s = Normal('s', 0., 5.)
-    y = Normal('y', x, tt.exp(s))
+    x = Normal("x", 0, 10.0)
+    s = Normal("s", 0.0, 5.0)
+    y = Normal("y", x, tt.exp(s))
 
-    assert symjax.current_graph().get(y) == 0.
+    assert symjax.current_graph().get(y) == 0.0
 
     #################
     model_logpt = x.logpt + s.logpt + y.logpt
@@ -61,17 +61,21 @@ def test_pymc():
 
     normal_loglike = jsp.stats.norm.logpdf
 
-    def f_(x, s, y): return (normal_loglike(x, 0., 10.) +
-                             normal_loglike(s, 0., 5.) +
-                             normal_loglike(y, x, jnp.exp(s)))
+    def f_(x, s, y):
+        return (
+            normal_loglike(x, 0.0, 10.0)
+            + normal_loglike(s, 0.0, 5.0)
+            + normal_loglike(y, x, jnp.exp(s))
+        )
 
     for i in range(10):
-        x_val = np.random.randn() * 10.
-        s_val = np.random.randn() * 5.
-        y_val = np.random.randn() * .1 + x_val
+        x_val = np.random.randn() * 10.0
+        s_val = np.random.randn() * 5.0
+        y_val = np.random.randn() * 0.1 + x_val
 
         np.testing.assert_allclose(
-            f(x_val, s_val, y_val), f_(x_val, s_val, y_val), rtol=1e-06)
+            f(x_val, s_val, y_val), f_(x_val, s_val, y_val), rtol=1e-06
+        )
 
     model_dlogpt = symjax.gradients(model_logpt, [x, s, y])
 
@@ -84,16 +88,17 @@ def test_pymc():
 
 
 def test_grad():
-    w = tt.Placeholder((), 'float32')
-    v = tt.Variable(1., dtype='float32')
-    x = w*v+2
+    w = tt.Placeholder((), "float32")
+    v = tt.Variable(1.0, dtype="float32")
+    x = w * v + 2
     symjax.nn.optimizers.Adam(x, 0.001)
     g = symjax.gradients(x, [v])
     f = symjax.function(w, outputs=g[0])
     assert f(1) == 1
     assert f(10) == 10
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     test_grad()
     test_add()
     test_pymc()

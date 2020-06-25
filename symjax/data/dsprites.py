@@ -33,16 +33,16 @@ class dsprites:
         """
 
         # Check if directory exists
-        if not os.path.isdir(path + 'dsprites'):
-            print('Creating mnist Directory')
-            os.mkdir(path + 'dsprites')
+        if not os.path.isdir(path + "dsprites"):
+            print("Creating mnist Directory")
+            os.mkdir(path + "dsprites")
 
-        filename = 'dsprites_ndarray_co1sh3sc6or40x32y32_64x64.npz'
+        filename = "dsprites_ndarray_co1sh3sc6or40x32y32_64x64.npz"
         # Check if file exists
-        if not os.path.exists(path + 'dsprites/' + filename):
+        if not os.path.exists(path + "dsprites/" + filename):
             td = time.time()
-            url = 'https://github.com/deepmind/dsprites-dataset/blob/master/' + filename
-            urllib.request.urlretrieve(url, path + 'dsprites/filename.npz')
+            url = "https://github.com/deepmind/dsprites-dataset/blob/master/" + filename
+            urllib.request.urlretrieve(url, path + "dsprites/filename.npz")
 
     def load(path=None):
         """
@@ -64,14 +64,14 @@ class dsprites:
         """
 
         if path is None:
-            path = os.environ['DATASET_PATH']
+            path = os.environ["DATASET_PATH"]
 
         download(path)
 
         t0 = time.time()
-        dataset_zip = np.load('dsprites_ndarray_co1sh3sc6or40x32y32_64x64.npz')
-        imgs = dataset_zip['imgs']
-        latents_values = dataset_zip['latents_values']
-        latents_classes = dataset_zip['latents_classes']
-        metadata = dataset_zip['metadata'][()]
+        dataset_zip = np.load("dsprites_ndarray_co1sh3sc6or40x32y32_64x64.npz")
+        imgs = dataset_zip["imgs"]
+        latents_values = dataset_zip["latents_values"]
+        latents_classes = dataset_zip["latents_classes"]
+        metadata = dataset_zip["metadata"][()]
         return imgs, latent_values, latents_classes

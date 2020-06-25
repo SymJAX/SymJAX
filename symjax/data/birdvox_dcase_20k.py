@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__author__      = "Randall Balestriero"
+__author__ = "Randall Balestriero"
 
 import io
 import os
-import pickle,gzip
+import pickle, gzip
 import urllib.request
 import numpy as np
 import time
 import zipfile
 from tqdm import tqdm
 from scipy.io.wavfile import read as wav_read
+
 
 class birdvox_dcase_20k:
     """Binary bird detection classification
@@ -126,22 +127,19 @@ class birdvox_dcase_20k:
         """
 
         # Check if directory exists
-        if not os.path.isdir(path+'birdvox_dcase_20k'):
-            print('Creating birdvox_dcase_20k Directory')
-            os.mkdir(path+'birdvox_dcase_20k')
-        base = 'https://zenodo.org/record/1208080/files/'
-        filename = 'BirdVox-DCASE-20k.zip'
-        if not os.path.exists(path+'birdvox_dcase_20k/' + filename):
-            url = base + filename + '?download=1'
-            urllib.request.urlretrieve(url, path + 'birdvox_dcase_20k/' +\
-                                       filename)
-        url = 'https://ndownloader.figshare.com/files/10853300'
-        filename = 'data_labels.csv'
-        if not os.path.exists(path + 'birdvox_dcase_20k/' + filename):
-            urllib.request.urlretrieve(url, path + 'birdvox_dcase_20k/' +\
-                                       filename)
+        if not os.path.isdir(path + "birdvox_dcase_20k"):
+            print("Creating birdvox_dcase_20k Directory")
+            os.mkdir(path + "birdvox_dcase_20k")
+        base = "https://zenodo.org/record/1208080/files/"
+        filename = "BirdVox-DCASE-20k.zip"
+        if not os.path.exists(path + "birdvox_dcase_20k/" + filename):
+            url = base + filename + "?download=1"
+            urllib.request.urlretrieve(url, path + "birdvox_dcase_20k/" + filename)
+        url = "https://ndownloader.figshare.com/files/10853300"
+        filename = "data_labels.csv"
+        if not os.path.exists(path + "birdvox_dcase_20k/" + filename):
+            urllib.request.urlretrieve(url, path + "birdvox_dcase_20k/" + filename)
 
-            
     @staticmethod
     def load(path=None):
         """
@@ -164,35 +162,38 @@ class birdvox_dcase_20k:
                 the file number from which the sample has been extracted
 
         """
-    
+
         if path is None:
-            path = os.environ['DATASET_PATH']
+            path = os.environ["DATASET_PATH"]
 
         birdvox_dcase_20k.download(path)
-    
+
         t0 = time.time()
-    
+
         # Loading the file
-        basefile = path + 'birdvox_dcase_20k/BirdVox-DCASE-20k.zip'
+        basefile = path + "birdvox_dcase_20k/BirdVox-DCASE-20k.zip"
         wavs = list()
-        labels = np.loadtxt(path + 'birdvox_dcase_20k/data_labels.csv',
-                skiprows=1, delimiter=',', dtype='str')
-        wav_names = list(labels[:,0])
-        wav_labels = labels[:, 2].astype('int')
+        labels = np.loadtxt(
+            path + "birdvox_dcase_20k/data_labels.csv",
+            skiprows=1,
+            delimiter=",",
+            dtype="str",
+        )
+        wav_names = list(labels[:, 0])
+        wav_labels = labels[:, 2].astype("int")
         labels = list()
         f = zipfile.ZipFile(basefile)
         for name in tqdm(f.namelist(), ascii=True):
-            filename = name.split('/')[-1][:-4]
-            if '.wav' not in name or filename not in wav_names:
+            filename = name.split("/")[-1][:-4]
+            if ".wav" not in name or filename not in wav_names:
                 continue
-            byt       = io.BytesIO(f.read(name))
-            wavs.append(wav_read(byt)[1].astype('float32'))
+            byt = io.BytesIO(f.read(name))
+            wavs.append(wav_read(byt)[1].astype("float32"))
             labels.append(wav_labels[wav_names.index(filename)])
- 
-        wavs = np.array(wavs).astype('float32')
-        labels = np.array(labels).astype('int32')
-    
-        print('Dataset birdvox_dcase_20k loaded in {0:.2f}s.'.format(time.time()-t0))
-    
-        return wavs, labels
 
+        wavs = np.array(wavs).astype("float32")
+        labels = np.array(labels).astype("int32")
+
+        print("Dataset birdvox_dcase_20k loaded in {0:.2f}s.".format(time.time() - t0))
+
+        return wavs, labels

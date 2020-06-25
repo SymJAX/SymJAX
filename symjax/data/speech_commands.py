@@ -1,5 +1,5 @@
 import os
-import pickle,gzip
+import pickle, gzip
 import urllib.request
 import numpy as np
 import tarfile
@@ -28,41 +28,51 @@ class speech_commands:
 
     """
 
-    name2class = {'blues':0, 'classical':1, 'country': 2,
-                  'disco': 3, 'hiphop': 4, 'jazz': 5, 'metal': 6,
-                  'pop': 7, 'reggae': 8, 'rock': 9}
- 
+    name2class = {
+        "blues": 0,
+        "classical": 1,
+        "country": 2,
+        "disco": 3,
+        "hiphop": 4,
+        "jazz": 5,
+        "metal": 6,
+        "pop": 7,
+        "reggae": 8,
+        "rock": 9,
+    }
+
     def download(path=None):
         if path is None:
-            path = os.environ['DATASET_path']
-        path += 'speech_commands/'
+            path = os.environ["DATASET_path"]
+        path += "speech_commands/"
         t0 = time.time()
-    
-        print('Downloading speech commands')
-    
+
+        print("Downloading speech commands")
+
         # Check if directory exists
         if not os.path.isdir(path):
-            print('\tCreating Directory')
+            print("\tCreating Directory")
             os.mkdir(path)
-    
+
         # Check if file exists
-        if not os.path.exists(path + 'speech_commands_v0.01.tar.gz'):
-            url = 'http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz'
-            urllib.request.urlretrieve(url, path + 'speech_commands_v0.01.tar.gz')
-    
-    
+        if not os.path.exists(path + "speech_commands_v0.01.tar.gz"):
+            url = "http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz"
+            urllib.request.urlretrieve(url, path + "speech_commands_v0.01.tar.gz")
+
     def load(path=None):
-    
+
         if path is None:
-            path = os.environ['DATASET_PATH']
+            path = os.environ["DATASET_PATH"]
         speech_commands.download(path)
-    
+
         t0 = time.time()
-    
-        print('Loading speech command')
-    
-        tar = tarfile.open(path+'speech_commands/speech_commands_v0.01.tar.gz', 'r:gz')
-    
+
+        print("Loading speech command")
+
+        tar = tarfile.open(
+            path + "speech_commands/speech_commands_v0.01.tar.gz", "r:gz"
+        )
+
         # Load train set
         wavs = list()
         labels = list()
@@ -70,30 +80,35 @@ class speech_commands:
         noise_labels = list()
         names = tar.getmembers()
         for name in tqdm(names, ascii=True):
-            if 'wav' not in name.name:
+            if "wav" not in name.name:
                 continue
-            f = tar.extractfile(name.name)#.read()
+            f = tar.extractfile(name.name)  # .read()
             wav = wav_read(f)[1]
-            if 'noise' in name.name:
+            if "noise" in name.name:
                 noises.append(wav)
-                noise_labels.append(name.name.split('/')[-1])
+                noise_labels.append(name.name.split("/")[-1])
             else:
                 left = 16000 - len(wav)
                 to_pad = left // 2
                 wavs.append(np.pad(wav, [[to_pad, left - to_pad]]))
-                labels.append(name.name.split('/')[-2])
+                labels.append(name.name.split("/")[-2])
         labels = np.array(labels)
         unique_labels = np.unique(labels)
-        y = np.squeeze(np.array([np.nonzero(label == unique_labels)[0]
-                        for label in labels]).astype('int32'))
-    
-        data = {'wavs': np.array(wavs).astype('float32'), 
-                'labels': y,
-                'names': labels,
-                'noises': noises,
-                'noises_labels':noises_labels,
-                'INFOS': speech_commands.__doc__}
+        y = np.squeeze(
+            np.array(
+                [np.nonzero(label == unique_labels)[0] for label in labels]
+            ).astype("int32")
+        )
 
-        print('Dataset speech commands loaded in{0:.2f}s.'.format(time.time()-t0))
-    
+        data = {
+            "wavs": np.array(wavs).astype("float32"),
+            "labels": y,
+            "names": labels,
+            "noises": noises,
+            "noises_labels": noises_labels,
+            "INFOS": speech_commands.__doc__,
+        }
+
+        print("Dataset speech commands loaded in{0:.2f}s.".format(time.time() - t0))
+
         return data

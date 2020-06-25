@@ -1,5 +1,5 @@
 import os
-import pickle,gzip
+import pickle, gzip
 import urllib.request
 import numpy as np
 import time
@@ -28,16 +28,18 @@ class univariate_timeseries:
         """
 
         # Check if directory exists
-        if not os.path.isdir(path+'univariate_timeseries'):
-            print('Creating univariate_timeseries Directory')
-            os.mkdir(path+'univariate_timeseries')
-    
+        if not os.path.isdir(path + "univariate_timeseries"):
+            print("Creating univariate_timeseries Directory")
+            os.mkdir(path + "univariate_timeseries")
+
         # Check if file exists
-        if not os.path.exists(path+'univariate_timeseries/Univariate2018_arff.zip'):
-            td  = time.time()
-            print('Creating univariate timeseries')
-            url = 'http://www.timeseriesclassification.com/Downloads/Archives/Univariate2018_arff.zip'
-            urllib.request.urlretrieve(url,path + 'univariate_timeseries/Univariate2018_arff.zip')
+        if not os.path.exists(path + "univariate_timeseries/Univariate2018_arff.zip"):
+            td = time.time()
+            print("Creating univariate timeseries")
+            url = "http://www.timeseriesclassification.com/Downloads/Archives/Univariate2018_arff.zip"
+            urllib.request.urlretrieve(
+                url, path + "univariate_timeseries/Univariate2018_arff.zip"
+            )
 
     @staticmethod
     def load(path=None):
@@ -64,27 +66,27 @@ class univariate_timeseries:
             test_labels: array
 
         """
-    
+
         if path is None:
-            path = os.environ['DATASET_PATH']
+            path = os.environ["DATASET_PATH"]
 
         univariate_timeseries.download(path)
-    
+
         t0 = time.time()
-    
+
         # Loading the fileunivariate_timeseries
-        f       = zipfile.ZipFile(path+ 'univariate_timeseries/Univariate2018_arff.zip')
+        f = zipfile.ZipFile(path + "univariate_timeseries/Univariate2018_arff.zip")
         # init. the data array
         all_data = {}
         for name in tqdm(f.namelist()):
-            if 'TRAIN.txt' in name or 'TEST.txt' in name:
+            if "TRAIN.txt" in name or "TEST.txt" in name:
                 file = f.read(name)
-                if 'PLAID' in name:
-                    data = np.loadtxt(io.BytesIO(file), delimiter=',')
+                if "PLAID" in name:
+                    data = np.loadtxt(io.BytesIO(file), delimiter=",")
                 else:
-                    data = np.loadtxt(io.BytesIO(file)) 
+                    data = np.loadtxt(io.BytesIO(file))
 
-                dataset = name[:-4].split('/')[-2]
-                part = 'TRAIN' if 'TRAIN' in name else 'TEST'
-                all_data[dataset + '/' + part] = data
+                dataset = name[:-4].split("/")[-2]
+                part = "TRAIN" if "TRAIN" in name else "TEST"
+                all_data[dataset + "/" + part] = data
         return all_data

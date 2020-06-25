@@ -28,6 +28,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Check format with black
+      run: |
+        black --check symjax/ tests/
     - name: Install pygraph and sndfile
       run: |
         sudo apt-get install python-pygraph python-pygraphviz
@@ -36,5 +39,3 @@ jobs:
       run: |
         pip install -e .
         pytest
-
-

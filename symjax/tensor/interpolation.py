@@ -7,14 +7,14 @@ from .. import tensor as T
 
 __author__ = "Randall Balestriero"
 
-_HERMITE = np.array([[1, 0, -3, 2],
-                     [0, 0, 3, -2],
-                     [0, 1, -2, 1],
-                     [0, 0, -1, 1]], dtype='float32')
+_HERMITE = np.array(
+    [[1, 0, -3, 2], [0, 0, 3, -2], [0, 1, -2, 1], [0, 0, -1, 1]], dtype="float32"
+)
 
 
-def upsample_1d(tensor, repeat, axis=-1, mode='constant', value=0.,
-                boundary_condition='periodic'):
+def upsample_1d(
+    tensor, repeat, axis=-1, mode="constant", value=0.0, boundary_condition="periodic"
+):
     """1-d upsampling of tensor
 
     allow to upsample a tensor by an arbitrary (integer) amount on a given
@@ -47,38 +47,44 @@ def upsample_1d(tensor, repeat, axis=-1, mode='constant', value=0.,
         return tensor
 
     out_shape = list(tensor.shape)
-    out_shape[axis] *= (1 + repeat)
+    out_shape[axis] *= 1 + repeat
 
-    if mode == 'constant':
+    if mode == "constant":
         zshape = list(tensor.shape)
         zshape.insert(axis + 1, repeat)
-        tensor_aug = T.concatenate([T.expand_dims(tensor, axis + 1),
-                                    T.full(zshape, value, dtype=tensor.dtype)],
-                                   axis + 1)
+        tensor_aug = T.concatenate(
+            [
+                T.expand_dims(tensor, axis + 1),
+                T.full(zshape, value, dtype=tensor.dtype),
+            ],
+            axis + 1,
+        )
 
-    elif mode == 'nearest':
-        if boundary_condition == 'periodic':
-            return T.roll(T.repeat(tensor, repeat + 1, axis), -repeat // 2,
-                          axis)
+    elif mode == "nearest":
+        if boundary_condition == "periodic":
+            return T.roll(T.repeat(tensor, repeat + 1, axis), -repeat // 2, axis)
         else:
             raise NotImplemented
 
-    elif mode == 'linear':
+    elif mode == "linear":
         assert tensor.shape[axis] > 1
         zshape = [1] * (tensor.ndim + 1)
         zshape[axis + 1] = repeat
         coefficients = T.linspace(0, 1, repeat + 2)[1:-1].reshape(zshape)
         augmented_tensor = T.expand_dims(tensor, axis + 1)
-        if boundary_condition == 'periodic':
-            interpolated = augmented_tensor * (1 - coefficients) \
+        if boundary_condition == "periodic":
+            interpolated = (
+                augmented_tensor * (1 - coefficients)
                 + T.roll(augmented_tensor, -1, axis) * coefficients
-        elif boundary_condition == 'mirror':
+            )
+        elif boundary_condition == "mirror":
             assert axis == tensor.ndim - 1
-            other = T.index_update(T.roll(augmented_tensor, -1, axis),
-                                   T.index[..., -1, :],
-                                   augmented_tensor[..., -2, :])
-            interpolated = augmented_tensor * (1 - coefficients) \
-                + other * coefficients
+            other = T.index_update(
+                T.roll(augmented_tensor, -1, axis),
+                T.index[..., -1, :],
+                augmented_tensor[..., -2, :],
+            )
+            interpolated = augmented_tensor * (1 - coefficients) + other * coefficients
 
         tensor_aug = T.concatenate([augmented_tensor, interpolated], axis + 1)
 
@@ -134,7 +140,7 @@ def hermite_1d(samples, knots, values, derivatives):
     start = T.expand_dims(knots[..., :-1], -1)
     end = T.expand_dims(knots[..., 1:], -1)
     pos = (samples_ - start) / (end - start)
-    mask = ((pos >= 0.) * (pos <= 1.0)).astype('float32')
+    mask = ((pos >= 0.0) * (pos <= 1.0)).astype("float32")
     mask = mask / T.maximum(1, mask.sum(-2, keepdims=True))
 
     # create the polynomial basis (..., N_KNOTS - 1, TIME, 4)
@@ -174,24 +180,29 @@ def hermite_2d(values, n_x, n_y):
     n, N, M = values.shape[:3]
     R_N = N - 1
     R_M = M - 1
-    patches = T.extract_image_patches(values,
-                                      (2, 2, 1))  # (n, R_N, R_M, 2, 2, 4)
+    patches = T.extract_image_patches(values, (2, 2, 1))  # (n, R_N, R_M, 2, 2, 4)
 
-    F = T.concatenate([T.concatenate([patches[..., 0], patches[..., 1]], -1),
-                       T.concatenate([patches[..., 2], patches[..., 3]], -1)],
-                      axis=-2)  # (n, R_N, R_M, 4, 4)
+    F = T.concatenate(
+        [
+            T.concatenate([patches[..., 0], patches[..., 1]], -1),
+            T.concatenate([patches[..., 2], patches[..., 3]], -1),
+        ],
+        axis=-2,
+    )  # (n, R_N, R_M, 4, 4)
 
-    M = T.Variable(array([[1, 0, 0, 0],
-                          [0, 0, 1, 0],
-                          [-3, 3, -2, -1],
-                          [2, -2, 1, 1]]).astype('float32'), trainable=False)
+    M = T.Variable(
+        array([[1, 0, 0, 0], [0, 0, 1, 0], [-3, 3, -2, -1], [2, -2, 1, 1]]).astype(
+            "float32"
+        ),
+        trainable=False,
+    )
 
-    MFM = T.einsum('xnmij,ai,bj->xnmab', F, M, M)  # (n, R_N, R_M, 4, 4)
+    MFM = T.einsum("xnmij,ai,bj->xnmab", F, M, M)  # (n, R_N, R_M, 4, 4)
 
     # filter shape is (n_x,n_y,(n-1)*self.R_N,(n-1)*self.R_M)
     t_x = T.linspace(float32(0), float32(1), int32(n_x - 1))
     t_y = T.linspace(float32(0), float32(1), int32(n_y - 1))
     x = T.pow(t_x, T.arange(4)[:, None])  # (4,T-1)
     y = T.pow(t_y, T.arange(4)[:, None])  # (4,T-1)
-    values = T.einsum('xnmij,ia,jb->xnamb', MFM, x, y)
+    values = T.einsum("xnmij,ia,jb->xnamb", MFM, x, y)
     return T.reshape(values, (n, (R_N) * (n - 1), (R_M) * (n - 1)))

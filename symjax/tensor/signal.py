@@ -10,22 +10,19 @@ import jax
 
 # Add the apodization windows
 
-names = ['blackman',
-         'bartlett',
-         'hamming',
-         'hanning',
-         'kaiser']
+names = ["blackman", "bartlett", "hamming", "hanning", "kaiser"]
 
 module = sys.modules[__name__]
 for name in names:
     module.__dict__.update({name: jax_wrap(jnp.__dict__[name])})
 
 
-for name in ['convolve', 'convolve2d', 'correlate', 'correlate2d']:
+for name in ["convolve", "convolve2d", "correlate", "correlate2d"]:
     module.__dict__.update({name: jax_wrap(jax.scipy.signal.__dict__[name])})
 
 
 # Add some utility functions
+
 
 def fourier_complex_morlet(bandwidths, centers, N):
     """Complex Morlet wavelet in Fourier
@@ -46,8 +43,8 @@ def fourier_complex_morlet(bandwidths, centers, N):
     """
 
     freqs = T.linspace(0, 2 * numpy.pi, N)
-    envelop = T.exp(- 0.25 * (freqs - centers) ** 2 * bandwidths ** 2)
-    H = (freqs <= numpy.pi).astype('float32')
+    envelop = T.exp(-0.25 * (freqs - centers) ** 2 * bandwidths ** 2)
+    H = (freqs <= numpy.pi).astype("float32")
     return envelop * H
 
 
@@ -88,7 +85,7 @@ def complex_morlet(bandwidths, centers, time=None):
     if time is None:
         B = 6 * bandwidths.max() + 1
         time = T.linspace(-(B // 2), B // 2, int(T.get(B)))
-    envelop = T.exp(- (time / bandwidths) ** 2)
+    envelop = T.exp(-((time / bandwidths) ** 2))
     wave = T.exp(1j * centers * time)
     return envelop * wave
 
@@ -129,14 +126,13 @@ def tukey(M, alpha=0.5):
     """
     n = T.arange(0, M)
     width = int(numpy.floor(alpha * (M - 1) / 2.0))
-    n1 = n[0:width + 1]
-    n2 = n[width + 1:M - width - 1]
-    n3 = n[M - width - 1:]
+    n1 = n[0 : width + 1]
+    n2 = n[width + 1 : M - width - 1]
+    n3 = n[M - width - 1 :]
 
     w1 = 0.5 * (1 + T.cos(numpy.pi * (-1 + 2.0 * n1 / alpha / (M - 1))))
     w2 = T.ones(n2.shape)
-    w3 = 0.5 * \
-        (1 + T.cos(numpy.pi * (-2.0 / alpha + 1 + 2.0 * n3 / alpha / (M - 1))))
+    w3 = 0.5 * (1 + T.cos(numpy.pi * (-2.0 / alpha + 1 + 2.0 * n3 / alpha / (M - 1))))
 
     w = T.concatenate((w1, w2, w3))
 
@@ -201,12 +197,12 @@ def bin_to_freq(bins, max_f):
 
 def freq_to_bin(freq, n_bins, fmin, fmax):
     unit = (fmax - fmin) / n_bins
-    return (freq / unit).astype('int32')
+    return (freq / unit).astype("int32")
 
 
-def mel_to_freq(m, option='linear'):
+def mel_to_freq(m, option="linear"):
     # convert mel to frequency with
-    if option == 'linear':
+    if option == "linear":
         # Fill in the linear scale
         f_sp = 200.0 / 3
 
@@ -221,12 +217,12 @@ def mel_to_freq(m, option='linear'):
         freq = min_log_hz * T.exp(logstep * (m - min_log_mel))
         return T.where(m >= min_log_mel, freq, f_sp * m)
     else:
-        return 700 * (T.power(10., (m / 2595)) - 1)
+        return 700 * (T.power(10.0, (m / 2595)) - 1)
 
 
-def freq_to_mel(f, option='linear'):
+def freq_to_mel(f, option="linear"):
     # convert frequency to mel with
-    if option == 'linear':
+    if option == "linear":
 
         # linear part slope
         f_sp = 200.0 / 3
@@ -313,12 +309,11 @@ def mel_filterbank(length, n_filter, low, high, nyquist):
     freq_points = freq_to_bin(mel_to_freq(mel_points), length, 0, nyquist)
     peaks = T.expand_dims(freq_points, 1)
     freqs = T.range(length)
-    filter_bank = T.hat_1D(freqs, peaks[:-2],
-                           peaks[1:-1], peaks[2:])
+    filter_bank = T.hat_1D(freqs, peaks[:-2], peaks[1:-1], peaks[2:])
     return filter_bank
 
 
-def stft(signal, window, hop, apod=T.ones, nfft=None, mode='valid'):
+def stft(signal, window, hop, apod=T.ones, nfft=None, mode="valid"):
     """
     Compute the Shoft-Time-Fourier-Transform of a
     signal given the window length, hop and additional
@@ -356,10 +351,10 @@ def stft(signal, window, hop, apod=T.ones, nfft=None, mode='valid'):
     assert signal.ndim == 3
     if nfft is None:
         nfft = window
-    if mode == 'same':
+    if mode == "same":
         left = (window + 1) // 2
         psignal = T.pad(signal, [[0, 0], [0, 0], [left, window + 1 - left]])
-    elif mode == 'full':
+    elif mode == "full":
         left = (window + 1) // 2
         psignal = T.pad(signal, [[0, 0], [0, 0], [window - 1, window - 1]])
     else:
@@ -367,58 +362,80 @@ def stft(signal, window, hop, apod=T.ones, nfft=None, mode='valid'):
 
     apodization = apod(window).reshape((1, 1, -1))
 
-    p = T.extract_signal_patches(
-        psignal, window, hop) * apodization
+    p = T.extract_signal_patches(psignal, window, hop) * apodization
     assert nfft >= window
     pp = T.pad(p, [[0, 0], [0, 0], [0, 0], [0, nfft - window]])
     S = fft(pp)
     return S[..., : int(numpy.ceil(nfft / 2))].transpose([0, 1, 3, 2])
 
 
-def spectrogram(signal, window, hop, apod=hanning, nfft=None, mode='valid'):
+def spectrogram(signal, window, hop, apod=hanning, nfft=None, mode="valid"):
     return T.abs(stft(signal, window, hop, apod, nfft, mode))
 
 
-def melspectrogram(signal, window, hop, n_filter, low_freq, high_freq, nyquist,
-                   nfft=None, mode='valid', apod=hanning):
+def melspectrogram(
+    signal,
+    window,
+    hop,
+    n_filter,
+    low_freq,
+    high_freq,
+    nyquist,
+    nfft=None,
+    mode="valid",
+    apod=hanning,
+):
     spec = spectrogram(signal, window, hop, apod, nfft, mode)
-    filterbank = mel_filterbank(spec.shape[-2], n_filter, low_freq, high_freq,
-                                nyquist)
+    filterbank = mel_filterbank(spec.shape[-2], n_filter, low_freq, high_freq, nyquist)
     flip_filterbank = filterbank.expand_dims(-1)
     output = (T.expand_dims(spec, -3) * flip_filterbank).sum(-2)
     return output
 
 
-def mfcc(signal, window, hop, n_filter, low_freq, high_freq, nyquist, n_mfcc,
-         nfft=None, mode='valid', apod=hanning):
+def mfcc(
+    signal,
+    window,
+    hop,
+    n_filter,
+    low_freq,
+    high_freq,
+    nyquist,
+    n_mfcc,
+    nfft=None,
+    mode="valid",
+    apod=hanning,
+):
     """
     https://librosa.github.io/librosa/_modules/librosa/feature/spectral.html#mfcc
     """
-    tf = melspectrogram(signal, window, hop, n_filter, low_freq, high_freq,
-                        nyquist, nfft, mode, apod)
+    tf = melspectrogram(
+        signal, window, hop, n_filter, low_freq, high_freq, nyquist, nfft, mode, apod
+    )
     tf_db = power_to_db(tf)
     M = dct(tf_db, axes=(2,))
     return M
 
 
-def wvd(signal, window, hop, L, apod=hanning, mode='valid'):
+def wvd(signal, window, hop, L, apod=hanning, mode="valid"):
     # define the following constant for clarity
     PI = 2 * 3.14159
 
     # compute the stft with 2 times bigger window to interp.
     s = stft(signal, window, hop, apod, nfft=2 * window, mode=mode)
-    print('s', s.shape)
+    print("s", s.shape)
     # remodulate the stft prior the spectral correlation for simplicity
     # with the following mask
     step = 1 / window
     freq = T.linspace(-step * L, step * L, 2 * L + 1)
     time = T.range(s.shape[-1]).reshape((-1, 1))
-    mask = T.complex(T.cos(PI * time * freq),
-                     T.sin(PI * time * freq)) * hanning(2 * L + 1)
+    mask = T.complex(T.cos(PI * time * freq), T.sin(PI * time * freq)) * hanning(
+        2 * L + 1
+    )
 
     # extract vertical (freq) partches to perform auto correlation
-    patches = T.extract_image_patches(s, (2 * L + 1, 1), (2, 1),
-                                      mode='same')[..., 0]  # (N C F' T L)
+    patches = T.extract_image_patches(s, (2 * L + 1, 1), (2, 1), mode="same")[
+        ..., 0
+    ]  # (N C F' T L)
     output = (patches * T.conj(T.flip(patches, -1)) * mask).sum(-1)
     return T.real(output)
 
@@ -428,9 +445,10 @@ def dct(signal, axes=(-1,)):
     https://dsp.stackexchange.com/questions/2807/fast-cosine-transform-via-fft
     """
     if len(axes) > 1:
-        raise NotImplemented('not yet implemented more than 1D')
-    to_pad = [(0, 0) if ax not in axes else (0, signal.shape[ax])
-              for ax in range(signal.ndim)]
+        raise NotImplemented("not yet implemented more than 1D")
+    to_pad = [
+        (0, 0) if ax not in axes else (0, signal.shape[ax]) for ax in range(signal.ndim)
+    ]
     pad_signal = T.pad(signal, to_pad)
     exp = 2 * T.exp(-1j * 3.14159 * T.linspace(0, 0.5, signal.shape[axes[0]]))
     y = fft(pad_signal, axes=axes)
@@ -492,7 +510,7 @@ def phase_vocoder(D, rate, hop_length=None):
     if hop_length is None:
         hop_length = int(n_fft // 4)
 
-    time_steps = numpy.arange(0, D.shape[1], rate, 'float32')
+    time_steps = numpy.arange(0, D.shape[1], rate, "float32")
 
     # Create an empty output array
     d_stretch = T.zeros((D.shape[0], len(time_steps)), D.dtype)
@@ -501,30 +519,37 @@ def phase_vocoder(D, rate, hop_length=None):
     phi_advance = T.linspace(0, numpy.pi * hop_length, D.shape[0])
 
     # Pad 0 columns to simplify boundary logic
-    D = T.pad(D, [(0, 0), (0, 2)], mode='constant')
-    D = D[:, time_steps.astype('int32')]
+    D = T.pad(D, [(0, 0), (0, 2)], mode="constant")
+    D = D[:, time_steps.astype("int32")]
 
     alpha = numpy.mod(time_steps, 1.0)
 
-    mag = ((1.0 - alpha) * numpy.abs(D[:, :-1]) + alpha * numpy.abs(D[:, 1:]))
+    mag = (1.0 - alpha) * numpy.abs(D[:, :-1]) + alpha * numpy.abs(D[:, 1:])
 
     # Compute phase advance
-    dphase = (numpy.angle(D[:, 1:]) -
-              numpy.angle(D[:, :-1]) - phi_advance[:, None])
+    dphase = numpy.angle(D[:, 1:]) - numpy.angle(D[:, :-1]) - phi_advance[:, None]
     # Wrap to -pi:pi range
     dphase = dphase - 2.0 * numpy.pi * numpy.round(dphase / (2.0 * numpy.pi))
 
     # Phase accumulator; initialize to the first sample
-    phase_acc = T.concatenate([numpy.angle(D[:, [0]]),
-                               T.cumsum(phi_advance + dphase, 1)], 1)
+    phase_acc = T.concatenate(
+        [numpy.angle(D[:, [0]]), T.cumsum(phi_advance + dphase, 1)], 1
+    )
 
     d_stretch = mag * T.complex(T.cos(phase_acc), T.sin(phase_acc))
 
     return d_stretch
 
 
-def istft(stft_matrix, hop_length=None, win_length=None, window='hann',
-          center=True, dtype=numpy.float32, length=None):
+def istft(
+    stft_matrix,
+    hop_length=None,
+    win_length=None,
+    window="hann",
+    center=True,
+    dtype=numpy.float32,
+    length=None,
+):
     """
     Inverse short-time Fourier transform (ISTFT).
 
@@ -630,15 +655,15 @@ def istft(stft_matrix, hop_length=None, win_length=None, window='hann',
         else:
             padded_length = length
         n_frames = min(
-            stft_matrix.shape[1], int(numpy.ceil(padded_length / hop_length)))
+            stft_matrix.shape[1], int(numpy.ceil(padded_length / hop_length))
+        )
     else:
         n_frames = stft_matrix.shape[1]
 
     expected_signal_len = n_fft + hop_length * (n_frames - 1)
     y = numpy.zeros(expected_signal_len, dtype=dtype)
 
-    n_columns = int(util.MAX_MEM_BLOCK // (stft_matrix.shape[0] *
-                                           stft_matrix.itemsize))
+    n_columns = int(util.MAX_MEM_BLOCK // (stft_matrix.shape[0] * stft_matrix.itemsize))
 
     fft = get_fftlib()
 
@@ -650,17 +675,19 @@ def istft(stft_matrix, hop_length=None, win_length=None, window='hann',
         ytmp = ifft_window * fft.irfft(stft_matrix[:, bl_s:bl_t], axis=0)
 
         # Overlap-add the istft block starting at the i'th frame
-        __overlap_add(y[frame * hop_length:], ytmp, hop_length)
+        __overlap_add(y[frame * hop_length :], ytmp, hop_length)
 
-        frame += (bl_t - bl_s)
+        frame += bl_t - bl_s
 
     # Normalize by sum of squared window
-    ifft_window_sum = window_sumsquare(window,
-                                       n_frames,
-                                       win_length=win_length,
-                                       n_fft=n_fft,
-                                       hop_length=hop_length,
-                                       dtype=dtype)
+    ifft_window_sum = window_sumsquare(
+        window,
+        n_frames,
+        win_length=win_length,
+        n_fft=n_fft,
+        hop_length=hop_length,
+        dtype=dtype,
+    )
 
     approx_nonzero_indices = ifft_window_sum > util.tiny(ifft_window_sum)
     y[approx_nonzero_indices] /= ifft_window_sum[approx_nonzero_indices]
@@ -669,7 +696,7 @@ def istft(stft_matrix, hop_length=None, win_length=None, window='hann',
         # If we don't need to control length, just do the usual center trimming
         # to eliminate padded data
         if center:
-            y = y[int(n_fft // 2):-int(n_fft // 2)]
+            y = y[int(n_fft // 2) : -int(n_fft // 2)]
     else:
         if center:
             # If we're centering, crop off the first n_fft//2 samples
@@ -692,6 +719,6 @@ def hilbert_transform(signal):
     return the analytical signal
     """
     M = signal.shape[-1]
-    heavyside = T.array([1, 0], dtype='float32').repeat(M // 2)
-    mask = T.index_add(T.ones(M), T.index[..., 1:M // 2], 1)
+    heavyside = T.array([1, 0], dtype="float32").repeat(M // 2)
+    mask = T.index_add(T.ones(M), T.index[..., 1 : M // 2], 1)
     return T.signal.ifft(T.signal.fft(signal) * mask * heavyside)

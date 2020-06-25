@@ -28,34 +28,37 @@ class seizures_neonatal:
     detection and other EEG analysis, as well as for the analysis of
     inter-observer agreement.
     """
- 
+
     def download(path):
-    
+
         if path is None:
-            path = os.environ['DATASET_PATH']
-    
+            path = os.environ["DATASET_PATH"]
+
         # Load the dataset (download if necessary) and set
         # the class attributes.
-    
+
         t = time.time()
-    
-        if not os.path.isdir(path+'seizures_neonatal'):
 
-            print('\tCreating Directory')
-            os.mkdir(path+'seizures_neonatal')
-    
-        if not os.path.exists(path+'seizures_neonatal/annotations_2017.mat'):
+        if not os.path.isdir(path + "seizures_neonatal"):
+
+            print("\tCreating Directory")
+            os.mkdir(path + "seizures_neonatal")
+
+        if not os.path.exists(path + "seizures_neonatal/annotations_2017.mat"):
             print("Downloading Annotations")
-            url = 'https://zenodo.org/record/2547147/files/annotations_2017.mat?download=1'
-            urllib.request.urlretrieve(url,path+'seizures_neonatal/annotations_2017.mat')
+            url = "https://zenodo.org/record/2547147/files/annotations_2017.mat?download=1"
+            urllib.request.urlretrieve(
+                url, path + "seizures_neonatal/annotations_2017.mat"
+            )
 
-        for i in tqdm(range(1, 80), ascii=True, desc='Downloading'):
-            dest = 'seizures_neonatal/eeg{}.edf'.format(i)
-            url = 'https://zenodo.org/record/2547147/files/eeg{}.edf?download=1'.format(i)
-            if not os.path.exists(path+dest):
+        for i in tqdm(range(1, 80), ascii=True, desc="Downloading"):
+            dest = "seizures_neonatal/eeg{}.edf".format(i)
+            url = "https://zenodo.org/record/2547147/files/eeg{}.edf?download=1".format(
+                i
+            )
+            if not os.path.exists(path + dest):
                 urllib.request.urlretrieve(url, path + dest)
 
-    
     def load(path=None):
         """
         Parameters
@@ -76,22 +79,20 @@ class seizures_neonatal:
             list of (channels, TIME) multichannel EEGs
         """
         if path is None:
-            path = os.environ['DATASET_PATH']
-    
+            path = os.environ["DATASET_PATH"]
+
         seizures_neonatal.download(path)
         t = time.time()
-    
+
         # load wavs
-        annotations = loadmat(path + 'seizures_neonatal/annotations_2017.mat')
-        annotations = annotations['annotat_new'][0]
+        annotations = loadmat(path + "seizures_neonatal/annotations_2017.mat")
+        annotations = annotations["annotat_new"][0]
 
         # init. the data array
         waveforms = []
         for i in tqdm(range(1, 80), ascii=True):
-            filename = path + 'seizures_neonatal/eeg{}.edf'.format(i)
+            filename = path + "seizures_neonatal/eeg{}.edf".format(i)
             data = mne.io.read_raw_edf(filename)
             waveforms.append(data.get_data())
 
         return annotations, waveforms
-    
-    

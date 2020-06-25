@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__author__      = "Randall Balestriero"
+__author__ = "Randall Balestriero"
 import os
 import io
 import urllib.request
@@ -11,6 +11,7 @@ import h5py
 from tqdm import tqdm
 import zipfile
 from scipy.io.wavfile import read as wav_read
+
 
 class picidae:
     """An Annotated Acoustic Dataset of 7 Picidae Species
@@ -65,12 +66,12 @@ class picidae:
         """
 
         # Check if directory exists
-        if not os.path.isdir(path+'picidae'):
-            print('Creating picidae Directory')
-            os.mkdir(path+'picidae')
-        url = 'https://zenodo.org/record/574438/files/PicidaeDataset.zip?download=1'
-        if not os.path.exists(path+'picidae/PicidaeDataset.zip'):
-            urllib.request.urlretrieve(url, path + 'picidae/PicidaeDataset.zip')
+        if not os.path.isdir(path + "picidae"):
+            print("Creating picidae Directory")
+            os.mkdir(path + "picidae")
+        url = "https://zenodo.org/record/574438/files/PicidaeDataset.zip?download=1"
+        if not os.path.exists(path + "picidae/PicidaeDataset.zip"):
+            urllib.request.urlretrieve(url, path + "picidae/PicidaeDataset.zip")
 
     @staticmethod
     def load(path=None):
@@ -94,38 +95,40 @@ class picidae:
                 the Xeno-Canto ID
 
         """
-    
+
         if path is None:
-            path = os.environ['DATASET_PATH']
+            path = os.environ["DATASET_PATH"]
 
         picidae.download(path)
-    
+
         t0 = time.time()
- 
-        archive = zipfile.ZipFile(path+'picidae/PicidaeDataset.zip')
+
+        archive = zipfile.ZipFile(path + "picidae/PicidaeDataset.zip")
         wavs = list()
         labels = list()
         XC = list()
-        for item in tqdm(archive.namelist(),ascii=True):
-            if item[-4:] == '.wav' and '._' not in item:
+        for item in tqdm(archive.namelist(), ascii=True):
+            if item[-4:] == ".wav" and "._" not in item:
                 wavfile = archive.read(item)
-                byt       = io.BytesIO(wavfile)
-                wavs.append(wav_read(byt)[1].astype('float32'))
-                labels.append(item.split('/')[1])
-                XC.append(item.split('/')[2].split('-')[0])
+                byt = io.BytesIO(wavfile)
+                wavs.append(wav_read(byt)[1].astype("float32"))
+                labels.append(item.split("/")[1])
+                XC.append(item.split("/")[2].split("-")[0])
 
         labels = np.array(labels)
         unique = np.unique(labels)
-        y = np.zeros(len(labels), dtype='int32')
+        y = np.zeros(len(labels), dtype="int32")
         for k, name in enumerate(np.sort(unique)):
             y[labels == name] = k
 
-        data = {'wavs': wavs,
-                'labels': y,
-                'names': labels,
-                'XC_identifiers': XC,
-                'INFOS': picidae.__doc__}
+        data = {
+            "wavs": wavs,
+            "labels": y,
+            "names": labels,
+            "XC_identifiers": XC,
+            "INFOS": picidae.__doc__,
+        }
 
-        print('Dataset picidae loaded in {0:.2f}s.'.format(time.time()-t0))
-    
+        print("Dataset picidae loaded in {0:.2f}s.".format(time.time() - t0))
+
         return data

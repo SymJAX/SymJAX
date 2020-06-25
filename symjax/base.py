@@ -28,10 +28,9 @@ def current_graph():
 
 
 class Graph(nx.DiGraph):
-
     def __init__(self, name, *args, **kwargs):
-        self._current_scope = '/'
-        self._scopes = [Scope('', graph=self)]
+        self._current_scope = "/"
+        self._scopes = [Scope("", graph=self)]
         self._variables = {}
         self._placeholders = {}
         self._updates = {}
@@ -54,35 +53,40 @@ class Graph(nx.DiGraph):
             self.add_node(tensor, branch=branch, root=True)
 
         elif isinstance(tensor, t.RandomOp):
-            self.add_node(tensor, branch=branch, root=True,
-                          jax_function=kwargs['jax_function'],
-                          seed=kwargs['_seed'])
+            self.add_node(
+                tensor,
+                branch=branch,
+                root=True,
+                jax_function=kwargs["jax_function"],
+                seed=kwargs["_seed"],
+            )
 
         elif type(tensor) == t.OpTupleItem:
             self.add_node(tensor, root=False)
-            self.add_edge(kwargs['parent'], tensor, index=kwargs['index'])
+            self.add_edge(kwargs["parent"], tensor, index=kwargs["index"])
 
         elif type(tensor) == t.Op or type(tensor) == t.OpTuple:
 
-            self.add_node(tensor, branch=branch, root=False,
-                          jax_function=kwargs['jax_function'])
+            self.add_node(
+                tensor, branch=branch, root=False, jax_function=kwargs["jax_function"]
+            )
 
-            for i, arg in enumerate(kwargs['args']):
+            for i, arg in enumerate(kwargs["args"]):
 
                 # all parents should already be in, however if one
                 # of the arg is like a tuple then this is a new node
                 # and thus it is not already in thus we add it
                 node = self.add(arg)
                 if self.has_edge(node, tensor):
-                    self[node][tensor]['name'] += '+arg{:02d}'.format(i)
+                    self[node][tensor]["name"] += "+arg{:02d}".format(i)
                 else:
-                    self.add_edge(node, tensor, name='arg{:02d}'.format(i))
+                    self.add_edge(node, tensor, name="arg{:02d}".format(i))
 
-            for key, arg in kwargs['kwargs'].items():
+            for key, arg in kwargs["kwargs"].items():
 
                 node = self.add(arg)
                 if self.has_edge(node, tensor):
-                    self[node][tensor]['name'] += '+' + key
+                    self[node][tensor]["name"] += "+" + key
                 else:
                     self.add_edge(node, tensor, name=key)
 
@@ -104,16 +108,18 @@ class Graph(nx.DiGraph):
                 self.roots(node, roots)
         else:
             for i in nx.algorithms.ancestors(self, nodes):
-                if self.nodes[i]['root']:
+                if self.nodes[i]["root"]:
                     roots.append(i)
 
         return list(set(roots))
 
     def clone(self, node, givens):
-        names = ['{}{}->{}{}'.format(m.scope, m.name, v.scope,
-                                     v.name) for m, v in givens.items()]
+        names = [
+            "{}{}->{}{}".format(m.scope, m.name, v.scope, v.name)
+            for m, v in givens.items()
+        ]
         names.sort()
-        name = '_'.join(names)
+        name = "_".join(names)
         branch = givens.copy()
         for start in givens.keys():
             for path in nx.all_simple_paths(self, source=start, target=node):
@@ -121,16 +127,19 @@ class Graph(nx.DiGraph):
                     if n in branch:
                         continue
                     args, kwargs = self._get_args_kwargs(n, evaluate=False)
-                    args = [branch[arg] if arg in branch else arg
-                            for arg in args]
+                    args = [branch[arg] if arg in branch else arg for arg in args]
                     for arg in kwargs.keys():
                         if arg in branch:
                             kwargs[arg] = branch[arg]
-                    fun = self.get_node_attribute(n, 'jax_function')
-                    kwargs.update({'_jax_function': fun,
-                                   '_shape': n._shape,
-                                   '_dtype': n._dtype,
-                                   'name': n.name + '_clone'})
+                    fun = self.get_node_attribute(n, "jax_function")
+                    kwargs.update(
+                        {
+                            "_jax_function": fun,
+                            "_shape": n._shape,
+                            "_dtype": n._dtype,
+                            "name": n.name + "_clone",
+                        }
+                    )
                     branch[n] = t.Op(*args, **kwargs)
         return branch[node]
 
@@ -164,8 +173,7 @@ class Graph(nx.DiGraph):
 
         elif type(item) == t.Placeholder:
             if item not in tracker:
-                raise ValueError(
-                    ' no value given for placeholder {}'.format(item))
+                raise ValueError(" no value given for placeholder {}".format(item))
 
         elif isinstance(item, t.Variable) or type(item) == t.Constant:
             tracker[item] = item.value
@@ -176,25 +184,27 @@ class Graph(nx.DiGraph):
             preds = list(self.predecessors(item))
             assert len(preds) == 1
             parent = preds[0]
-            index = self.get_edge_data(parent, item)['index']
+            index = self.get_edge_data(parent, item)["index"]
             return self.get(parent, tracker)[index]
 
         elif type(item) == t.Op or type(item) == t.OpTuple:
 
             # first get the actual parents nodes (aka inputs to the function)
             args, kwargs = self._get_args_kwargs(item, tracker)
-            tracker[item] = self.get_node_attribute(
-                item, 'jax_function')(*args, **kwargs)
+            tracker[item] = self.get_node_attribute(item, "jax_function")(
+                *args, **kwargs
+            )
 
             return tracker[item]
 
         elif type(item) == t.RandomOp:
             seed = seed or numpy.random.randint(0, 1000000)
-            intra_seed = 1 or self.get_node_attribute(item, 'seed')
+            intra_seed = 1 or self.get_node_attribute(item, "seed")
             key = jax.random.PRNGKey(seed + intra_seed)
             args, kwargs = self._get_args_kwargs(item, tracker)
-            tracker[item] = self.get_node_attribute(
-                item, 'jax_function')(key, *args, **kwargs)
+            tracker[item] = self.get_node_attribute(item, "jax_function")(
+                key, *args, **kwargs
+            )
             return tracker[item]
 
         else:
@@ -205,22 +215,24 @@ class Graph(nx.DiGraph):
         if evaluate:
             assert tracker is not None
 
-            all_args = {self.get_edge_data(parent, node)['name']:
-                        self.get(parent, tracker)
-                        for parent in self.predecessors(node)}
+            all_args = {
+                self.get_edge_data(parent, node)["name"]: self.get(parent, tracker)
+                for parent in self.predecessors(node)
+            }
         else:
-            all_args = {self.get_edge_data(parent, node)['name']:
-                        parent
-                        for parent in self.predecessors(node)}
+            all_args = {
+                self.get_edge_data(parent, node)["name"]: parent
+                for parent in self.predecessors(node)
+            }
         # now we inspect if there are duplicate args
         for arg in list(all_args.keys()):
-            if '+' in arg:
-                items = arg.split('+')
+            if "+" in arg:
+                items = arg.split("+")
                 for item in items:
                     all_args.update({item: all_args[arg]})
                 del all_args[arg]
 
-        args_names = [name for name in all_args.keys() if 'arg' == name[:3]]
+        args_names = [name for name in all_args.keys() if "arg" == name[:3]]
         args_names.sort()
 
         args = [all_args[name] for name in args_names]
@@ -260,7 +272,7 @@ class Scope:
     def __enter__(self):
         """Set global variables."""
         if len(self.name):
-            self.graph._current_scope += self.name + '/'
+            self.graph._current_scope += self.name + "/"
         self.full_name = self.graph._current_scope
         self.graph._scopes.append(self)
 
@@ -270,16 +282,17 @@ class Scope:
         if self.graph._scopes[-1].full_name is not None:
             self.graph._current_scope = self.graph._scopes[-1].full_name
         else:
-            self.graph._current_scope = '/'
+            self.graph._current_scope = "/"
 
     def save_variables(self, path):
         """Save graph."""
-        numpy.savez(path, **dict(
-            [(v.name, symjax.tensor.get(v)) for v in self.variables]))
+        numpy.savez(
+            path, **dict([(v.name, symjax.tensor.get(v)) for v in self.variables])
+        )
 
     @property
     def get_variables(self):
-        return get_variables(self.full_name + '*')
+        return get_variables(self.full_name + "*")
 
     def load_variables(self, path):
         """Load graph."""
@@ -322,15 +335,15 @@ class Scope:
 
         count = 1
         while True:
-            if name + '_' + str(count) in names.keys():
+            if name + "_" + str(count) in names.keys():
                 count += 1
             else:
                 break
-        names[name + '_' + str(count)] = tensor
-        tensor._set_name(tensor.name + '_' + str(count))
+        names[name + "_" + str(count)] = tensor
+        tensor._set_name(tensor.name + "_" + str(count))
 
 
-def reset_variables(name='*', trainable=None):
+def reset_variables(name="*", trainable=None):
     """
     utility to reset variables based on their names
 
@@ -388,18 +401,26 @@ def reset_variables(name='*', trainable=None):
 def save_variables(name, path):
     """Save graph."""
     matched = fnmatch.filter(symjax._variables.keys(), name)
-    numpy.savez(path, **dict(
-        [(symjax._variables[v].scope + symjax._variables[v].name,
-          symjax.tensor.get(symjax._variables[v])) for v in
-         matched]))
+    numpy.savez(
+        path,
+        **dict(
+            [
+                (
+                    symjax._variables[v].scope + symjax._variables[v].name,
+                    symjax.tensor.get(symjax._variables[v]),
+                )
+                for v in matched
+            ]
+        )
+    )
 
 
 def load_variables(name, path_or_file, scope_mapping=None):
     """Load graph."""
 
     if type(path_or_file) == str:
-        if path_or_file[-4:] != '.npz':
-            path_or_file += '.npz'
+        if path_or_file[-4:] != ".npz":
+            path_or_file += ".npz"
 
     scope_mapping = scope_mapping or {}
 
@@ -407,16 +428,19 @@ def load_variables(name, path_or_file, scope_mapping=None):
     data = numpy.load(path_or_file)
     for name in matched:
         if symjax._variables[name].scope in scope_mapping:
-            name_in_file = scope_mapping[symjax._variables[name].scope] + '/' + \
-                symjax._variables[name].name
+            name_in_file = (
+                scope_mapping[symjax._variables[name].scope]
+                + "/"
+                + symjax._variables[name].name
+            )
         else:
             name_in_file = name
         if name_in_file not in data:
-            raise Warning('{} not in loaded file'.format(name_in_file))
+            raise Warning("{} not in loaded file".format(name_in_file))
         symjax._variables[name].update(data[name_in_file])
 
 
-def get_variables(name='*', trainable=None):
+def get_variables(name="*", trainable=None):
     matched = current_graph().variables(trainable)
     output = []
     for m in matched:
@@ -425,7 +449,7 @@ def get_variables(name='*', trainable=None):
     return output
 
 
-def get_placeholders(name='*'):
+def get_placeholders(name="*"):
     """
     Same as symjax.variable but for placeholders
     """
@@ -437,7 +461,7 @@ def get_placeholders(name='*'):
     return output
 
 
-def get_ops(name='*'):
+def get_ops(name="*"):
     """
     Same as symjax.variable but for ops
     """
@@ -453,7 +477,7 @@ def add_updates(udpates):
     current_scope().add_updates(updates)
 
 
-def get_updates(name='*'):
+def get_updates(name="*"):
     """
     Same as symjax.get_variables but for updates
     """
@@ -502,8 +526,7 @@ def gradients(scalar, variables):
     if numpy.prod(scalar.shape) != 1:
         raise RuntimeError("the variable to differentiate is not a scalar")
     if not isinstance(scalar, t.Tensor):
-        raise RuntimeError(
-            "the variable used in gradients should be a Tensor type")
+        raise RuntimeError("the variable used in gradients should be a Tensor type")
 
     if scalar.shape != ():
         scalar = scalar.sum()
@@ -541,7 +564,7 @@ def gradients(scalar, variables):
         return wrap_fn(*all_roots)[0]
 
 
-def jacobians(tensor, variables, mode='forward'):
+def jacobians(tensor, variables, mode="forward"):
     """Compute the jacobians of a tensor w.r.t to a given list of variables.
 
     The tensor needs not to be a vector, but will be treated as such. For
@@ -586,13 +609,14 @@ def jacobians(tensor, variables, mode='forward'):
     # now we obtain the jacobian function. In fact, Jax returns a function that
     # when it is called, returns the jacobian values, this function is then
     # used to generate the Tuple of symbolic variables
-    if mode == 'forward':
+    if mode == "forward":
         jacob_fn = jacfwd(fn, argnums)
-    elif mode == 'backward':
+    elif mode == "backward":
         jacob_fn = jacrev(fn, argnums)
     else:
         raise RuntimeError(
-            "mode {} not recognized, use forward or backward".format(mode))
+            "mode {} not recognized, use forward or backward".format(mode)
+        )
     wrap_fn = t.jax_wrap(jacob_fn, False)
     return wrap_fn(*all_roots)
 
@@ -654,9 +678,15 @@ class function:
 
     """
 
-    def __init__(self, *classargs, outputs=[], updates=None,  # noqa
-                 device=None,
-                 backend=None, default_value=None):
+    def __init__(
+        self,
+        *classargs,
+        outputs=[],
+        updates=None,  # noqa
+        device=None,
+        backend=None,
+        default_value=None
+    ):
         """Initialize."""
         # check the given updates (if any) and ensure that they only
         # update Variable objects
@@ -666,15 +696,16 @@ class function:
         for update in updates.keys():
             if not isinstance(update, t.Variable):
                 raise RuntimeError(
-                    "{} is not a Variable and cannot be updated".format(
-                        update))
+                    "{} is not a Variable and cannot be updated".format(update)
+                )
 
         # ensure that all inputs are actual placeholders or variables
         for arg in classargs:
             if not isinstance(arg, t.Tensor):
                 raise RuntimeError(
-                    "{} is not a Tensor type. Only tensor types can be" +
-                    "function inputs".format(arg))
+                    "{} is not a Tensor type. Only tensor types can be"
+                    + "function inputs".format(arg)
+                )
 
         # gather all roots, they need to be explicit as inputs of the
         # underlying functions otherwise they are treated as constants
@@ -691,47 +722,53 @@ class function:
         for i in range(len(items)):
             if self.updates_keys[i].shape != self.updates_values[i].shape:
                 warnings.warn(
-                    'Variable and update {} {}'.format(
-                        self.updates_keys[i],
-                        self.updates_values[i]) +
-                    "are not the same shape... attempting to reshape")
-                self.updates_values[i] = t.reshape(self.updates_values[i],
-                                                   self.updates_keys[i].shape)
+                    "Variable and update {} {}".format(
+                        self.updates_keys[i], self.updates_values[i]
+                    )
+                    + "are not the same shape... attempting to reshape"
+                )
+                self.updates_values[i] = t.reshape(
+                    self.updates_values[i], self.updates_keys[i].shape
+                )
             if self.updates_keys[i].dtype != self.updates_values[i].dtype:
                 warnings.warn(
-                    'Variable and update {} {}'.format(
-                        self.updates_keys[i],
-                        self.updates_values[i]) +
-                    "are not the same dtype... attempting to cast")
-                self.updates_values[i] = t.cast(self.updates_values[i],
-                                                self.updates_keys[i].dtype)
+                    "Variable and update {} {}".format(
+                        self.updates_keys[i], self.updates_values[i]
+                    )
+                    + "are not the same dtype... attempting to cast"
+                )
+                self.updates_values[i] = t.cast(
+                    self.updates_values[i], self.updates_keys[i].dtype
+                )
 
         # check the function inputs, they must be at least contain all the
         # placeholders needed to compute the outputs values
-        placeholders_in_root = filter(lambda x: isinstance(x, t.Placeholder),
-                                      self.all_roots)
+        placeholders_in_root = filter(
+            lambda x: isinstance(x, t.Placeholder), self.all_roots
+        )
 
         # check for
         non_givens = set(placeholders_in_root) - set(self.classargs)
         if len(non_givens) > 0:
             raise RuntimeError(
-                "Missing placeholders form the function inputs: {}".format(
-                    non_givens))
+                "Missing placeholders form the function inputs: {}".format(non_givens)
+            )
 
         # the roots are made of variables, random tensors, placeholders. We
         # already ensured that all placeholders are given as inputs to the
         # function. Now we must ensure that the other ones will also be given
         # as inputs to not be treated as constants by jax.
         # we also remove update keys because we will expicitly feed them
-        self.extra_inputs = set(self.all_roots) \
-            - (set(self.classargs).union(self.updates_keys))
+        self.extra_inputs = set(self.all_roots) - (
+            set(self.classargs).union(self.updates_keys)
+        )
         self.extra_inputs = list(self.extra_inputs)
         allargs = list(self.classargs) + self.updates_keys + self.extra_inputs
 
         def to_jit(*jitargs, seed):
 
             feed_dict = dict(zip(allargs, jitargs))
-            feed_dict.update({'rng': seed})
+            feed_dict.update({"rng": seed})
             outputs = [self.outputs, self.updates_values]
             return symjax.current_graph().get(outputs, feed_dict)
 
@@ -744,8 +781,9 @@ class function:
                 to_vectorize.append(None)
 
         if any(to_vectorize):
-            self.jited = jax.jit(jax.vmap(to_jit, to_vectorize), device=device,
-                                 backend=backend)
+            self.jited = jax.jit(
+                jax.vmap(to_jit, to_vectorize), device=device, backend=backend
+            )
         else:
             # we compile our underlying function using jit for performances
             self.jited = jax.jit(to_jit, device=device, backend=backend)
@@ -757,26 +795,30 @@ class function:
             # ensure that the number of arguments is correct
             assert len(fnargs) == len(self.classargs)
             for fnarg, classarg in zip(fnargs, self.classargs):
-                if hasattr(fnarg, 'shape'):
+                if hasattr(fnarg, "shape"):
                     if fnarg.shape != classarg.shape and 0 not in classarg.shape:
                         raise RuntimeError(
-                            "wrong input given for {}".format(classarg) +
-                            ", given is {}".format(fnarg) +
-                            ", shape={}".format(fnarg.shape))
+                            "wrong input given for {}".format(classarg)
+                            + ", given is {}".format(fnarg)
+                            + ", shape={}".format(fnarg.shape)
+                        )
 
             # retreive the function outputs, updated values and apply them
-            jited_add_inputs = symjax.current_graph().get(self.updates_keys + self.extra_inputs,
-                                                          tracker={'rng': rng})
-            jitoutputs, jitupdates = self.jited(*fnargs, *jited_add_inputs,
-                                                seed=rng)
+            jited_add_inputs = symjax.current_graph().get(
+                self.updates_keys + self.extra_inputs, tracker={"rng": rng}
+            )
+            jitoutputs, jitupdates = self.jited(*fnargs, *jited_add_inputs, seed=rng)
             for key, update in zip(self.updates_keys, jitupdates):
                 key.update(update)
             if isinstance(jitoutputs, jax.interpreters.xla.DeviceArray):
                 return jax.api.device_get(jitoutputs)
             else:
-                npy_jitoutputs = [jax.api.device_get(arr) if isinstance(arr,
-                                                                        jax.interpreters.xla.DeviceArray) else arr
-                                  for arr in jitoutputs]
+                npy_jitoutputs = [
+                    jax.api.device_get(arr)
+                    if isinstance(arr, jax.interpreters.xla.DeviceArray)
+                    else arr
+                    for arr in jitoutputs
+                ]
                 return npy_jitoutputs
 
         self.meta = meta
@@ -790,8 +832,7 @@ class function:
         if rng is None:
             rng = random._seed
             random._seed += 1
-        pargs = [numpy.array(arg) if type(
-            arg) == list else arg for arg in args]
+        pargs = [numpy.array(arg) if type(arg) == list else arg for arg in args]
         outputs = self.meta(*pargs, rng=rng)
         if type(outputs) == list:
             if len(outputs) == 0:
