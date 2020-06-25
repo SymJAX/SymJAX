@@ -23,36 +23,28 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-
-     name='symjax',  
-
+     name='symjax',
      version='0.3.4',
-
      author="Randall Balestriero",
-
      author_email="randallbalestriero@gmail.com",
-
      description="A Symbolic JAX software",
-
      long_description=long_description,
-
      long_description_content_type="text/markdown",
-
      url="https://github.com/SymJAX/SymJAX.git",
-
      packages=find_packages(exclude=["examples"]),
-
      classifiers=[
          "Natural Language :: English",
-
          "Development Status :: 3 - Alpha",
-
          "Programming Language :: Python :: 3",
-
          "Operating System :: Unix",
-
      ],
-     python_requires='>=3.6',
-
+    python_requires='>=3.6',
+    install_requires=[
+        "numpy",
+        "scipy",
+        "jax",
+        "jaxlib",
+        "networkx",
+    ],
     license='Apache-2.0',
  )
