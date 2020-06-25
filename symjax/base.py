@@ -10,6 +10,7 @@ import numpy
 from jax import jacfwd, jacrev
 
 import symjax
+import collections
 from symjax import tensor as t
 from symjax.tensor import random
 import networkx as nx
@@ -38,6 +39,15 @@ class Graph(nx.DiGraph):
         super().__init__(*args, name=name, **kwargs)
 
     def add(self, tensor, branch=None, **kwargs):
+
+        if not t.isvar(tensor):
+            const_node = t.Constant(tensor)
+            self.add_node(const_node, root=False)
+            return const_node
+
+        if tensor in self.nodes:
+            return tensor
+
         self._scopes[-1].add(tensor)
 
         if isinstance(tensor, t.Placeholder) or isinstance(tensor, t.Variable):
@@ -53,35 +63,36 @@ class Graph(nx.DiGraph):
             self.add_edge(kwargs['parent'], tensor, index=kwargs['index'])
 
         elif type(tensor) == t.Op or type(tensor) == t.OpTuple:
+
             self.add_node(tensor, branch=branch, root=False,
                           jax_function=kwargs['jax_function'])
+
             for i, arg in enumerate(kwargs['args']):
-                if not t.isvar(arg):
-                    const_node = t.Constant(arg)
-                    self.add_node(const_node, root=False)
-                    self.add_edge(const_node, tensor,
-                                  name='arg{:02d}'.format(i))
-                else:
-                    if self.has_edge(arg, tensor):
-                        self[arg][tensor]['name'] += '+arg{:02d}'.format(i)
-                    else:
-                        self.add_edge(arg, tensor, name='arg{:02d}'.format(i))
 
-            for i, (key, arg) in enumerate(kwargs['kwargs'].items()):
-                if not t.isvar(arg):
-                    const_node = t.Constant(arg)
-                    self.add_node(const_node, root=False)
-                    self.add_edge(const_node, tensor, name=key)
+                # all parents should already be in, however if one
+                # of the arg is like a tuple then this is a new node
+                # and thus it is not already in thus we add it
+                node = self.add(arg)
+                if self.has_edge(node, tensor):
+                    self[node][tensor]['name'] += '+arg{:02d}'.format(i)
                 else:
-                    if self.has_edge(arg, tensor):
-                        self[arg][tensor]['name'] += '+' + key
-                    else:
-                        self.add_edge(arg, tensor, name=key)
+                    self.add_edge(node, tensor, name='arg{:02d}'.format(i))
 
-        elif type(tensor) == t.Constant:
-            self.add_node(tensor, root=False, branch=branch)
-        else:
-            self.add_node(t.Constant(tensor), root=False)
+            for key, arg in kwargs['kwargs'].items():
+
+                node = self.add(arg)
+                if self.has_edge(node, tensor):
+                    self[node][tensor]['name'] += '+' + key
+                else:
+                    self.add_edge(node, tensor, name=key)
+
+        elif type(tensor) == tuple:
+            self.add_node(tensor, root=False)
+            for i in tensor:
+                other = self.add(i)
+                self.add_edge(other, tensor)
+
+        return tensor
 
     def roots(self, nodes, roots=None):
 
@@ -89,7 +100,8 @@ class Graph(nx.DiGraph):
             roots = []
 
         if type(nodes) == tuple or type(nodes) == list:
-            [self.roots(node, roots) for node in nodes]
+            for node in nodes:
+                self.roots(node, roots)
         else:
             for i in nx.algorithms.ancestors(self, nodes):
                 if self.nodes[i]['root']:
@@ -282,7 +294,8 @@ class Scope:
             var.reset()
 
     def add(self, tensor):
-        if not t.isvar(tensor):
+
+        if not t.isvar(tensor) or type(tensor) == tuple:
             return
 
         # fake graph entrance if not used by user
@@ -526,7 +539,6 @@ def gradients(scalar, variables):
         return wrap_fn(*all_roots)
     else:
         return wrap_fn(*all_roots)[0]
-
 
 
 def jacobians(tensor, variables, mode='forward'):

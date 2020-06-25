@@ -7,7 +7,7 @@ import numpy as np
 
 import symjax as sj
 import symjax.tensor as T
-
+import networkx as nx
 
 def test_map():
     w = T.Variable(1., dtype='float32')

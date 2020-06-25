@@ -324,6 +324,12 @@ class Constant:
     def __init__(self, value):
         self.value = value
 
+    def __repr__(self):
+        return 'ConstantValue({})'.format(type(self.value))
+
+    def __str__(self):
+        return self.__repr__()
+
 
 class Op(Tensor):
     """an Op generates a Tensor object obtained from a function"""
@@ -573,6 +579,7 @@ def symjax_to_jax_fn(func):
 
 def clone(tensor, givens):
     return tensor.clone(givens)
+
 
 def get(tensor, tracker=None):
     return symjax.current_graph().get(tensor, tracker)
