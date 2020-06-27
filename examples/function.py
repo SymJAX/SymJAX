@@ -2,7 +2,6 @@ import symjax
 import symjax.tensor as T
 
 
-
 value = T.Variable(T.ones(()))
 randn = T.random.randn(())
 rand = T.random.rand(())
@@ -10,7 +9,7 @@ rand = T.random.rand(())
 out1 = randn * value
 out2 = out1.clone({randn: rand})
 
-f = symjax.function(rand, outputs=out2, updates={value:2+value})
+f = symjax.function(rand, outputs=out2, updates={value: 2 + value})
 
 for i in range(3):
     print(f(i))
@@ -21,7 +20,7 @@ for i in range(3):
 
 # we create a simple computational graph
 var = T.Variable(T.random.randn((16, 8), seed=10))
-loss = ((var - T.ones_like(var))**2 ).sum()
+loss = ((var - T.ones_like(var)) ** 2).sum()
 g = symjax.gradients(loss, [var])
 opt = symjax.optimizers.SGD(loss, 0.01, params=var)
 
@@ -39,5 +38,3 @@ for i in range(10):
 # 181.60382
 # 174.41231
 # 167.50558
-
-

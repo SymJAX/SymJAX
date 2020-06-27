@@ -4,7 +4,7 @@ import symjax.tensor as T
 
 # we create a simple mapping with 2 matrix multiplications interleaved
 # with nonlinearities
-x = T.Placeholder((8,), 'float32')
+x = T.Placeholder((8,), "float32")
 w_1 = T.Variable(T.random.randn((16, 8)))
 w_2 = T.Variable(T.random.randn((2, 16)))
 
@@ -14,7 +14,7 @@ output = w_2.dot(T.relu(w_1.dot(x)))
 # now suppose we also wanted the same mapping but with a noise input
 epsilon = T.random.randn((8,))
 
-output_noisy = output.clone({x:x+epsilon})
+output_noisy = output.clone({x: x + epsilon})
 
 f = symjax.function(x, outputs=[output, output_noisy])
 
@@ -31,4 +31,3 @@ for i in range(10):
 # [array([-14.496595,   8.7136  ], dtype=float32), array([-38.9738  ,  31.588022], dtype=float32)]
 # [array([-14.496595,   8.7136  ], dtype=float32), array([-19.561726,  12.192366], dtype=float32)]
 # [array([-14.496595,   8.7136  ], dtype=float32), array([-33.110832,  30.104563], dtype=float32)]
-

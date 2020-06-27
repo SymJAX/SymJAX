@@ -21,12 +21,8 @@ os.environ["DATASET_PATH"] = "/home/vrael/DATASETS/"
 mnist = mnist.load()
 
 # some renormalization
-mnist["train_set/images"] /= mnist["train_set/images"].max(
-    (1, 2, 3), keepdims=True
-)
-mnist["test_set/images"] /= mnist["test_set/images"].max(
-    (1, 2, 3), keepdims=True
-)
+mnist["train_set/images"] /= mnist["train_set/images"].max((1, 2, 3), keepdims=True)
+mnist["test_set/images"] /= mnist["test_set/images"].max((1, 2, 3), keepdims=True)
 
 # create the network
 BATCH_SIZE = 32
@@ -39,9 +35,7 @@ layer = [nn.layers.Identity(images)]
 
 for l in range(3):
     layer.append(nn.layers.Conv2D(layer[-1], 32, (3, 3), b=None, pad="SAME"))
-    layer.append(
-        nn.layers.BatchNormalization(layer[-1], [0, 2, 3], deterministic)
-    )
+    layer.append(nn.layers.BatchNormalization(layer[-1], [0, 2, 3], deterministic))
     layer.append(nn.layers.Lambda(layer[-1], nn.leaky_relu))
     layer.append(nn.layers.Pool2D(layer[-1], (2, 2)))
 

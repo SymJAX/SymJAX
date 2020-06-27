@@ -5,26 +5,25 @@ import symjax as sj
 import symjax.tensor as T
 import jax.numpy as jnp
 
-__author__      = "Randall Balestriero"
+__author__ = "Randall Balestriero"
+
 
 class product:
-
     def __init__(self, W, V=1):
-        self.W = jnp.square(V * W * (W > 0).astype('float32'))
+        self.W = jnp.square(V * W * (W > 0).astype("float32"))
         self.ndim = self.compute_ndim()
 
     def feed(self, x):
-        return jnp.dot(self.W,x)
+        return jnp.dot(self.W, x)
 
     def compute_ndim(self):
         return self.W.shape[0] * self.W.shape[1]
 
 
+wrapped = T.wrap_class(product, method_exceptions=["compute_ndim"])
 
-wrapped = T.wrap_class(product, method_exceptions=['compute_ndim'])
 
-
-a = wrapped(T.zeros((10, 10)), V=T.ones((10,10)))
+a = wrapped(T.zeros((10, 10)), V=T.ones((10, 10)))
 x = T.random.randn((10, 100))
 
 print(a.W)
@@ -36,4 +35,3 @@ print(a.feed(x))
 f = sj.function(outputs=a.feed(x))
 
 f()
-

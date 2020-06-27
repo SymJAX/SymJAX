@@ -1,11 +1,13 @@
 import sys
+
 sys.path.insert(0, "../")
 
 import symjax as sj
 import symjax.tensor as T
 import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use('Agg')
+
+matplotlib.use("Agg")
 
 ###### 2D GAUSSIAN EXAMPLE
 
@@ -36,5 +38,3 @@ print(f())
 #  [0.   0.01 0.16 0.01 0.  ]
 #  [0.   0.   0.01 0.   0.  ]
 #  [0.   0.   0.   0.   0.  ]]
-
-

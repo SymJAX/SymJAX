@@ -27,8 +27,9 @@ class Optimizer:
             return grads_or_loss
 
     def add_update(self, update):
-        print('adding ', update)
+        print("adding ", update)
         symjax.current_graph().add(update)
+
 
 # class PiecewiseConstant(Optimizer):
 #
@@ -230,4 +231,3 @@ class Adam(Optimizer):
         self.updates = updates
 
         self.add_update(updates)
-

@@ -18,9 +18,9 @@ mnist = symjax.data.mnist.load()
 plt.figure(figsize=(10, 4))
 for i in range(10):
     plt.subplot(2, 5, 1 + i)
-    plt.imshow(mnist['train_set/images'][i, 0], aspect='auto', cmap='Greys')
+    plt.imshow(mnist["train_set/images"][i, 0], aspect="auto", cmap="Greys")
     plt.xticks([])
     plt.yticks([])
-    plt.title(str(mnist['train_set/labels'][i]))
+    plt.title(str(mnist["train_set/labels"][i]))
 
 plt.tight_layout()

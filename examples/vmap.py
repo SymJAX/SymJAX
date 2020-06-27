@@ -4,8 +4,8 @@ import numpy as np
 
 import symjax
 
-x = symjax.tensor.Placeholder((0, 2), 'float32')
-w = symjax.tensor.Variable(1., dtype='float32')
+x = symjax.tensor.Placeholder((0, 2), "float32")
+w = symjax.tensor.Variable(1.0, dtype="float32")
 p = x.sum(1)
 f = symjax.function(x, outputs=p, updates={w: x.sum()})
 
@@ -18,9 +18,9 @@ print(w.value)
 # [2. 2.]
 # 4.0
 
-x = symjax.tensor.Placeholder((0, 2), 'float32')
-y = symjax.tensor.Placeholder((0,), 'float32')
-w = symjax.tensor.Variable((1, 1), dtype='float32')
+x = symjax.tensor.Placeholder((0, 2), "float32")
+y = symjax.tensor.Placeholder((0,), "float32")
+w = symjax.tensor.Variable((1, 1), dtype="float32")
 
 loss = ((x.dot(w) - y) ** 2).mean()
 
