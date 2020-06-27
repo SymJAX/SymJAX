@@ -3,6 +3,7 @@
 
 from symjax import tensor
 import numpy
+from ..base import function
 
 
 class Schedule:

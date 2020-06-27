@@ -100,6 +100,39 @@ def update_numpydoc(docstr, fun, op):
     return docstr[: begin_idx + 1] + parameters + docstr[end_idx - 2 :]
 
 
+def get_output_tree(
+    jax_function, *args, **kwargs,
+):
+
+    # we need to remove the static arguments first
+    # we first do it for the kwars
+    static_kwargs = {}
+    var_kwargs = {}
+    for name, arg in list(kwargs.items()):
+        if not isvar(arg):
+            static_kwargs.update({name: arg})
+        else:
+            var_kwargs.update({name: arg})
+
+    # we need to do the same for the args
+    who_static = [int(not isvar(arg)) for arg in args]
+    static_args = [arg for i, arg in zip(who_static, args) if i]
+    var_args = [arg for i, arg in zip(who_static, args) if not i]
+
+    # we need to define an abstract function that only takes as input the
+    # non-static arguments, internally join them with the static ones
+    # and return the output. This is because the jax shape inference
+    # functions does not work with static arguments (such as the dimensions
+    # of the transpose function)
+    def abstract_func(*args, **kwargs):
+        all_args = _args_formatting(args, static_args, who_static)
+        return jax_function(*all_args, **kwargs, **static_kwargs)
+
+    # now we evaluate the shape from the jax built-in function
+    tree = jax.eval_shape(abstract_func, *var_args, **var_kwargs)
+    return tree
+
+
 def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
     if doc_func is None:
         doc_func = func
@@ -108,12 +141,6 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
     def op(*args, seed=None, **kwargs):
         # now we evaluate the shape from the jax built-in function
 
-        # first we check if we are in a random function to be careful
-        # with the key
-        from . import random
-
-        random_func = func in random._RANDOM_FUNCTIONS
-
         # if there is a name we remove it for now to use the jax tracer
         if "name" in kwargs:
             op_name = kwargs["name"]
@@ -121,44 +148,16 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
         else:
             op_name = None
 
-        # we need to remove the static arguments first
-        # we first do it for the kwars
-        static_kwargs = {}
-        var_kwargs = {}
-        for name, arg in list(kwargs.items()):
-            if not isvar(arg):
-                static_kwargs.update({name: arg})
-            else:
-                var_kwargs.update({name: arg})
-
-        # we need to do the same for the args
-        indices = list()
-        for i, arg in enumerate(args):
-            if not isvar(arg):
-                indices.append(1)
-            else:
-                indices.append(0)
-        static_args = [arg for i, arg in zip(indices, args) if i]
-        var_args = [arg for i, arg in zip(indices, args) if not i]
+        # first we check if we are in a random function to be careful
+        # with the key
+        from . import random
 
         # this is just to get shape and dtype so we do not bother
         # to use the correct seed yet
-        if random_func:
-            key = jax.random.PRNGKey(0)
-            static_args = [key] + static_args
-            indices.insert(0, 1)
+        if func in random._RANDOM_FUNCTIONS:
+            args = (jax.random.PRNGKey(0),) + args
 
-        # we need to define an abstract function that only takes as input the
-        # non-static arguments, internally join them with the static ones
-        # and return the output. This is because the jax shape inference
-        # functions does not work with static arguments (such as the dimensions
-        # of the transpose function)
-        def abstract_func(*args, **kwargs):
-            all_args = _args_formatting(args, static_args, indices)
-            return func(*all_args, **kwargs, **static_kwargs)
-
-        # now we evaluate the shape from the jax built-in function
-        tree = jax.eval_shape(abstract_func, *var_args, **var_kwargs)
+        tree = get_output_tree(func, *args, **kwargs)
 
         # now we determine if it is an Op or a Tuple object based on the
         # infered shape
@@ -171,9 +170,9 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
                 _shapes=shapes,
                 _dtypes=dtypes,
                 name=op_name,
-                **kwargs
+                **kwargs,
             )
-        elif random_func:
+        elif func in random._RANDOM_FUNCTIONS:
             shape, dtype = tree.shape, tree.dtype
             return RandomOp(
                 *args,
@@ -182,7 +181,7 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
                 _dtype=dtype,
                 _seed=seed,
                 name=op_name,
-                **kwargs
+                **kwargs,
             )
         else:
             shape, dtype = tree.shape, tree.dtype
@@ -192,7 +191,7 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
                 _shape=shape,
                 _dtype=dtype,
                 name=op_name,
-                **kwargs
+                **kwargs,
             )
 
     if not hasattr(func, "__doc__") or func.__doc__ is None:
@@ -215,7 +214,10 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
         docstr = (
             "{summary}\n\nLAX-backend implementation of :func:`{fun}`.\n"
             "{lax_description}Original docstring below.\n\n{body}".format(
-                summary=summary, lax_description=desc, fun=func.__name__, body=body
+                summary=summary,
+                lax_description=desc,
+                fun=func.__name__,
+                body=body,
             )
         )
 
@@ -237,12 +239,16 @@ def wrap_class(c, method_exceptions=None):
             new_kwargs = {}
             for i in range(len(args)):
                 if isinstance(args[i], Tensor):
-                    new_args.append(jnp.zeros(args[i].shape, dtype=args[i].dtype))
+                    new_args.append(
+                        jnp.zeros(args[i].shape, dtype=args[i].dtype)
+                    )
                 else:
                     new_args.append(args[i])
             for i in kwargs:
                 if isinstance(kwargs[i], Tensor):
-                    new_kwargs[i] = jnp.zeros(kwargs[i].shape, dtype=kwargs[i].dtype)
+                    new_kwargs[i] = jnp.zeros(
+                        kwargs[i].shape, dtype=kwargs[i].dtype
+                    )
                 else:
                     new_kwargs[i] = kwargs[i]
 
@@ -257,7 +263,9 @@ def wrap_class(c, method_exceptions=None):
             news = [
                 n
                 for n in news
-                if isinstance(instance.__dict__[n], jax.interpreters.xla.DeviceArray)
+                if isinstance(
+                    instance.__dict__[n], jax.interpreters.xla.DeviceArray
+                )
             ]
 
             # this function maps the class inputs to the creator generated
@@ -345,8 +353,25 @@ class Constant:
 class Op(Tensor):
     """an Op generates a Tensor object obtained from a function"""
 
-    def __init__(self, *args, _jax_function, _shape, _dtype, name=None, **kwargs):
+    def __init__(
+        self,
+        *args,
+        _jax_function,
+        _shape=None,
+        _dtype=None,
+        name=None,
+        **kwargs,
+    ):
         self._fn = _jax_function.__name__
+        # if the _shape and _dtype is not given (thus this class is
+        # instanciated from anything else than the jax_wrap call)
+        # then we get shape and dtype manually
+        if _shape is None and _dtype is None:
+            tree = get_output_tree(_jax_function, *args, **kwargs)
+            _shape, _dtype = tree.shape, tree.dtype
+
+        assert _shape is not None and _dtype is not None
+
         super().__init__(
             _shape,
             _dtype,
@@ -354,13 +379,15 @@ class Op(Tensor):
             args=args,
             kwargs=kwargs,
             jax_function=_jax_function,
-            **kwargs
+            **kwargs,
         )
 
     def __repr__(self):
 
         name = "Op(name={}, fn, shape={}, dtype={}, scope={})"
-        return name.format(self.name, self._fn, self.shape, self.dtype, self.scope)
+        return name.format(
+            self.name, self._fn, self.shape, self.dtype, self.scope
+        )
 
     def __str__(self):
 
@@ -368,17 +395,27 @@ class Op(Tensor):
 
 
 class OpTuple:
-    def __init__(self, *args, _jax_function, _shapes, _dtypes, name=None, **kwargs):
+    def __init__(
+        self, *args, _jax_function, _shapes, _dtypes, name=None, **kwargs
+    ):
 
         if name is None:
             name = _jax_function.__name__
         self._name = name
         symjax.current_graph().add(
-            self, jax_function=_jax_function, args=args, kwargs=kwargs, **kwargs
+            self,
+            jax_function=_jax_function,
+            args=args,
+            kwargs=kwargs,
+            **kwargs,
         )
         for i, (shape, dtype) in enumerate(zip(_shapes, _dtypes)):
             OpTupleItem(
-                shape, dtype, index=i, parent=self, name=name + "[{}]".format(i)
+                shape,
+                dtype,
+                index=i,
+                parent=self,
+                name=name + "[{}]".format(i),
             )
 
     def __repr__(self):
@@ -443,7 +480,9 @@ class RandomOp(Op):
 
     """
 
-    def __init__(self, *args, _jax_function, _shape, _dtype, _seed, name, **kwargs):
+    def __init__(
+        self, *args, _jax_function, _shape, _dtype, _seed, name, **kwargs
+    ):
         self._shape = _shape
         self._dtype = _dtype
         self._fn = _jax_function.__name__
@@ -454,12 +493,14 @@ class RandomOp(Op):
             _dtype=_dtype,
             name=name,
             _seed=_seed,
-            **kwargs
+            **kwargs,
         )
 
     def __repr__(self):
         name = "RandomTensor(name={}, fn={}, shape={}, dtype={}, scope={})"
-        return name.format(self.name, self._fn, self.shape, self.dtype, self.scope)
+        return name.format(
+            self.name, self._fn, self.shape, self.dtype, self.scope
+        )
 
 
 class Variable(Tensor):

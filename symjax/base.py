@@ -39,6 +39,9 @@ class Graph(nx.DiGraph):
 
     def add(self, tensor, branch=None, **kwargs):
 
+        if type(tensor) == dict:
+            self._updates.update(tensor)
+
         if not t.isvar(tensor):
             const_node = t.Constant(tensor)
             self.add_node(const_node, root=False)
@@ -47,9 +50,13 @@ class Graph(nx.DiGraph):
         if tensor in self.nodes:
             return tensor
 
-        self._scopes[-1].add(tensor)
+        self.scope.add(tensor)
 
-        if isinstance(tensor, t.Placeholder) or isinstance(tensor, t.Variable):
+
+
+        if isinstance(tensor, t.Placeholder) or isinstance(
+            tensor, t.Variable
+        ):
             self.add_node(tensor, branch=branch, root=True)
 
         elif isinstance(tensor, t.RandomOp):
@@ -65,10 +72,13 @@ class Graph(nx.DiGraph):
             self.add_node(tensor, root=False)
             self.add_edge(kwargs["parent"], tensor, index=kwargs["index"])
 
-        elif type(tensor) == t.Op or type(tensor) == t.OpTuple:
+        elif isinstance(tensor, t.Op) or isinstance(tensor, t.OpTuple):
 
             self.add_node(
-                tensor, branch=branch, root=False, jax_function=kwargs["jax_function"]
+                tensor,
+                branch=branch,
+                root=False,
+                jax_function=kwargs["jax_function"],
             )
 
             for i, arg in enumerate(kwargs["args"]):
@@ -127,7 +137,9 @@ class Graph(nx.DiGraph):
                     if n in branch:
                         continue
                     args, kwargs = self._get_args_kwargs(n, evaluate=False)
-                    args = [branch[arg] if arg in branch else arg for arg in args]
+                    args = [
+                        branch[arg] if arg in branch else arg for arg in args
+                    ]
                     for arg in kwargs.keys():
                         if arg in branch:
                             kwargs[arg] = branch[arg]
@@ -171,9 +183,11 @@ class Graph(nx.DiGraph):
         elif item in tracker:
             return tracker[item]
 
-        elif type(item) == t.Placeholder:
+        elif isinstance(item, t.Placeholder):
             if item not in tracker:
-                raise ValueError(" no value given for placeholder {}".format(item))
+                raise ValueError(
+                    " no value given for placeholder {}".format(item)
+                )
 
         elif isinstance(item, t.Variable) or type(item) == t.Constant:
             tracker[item] = item.value
@@ -187,7 +201,7 @@ class Graph(nx.DiGraph):
             index = self.get_edge_data(parent, item)["index"]
             return self.get(parent, tracker)[index]
 
-        elif type(item) == t.Op or type(item) == t.OpTuple:
+        elif isinstance(item, t.Op) or isinstance(item, t.OpTuple):
 
             # first get the actual parents nodes (aka inputs to the function)
             args, kwargs = self._get_args_kwargs(item, tracker)
@@ -197,7 +211,7 @@ class Graph(nx.DiGraph):
 
             return tracker[item]
 
-        elif type(item) == t.RandomOp:
+        elif isinstance(item, t.RandomOp):
             seed = seed or numpy.random.randint(0, 1000000)
             intra_seed = 1 or self.get_node_attribute(item, "seed")
             key = jax.random.PRNGKey(seed + intra_seed)
@@ -216,7 +230,9 @@ class Graph(nx.DiGraph):
             assert tracker is not None
 
             all_args = {
-                self.get_edge_data(parent, node)["name"]: self.get(parent, tracker)
+                self.get_edge_data(parent, node)["name"]: self.get(
+                    parent, tracker
+                )
                 for parent in self.predecessors(node)
             }
         else:
@@ -241,8 +257,12 @@ class Graph(nx.DiGraph):
 
         return args, all_args
 
+    @property
+    def scope(self):
+        return self._scopes[-1]
+
     def variables(self, trainable=True):
-        variables = [n for n in self.nodes if type(n) == t.Variable]
+        variables = [n for n in self.nodes if isinstance(n, t.Variable)]
         if trainable is None:
             return variables
         return [v for v in variables if v.trainable == trainable]
@@ -256,6 +276,14 @@ class Graph(nx.DiGraph):
     def ops(self):
         ops = [n for n in self.nodes if type(n) in [t.Op, t.OpTupleItem]]
         return ops
+
+    def updates(self, name="*"):
+        sub = {}
+        for v in self._updates:
+            matched = fnmatch.filter([v.name], name)
+            if len(matched):
+                sub[v] = self._updates[v]
+        return sub
 
 
 class Scope:
@@ -287,7 +315,8 @@ class Scope:
     def save_variables(self, path):
         """Save graph."""
         numpy.savez(
-            path, **dict([(v.name, symjax.tensor.get(v)) for v in self.variables])
+            path,
+            **dict([(v.name, symjax.tensor.get(v)) for v in self.variables])
         )
 
     @property
@@ -481,13 +510,7 @@ def get_updates(name="*"):
     """
     Same as symjax.get_variables but for updates
     """
-    sub = {}
-    for v in symjax._updates:
-        matched = fnmatch.filter([v.name], name)
-        if len(matched):
-            sub[v] = symjax._updates[v]
-    return sub
-
+    return current_graph().updates(name)
 
 def gradients(scalar, variables):
     """Compute the gradients of a scalar w.r.t to a given list of variables.
@@ -526,7 +549,9 @@ def gradients(scalar, variables):
     if numpy.prod(scalar.shape) != 1:
         raise RuntimeError("the variable to differentiate is not a scalar")
     if not isinstance(scalar, t.Tensor):
-        raise RuntimeError("the variable used in gradients should be a Tensor type")
+        raise RuntimeError(
+            "the variable used in gradients should be a Tensor type"
+        )
 
     if scalar.shape != ():
         scalar = scalar.sum()
@@ -751,7 +776,9 @@ class function:
         non_givens = set(placeholders_in_root) - set(self.classargs)
         if len(non_givens) > 0:
             raise RuntimeError(
-                "Missing placeholders form the function inputs: {}".format(non_givens)
+                "Missing placeholders form the function inputs: {}".format(
+                    non_givens
+                )
             )
 
         # the roots are made of variables, random tensors, placeholders. We
@@ -796,7 +823,10 @@ class function:
             assert len(fnargs) == len(self.classargs)
             for fnarg, classarg in zip(fnargs, self.classargs):
                 if hasattr(fnarg, "shape"):
-                    if fnarg.shape != classarg.shape and 0 not in classarg.shape:
+                    if (
+                        fnarg.shape != classarg.shape
+                        and 0 not in classarg.shape
+                    ):
                         raise RuntimeError(
                             "wrong input given for {}".format(classarg)
                             + ", given is {}".format(fnarg)
@@ -807,7 +837,9 @@ class function:
             jited_add_inputs = symjax.current_graph().get(
                 self.updates_keys + self.extra_inputs, tracker={"rng": rng}
             )
-            jitoutputs, jitupdates = self.jited(*fnargs, *jited_add_inputs, seed=rng)
+            jitoutputs, jitupdates = self.jited(
+                *fnargs, *jited_add_inputs, seed=rng
+            )
             for key, update in zip(self.updates_keys, jitupdates):
                 key.update(update)
             if isinstance(jitoutputs, jax.interpreters.xla.DeviceArray):
@@ -832,7 +864,9 @@ class function:
         if rng is None:
             rng = random._seed
             random._seed += 1
-        pargs = [numpy.array(arg) if type(arg) == list else arg for arg in args]
+        pargs = [
+            numpy.array(arg) if type(arg) == list else arg for arg in args
+        ]
         outputs = self.meta(*pargs, rng=rng)
         if type(outputs) == list:
             if len(outputs) == 0:

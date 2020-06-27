@@ -5,106 +5,92 @@ import numpy as np
 import time
 
 
-class mnist:
-    """Grayscale digit classification.
+def download(path):
+    """
+    Download the MNIST dataset and store the result into the given
+    path
 
-    The `MNIST <http://yann.lecun.com/exdb/mnist/>`_ database of handwritten 
-    digits, available from this page, has a training set of 60,000 examples, 
-    and a test set of 10,000 examples. It is a subset of a larger set available 
-    from NIST. The digits have been size-normalized and centered in a 
-    fixed-size image. It is a good database for people who want to try learning
-    techniques and pattern recognition methods on real-world data while 
-    spending minimal efforts on preprocessing and formatting.
+    Parameters
+    ----------
+
+        path: str
+            the path where the downloaded files will be stored. If the
+            directory does not exist, it is created.
     """
 
-    @staticmethod
-    def download(path):
-        """
-        Download the MNIST dataset and store the result into the given
-        path
+    # Check if directory exists
+    if not os.path.isdir(path + "mnist"):
+        print("Creating mnist Directory")
+        os.mkdir(path + "mnist")
 
-        Parameters
-        ----------
+    # Check if file exists
+    if not os.path.exists(path + "mnist/mnist.pkl.gz"):
+        td = time.time()
+        print("Creating mnist")
+        url = "http://deeplearning.net/data/mnist/mnist.pkl.gz"
+        urllib.request.urlretrieve(url, path + "mnist/mnist.pkl.gz")
 
-            path: str
-                the path where the downloaded files will be stored. If the
-                directory does not exist, it is created.
-        """
 
-        # Check if directory exists
-        if not os.path.isdir(path + "mnist"):
-            print("Creating mnist Directory")
-            os.mkdir(path + "mnist")
+def load(path=None):
+    """
+    Parameters
+    ----------
+        path: str (optional)
+            default ($DATASET_PATH), the path to look for the data and
+            where the data will be downloaded if not present
 
-        # Check if file exists
-        if not os.path.exists(path + "mnist/mnist.pkl.gz"):
-            td = time.time()
-            print("Creating mnist")
-            url = "http://deeplearning.net/data/mnist/mnist.pkl.gz"
-            urllib.request.urlretrieve(url, path + "mnist/mnist.pkl.gz")
+    Returns
+    -------
 
-    @staticmethod
-    def load(path=None):
-        """
-        Parameters
-        ----------
-            path: str (optional)
-                default ($DATASET_PATH), the path to look for the data and
-                where the data will be downloaded if not present
+        train_images: array
 
-        Returns
-        -------
+        train_labels: array
 
-            train_images: array
+        valid_images: array
 
-            train_labels: array
+        valid_labels: array
 
-            valid_images: array
+        test_images: array
 
-            valid_labels: array
+        test_labels: array
 
-            test_images: array
+    """
 
-            test_labels: array
+    if path is None:
+        path = os.environ["DATASET_PATH"]
 
-        """
+    download(path)
 
-        if path is None:
-            path = os.environ["DATASET_PATH"]
+    t0 = time.time()
 
-        mnist.download(path)
+    # Loading the file
+    print("Loading mnist")
+    f = gzip.open(path + "mnist/mnist.pkl.gz", "rb")
+    train_set, valid_set, test_set = pickle.load(f, encoding="latin1")
+    f.close()
 
-        t0 = time.time()
+    train_set = (
+        train_set[0].reshape((-1, 1, 28, 28)).astype("float32"),
+        train_set[1].astype("int32"),
+    )
+    test_set = (
+        test_set[0].reshape((-1, 1, 28, 28)).astype("float32"),
+        test_set[1].astype("int32"),
+    )
+    valid_set = (
+        valid_set[0].reshape((-1, 1, 28, 28)).astype("float32"),
+        valid_set[1].astype("int32"),
+    )
 
-        # Loading the file
-        print("Loading mnist")
-        f = gzip.open(path + "mnist/mnist.pkl.gz", "rb")
-        train_set, valid_set, test_set = pickle.load(f, encoding="latin1")
-        f.close()
+    data = {
+        "train_set/images": train_set[0],
+        "train_set/labels": train_set[1],
+        "test_set/images": test_set[0],
+        "test_set/labels": test_set[1],
+        "valid_set/images": valid_set[0],
+        "valid_set/labels": valid_set[1],
+    }
 
-        train_set = (
-            train_set[0].reshape((-1, 1, 28, 28)).astype("float32"),
-            train_set[1].astype("int32"),
-        )
-        test_set = (
-            test_set[0].reshape((-1, 1, 28, 28)).astype("float32"),
-            test_set[1].astype("int32"),
-        )
-        valid_set = (
-            valid_set[0].reshape((-1, 1, 28, 28)).astype("float32"),
-            valid_set[1].astype("int32"),
-        )
+    print("Dataset mnist loaded in {0:.2f}s.".format(time.time() - t0))
 
-        data = {
-            "train_set/images": train_set[0],
-            "train_set/labels": train_set[1],
-            "test_set/images": test_set[0],
-            "test_set/labels": test_set[1],
-            "valid_set/images": valid_set[0],
-            "valid_set/labels": valid_set[1],
-            "INFOS": mnist.__doc__,
-        }
-
-        print("Dataset mnist loaded in {0:.2f}s.".format(time.time() - t0))
-
-        return data
+    return data

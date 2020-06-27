@@ -4,6 +4,7 @@ from symjax.nn import initializers, schedules
 import symjax
 import numpy
 import inspect
+from jax.numpy import identity
 
 
 def _is_shape(x):
@@ -36,9 +37,9 @@ def forward(input, layers):
     return outputs
 
 
-class Layer(T.Tensor):
+class Layer(T.Op):
     def __init__(self, output):
-        super().__init__(copyof=output)
+        super().__init__(output, _jax_function=lambda x: x)
 
     def variables(self, trainable=True):
         if not hasattr(self, "_variables"):
@@ -71,7 +72,9 @@ class Layer(T.Tensor):
             tensor = tensor_or_func(shape=shape).astype(dtype)
         return tensor
 
-    def create_variable(self, name, tensor_or_func, shape, trainable, dtype=None):
+    def create_variable(
+        self, name, tensor_or_func, shape, trainable, dtype=None
+    ):
         if tensor_or_func is None:
             return None
         t = self.create_tensor(tensor_or_func, shape, dtype)
@@ -115,7 +118,9 @@ class Identity(Layer):
 class Upsample1D(Layer):
     name = "Upsample1D"
 
-    def __init__(self, input_or_shape, repeat, axis=-1, mode="constant", value=0.0):
+    def __init__(
+        self, input_or_shape, repeat, axis=-1, mode="constant", value=0.0
+    ):
 
         self.init_input(input_or_shape)
         self.repeat = repeat
@@ -126,14 +131,20 @@ class Upsample1D(Layer):
 
     def forward(self, input):
         return T.upsample_1d(
-            input, repeat=self.repeat, axis=self.axis, mode=self.mode, value=self.value
+            input,
+            repeat=self.repeat,
+            axis=self.axis,
+            mode=self.mode,
+            value=self.value,
         )
 
 
 class Upsample2D(Layer):
     name = "Upsample2D"
 
-    def __init__(self, input_or_shape, repeat, axis, mode="constant", value=0.0):
+    def __init__(
+        self, input_or_shape, repeat, axis, mode="constant", value=0.0
+    ):
 
         self.init_input(input_or_shape)
         self.repeat = repeat
@@ -227,7 +238,10 @@ class Dense(Layer):
         self.init_input(input_or_shape)
 
         self.create_variable(
-            "W", W, (numpy.prod(self.input.shape[1:]), units), trainable=trainable_W
+            "W",
+            W,
+            (numpy.prod(self.input.shape[1:]), units),
+            trainable=trainable_W,
         )
         self.create_variable("b", b, (units,), trainable=trainable_b)
 
@@ -235,7 +249,9 @@ class Dense(Layer):
 
     def forward(self, input):
         if numpy.prod(input.shape[1:]) != self.W.shape[0]:
-            raise RuntimeError("input to Dense layer {} has different dim".format(self))
+            raise RuntimeError(
+                "input to Dense layer {} has different dim".format(self)
+            )
         if hasattr(self, "b"):
             return T.dot(T.flatten2d(input), self.W) + self.b
         else:
@@ -408,7 +424,9 @@ class Pool1D(Layer):
 
     name = "Pool1D"
 
-    def __init__(self, input_or_shape, pool_shape, pool_type="MAX", strides=None):
+    def __init__(
+        self, input_or_shape, pool_shape, pool_type="MAX", strides=None
+    ):
 
         self.init_input(input_or_shape)
         self.pool_type = pool_type
@@ -422,7 +440,10 @@ class Pool1D(Layer):
 
     def forward(self, input):
         return T.poolNd(
-            input, self.pool_shape, strides=self.strides, reducer=self.pool_type
+            input,
+            self.pool_shape,
+            strides=self.strides,
+            reducer=self.pool_type,
         )
 
 
@@ -433,7 +454,9 @@ class Pool2D(Layer):
 
     name = "Pool2D"
 
-    def __init__(self, input_or_shape, pool_shape, pool_type="MAX", strides=None):
+    def __init__(
+        self, input_or_shape, pool_shape, pool_type="MAX", strides=None
+    ):
 
         self.init_input(input_or_shape)
         self.pool_type = pool_type
@@ -450,7 +473,10 @@ class Pool2D(Layer):
 
     def forward(self, input):
         return nn.poolNd(
-            input, self.pool_shape, strides=self.strides, reducer=self.pool_type
+            input,
+            self.pool_shape,
+            strides=self.strides,
+            reducer=self.pool_type,
         )
 
 
@@ -550,7 +576,9 @@ class RandomFlip(Layer):
 
         dirac = T.cast(deterministic, "float32")
 
-        flipped_input = self.flip * T.flip(input, self.axis) + (1 - self.flip) * input
+        flipped_input = (
+            self.flip * T.flip(input, self.axis) + (1 - self.flip) * input
+        )
 
         return input * dirac + flipped_input * (1 - dirac)
 
@@ -596,7 +624,9 @@ class RandomCrop(Layer):
 
     name = "RandomCrop"
 
-    def __init__(self, input_or_shape, crop_shape, deterministic, padding=0, seed=None):
+    def __init__(
+        self, input_or_shape, crop_shape, deterministic, padding=0, seed=None
+    ):
 
         self.init_input(input_or_shape)
         self.crop_shape = crop_shape
@@ -606,7 +636,8 @@ class RandomCrop(Layer):
         # else
         else:
             self.pad_shape = [
-                (pad, pad) if not hasattr(pad, "__len__") else pad for pad in padding
+                (pad, pad) if not hasattr(pad, "__len__") else pad
+                for pad in padding
             ]
 
         assert len(self.pad_shape) == len(self.crop_shape)
@@ -650,14 +681,18 @@ class RandomCrop(Layer):
 
         routput = T.stack(
             [
-                T.dynamic_slice(pinput[n], self.start_indices[n], self.crop_shape)
+                T.dynamic_slice(
+                    pinput[n], self.start_indices[n], self.crop_shape
+                )
                 for n in range(self.input.shape[0])
             ],
             0,
         )
         doutput = T.stack(
             [
-                T.dynamic_slice(pinput[n], self.fixed_indices[n], self.crop_shape)
+                T.dynamic_slice(
+                    pinput[n], self.fixed_indices[n], self.crop_shape
+                )
                 for n in range(self.input.shape[0])
             ],
             0,
@@ -728,7 +763,8 @@ class BatchNormalization(Layer):
         self.deterministic = deterministic
 
         parameter_shape = [
-            self.input.shape[i] if i not in axis else 1 for i in range(self.input.ndim)
+            self.input.shape[i] if i not in axis else 1
+            for i in range(self.input.ndim)
         ]
 
         self.create_variable("W", W, parameter_shape, trainable=trainable_W)
@@ -762,6 +798,8 @@ class BatchNormalization(Layer):
         self.usemean = self.mean * (1 - dirac) + self.avgmean * dirac
         self.usevar = self.var * (1 - dirac) + self.avgvar * dirac
         return (
-            self.W * (input - self.usemean) / (T.sqrt(self.usevar) + self.const)
+            self.W
+            * (input - self.usemean)
+            / (T.sqrt(self.usevar) + self.const)
             + self.b
         )

@@ -14,10 +14,10 @@ import networkx as nx
 
 def RNTK_first_time_step(x, param):
     # this is for computing the first GP and RNTK for t = 1. Both for relu and erf
-    sw = param['sigmaw']
-    su = param['sigmau']
-    sb = param['sigmab']
-    sh = param['sigmah']
+    sw = param["sigmaw"]
+    su = param["sigmau"]
+    sb = param["sigmab"]
+    sh = param["sigmah"]
     X = x * x[:, None]
     print(X)
     n = X.shape[0]
@@ -27,10 +27,10 @@ def RNTK_first_time_step(x, param):
 
 
 def RNTK_relu(x, RNTK_old, GP_old, param, output):
-    sw = param['sigmaw']
-    su = param['sigmau']
-    sb = param['sigmab']
-    sv = param['sigmav']
+    sw = param["sigmaw"]
+    su = param["sigmau"]
+    sb = param["sigmab"]
+    sv = param["sigmav"]
 
     a = T.diag(GP_old)  # GP_old is in R^{n*n} having the output gp kernel
     # of all pairs of data in the data set
@@ -43,24 +43,24 @@ def RNTK_relu(x, RNTK_old, GP_old, param, output):
     G = (np.pi - T.arccos(E)) / (2 * np.pi)
     if output:
         GP_new = sv ** 2 * F
-        RNTK_new = sv ** 2. * RNTK_old * G + GP_new
+        RNTK_new = sv ** 2.0 * RNTK_old * G + GP_new
     else:
         X = x * x[:, None]
         GP_new = sw ** 2 * F + (su ** 2 / m) * X + sb ** 2
-        RNTK_new = sw ** 2. * RNTK_old * G + GP_new
+        RNTK_new = sw ** 2.0 * RNTK_old * G + GP_new
     return RNTK_new, GP_new
 
 
 L = 10
 N = 3
-DATA = T.Placeholder((N, L), 'float32', name='data')
+DATA = T.Placeholder((N, L), "float32", name="data")
 # parameters
 param = {}
-param['sigmaw'] = 1.33
-param['sigmau'] = 1.45
-param['sigmab'] = 1.2
-param['sigmah'] = 0.4
-param['sigmav'] = 2.34
+param["sigmaw"] = 1.33
+param["sigmau"] = 1.45
+param["sigmab"] = 1.2
+param["sigmah"] = 0.4
+param["sigmav"] = 2.34
 m = 1
 
 # first time step
