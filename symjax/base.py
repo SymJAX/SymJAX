@@ -190,16 +190,6 @@ class Graph(nx.DiGraph):
             index = self.get_edge_data(parent, item)["index"]
             return self.get(parent, tracker)[index]
 
-        elif isinstance(item, t.Op) or isinstance(item, t.OpTuple):
-
-            # first get the actual parents nodes (aka inputs to the function)
-            args, kwargs = self._get_args_kwargs(item, tracker)
-            tracker[item] = self.get_node_attribute(item, "jax_function")(
-                *args, **kwargs
-            )
-
-            return tracker[item]
-
         elif isinstance(item, t.RandomOp):
             seed = seed or numpy.random.randint(0, 1000000)
             intra_seed = 1 or self.get_node_attribute(item, "seed")
@@ -208,6 +198,16 @@ class Graph(nx.DiGraph):
             tracker[item] = self.get_node_attribute(item, "jax_function")(
                 key, *args, **kwargs
             )
+            return tracker[item]
+
+        elif isinstance(item, t.Op) or isinstance(item, t.OpTuple):
+
+            # first get the actual parents nodes (aka inputs to the function)
+            args, kwargs = self._get_args_kwargs(item, tracker)
+            tracker[item] = self.get_node_attribute(item, "jax_function")(
+                *args, **kwargs
+            )
+
             return tracker[item]
 
         else:
