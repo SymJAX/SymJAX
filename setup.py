@@ -24,7 +24,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="symjax",
-    version="0.3.4",
+    version="0.3.5",
     author="Randall Balestriero",
     author_email="randallbalestriero@gmail.com",
     description="A Symbolic JAX software",
