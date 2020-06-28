@@ -30,7 +30,7 @@ jobs:
         pip install -r requirements.txt
     - name: Check format with black
       run: |
-        black --check symjax/ tests/
+        black --check symjax/ tests/ setup.py
     - name: Install pygraph and sndfile
       run: |
         sudo apt-get install python-pygraph python-pygraphviz
