@@ -71,7 +71,10 @@ class Graph(nx.DiGraph):
         elif isinstance(tensor, t.Op) or isinstance(tensor, t.OpTuple):
 
             self.add_node(
-                tensor, branch=branch, root=False, jax_function=kwargs["jax_function"],
+                tensor,
+                branch=branch,
+                root=False,
+                jax_function=kwargs["jax_function"],
             )
 
             for i, arg in enumerate(kwargs["args"]):
@@ -130,7 +133,9 @@ class Graph(nx.DiGraph):
                     if n in branch:
                         continue
                     args, kwargs = self._get_args_kwargs(n, evaluate=False)
-                    args = [branch[arg] if arg in branch else arg for arg in args]
+                    args = [
+                        branch[arg] if arg in branch else arg for arg in args
+                    ]
                     for arg in kwargs.keys():
                         if arg in branch:
                             kwargs[arg] = branch[arg]
@@ -176,7 +181,9 @@ class Graph(nx.DiGraph):
 
         elif isinstance(item, t.Placeholder):
             if item not in tracker:
-                raise ValueError(" no value given for placeholder {}".format(item))
+                raise ValueError(
+                    " no value given for placeholder {}".format(item)
+                )
 
         elif isinstance(item, t.Variable) or type(item) == t.Constant:
             tracker[item] = item.value
@@ -219,7 +226,9 @@ class Graph(nx.DiGraph):
             assert tracker is not None
 
             all_args = {
-                self.get_edge_data(parent, node)["name"]: self.get(parent, tracker)
+                self.get_edge_data(parent, node)["name"]: self.get(
+                    parent, tracker
+                )
                 for parent in self.predecessors(node)
             }
         else:
@@ -274,7 +283,38 @@ class Graph(nx.DiGraph):
 
 
 class Scope:
-    """Scope."""
+    """
+    Defining scope for any variable/operation to be in.
+
+    Example
+    -------
+
+    .. doctest::
+        >>> import symjax
+        >>> import symjax.tensor as T
+        >>> v = T.Variable(1, name='v')
+        >>> # the current (default) scope is the root of the graph
+        >>> print(v.scope)
+        /
+        >>> with symjax.Scope('my_scope'):
+        ...     w = T.Variable(2, name='w')
+        ...     out = v*w
+        >>> print(out.scope)
+        /my_scope/
+        >>> print(w.scope)
+        /my_scope/
+        >>> #it is also possible to keep a scope persistently
+        >>> scope = symjax.Scope('second_scope')
+        >>> with scope:
+        ...     other = out * w
+        >>> print(other.scope)
+        /second_scope/
+        >>> # this allows to keep track directly of internal ops
+        >>> print(scope.ops)
+        [Op(name=multiply, fn=multiply, shape=(), dtype=int32, scope=/second_scope/)]
+
+
+    """
 
     def __init__(self, name, graph=None, seed=None):
         """Constructor."""
@@ -302,12 +342,21 @@ class Scope:
     def save_variables(self, path):
         """Save graph."""
         numpy.savez(
-            path, **dict([(v.name, symjax.tensor.get(v)) for v in self.variables])
+            path,
+            **dict([(v.name, symjax.tensor.get(v)) for v in self.variables])
         )
 
     @property
-    def get_variables(self):
+    def variables(self):
         return get_variables(self.full_name + "*")
+
+    @property
+    def ops(self):
+        return get_ops(self.full_name + "*")
+
+    @property
+    def placeholders(self):
+        return get_placeholders(self.full_name + "*")
 
     def load_variables(self, path):
         """Load graph."""
@@ -483,7 +532,7 @@ def get_ops(name="*"):
     matched = current_graph().ops
     output = []
     for m in matched:
-        if len(fnmatch.filter([m.name], name)):
+        if len(fnmatch.filter([m.scope + m.name], name)):
             output.append(m)
     return output
 
@@ -536,7 +585,9 @@ def gradients(scalar, variables):
     if numpy.prod(scalar.shape) != 1:
         raise RuntimeError("the variable to differentiate is not a scalar")
     if not isinstance(scalar, t.Tensor):
-        raise RuntimeError("the variable used in gradients should be a Tensor type")
+        raise RuntimeError(
+            "the variable used in gradients should be a Tensor type"
+        )
 
     if scalar.shape != ():
         scalar = scalar.sum()
@@ -761,7 +812,9 @@ class function:
         non_givens = set(placeholders_in_root) - set(self.classargs)
         if len(non_givens) > 0:
             raise RuntimeError(
-                "Missing placeholders form the function inputs: {}".format(non_givens)
+                "Missing placeholders form the function inputs: {}".format(
+                    non_givens
+                )
             )
 
         # the roots are made of variables, random tensors, placeholders. We
@@ -783,12 +836,7 @@ class function:
             return symjax.current_graph().get(outputs, feed_dict)
 
         # take care of the presence of -1 dimensions
-        to_vectorize = []
-        for a in allargs:
-            if 0 in a.shape:
-                to_vectorize.append(0)
-            else:
-                to_vectorize.append(None)
+        to_vectorize = [0 if 0 in a.shape else None for a in allargs]
 
         if any(to_vectorize):
             self.jited = jax.jit(
@@ -806,7 +854,10 @@ class function:
             assert len(fnargs) == len(self.classargs)
             for fnarg, classarg in zip(fnargs, self.classargs):
                 if hasattr(fnarg, "shape"):
-                    if fnarg.shape != classarg.shape and 0 not in classarg.shape:
+                    if (
+                        fnarg.shape != classarg.shape
+                        and 0 not in classarg.shape
+                    ):
                         raise RuntimeError(
                             "wrong input given for {}".format(classarg)
                             + ", given is {}".format(fnarg)
@@ -817,7 +868,9 @@ class function:
             jited_add_inputs = symjax.current_graph().get(
                 self.updates_keys + self.extra_inputs, tracker={"rng": rng}
             )
-            jitoutputs, jitupdates = self.jited(*fnargs, *jited_add_inputs, seed=rng)
+            jitoutputs, jitupdates = self.jited(
+                *fnargs, *jited_add_inputs, seed=rng
+            )
             for key, update in zip(self.updates_keys, jitupdates):
                 key.update(update)
             if isinstance(jitoutputs, jax.interpreters.xla.DeviceArray):
@@ -842,7 +895,9 @@ class function:
         if rng is None:
             rng = random._seed
             random._seed += 1
-        pargs = [numpy.array(arg) if type(arg) == list else arg for arg in args]
+        pargs = [
+            numpy.array(arg) if type(arg) == list else arg for arg in args
+        ]
         outputs = self.meta(*pargs, rng=rng)
         if type(outputs) == list:
             if len(outputs) == 0:

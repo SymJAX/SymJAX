@@ -19,9 +19,7 @@ def log_1_minus_sigmoid(x):
     return -module.__dict__["softplus"](x)
 
 
-conv_general_dilated = jax_wrap(jla.conv_general_dilated)
-
-
+@jax_wrap
 def convNd(
     input,
     filter,
@@ -33,7 +31,7 @@ def convNd(
     input_dilation=None,
     filter_dilation=None,
 ):
-    """General n-dimensional convolution operator, with optional dilation.
+    """General n-dimensional convolution operator, with input/filter dilation.
 
     Wraps Jax's conv_general_dilated functin, and thus also the XLA's `Conv
     <https://www.tensorflow.org/xla/operation_semantics#conv_convolution>`_
@@ -158,7 +156,7 @@ def convNd(
         filter_dilation = (filter_dilation,) * 2
 
     specs = (input_format, filter_format, output_format)
-    return conv_general_dilated(
+    return jla.conv_general_dilated(
         lhs=input,
         rhs=filter,
         window_strides=strides,
@@ -170,9 +168,7 @@ def convNd(
     )
 
 
-conv_transpose = jax_wrap(jla.conv_transpose)
-
-
+@jax_wrap
 def convNd_transpose(
     input,
     filter,
@@ -235,6 +231,7 @@ def convNd_transpose(
     :param output_format:
     :param transpose_kernel:
     """
+
     # setting up the strides
     if numpy.isscalar(strides):
         strides = (strides,) * (input.ndim - 2)
@@ -311,7 +308,7 @@ def convNd_transpose(
         filter_dilation = (filter_dilation,) * 2
 
     specs = (input_format, filter_format, output_format)
-    return conv_transpose(
+    return jla.conv_transpose(
         lhs=input,
         rhs=filter,
         strides=strides,
@@ -323,10 +320,7 @@ def convNd_transpose(
     )
 
 
-# pooling
-reduce_window = jax_wrap(jla.reduce_window)
-
-
+@jax_wrap
 def poolNd(
     input,
     window_shape,
@@ -336,23 +330,20 @@ def poolNd(
     init_val=None,
     rescalor=None,
 ):
-    # set up the init_val if not given
-    if reducer == "MAX" and init_val is None:
-        init_val = -numpy.inf
-    elif (reducer == "SUM" or reducer == "AVG") and init_val is None:
-        init_val = 0.0
-
-    # set up rescalor
-    if reducer == "AVG":
-        rescalor = numpy.float32(1.0 / numpy.prod(window_shape))
-    else:
-        rescalor = numpy.float32(1.0)
 
     # set up the reducer
     if reducer == "MAX":
         reducer = jla.max
+        rescalor = numpy.float32(1.0)
+        init_val = -numpy.inf
     elif reducer == "SUM" or reducer == "AVG":
         reducer = jla.add
+        if reducer == "AVG":
+            rescalor = numpy.float32(1.0 / numpy.prod(window_shape))
+        else:
+            rescalor = numpy.float32(1.0)
+        if init_val is None:
+            init_val = 0.0
 
     # set up the window_shape
     if numpy.isscalar(window_shape):
@@ -374,7 +365,7 @@ def poolNd(
         ) + "as window_shape {}".format(window_shape)
         raise ValueError(msg)
 
-    out = reduce_window(
+    out = jla.reduce_window(
         operand=input * rescalor,
         init_value=init_val,
         computation=reducer,

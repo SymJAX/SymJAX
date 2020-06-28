@@ -7,17 +7,25 @@ from ..base import function
 
 
 class Optimizer:
+    def __init__(self, *args, name=None, **kwargs):
+
+        if name is None:
+            name = self.__NAME__
+        with symjax.Scope(name):
+            self.create_updates(*args, **kwargs)
+
     def reset(self):
         if hasattr(self, "variables"):
             for var in self.variables:
                 var.reset()
 
-    def update(self):
-        if "_update" in self.__dict__:
-            self._update()
+    @property
+    def updates(self):
+        if hasattr(self, "_update"):
+            return self._updates
         else:
-            self._update = function(updates=self.updates)
-            self._update()
+            self._updates = {}
+            return self._updates
 
     def _get_grads(self, grads_or_loss, params):
         # get grads if given is loss
@@ -26,24 +34,9 @@ class Optimizer:
         else:
             return grads_or_loss
 
-    def add_update(self, update):
-        print("adding ", update)
+    def add_updates(self, update):
+        self.updates.update(update)
         symjax.current_graph().add(update)
-
-
-# class PiecewiseConstant(Optimizer):
-#
-#    def __init__(self, init, values):
-#        self.init = init
-#        self.values = values
-#        self.step = tensor.Variable(0, trainable=False, name='step')
-#        self.value = tensor.PiecewiseConstant(self.init, self.values,
-#                                              self.step)[0]
-#        self.updates = {self.step: self.step + 1}
-#        self.variables = [self.step]
-#
-#    def __call__(self):
-#        return self.value
 
 
 class SGD(Optimizer):
@@ -73,10 +66,14 @@ class SGD(Optimizer):
 
     """
 
-    def __init__(self, grads_or_loss, learning_rate, params=None):
+    __NAME__ = "SGDOptimizer"
+
+    def create_updates(self, grads_or_loss, learning_rate, params=None):
 
         if params is None:
-            params = [v for k, v in get_graph().variables.items() if v.trainable]
+            params = [
+                v for k, v in get_graph().variables.items() if v.trainable
+            ]
         elif type(params) is not list and type(params) is not tuple:
             params = [params]
 
@@ -91,11 +88,7 @@ class SGD(Optimizer):
         for param, grad in zip(params, grads):
             updates[param] = param - learning_rate * grad
 
-        self.updates = updates
-
-
-#        if get_graph() is not None:
-#            get_graph().updates.update(updates)
+        self.add_updates(updates)
 
 
 class NesterovMomentum(Optimizer):
@@ -125,10 +118,16 @@ class NesterovMomentum(Optimizer):
 
     """
 
-    def __init__(self, grads_or_loss, learning_rate, momentum, params=None):
+    __NAME__ = "NesterovMomentumOptimizer"
+
+    def create_updates(
+        self, grads_or_loss, learning_rate, momentum, params=None
+    ):
 
         if params is None:
-            params = [v for k, v in get_graph().variables.items() if v.trainable]
+            params = [
+                v for k, v in get_graph().variables.items() if v.trainable
+            ]
 
         grads = self._get_grads(grads_or_loss, params)
 
@@ -149,10 +148,7 @@ class NesterovMomentum(Optimizer):
             updates[velocity] = x
             updates[param] = momentum * x + update
 
-        self.variables = variables
-        self.updates = updates
-        if get_graph() is not None:
-            get_graph().updates.update(updates)
+        self.add_updates(updates)
 
 
 class Adam(Optimizer):
@@ -190,7 +186,9 @@ class Adam(Optimizer):
 
     """
 
-    def __init__(
+    __NAME__ = "AdamOptimizer"
+
+    def create_updates(
         self,
         grads_or_loss,
         learning_rate,
@@ -227,7 +225,4 @@ class Adam(Optimizer):
             updates[param] = param - learning_rate * update
         updates[step] = step + 1
 
-        self.variables = variables
-        self.updates = updates
-
-        self.add_update(updates)
+        self.add_updates(updates)
