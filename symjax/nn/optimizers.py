@@ -71,9 +71,7 @@ class SGD(Optimizer):
     def create_updates(self, grads_or_loss, learning_rate, params=None):
 
         if params is None:
-            params = [
-                v for k, v in get_graph().variables.items() if v.trainable
-            ]
+            params = [v for k, v in get_graph().variables.items() if v.trainable]
         elif type(params) is not list and type(params) is not tuple:
             params = [params]
 
@@ -120,14 +118,10 @@ class NesterovMomentum(Optimizer):
 
     __NAME__ = "NesterovMomentumOptimizer"
 
-    def create_updates(
-        self, grads_or_loss, learning_rate, momentum, params=None
-    ):
+    def create_updates(self, grads_or_loss, learning_rate, momentum, params=None):
 
         if params is None:
-            params = [
-                v for k, v in get_graph().variables.items() if v.trainable
-            ]
+            params = [v for k, v in get_graph().variables.items() if v.trainable]
 
         grads = self._get_grads(grads_or_loss, params)
 
