@@ -12,19 +12,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
 __author__ = "Randall Balestriero"
+
+import versioneer
 
 from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
-
     long_description = fh.read()
 
 setup(
     name="symjax",
-    version="0.3.5",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     author="Randall Balestriero",
     author_email="randallbalestriero@gmail.com",
     description="A Symbolic JAX software",
