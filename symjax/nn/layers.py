@@ -44,10 +44,7 @@ class Layer(T.Op):
             name = self.__NAME__
 
         with symjax.Scope(name):
-            self.init_input(input_or_shape)
-            if hasattr(self, create_variables):
-                self.create_variables(*args, **kwargs)
-            output = self.forward(self.input, *args, **kwargs)
+            output = self.forward(*args, **kwargs)
             super().__init__(output, _jax_function=lambda x: x)
 
     def variables(self, trainable=True):
@@ -77,7 +74,7 @@ class Layer(T.Op):
             dtype = "float32"
         try:
             tensor = tensor_or_func(shape=shape, dtype=dtype)
-        except:
+        except TypeError:
             tensor = tensor_or_func(shape=shape).astype(dtype)
         return tensor
 
@@ -122,8 +119,7 @@ class Upsample1D(Layer):
 
     __NAME__ = "Upsample1D"
 
-    @staticmethod
-    def forward(input, repeat, axis=-1, mode="constant", value=0.0):
+    def forward(self, input, repeat, axis=-1, mode="constant", value=0.0):
         return T.upsample_1d(input, repeat=repeat, axis=axis, mode=mode, value=value,)
 
 
@@ -131,34 +127,12 @@ class Upsample2D(Layer):
 
     __NAME__ = "Upsample2D"
 
-    @staticmethod
-    def forward(input, repeat, axis, mode="constant", value=0.0):
+    def forward(self, input, repeat, axis, mode="constant", value=0.0):
         p1 = T.upsample_1d(
             input, repeat=repeat[0], axis=axis[0], mode=mode, value=value,
         )
         p2 = T.upsample_1d(p1, repeat=repeat[1], axis=axis[1], mode=mode, value=value,)
         return p2
-
-
-class Reshape(Layer):
-
-    __NAME__ = "Reshape"
-
-    @staticmethod
-    def forward(input, new_shape):
-        return T.reshape(input, new_shape)
-
-
-class Lambda(Layer):
-    """lambda function applied onto the input
-
-    applies a function (such as activation function) onto the input.
-    """
-
-    name = "Lambda"
-
-    def forward(self, input, fn):
-        return fn(input)
 
 
 class Dense(Layer):
@@ -170,9 +144,9 @@ class Dense(Layer):
 
     __NAME__ = "Dense"
 
-    def create_variables(
+    def forward(
         self,
-        input_or_shape,
+        input,
         units,
         W=initializers.he,
         b=numpy.zeros,
@@ -181,11 +155,10 @@ class Dense(Layer):
     ):
 
         self.create_variable(
-            "W", W, (numpy.prod(self.input.shape[1:]), units), trainable=trainable_W,
+            "W", W, (numpy.prod(input.shape[1:]), units), trainable=trainable_W,
         )
         self.create_variable("b", b, (units,), trainable=trainable_b)
 
-    def forward(self, input, *args, **kwargs):
         if numpy.prod(input.shape[1:]) != self.W.shape[0]:
             raise RuntimeError("input to Dense layer {} has different dim".format(self))
         if hasattr(self, "b"):
@@ -201,9 +174,9 @@ class Conv1D(Layer):
 
     name = "Conv1D"
 
-    def __init__(
+    def forward(
         self,
-        input_or_shape,
+        input,
         n_filters,
         filter_length,
         W=initializers.he,
@@ -225,16 +198,10 @@ class Conv1D(Layer):
         self.pad = pad
 
         self.create_variable(
-            "W",
-            W,
-            (n_filters, self.input.shape[1], filter_length),
-            trainable=trainable_W,
+            "W", W, (n_filters, input.shape[1], filter_length), trainable=trainable_W,
         )
         self.create_variable("b", b, (n_filters,), trainable=trainable_b)
 
-        super().__init__(self.forward(self.input))
-
-    def forward(self, input):
         conv = nn.convNd(
             input,
             self.W,
@@ -256,7 +223,7 @@ class Conv2DTranspose(Layer):
 
     name = "Conv2DTranspose"
 
-    def __init__(
+    def forward(
         self,
         input_or_shape,
         n_filters,
@@ -280,14 +247,11 @@ class Conv2DTranspose(Layer):
         self.create_variable(
             "W",
             W,
-            (self.input.shape[1], n_filters) + tuple(filter_shape),
+            (input.shape[1], n_filters) + tuple(filter_shape),
             trainable=trainable_W,
         )
         self.create_variable("b", b, (n_filters,), trainable=trainable_b)
 
-        super().__init__(self.forward(self.input))
-
-    def forward(self, input):
         conv = T.convNd_transpose(
             input,
             self.W,
@@ -307,9 +271,9 @@ class Conv2D(Layer):
 
     name = "Conv2D"
 
-    def __init__(
+    def forward(
         self,
-        input_or_shape,
+        input,
         n_filters,
         filter_shape,
         pad="VALID",
@@ -331,14 +295,11 @@ class Conv2D(Layer):
         self.create_variable(
             "W",
             W,
-            (n_filters, self.input.shape[1]) + tuple(filter_shape),
+            (n_filters, input.shape[1]) + tuple(filter_shape),
             trainable=trainable_W,
         )
         self.create_variable("b", b, (n_filters,), trainable=trainable_b)
 
-        super().__init__(self.forward(self.input))
-
-    def forward(self, input):
         conv = nn.convNd(
             input,
             self.W,
@@ -360,7 +321,7 @@ class Pool1D(Layer):
 
     name = "Pool1D"
 
-    def __init__(self, input_or_shape, pool_shape, pool_type="MAX", strides=None):
+    def forward(self, input_or_shape, pool_shape, pool_type="MAX", strides=None):
 
         self.init_input(input_or_shape)
         self.pool_type = pool_type
@@ -370,9 +331,6 @@ class Pool1D(Layer):
         else:
             self.strides = (1, 1, strides)
 
-        super().__init__(self.forward(self.input))
-
-    def forward(self, input):
         return T.poolNd(
             input, self.pool_shape, strides=self.strides, reducer=self.pool_type,
         )
@@ -385,7 +343,7 @@ class Pool2D(Layer):
 
     name = "Pool2D"
 
-    def __init__(self, input_or_shape, pool_shape, pool_type="MAX", strides=None):
+    def forward(self, input_or_shape, pool_shape, pool_type="MAX", strides=None):
 
         self.init_input(input_or_shape)
         self.pool_type = pool_type
@@ -398,9 +356,6 @@ class Pool2D(Layer):
             else:
                 self.strides = (1, 1, strides, strides)
 
-        super().__init__(self.forward(self.input))
-
-    def forward(self, input):
         return nn.poolNd(
             input, self.pool_shape, strides=self.strides, reducer=self.pool_type,
         )
@@ -432,17 +387,14 @@ class Dropout(Layer):
 
     """
 
-    name = "Dropout"
+    __NAME__ = "Dropout"
 
-    def __init__(self, input_or_shape, p, deterministic, seed=None):
+    def forward(self, input, p, deterministic, seed=None):
 
-        self.init_input(input_or_shape)
         self.deterministic = deterministic
         self.p = p
-        self.mask = T.random.bernoulli(shape=self.input.shape, p=p, seed=seed)
-        super().__init__(self.forward(self.input))
+        self.mask = T.random.bernoulli(shape=input.shape, p=p, seed=seed)
 
-    def forward(self, input, deterministic=None):
         if deterministic is None:
             deterministic = self.deterministic
         dirac = T.cast(deterministic, "float32")
@@ -494,11 +446,6 @@ class RandomFlip(Layer):
         self.p = p
         self.axis = axis
         self.flip = T.random.bernoulli(shape=(input.shape[0]), p=p, seed=seed)
-        super().__init__(self.forward(self.input))
-
-    def forward(self, input, deterministic=None):
-        if deterministic is None:
-            deterministic = self.deterministic
 
         dirac = T.cast(deterministic, "float32")
 

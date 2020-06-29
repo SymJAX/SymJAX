@@ -73,7 +73,7 @@ def ExponentialMovingAverage(value, alpha, step=None, init=None):
         _step = step
     if init is None:
         var = tensor.Variable(
-            numpy.zeros(value.shape), trainable=False, name="EMA", dtype="float32"
+            numpy.zeros(value.shape), trainable=False, name="EMA", dtype="float32",
         )
     else:
         var = tensor.Variable(init, trainable=False, name="EMA", dtype="float32")

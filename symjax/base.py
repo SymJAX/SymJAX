@@ -10,7 +10,6 @@ import numpy
 from jax import jacfwd, jacrev
 
 import symjax
-import collections
 from symjax import tensor as t
 from symjax.tensor import random
 import networkx as nx

@@ -2,16 +2,15 @@
 # -*- coding: utf-8 -*-
 # flake8: noqa
 
+from . import probabilities
+from . import nn
+from . import tensor
+from . import data
+from .base import *
 from ._version import get_versions
 
 __version__ = get_versions()["version"]
 del get_versions
-
-from . import data
-from . import tensor
-from . import nn
-from . import probabilities
-from .base import *
 
 
 _graphs = [Graph("")]
