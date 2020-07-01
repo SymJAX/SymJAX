@@ -54,24 +54,29 @@ class Graph(nx.DiGraph):
         if isinstance(tensor, t.Placeholder) or isinstance(tensor, t.Variable):
             self.add_node(tensor, branch=branch, root=True)
 
-        elif isinstance(tensor, t.RandomOp):
-            self.add_node(
-                tensor,
-                branch=branch,
-                root=True,
-                jax_function=kwargs["jax_function"],
-                seed=kwargs["_seed"],
-            )
-
         elif type(tensor) == t.OpTupleItem:
             self.add_node(tensor, root=False)
             self.add_edge(kwargs["parent"], tensor, index=kwargs["index"])
 
         elif isinstance(tensor, t.Op) or isinstance(tensor, t.OpTuple):
 
-            self.add_node(
-                tensor, branch=branch, root=False, jax_function=kwargs["jax_function"],
-            )
+            if isinstance(tensor, t.RandomOp):
+                self.add_node(
+                    tensor,
+                    branch=branch,
+                    root=True,
+                    jax_function=kwargs["jax_function"],
+                    seed=kwargs["kwargs"]["_seed"],
+                )
+                del kwargs["kwargs"]["_seed"]
+                print("reste", kwargs["args"], kwargs["kwargs"])
+            else:
+                self.add_node(
+                    tensor,
+                    branch=branch,
+                    root=False,
+                    jax_function=kwargs["jax_function"],
+                )
 
             for i, arg in enumerate(kwargs["args"]):
 
@@ -194,6 +199,7 @@ class Graph(nx.DiGraph):
             intra_seed = 1 or self.get_node_attribute(item, "seed")
             key = jax.random.PRNGKey(seed + intra_seed)
             args, kwargs = self._get_args_kwargs(item, tracker)
+            print("rop args", args, kwargs)
             tracker[item] = self.get_node_attribute(item, "jax_function")(
                 key, *args, **kwargs
             )
@@ -203,6 +209,7 @@ class Graph(nx.DiGraph):
 
             # first get the actual parents nodes (aka inputs to the function)
             args, kwargs = self._get_args_kwargs(item, tracker)
+            print("op args", args, kwargs)
             tracker[item] = self.get_node_attribute(item, "jax_function")(
                 *args, **kwargs
             )

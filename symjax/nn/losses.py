@@ -1,5 +1,6 @@
 from .. import tensor as T
 import numpy as np
+from .ops_nn import softmax, log_softmax
 
 
 def vae(x, x_hat, z_mu, z_logvar, mu, logvar, logvar_x=0.0, eps=1e-8):
@@ -147,6 +148,7 @@ def vae_comp_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0.0, eps=
     """
 
     var = T.exp(logvar)
+    z_var = T.exp(z_logvar)
 
     # predict the log probability of clusters, shape will be (N, I, C)
     # and compute compute p(t_i|z_i) = p(z_i|t_i)p(t_i)/(\sum_t_i p(z_i|t_i)p(t_i))
@@ -155,13 +157,13 @@ def vae_comp_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0.0, eps=
         - 0.5 * (T.log(2 * np.pi) + logvar)
         - (z_mu[:, :, None, :] - mu) ** 2 / (2 * var)
     ).sum(3)
-    pt_z = T.softmax(logprob)
+    pt_z = softmax(logprob)
 
     # E_{q(z,c|x)}[log(p(x|z))]
     px_z = ((x - x_hat) ** 2).sum(1)
 
     # - E_{q(z,c|x)}[log(q(c|x))] entropy of categorical
-    h_c = -(pt_z * T.log_softmax(logprob)).sum((1, 2))
+    h_c = -(pt_z * log_softmax(logprob)).sum((1, 2))
 
     # - E_{q(z,c|x)}[log(q(z|x))] : entropy of normal
     h_z = 0.5 * z_logvar.sum((1, 2))
@@ -178,7 +180,7 @@ def vae_comp_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0.0, eps=
     ).sum((1, 2))
 
     # E_{q(z,c|x)}[log(p(c)]
-    p_c = (pt_z * logpi[:, :, None]).sum((1, 2))
+    p_c = (pt_z * logpi).sum((1, 2))
 
     loss = -(px_z + ll_z + p_c + h_c + h_z)
 

@@ -120,7 +120,9 @@ class Upsample1D(Layer):
     __NAME__ = "Upsample1D"
 
     def forward(self, input, repeat, axis=-1, mode="constant", value=0.0):
-        return T.upsample_1d(input, repeat=repeat, axis=axis, mode=mode, value=value,)
+        return T.interpolation.upsample_1d(
+            input, repeat=repeat, axis=axis, mode=mode, value=value,
+        )
 
 
 class Upsample2D(Layer):
@@ -172,7 +174,7 @@ class Conv1D(Layer):
 
     """
 
-    name = "Conv1D"
+    __NAME__ = "Conv1D"
 
     def forward(
         self,
@@ -182,31 +184,29 @@ class Conv1D(Layer):
         W=initializers.he,
         b=numpy.zeros,
         stride=1,
-        pad="VALID",
+        padding="VALID",
         trainable_W=True,
         trainable_b=True,
         input_dilations=None,
         filter_dilations=None,
     ):
 
-        self.init_input(input_or_shape)
         if numpy.isscalar(input_dilations):
             input_dilations = (input_dilations,) * 2
         self.input_dilation = input_dilations
         self.filter_dilation = filter_dilations
         self.stride = stride
-        self.pad = pad
+        self.padding = padding
 
         self.create_variable(
             "W", W, (n_filters, input.shape[1], filter_length), trainable=trainable_W,
         )
         self.create_variable("b", b, (n_filters,), trainable=trainable_b)
-
         conv = nn.convNd(
             input,
             self.W,
             strides=self.stride,
-            padding=self.pad,
+            padding=self.padding,
             input_dilation=self.input_dilation,
             filter_dilation=self.filter_dilation,
         )
@@ -602,7 +602,7 @@ class BatchNormalization(Layer):
 
     """
 
-    name = "BatchNormalization"
+    __NAME__ = "BatchNormalization"
 
     def __init__(
         self,
