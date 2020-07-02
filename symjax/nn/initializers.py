@@ -66,7 +66,6 @@ def orthogonal(shape, gain=1):
 
 
 def _compute_fans(shape, in_axis=0, out_axis=1):
-    print(shape)
     receptive_field_size = np.prod(shape) / (shape[in_axis] * shape[out_axis])
     fan_in = shape[in_axis] * receptive_field_size
     fan_out = shape[out_axis] * receptive_field_size

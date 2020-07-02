@@ -1,4 +1,4 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from . import utils
+from . import utils, mnist, cifar10, cifar100

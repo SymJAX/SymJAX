@@ -1,5 +1,6 @@
 beautifulsoup4==4.9.0
 bs4==0.0.1
+mock
 sphinx
 sphinx_rtd_theme
 sphinxcontrib-applehelp

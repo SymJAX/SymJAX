@@ -69,7 +69,6 @@ class Graph(nx.DiGraph):
                     seed=kwargs["kwargs"]["_seed"],
                 )
                 del kwargs["kwargs"]["_seed"]
-                print("reste", kwargs["args"], kwargs["kwargs"])
             else:
                 self.add_node(
                     tensor,
@@ -199,7 +198,6 @@ class Graph(nx.DiGraph):
             intra_seed = 1 or self.get_node_attribute(item, "seed")
             key = jax.random.PRNGKey(seed + intra_seed)
             args, kwargs = self._get_args_kwargs(item, tracker)
-            print("rop args", args, kwargs)
             tracker[item] = self.get_node_attribute(item, "jax_function")(
                 key, *args, **kwargs
             )
@@ -209,7 +207,6 @@ class Graph(nx.DiGraph):
 
             # first get the actual parents nodes (aka inputs to the function)
             args, kwargs = self._get_args_kwargs(item, tracker)
-            print("op args", args, kwargs)
             tracker[item] = self.get_node_attribute(item, "jax_function")(
                 *args, **kwargs
             )
