@@ -3,7 +3,6 @@ import numpy
 import symjax
 from symjax import tensor
 from ..base import gradients
-from ..base import function
 
 
 class Optimizer:
@@ -196,27 +195,18 @@ class Adam(Optimizer):
             params = symjax.get_variables(trainable=True)
 
         grads = self._get_grads(grads_or_loss, params)
-        step = tensor.Variable(
-            tensor.zeros(1, dtype="float32"), trainable=False, name="step"
-        )
-        variables = [step]
+
         # get the learning rate
         if callable(learning_rate):
             learning_rate = learning_rate()
 
         updates = dict()
         for param, grad in zip(params, grads):
-            m, update_m, _ = symjax.nn.schedules.ExponentialMovingAverage(
-                grad, beta1, step=step
+            m = symjax.nn.schedules.ExponentialMovingAverage(grad, beta1)
+            v = symjax.nn.schedules.ExponentialMovingAverage(
+                tensor.square(grad), beta2, init=numpy.ones(grad.shape)
             )
-            v, update_v, _ = symjax.nn.schedules.ExponentialMovingAverage(
-                tensor.square(grad), beta2, step, init=numpy.ones(grad.shape)
-            )
-            variables += [m, v]
-            updates.update(update_m)
-            updates.update(update_v)
-            update = updates[m] / (tensor.sqrt(updates[v]) + epsilon)
+            update = m / (tensor.sqrt(v) + epsilon)
             updates[param] = param - learning_rate * update
-        updates[step] = step + 1
 
         self.add_updates(updates)

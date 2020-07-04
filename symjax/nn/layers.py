@@ -3,8 +3,7 @@ from . import ops_nn as nn
 from symjax.nn import initializers, schedules
 import symjax
 import numpy
-import inspect
-from jax.numpy import identity
+import jax
 
 
 def _is_shape(x):
@@ -45,7 +44,7 @@ class Layer(T.Op):
 
         with symjax.Scope(name):
             output = self.forward(*args, **kwargs)
-            super().__init__(output, _jax_function=lambda x: x)
+            super().__init__(output, 0, _jax_function=jax.numpy.add)
 
     def variables(self, trainable=True):
         if not hasattr(self, "_variables"):
@@ -80,7 +79,8 @@ class Layer(T.Op):
 
     def create_variable(self, name, tensor_or_func, shape, trainable, dtype=None):
         if tensor_or_func is None:
-            return None
+            self.__dict__[name] = None
+            return
         t = self.create_tensor(tensor_or_func, shape, dtype)
 
         if not trainable:
@@ -163,7 +163,8 @@ class Dense(Layer):
 
         if numpy.prod(input.shape[1:]) != self.W.shape[0]:
             raise RuntimeError("input to Dense layer {} has different dim".format(self))
-        if hasattr(self, "b"):
+
+        if self.b is not None:
             return T.dot(T.flatten2d(input), self.W) + self.b
         else:
             return T.dot(T.flatten2d(input), self.W)
@@ -221,7 +222,7 @@ class Conv2DTranspose(Layer):
 
     """
 
-    name = "Conv2DTranspose"
+    __NAME__ = "Conv2DTranspose"
 
     def forward(
         self,
@@ -269,7 +270,7 @@ class Conv2D(Layer):
 
     """
 
-    name = "Conv2D"
+    __NAME__ = "Conv2D"
 
     def forward(
         self,
@@ -286,7 +287,6 @@ class Conv2D(Layer):
         filter_dilations=None,
     ):
 
-        self.init_input(input_or_shape)
         self.input_dilation = input_dilations
         self.filter_dilation = filter_dilations
         self.strides = strides
@@ -308,7 +308,7 @@ class Conv2D(Layer):
             input_dilation=self.input_dilation,
             filter_dilation=self.filter_dilation,
         )
-        if hasattr(self, "b"):
+        if self.b is not None:
             return conv + self.b.reshape((-1, 1, 1))
         else:
             return conv
@@ -319,7 +319,7 @@ class Pool1D(Layer):
 
     """
 
-    name = "Pool1D"
+    __NAME__ = "Pool1D"
 
     def forward(self, input_or_shape, pool_shape, pool_type="MAX", strides=None):
 
@@ -341,11 +341,10 @@ class Pool2D(Layer):
 
     """
 
-    name = "Pool2D"
+    __NAME__ = "Pool2D"
 
-    def forward(self, input_or_shape, pool_shape, pool_type="MAX", strides=None):
+    def forward(self, input, pool_shape, pool_type="MAX", strides=None):
 
-        self.init_input(input_or_shape)
         self.pool_type = pool_type
         self.pool_shape = (1, 1, pool_shape[0], pool_shape[1])
         if strides is None:
@@ -395,10 +394,8 @@ class Dropout(Layer):
         self.p = p
         self.mask = T.random.bernoulli(shape=input.shape, p=p, seed=seed)
 
-        if deterministic is None:
-            deterministic = self.deterministic
         dirac = T.cast(deterministic, "float32")
-        return input * self.mask * (1 - dirac) + input * dirac
+        return T.where(self.mask, input, 0) * (1 - dirac) + input * dirac
 
 
 class RandomFlip(Layer):
@@ -437,19 +434,20 @@ class RandomFlip(Layer):
     output: the output tensor which containts the internal variables
     """
 
-    name = "RandomFlip"
+    __NAME__ = "RandomFlip"
 
-    def __init__(self, input_or_shape, p, axis, deterministic, seed=None):
+    def forward(self, input, p, axis, deterministic, seed=None):
 
-        self.init_input(input_or_shape)
-        self.deterministic = deterministic
         self.p = p
         self.axis = axis
-        self.flip = T.random.bernoulli(shape=(input.shape[0]), p=p, seed=seed)
+        extra_dims = input.ndim - 1
+        self.flip = T.random.bernoulli(
+            shape=(input.shape[0],) + (1,) * extra_dims, p=p, seed=seed
+        )
 
         dirac = T.cast(deterministic, "float32")
 
-        flipped_input = self.flip * T.flip(input, self.axis) + (1 - self.flip) * input
+        flipped_input = T.where(self.flip, T.flip(input, axis), input)
 
         return input * dirac + flipped_input * (1 - dirac)
 
@@ -493,15 +491,14 @@ class RandomCrop(Layer):
 
     """
 
-    name = "RandomCrop"
+    __NAME__ = "RandomCrop"
 
-    def __init__(self, input_or_shape, crop_shape, deterministic, padding=0, seed=None):
+    def forward(self, input, crop_shape, deterministic, padding=0, seed=None):
 
-        self.init_input(input_or_shape)
         self.crop_shape = crop_shape
         # if given only a scalar
         if not hasattr(padding, "__len__"):
-            self.pad_shape = [(padding, padding)] * (self.input.shape - 1)
+            self.pad_shape = [(padding, padding)] * (input.shape - 1)
         # else
         else:
             self.pad_shape = [
@@ -509,14 +506,12 @@ class RandomCrop(Layer):
             ]
 
         assert len(self.pad_shape) == len(self.crop_shape)
-        assert len(self.pad_shape) == (len(self.input.shape) - 1)
-
-        self.deterministic = deterministic
+        assert len(self.pad_shape) == (len(input.shape) - 1)
 
         self.start_indices = list()
         self.fixed_indices = list()
         for i, (pad, dim, crop) in enumerate(
-            zip(self.pad_shape, self.input.shape[1:], self.crop_shape)
+            zip(self.pad_shape, input.shape[1:], self.crop_shape)
         ):
             maxval = pad[0] + pad[1] + dim - crop
             assert maxval >= 0
@@ -524,24 +519,18 @@ class RandomCrop(Layer):
                 T.random.randint(
                     minval=0,
                     maxval=maxval,
-                    shape=(self.input.shape[0], 1),
+                    shape=(input.shape[0], 1),
                     dtype="int32",
                     seed=seed + i if seed is not None else seed,
                 )
             )
 
             self.fixed_indices.append(
-                T.ones((self.input.shape[0], 1), "int32") * (maxval // 2)
+                T.ones((input.shape[0], 1), "int32") * (maxval // 2)
             )
         self.start_indices = T.concatenate(self.start_indices, 1)
         self.fixed_indices = T.concatenate(self.fixed_indices, 1)
 
-        super().__init__(self.forward(self.input))
-
-    def forward(self, input, deterministic=None):
-
-        if deterministic is None:
-            deterministic = self.deterministic
         dirac = T.cast(deterministic, "float32")
 
         # pad the input
@@ -550,14 +539,14 @@ class RandomCrop(Layer):
         routput = T.stack(
             [
                 T.dynamic_slice(pinput[n], self.start_indices[n], self.crop_shape)
-                for n in range(self.input.shape[0])
+                for n in range(input.shape[0])
             ],
             0,
         )
         doutput = T.stack(
             [
                 T.dynamic_slice(pinput[n], self.fixed_indices[n], self.crop_shape)
-                for n in range(self.input.shape[0])
+                for n in range(input.shape[0])
             ],
             0,
         )
@@ -604,21 +593,19 @@ class BatchNormalization(Layer):
 
     __NAME__ = "BatchNormalization"
 
-    def __init__(
+    def forward(
         self,
-        input_or_shape,
+        input,
         axis,
         deterministic,
         const=0.001,
         beta1=0.99,
         beta2=0.99,
-        W=numpy.ones,
-        b=numpy.zeros,
+        W=T.ones,
+        b=T.zeros,
         trainable_W=True,
         trainable_b=True,
     ):
-
-        self.init_input(input_or_shape)
 
         self.beta1 = beta1
         self.beta2 = beta2
@@ -627,40 +614,22 @@ class BatchNormalization(Layer):
         self.deterministic = deterministic
 
         parameter_shape = [
-            self.input.shape[i] if i not in axis else 1 for i in range(self.input.ndim)
+            input.shape[i] if i not in axis else 1 for i in range(input.ndim)
         ]
 
         self.create_variable("W", W, parameter_shape, trainable=trainable_W)
         self.create_variable("b", b, parameter_shape, trainable=trainable_b)
 
-        super().__init__(self.forward(self.input))
+        input_mean = T.mean(input, axis, keepdims=True)
+        input_var = T.var(input, axis, keepdims=True)
 
-    def forward(self, input, deterministic=None):
-
-        if deterministic is None:
-            deterministic = self.deterministic
-        dirac = T.cast(deterministic, "float32")
-
-        self.mean = T.mean(input, self.axis, keepdims=True)
-        self.var = T.var(input, self.axis, keepdims=True)
-        if len(self.updates) == 0:
-            self.avgmean, upm, step = schedules.ExponentialMovingAverage(
-                self.mean, self.beta1
-            )
-            self.avgvar, upv, step = schedules.ExponentialMovingAverage(
-                self.var,
-                self.beta2,
-                step=step,
-                init=numpy.ones(self.var.shape).astype("float32"),
-            )
-            self.add_variable(self.avgmean)
-            self.add_variable(self.avgvar)
-            self.add_update(upm)
-            self.add_update(upv)
-
-        self.usemean = self.mean * (1 - dirac) + self.avgmean * dirac
-        self.usevar = self.var * (1 - dirac) + self.avgvar * dirac
-        return (
-            self.W * (input - self.usemean) / (T.sqrt(self.usevar) + self.const)
-            + self.b
+        avgmean = schedules.ExponentialMovingAverage(input_mean, beta1)
+        avgvar = schedules.ExponentialMovingAverage(
+            input_var, beta2, init=numpy.ones(input_var.shape, dtype="float32"),
         )
+
+        usemean = T.where(deterministic, avgmean, input_mean)
+        usevar = T.where(deterministic, avgvar, input_var)
+        W = self.W or 1.0
+        b = self.b if self.b is not None else 0.0
+        return W * (input - usemean) / (T.sqrt(usevar) + self.const) + b

@@ -3,7 +3,6 @@
 """Base of symjax."""
 
 import fnmatch
-import warnings
 
 import jax
 import numpy
@@ -13,6 +12,12 @@ import symjax
 from symjax import tensor as t
 from symjax.tensor import random
 import networkx as nx
+import re
+
+
+def natural_key(string_):
+    """See http://www.codinghorror.com/blog/archives/001018.html"""
+    return [int(s) if s.isdigit() else s for s in re.split(r"(\d+)", string_)]
 
 
 def current_scope():
@@ -28,23 +33,32 @@ def current_graph():
 
 class Graph(nx.DiGraph):
     def __init__(self, name, *args, **kwargs):
+
         self._current_scope = "/"
-        self._scopes = [Scope("", graph=self)]
+        self._scopes = [Scope("main", graph=self)]
         self._variables = {}
         self._placeholders = {}
         self._updates = {}
         self._ops = {}
+        self._scopes_history = []
+
         super().__init__(*args, name=name, **kwargs)
 
     def add(self, tensor, branch=None, **kwargs):
 
         if type(tensor) == dict:
+            for i in tensor.values():
+                self.add(i)
             self._updates.update(tensor)
 
         if not t.isvar(tensor):
-            const_node = t.Constant(tensor)
-            self.add_node(const_node, root=False)
-            return const_node
+            try:
+                self.add_node(tensor, root=False)
+                return tensor
+            except TypeError:
+                const_node = t.Constant(tensor)
+                self.add_node(const_node, root=False)
+                return const_node
 
         if tensor in self.nodes:
             return tensor
@@ -84,9 +98,9 @@ class Graph(nx.DiGraph):
                 # and thus it is not already in thus we add it
                 node = self.add(arg)
                 if self.has_edge(node, tensor):
-                    self[node][tensor]["name"] += "+arg{:02d}".format(i)
+                    self[node][tensor]["name"] += "+arg{}".format(i)
                 else:
-                    self.add_edge(node, tensor, name="arg{:02d}".format(i))
+                    self.add_edge(node, tensor, name="arg{}".format(i))
 
             for key, arg in kwargs["kwargs"].items():
 
@@ -238,11 +252,11 @@ class Graph(nx.DiGraph):
                     all_args.update({item: all_args[arg]})
                 del all_args[arg]
 
-        args_names = [name for name in all_args.keys() if "arg" == name[:3]]
-        args_names.sort()
+        arg_names = [name for name in all_args.keys() if "arg" == name[:3]]
+        arg_names = sorted(arg_names, key=natural_key)
 
-        args = [all_args[name] for name in args_names]
-        for name in args_names:
+        args = [all_args[name] for name in arg_names]
+        for name in arg_names:
             del all_args[name]
 
         return args, all_args
@@ -310,20 +324,32 @@ class Scope:
 
     """
 
-    def __init__(self, name, graph=None, seed=None):
+    def __init__(self, name, graph=None, reattach=False):
         """Constructor."""
         if graph is None:
             graph = current_graph()
         self.graph = graph
+        assert len(name)
+        assert "_" != name[-1]
         self.name = name
         self.full_name = None
 
     def __enter__(self):
         """Set global variables."""
-        if len(self.name):
-            self.graph._current_scope += self.name + "/"
+
+        current = self.graph._current_scope
+        cpt = 0
+        if current + self.name + "/" in self.graph._scopes_history:
+            while (
+                current + self.name + "_{}/".format(cpt) in self.graph._scopes_history
+            ):
+                cpt += 1
+            self.name += "_{}".format(cpt)
+
+        self.graph._current_scope += self.name + "/"
         self.full_name = self.graph._current_scope
         self.graph._scopes.append(self)
+        self.graph._scopes_history.append(self.full_name)
 
     def __exit__(self, *a):
         """Delete globals."""
@@ -589,31 +615,34 @@ def gradients(scalar, variables):
         input_variables = variables
         input_list = True
 
+    # get the argnum of the variables that we differentiate one
+    argnums = list(range(len(input_variables)))
+
     # get all the roots of the scalar, this is needed as otherwise they are not
     # as the input of the gradient function and thus a change of
     # their value will not change the gradient computation, we also ensure
     # uniqueness
-    all_roots = list(set(current_graph().roots(scalar) + input_variables))
-
-    # get the argnum of the variables that we differentiate one
-    argnums = [all_roots.index(var) for var in input_variables]
+    input_variables += [
+        i for i in current_graph().roots(scalar) if i not in input_variables
+    ]
 
     # create a dummy function that is needed for jax to compute a gradient func
     # this function is the one that builds the graph of computation from all
     # roots
     # to the scalar varible s.t. automatic diffenrentiation can be applied
+
     def fn(*args):
-        return current_graph().get(scalar, dict(zip(all_roots, list(args))))
+        return current_graph().get(scalar, dict(zip(input_variables, list(args))))
 
     # now we obtain the grad function. In fact, Jax returns a function that,
     # when it is called, returns the gradient values, this function is then
     # used to generate the Tuple of symbolic variables
     grad_fn = jax.grad(fn, argnums)
-    wrap_fn = t.jax_wrap(grad_fn, False)
+    wrap_fn = t.jax_wrap(grad_fn)
     if input_list:
-        return wrap_fn(*all_roots)
+        return wrap_fn(*input_variables)
     else:
-        return wrap_fn(*all_roots)[0]
+        return wrap_fn(*input_variables)[0]
 
 
 def jacobians(tensor, variables, mode="forward"):
@@ -771,27 +800,6 @@ class function:
         items = list(updates.items())
         self.updates_keys = [item[0] for item in items]
         self.updates_values = [item[1] for item in items]
-        for i in range(len(items)):
-            if self.updates_keys[i].shape != self.updates_values[i].shape:
-                warnings.warn(
-                    "Variable and update {} {}".format(
-                        self.updates_keys[i], self.updates_values[i]
-                    )
-                    + "are not the same shape... attempting to reshape"
-                )
-                self.updates_values[i] = t.reshape(
-                    self.updates_values[i], self.updates_keys[i].shape
-                )
-            if self.updates_keys[i].dtype != self.updates_values[i].dtype:
-                warnings.warn(
-                    "Variable and update {} {}".format(
-                        self.updates_keys[i], self.updates_values[i]
-                    )
-                    + "are not the same dtype... attempting to cast"
-                )
-                self.updates_values[i] = t.cast(
-                    self.updates_values[i], self.updates_keys[i].dtype
-                )
 
         # check the function inputs, they must be at least contain all the
         # placeholders needed to compute the outputs values

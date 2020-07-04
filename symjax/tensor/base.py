@@ -1,6 +1,7 @@
 import re
 from functools import wraps
 
+import warnings
 import jax
 import jax.numpy as jnp
 import numpy
@@ -310,7 +311,7 @@ class Tensor:
     def __init__(self, _shape, _dtype, name=None, **kwargs):
 
         self._shape = tuple(_shape)
-        self._dtype = _dtype
+        self._dtype = jax.dtypes.dtype(_dtype)
 
         if name is not None:
             assert "/" not in name
@@ -520,6 +521,8 @@ class Variable(Tensor):
         self, initializer, name="unnamed_variable", trainable=True, dtype=None
     ):
 
+        if trainable and dtype == "bool":
+            raise RuntimeError("error impossible learning at{}".format(self))
         self.trainable = trainable
         self.initializer = initializer
         self._dtype = dtype
@@ -551,8 +554,28 @@ class Variable(Tensor):
 
     def update(self, update_value):
         """assign a new value for the variable"""
+        new_value = symjax.current_graph().get(update_value)
 
-        self._value = symjax.current_graph().get(update_value)
+        if self.shape != jax.numpy.shape(new_value):
+            warnings.warn(
+                "Variable and update {} {}".format(self, new_value)
+                + "are not the same shape... attempting to reshape"
+            )
+            new_value = jax.numpy.reshape(new_value, self.shape)
+
+        if hasattr(new_value, "dtype"):
+            ntype = new_value.dtype
+        else:
+            ntype = type(new_value)
+        if self.dtype != ntype:
+            warnings.warn(
+                "Variable and update {} {}".format(self, new_value)
+                + "are not the same dtype... attempting to cast"
+            )
+
+            new_value = jax.numpy.astype(new_value, self.dtype)
+
+        self._value = new_value
 
     def __repr__(self):
         name = "Variable(name={}, shape={}, dtype={}, trainable={}, scope={})"

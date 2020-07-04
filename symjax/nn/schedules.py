@@ -3,7 +3,7 @@
 
 from symjax import tensor
 import numpy
-from ..base import function
+from ..base import function, current_graph
 
 
 class Schedule:
@@ -66,26 +66,25 @@ class Linear(Schedule):
         return self.value
 
 
-def ExponentialMovingAverage(value, alpha, step=None, init=None):
-    if step is None:
-        _step = tensor.Variable(0, trainable=False, name="step", dtype="float32")
-    else:
-        _step = step
+def ExponentialMovingAverage(value, alpha, init=None):
+
+    _init = tensor.Variable(True, trainable=False, name="_init", dtype="bool")
+
     if init is None:
         var = tensor.Variable(
-            numpy.zeros(value.shape), trainable=False, name="EMA", dtype="float32",
+            numpy.zeros(value.shape, dtype=value.dtype),
+            trainable=False,
+            name="EMA",
+            dtype="float32",
         )
     else:
         var = tensor.Variable(init, trainable=False, name="EMA", dtype="float32")
 
-    new_value = tensor.where(
-        tensor.equal(_step, 0), value, var * alpha + (1 - alpha) * value
-    )
-    if step is None:
-        updates = {var: new_value, _step: _step + 1}
-    else:
-        updates = {var: new_value}
-    return var, updates, _step
+    new_value = tensor.where(_init, value, var * alpha + (1 - alpha) * value)
+
+    current_graph().add({var: new_value, _init: False})
+
+    return new_value
 
 
 class Exponential(Schedule):
