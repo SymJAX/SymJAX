@@ -390,12 +390,10 @@ class Dropout(Layer):
 
     def forward(self, input, p, deterministic, seed=None):
 
-        self.deterministic = deterministic
         self.p = p
         self.mask = T.random.bernoulli(shape=input.shape, p=p, seed=seed)
 
-        dirac = T.cast(deterministic, "float32")
-        return T.where(self.mask, input, 0) * (1 - dirac) + input * dirac
+        return T.where(deterministic, input, T.where(self.mask, input, 0))
 
 
 class RandomFlip(Layer):
