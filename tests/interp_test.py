@@ -5,6 +5,7 @@ import numpy as np
 
 import symjax
 
+
 def test_image():
     im1 = np.random.rand(3, 2, 2)
     im2 = np.random.rand(3, 4, 4)

@@ -68,9 +68,7 @@ def download(path):
     if not os.path.isdir(path + "picidae"):
         print("Creating picidae Directory")
         os.mkdir(path + "picidae")
-    url = (
-        "https://zenodo.org/record/574438/files/PicidaeDataset.zip?download=1"
-    )
+    url = "https://zenodo.org/record/574438/files/PicidaeDataset.zip?download=1"
     if not os.path.exists(path + "picidae/PicidaeDataset.zip"):
         urllib.request.urlretrieve(url, path + "picidae/PicidaeDataset.zip")
 

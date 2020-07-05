@@ -99,21 +99,15 @@ def load(path=None, n_processes=6):
         name for name in tar.getnames() if "JPEG" in name and "train" in name
     ]
     test_names = [
-        name
-        for name in tar.getnames()
-        if "JPEG" in name and "train" not in name
+        name for name in tar.getnames() if "JPEG" in name and "train" not in name
     ]
 
     for name in tqdm(train_names, ascii=True, desc="Loading training set"):
-        train_images.append(
-            matplotlib.image.imread(path + "imagenette/" + name)
-        )
+        train_images.append(matplotlib.image.imread(path + "imagenette/" + name))
         train_labels.append(name.split("/")[2])
 
     for name in tqdm(test_names, ascii=True, desc="Loading test set"):
-        test_images.append(
-            matplotlib.image.imread(path + "imagenette/" + name)
-        )
+        test_images.append(matplotlib.image.imread(path + "imagenette/" + name))
         test_labels.append(name.split("/")[2])
 
     data = {

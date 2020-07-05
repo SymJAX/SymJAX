@@ -23,9 +23,7 @@ for i in range(10):
     image = cifar10["train_set/images"][i]
     label = cifar10["train_set/labels"][i]
 
-    plt.imshow(
-        image.transpose((1, 2, 0)) / image.max(), aspect="auto", cmap="Greys"
-    )
+    plt.imshow(image.transpose((1, 2, 0)) / image.max(), aspect="auto", cmap="Greys")
     plt.xticks([])
     plt.yticks([])
     plt.title("{}:{}".format(label, symjax.data.cifar10.label_to_name[label]))

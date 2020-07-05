@@ -22,16 +22,12 @@ fig = plt.figure(figsize=(8, 3))
 for i in range(3):
 
     plt.subplot(2, 3, i + 1)
-    plt.imshow(
-        all_images[i].transpose(1, 2, 0), aspect="auto", vmax=10, cmap="jet"
-    )
+    plt.imshow(all_images[i].transpose(1, 2, 0), aspect="auto", vmax=10, cmap="jet")
     plt.xticks([])
     plt.yticks([])
 
     plt.subplot(2, 3, i + 4)
-    plt.imshow(
-        images[i].transpose(1, 2, 0), aspect="auto", vmax=10, cmap="jet"
-    )
+    plt.imshow(images[i].transpose(1, 2, 0), aspect="auto", vmax=10, cmap="jet")
     plt.xticks([])
     plt.yticks([])
 
