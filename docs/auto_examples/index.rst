@@ -22,6 +22,27 @@ Introductory examples that teach how to use SymJAX.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="demonstration on how to perform basic image preprocessing">
+
+.. only:: html
+
+ .. figure:: /auto_examples/images/thumb/sphx_glr_plot_resampling_thumb.svg
+     :alt: Basic image resampling and alignment
+
+     :ref:`sphx_glr_auto_examples_plot_resampling.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/plot_resampling
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="demonstration on how to compute a gradient and apply a basic gradient update rule to minimize s...">
 
 .. only:: html
@@ -267,13 +288,13 @@ Signal Processing
 
   .. container:: sphx-glr-download sphx-glr-download-python
 
-    :download:`Download all examples in Python source code: auto_examples_python.zip <//home/vrael/SymJAX/docs/auto_examples/auto_examples_python.zip>`
+    :download:`Download all examples in Python source code: auto_examples_python.zip <//home/rbal/SymJAX/docs/auto_examples/auto_examples_python.zip>`
 
 
 
   .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-    :download:`Download all examples in Jupyter notebooks: auto_examples_jupyter.zip <//home/vrael/SymJAX/docs/auto_examples/auto_examples_jupyter.zip>`
+    :download:`Download all examples in Jupyter notebooks: auto_examples_jupyter.zip <//home/rbal/SymJAX/docs/auto_examples/auto_examples_jupyter.zip>`
 
 
 .. only:: html

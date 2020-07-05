@@ -28,10 +28,10 @@ This example shows how to download/load/import speech picidae
 
  .. code-block:: none
 
-      0%|          | 0/3369 [00:00<?, ?it/s]     11%|#1        | 372/3369 [00:00<00:00, 3689.93it/s]/home/vrael/anaconda3/lib/python3.7/site-packages/scipy/io/wavfile.py:273: WavFileWarning: Chunk (non-data) not understood, skipping it.
-      WavFileWarning)
-     19%|#8        | 626/3369 [00:00<00:00, 3246.89it/s]     24%|##4       | 820/3369 [00:00<00:00, 2694.84it/s]     31%|###       | 1032/3369 [00:00<00:00, 2490.81it/s]     36%|###5      | 1212/3369 [00:00<00:01, 1959.75it/s]     41%|####      | 1377/3369 [00:00<00:01, 1774.32it/s]     48%|####7     | 1601/3369 [00:00<00:00, 1889.58it/s]     55%|#####4    | 1851/3369 [00:00<00:00, 2035.13it/s]     61%|######    | 2051/3369 [00:00<00:00, 1929.16it/s]     67%|######6   | 2242/3369 [00:01<00:00, 1464.82it/s]     85%|########4 | 2851/3369 [00:01<00:00, 1889.89it/s]     93%|#########3| 3140/3369 [00:02<00:00, 778.16it/s]     100%|#########9| 3353/3369 [00:02<00:00, 607.91it/s]    100%|##########| 3369/3369 [00:02<00:00, 1245.91it/s]
-    Dataset picidae loaded in 2.73s.
+      0%|          | 0/3369 [00:00<?, ?it/s]      8%|7         | 267/3369 [00:00<00:01, 2669.36it/s]     12%|#1        | 392/3369 [00:00<00:01, 1983.50it/s]/home/rbal/SymJAX/symjax/data/picidae.py:115: WavFileWarning: Chunk (non-data) not understood, skipping it.
+      wavs.append(wav_read(byt)[1].astype("float32"))
+     18%|#8        | 620/3369 [00:00<00:01, 2061.44it/s]     23%|##3       | 783/3369 [00:00<00:01, 1904.55it/s]     29%|##9       | 992/3369 [00:00<00:01, 1953.24it/s]     34%|###4      | 1154/3369 [00:00<00:01, 1240.26it/s]     40%|###9      | 1331/3369 [00:00<00:01, 1354.75it/s]     45%|####5     | 1528/3369 [00:00<00:01, 1492.50it/s]     50%|#####     | 1689/3369 [00:01<00:01, 1368.62it/s]     55%|#####5    | 1854/3369 [00:01<00:01, 1440.50it/s]     60%|#####9    | 2006/3369 [00:01<00:01, 1328.11it/s]     64%|######3   | 2154/3369 [00:01<00:00, 1361.49it/s]     68%|######8   | 2296/3369 [00:01<00:01, 1052.40it/s]     85%|########4 | 2863/3369 [00:01<00:00, 1390.94it/s]     92%|#########2| 3115/3369 [00:02<00:00, 606.94it/s]      98%|#########7| 3299/3369 [00:03<00:00, 422.06it/s]    100%|##########| 3369/3369 [00:03<00:00, 936.71it/s]
+    Dataset picidae loaded in 3.63s.
 
 
 
@@ -54,15 +54,15 @@ This example shows how to download/load/import speech picidae
     for i in range(10):
 
         plt.subplot(2, 5, 1 + i)
-        plt.plot(picidae['wavs'][i])
-        plt.title(str(picidae['labels'][i]))
+        plt.plot(picidae["wavs"][i])
+        plt.title(str(picidae["labels"][i]))
 
     plt.tight_layout()
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  3.025 seconds)
+   **Total running time of the script:** ( 0 minutes  4.195 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_datasets_plot_picidae.py:

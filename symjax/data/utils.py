@@ -1,5 +1,6 @@
 import numpy as np
 from multiprocessing import Pool, Queue, Lock, Process
+from scipy import ndimage
 
 
 def create_cmap(values, colors):
@@ -311,10 +312,12 @@ def values_to_boundary(x, duplicate=0):
         np.pad(np.abs(x[:, 1:] - x[:, :-1]), [[0, 0], [1, 0]], "constant"), 0
     )
     g_diagonaldo = np.greater(
-        np.pad(np.abs(x[1:, 1:] - x[:-1, :-1]), [[1, 0], [1, 0]], "constant"), 0
+        np.pad(np.abs(x[1:, 1:] - x[:-1, :-1]), [[1, 0], [1, 0]], "constant"),
+        0,
     )
     g_diagonalup = np.greater(
-        np.pad(np.abs(x[:-1:, 1:] - x[1:, :-1]), [[1, 0], [1, 0]], "constant"), 0
+        np.pad(np.abs(x[:-1:, 1:] - x[1:, :-1]), [[1, 0], [1, 0]], "constant"),
+        0,
     )
     overall = g_vertical + g_horizontal + g_diagonaldo + g_diagonalup
     if duplicate > 0:
@@ -378,3 +381,51 @@ def vq_to_values(states, vq_to_value_dict=None, return_dict=False):
             vq_to_value_dict["count"] += 0.001
         values[i] = vq_to_value_dict[str_s]
     return values
+
+
+def resample_images(
+    images, target_shape, ratio="same", order=1, mode="nearest"
+):
+    output_images = np.zeros(
+        (len(images), images[0].shape[0]) + target_shape, dtype=images[0].dtype
+    )
+
+    for i, image in enumerate(images):
+
+        # the first step is to resample to fit it into the target shape
+        if ratio == "same":
+            width_change = target_shape[1] / image.shape[2]
+            height_change = target_shape[0] / image.shape[1]
+            change = min(width_change, height_change)
+
+        x = np.linspace(
+            0, image.shape[1] - 1, int(np.ceil(image.shape[1] * change))
+        )
+        y = np.linspace(
+            0, image.shape[2] - 1, int(np.ceil(image.shape[2] * change))
+        )
+        coordinates = np.stack(np.meshgrid(x, y))
+        coordinates = np.stack(
+            [coordinates[0].reshape(-1), coordinates[1].reshape(-1)]
+        )
+        print(coordinates)
+        new_image = np.stack(
+            [
+                ndimage.map_coordinates(
+                    channel, coordinates, order=order, mode=mode
+                )
+                .reshape((len(y), len(x)))
+                .T
+                for channel in image
+            ]
+        )
+        # now we position this image into the output
+        middle_height = (target_shape[0] - len(x)) // 2
+        middle_width = (target_shape[1] - len(y)) // 2
+        output_images[
+            i,
+            :,
+            middle_height : middle_height + len(x),
+            middle_width : middle_width + len(y),
+        ] = new_image
+    return output_images

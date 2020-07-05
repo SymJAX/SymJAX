@@ -42,26 +42,27 @@ This example shows how to generate a wavelet filter-bank.
 
     wavelet = symjax.tensor.signal.complex_morlet(5 * scales, np.pi / scales)
     waveletw = symjax.tensor.signal.fourier_complex_morlet(
-        5 * scales, np.pi / scales, wavelet.shape[-1])
+        5 * scales, np.pi / scales, wavelet.shape[-1]
+    )
 
     f = symjax.function(outputs=[wavelet, waveletw])
 
     wavelet, waveletw = f()
 
     plt.subplot(121)
-    for i in range(J*Q):
-        plt.plot(2*i + wavelet[i].real, c='b')
-        plt.plot(2*i + wavelet[i].imag, c='r')
+    for i in range(J * Q):
+        plt.plot(2 * i + wavelet[i].real, c="b")
+        plt.plot(2 * i + wavelet[i].imag, c="r")
 
     plt.subplot(122)
-    for i in range(J*Q):
-        plt.plot(i + waveletw[i].real, c='b')
-        plt.plot(i + waveletw[i].imag, c='r')
+    for i in range(J * Q):
+        plt.plot(i + waveletw[i].real, c="b")
+        plt.plot(i + waveletw[i].imag, c="r")
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  7.230 seconds)
+   **Total running time of the script:** ( 0 minutes  7.259 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03_sp_plot_wavelets.py:
