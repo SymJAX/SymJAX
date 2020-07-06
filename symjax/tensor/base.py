@@ -132,6 +132,7 @@ def get_output_tree(
     # and return the output. This is because the jax shape inference
     # functions does not work with static arguments (such as the dimensions
     # of the transpose function)
+
     def abstract_func(*args, **kwargs):
         all_args = _args_formatting(args, static_args, who_static)
         return jax_function(*all_args, **kwargs, **static_kwargs)

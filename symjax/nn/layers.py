@@ -612,22 +612,61 @@ class BatchNormalization(Layer):
         self.deterministic = deterministic
 
         parameter_shape = [
-            input.shape[i] if i not in axis else 1 for i in range(input.ndim)
+            input.shape[i] if i in axis else 1 for i in range(input.ndim)
         ]
+        reduce_axes = [i for i in range(input.ndim) if i not in axis]
 
         self.create_variable("W", W, parameter_shape, trainable=trainable_W)
         self.create_variable("b", b, parameter_shape, trainable=trainable_b)
 
-        input_mean = T.mean(input, axis, keepdims=True)
-        input_var = T.var(input, axis, keepdims=True)
+        input_mean = T.mean(input, reduce_axes, keepdims=True)
+        input_var = T.var(input, reduce_axes, keepdims=True)
 
-        avgmean = schedules.ExponentialMovingAverage(input_mean, beta1)
-        avgvar = schedules.ExponentialMovingAverage(
-            input_var, beta2, init=numpy.ones(input_var.shape, dtype="float32"),
-        )
+        avgmean = schedules.ExponentialMovingAverage(input_mean, beta1)[1]
+        avgvar = schedules.ExponentialMovingAverage(input_var, beta2,)[1]
 
         usemean = T.where(deterministic, avgmean, input_mean)
         usevar = T.where(deterministic, avgvar, input_var)
         W = self.W or 1.0
         b = self.b if self.b is not None else 0.0
         return W * (input - usemean) / (T.sqrt(usevar) + self.const) + b
+
+
+class RNN(Layer):
+
+    __NAME__ = "BatchNormalization"
+
+    @staticmethod
+    def gate(h, x, W, H, b, sigma):
+        ht = sigma(T.dot(x, W) + b + T.dot(h, H))
+        return ht, ht
+
+    def forward(
+        self,
+        sequence,
+        init_h,
+        units,
+        W=initializers.he,
+        H=initializers.he,
+        b=T.zeros,
+        trainable_W=True,
+        trainable_H=True,
+        trainable_b=True,
+        activation=nn.sigmoid,
+        only_last=False,
+    ):
+
+        self.create_variable("W", W, (sequence.shape[2], units), trainable=trainable_W)
+        self.create_variable("H", H, (units, units), trainable=trainable_H)
+        self.create_variable("b", b, (units), trainable=trainable_b)
+
+        last, output = T.scan(
+            lambda h, x, W, H, b: self.gate(h, x, W, H, b, activation),
+            init=init_h,
+            sequences=[sequence.transpose((1, 0, 2))],
+            non_sequences=[self.W, self.H, self.b],
+        )
+        if only_last:
+            return last
+        else:
+            return output.transpose((1, 0, 2))

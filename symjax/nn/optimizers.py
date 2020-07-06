@@ -187,7 +187,7 @@ class Adam(Optimizer):
         learning_rate,
         beta1=0.9,
         beta2=0.999,
-        epsilon=1e-6,
+        epsilon=1e-8,
         params=None,
     ):
 
@@ -202,10 +202,8 @@ class Adam(Optimizer):
 
         updates = dict()
         for param, grad in zip(params, grads):
-            m = symjax.nn.schedules.ExponentialMovingAverage(grad, beta1)
-            v = symjax.nn.schedules.ExponentialMovingAverage(
-                tensor.square(grad), beta2, init=numpy.ones(grad.shape)
-            )
+            m = symjax.nn.schedules.ExponentialMovingAverage(grad, beta1)[0]
+            v = symjax.nn.schedules.ExponentialMovingAverage(grad ** 2, beta2)[0]
             update = m / (tensor.sqrt(v) + epsilon)
             updates[param] = param - learning_rate * update
 

@@ -49,6 +49,11 @@ def download(path):
         url = "https://s3.amazonaws.com/fast-ai-imageclas/imagenette2.tgz"
         urllib.request.urlretrieve(url, path + "imagenette/imagenette2.tgz")
 
+        print("Extracting...")
+        tar = tarfile.open(path + "imagenette/imagenette2.tgz", "r:gz")
+        tar.extractall(path + "imagenette/")
+        tar.close()
+
 
 def load_image(tar, name):
     file = tar.extractfile(name)
@@ -85,15 +90,13 @@ def load(path=None, n_processes=6):
 
     t0 = time.time()
 
-    print("Extracting...")
-    tar = tarfile.open(path + "imagenette/imagenette2.tgz", "r:gz")
-    tar.extractall(path + "imagenette/")
-
     # Load train set
     train_images = list()
     train_labels = list()
     test_images = list()
     test_labels = list()
+
+    tar = tarfile.open(path + "imagenette/imagenette2.tgz", "r:gz")
 
     train_names = [
         name for name in tar.getnames() if "JPEG" in name and "train" in name
@@ -103,18 +106,29 @@ def load(path=None, n_processes=6):
     ]
 
     for name in tqdm(train_names, ascii=True, desc="Loading training set"):
-        train_images.append(matplotlib.image.imread(path + "imagenette/" + name))
+        image = matplotlib.image.imread(path + "imagenette/" + name)
+        if image.ndim == 2:
+            image = image[:, :, None] * np.ones((1, 1, 3))
+        train_images.append(image)
         train_labels.append(name.split("/")[2])
 
     for name in tqdm(test_names, ascii=True, desc="Loading test set"):
-        test_images.append(matplotlib.image.imread(path + "imagenette/" + name))
+        image = matplotlib.image.imread(path + "imagenette/" + name)
+        if image.ndim == 2:
+            image = image[:, :, None] * np.ones((1, 1, 3))
+        test_images.append(image)
         test_labels.append(name.split("/")[2])
+
+    train_labels = (np.unique(train_labels) == np.array(train_labels)[:, None]).argmax(
+        1
+    )
+    test_labels = (np.unique(test_labels) == np.array(test_labels)[:, None]).argmax(1)
 
     data = {
         "train_set/images": train_images,
-        "train_set/labels": train_labels,
+        "train_set/labels": train_labels.astype("int32"),
         "test_set/images": test_images,
-        "test_set/labels": test_labels,
+        "test_set/labels": test_labels.astype("int32"),
     }
 
     tar.close()
