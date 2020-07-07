@@ -28,7 +28,7 @@ rule to minimize some loss function
 
  .. code-block:: none
 
-    /home/vrael/anaconda3/lib/python3.7/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
+    /home/rbal/anaconda3/lib/python3.7/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
       warnings.warn('No GPU/TPU found, falling back to CPU.')
 
 
@@ -47,8 +47,8 @@ rule to minimize some loss function
     import matplotlib.pyplot as plt
 
     # GRADIENT DESCENT
-    z = T.Variable(3., dtype='float32')
-    loss = (z - 1)**2
+    z = T.Variable(3.0, dtype="float32")
+    loss = (z - 1) ** 2
     g_z = symjax.gradients(loss, [z])[0]
     symjax.current_graph().add({z: z - 0.1 * g_z})
 
@@ -57,8 +57,8 @@ rule to minimize some loss function
     losses = list()
     values = list()
     for i in range(200):
-        if (i+1) % 50 == 0:
-            symjax.reset_variables('*')
+        if (i + 1) % 50 == 0:
+            symjax.reset_variables("*")
         a, b = train()
         losses.append(a)
         values.append(b)
@@ -66,22 +66,22 @@ rule to minimize some loss function
     plt.figure()
 
     plt.subplot(121)
-    plt.plot(losses, '-x')
-    plt.ylabel('loss')
-    plt.xlabel('number of gradient updates')
+    plt.plot(losses, "-x")
+    plt.ylabel("loss")
+    plt.xlabel("number of gradient updates")
 
     plt.subplot(122)
-    plt.plot(values, '-x')
-    plt.axhline(1, c='red')
-    plt.ylabel('value')
-    plt.xlabel('number of gradient updates')
+    plt.plot(values, "-x")
+    plt.axhline(1, c="red")
+    plt.ylabel("value")
+    plt.xlabel("number of gradient updates")
 
     plt.tight_layout()
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.331 seconds)
+   **Total running time of the script:** ( 0 minutes  0.261 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_sgd.py:

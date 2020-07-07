@@ -10,13 +10,15 @@ from symjax import nn
 import symjax
 import numpy as np
 import matplotlib.pyplot as plt
+from symjax.data import mnist
+from symjax.data.utils import batchify
 
 import os
 
 os.environ["DATASET_PATH"] = "/home/vrael/DATASETS/"
 
 # load the dataset
-mnist = sj.data.mnist.load()
+mnist = mnist.load()
 
 # some renormalization
 mnist["train_set/images"] /= mnist["train_set/images"].max((1, 2, 3), keepdims=True)
@@ -31,12 +33,11 @@ deterministic = T.Placeholder((1,), "bool")
 
 layer = [nn.layers.Identity(images)]
 
-for l in range(1):
+for l in range(3):
     layer.append(nn.layers.Conv2D(layer[-1], 32, (3, 3), b=None, pad="SAME"))
     layer.append(nn.layers.BatchNormalization(layer[-1], [0, 2, 3], deterministic))
     layer.append(nn.layers.Lambda(layer[-1], nn.leaky_relu))
-    if l % 3 == 0:
-        layer.append(nn.layers.Pool2D(layer[-1], (2, 2)))
+    layer.append(nn.layers.Pool2D(layer[-1], (2, 2)))
 
 layer.append(nn.layers.Pool2D(layer[-1], layer[-1].shape[2:], pool_type="AVG"))
 layer.append(nn.layers.Dense(layer[-1], 10))
@@ -52,10 +53,6 @@ accuracy = nn.losses.accuracy(labels, layer[-1])
 
 lr = nn.schedules.PiecewiseConstant(0.01, {15: 0.001, 25: 0.0001})
 
-print(layer[-1].variables())
-print(loss.roots)
-symjax.gradients(loss, layer[-1].variables())
-asdf
 
 nn.optimizers.Adam(loss, lr)
 
@@ -73,7 +70,7 @@ test_accuracy = []
 
 for epoch in range(3):
     L = list()
-    for x, y in sj.data.batchify(
+    for x, y in batchify(
         mnist["test_set/images"],
         mnist["test_set/labels"],
         batch_size=BATCH_SIZE,
@@ -83,7 +80,7 @@ for epoch in range(3):
     print("Test Loss and Accu:", np.mean(L, 0))
     test_accuracy.append(np.mean(L, 0))
     L = list()
-    for x, y in sj.data.batchify(
+    for x, y in batchify(
         mnist["train_set/images"],
         mnist["train_set/labels"],
         batch_size=BATCH_SIZE,

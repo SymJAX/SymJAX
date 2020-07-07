@@ -23,12 +23,12 @@ tiem series regression and classification
 
  .. code-block:: none
 
-    Op(name=unnamed_36, shape=(3, 3), dtype=float32, scope=/)
-    [array([[560.7372 , 116.68406, 114.43712],
-           [116.68406, 460.00244, 199.66608],
-           [114.43712, 199.66608, 377.672  ]], dtype=float32), array([[94.008156, 61.892555, 52.221836],
-           [61.892555, 94.7868  , 67.029205],
-           [52.221836, 67.029205, 63.47615 ]], dtype=float32)]
+    Op(name=multiply_5, fn=multiply, shape=(3, 3), dtype=float32, scope=/main/)
+    [array([[470.34656, 130.98055, 121.41578],
+           [130.98055, 286.92584, 119.95546],
+           [121.41578, 119.95546, 354.4845 ]], dtype=float32), array([[73.38103 , 50.56332 , 47.07618 ],
+           [50.56332 , 54.44525 , 41.210915],
+           [47.07618 , 41.210915, 52.990795]], dtype=float32)]
 
 
 
@@ -43,14 +43,15 @@ tiem series regression and classification
     import numpy as np
     import symjax
     import symjax.tensor as T
+    import networkx as nx
 
 
     def RNTK_first_time_step(x, param):
         # this is for computing the first GP and RNTK for t = 1. Both for relu and erf
-        sw = param['sigmaw']
-        su = param['sigmau']
-        sb = param['sigmab']
-        sh = param['sigmah']
+        sw = param["sigmaw"]
+        su = param["sigmau"]
+        sb = param["sigmab"]
+        sh = param["sigmah"]
         X = x * x[:, None]
         print(X)
         n = X.shape[0]
@@ -60,10 +61,10 @@ tiem series regression and classification
 
 
     def RNTK_relu(x, RNTK_old, GP_old, param, output):
-        sw = param['sigmaw']
-        su = param['sigmau']
-        sb = param['sigmab']
-        sv = param['sigmav']
+        sw = param["sigmaw"]
+        su = param["sigmau"]
+        sb = param["sigmab"]
+        sv = param["sigmav"]
 
         a = T.diag(GP_old)  # GP_old is in R^{n*n} having the output gp kernel
         # of all pairs of data in the data set
@@ -76,24 +77,24 @@ tiem series regression and classification
         G = (np.pi - T.arccos(E)) / (2 * np.pi)
         if output:
             GP_new = sv ** 2 * F
-            RNTK_new = sv ** 2. * RNTK_old * G + GP_new
+            RNTK_new = sv ** 2.0 * RNTK_old * G + GP_new
         else:
             X = x * x[:, None]
             GP_new = sw ** 2 * F + (su ** 2 / m) * X + sb ** 2
-            RNTK_new = sw ** 2. * RNTK_old * G + GP_new
+            RNTK_new = sw ** 2.0 * RNTK_old * G + GP_new
         return RNTK_new, GP_new
 
 
     L = 10
     N = 3
-    DATA = T.Placeholder((N, L), 'float32')
+    DATA = T.Placeholder((N, L), "float32", name="data")
     # parameters
     param = {}
-    param['sigmaw'] = 1.33
-    param['sigmau'] = 1.45
-    param['sigmab'] = 1.2
-    param['sigmah'] = 0.4
-    param['sigmav'] = 2.34
+    param["sigmaw"] = 1.33
+    param["sigmau"] = 1.45
+    param["sigmab"] = 1.2
+    param["sigmah"] = 0.4
+    param["sigmav"] = 2.34
     m = 1
 
     # first time step
@@ -107,7 +108,6 @@ tiem series regression and classification
 
     f = symjax.function(DATA, outputs=[RNTK, GP])
 
-
     # three data of length T
     a = np.random.randn(L)
     b = np.random.randn(L)
@@ -118,7 +118,7 @@ tiem series regression and classification
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  2.008 seconds)
+   **Total running time of the script:** ( 0 minutes  2.566 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_datasets_plot_rntk.py:

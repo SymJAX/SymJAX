@@ -28,8 +28,8 @@ This example shows how to download/load/import CIFAR10
 
  .. code-block:: none
 
-    Loading cifar10:   0%|          | 0/5 [00:00<?, ?it/s]    Loading cifar10:  20%|##        | 1/5 [00:01<00:07,  1.97s/it]    Loading cifar10:  40%|####      | 2/5 [00:02<00:04,  1.58s/it]    Loading cifar10:  60%|######    | 3/5 [00:03<00:02,  1.25s/it]    Loading cifar10:  80%|########  | 4/5 [00:03<00:00,  1.08it/s]    Loading cifar10: 100%|##########| 5/5 [00:03<00:00,  1.19it/s]    Loading cifar10: 100%|##########| 5/5 [00:03<00:00,  1.27it/s]
-    Dataset cifar10 loaded in4.37s.
+    Loading cifar10:   0%|          | 0/5 [00:00<?, ?it/s]    Loading cifar10:  20%|##        | 1/5 [00:02<00:10,  2.61s/it]    Loading cifar10:  40%|####      | 2/5 [00:03<00:06,  2.09s/it]    Loading cifar10:  60%|######    | 3/5 [00:04<00:03,  1.67s/it]    Loading cifar10:  80%|########  | 4/5 [00:04<00:01,  1.24s/it]    Loading cifar10: 100%|##########| 5/5 [00:05<00:00,  1.13s/it]    Loading cifar10: 100%|##########| 5/5 [00:05<00:00,  1.06s/it]
+    Dataset cifar10 loaded in5.99s.
 
 
 
@@ -53,21 +53,22 @@ This example shows how to download/load/import CIFAR10
 
         plt.subplot(2, 5, 1 + i)
 
-        image = cifar10['train_set/images'][i]
-        label = cifar10['train_set/labels'][i]
+        image = cifar10["train_set/images"][i]
+        label = cifar10["train_set/labels"][i]
 
-        plt.imshow(image.transpose((1, 2, 0)) / image.max(), aspect='auto',
-                   cmap='Greys')
+        plt.imshow(
+            image.transpose((1, 2, 0)) / image.max(), aspect="auto", cmap="Greys"
+        )
         plt.xticks([])
         plt.yticks([])
-        plt.title('{}:{}'.format(label, cifar10['label_to_name'][label]))
+        plt.title("{}:{}".format(label, symjax.data.cifar10.label_to_name[label]))
 
     plt.tight_layout()
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  4.664 seconds)
+   **Total running time of the script:** ( 0 minutes  6.225 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_datasets_plot_cifar10.py:

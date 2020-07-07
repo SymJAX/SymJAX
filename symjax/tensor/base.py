@@ -1,11 +1,19 @@
 import re
 from functools import wraps
 
+import warnings
 import jax
 import jax.numpy as jnp
 import numpy
 
 import symjax
+
+
+def list2tuple(item):
+    if type(item) == list or type(item) == tuple and type(item) != slice:
+        return tuple([list2tuple(i) for i in item])
+    else:
+        return item
 
 
 def _add_method(cls):
@@ -149,6 +157,10 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
         else:
             op_name = None
 
+        args = list2tuple(args)
+        for i in kwargs:
+            kwargs[i] = list2tuple(kwargs[i])
+
         # first we check if we are in a random function to be careful
         # with the key
         from . import random
@@ -156,9 +168,11 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
         # this is just to get shape and dtype so we do not bother
         # to use the correct seed yet
         if func in random._RANDOM_FUNCTIONS:
-            args = (jax.random.PRNGKey(0),) + args
+            temp_args = (jax.random.PRNGKey(0),) + args
+        else:
+            temp_args = args
 
-        tree = get_output_tree(func, *args, **kwargs)
+        tree = get_output_tree(func, *temp_args, **kwargs)
 
         # now we determine if it is an Op or a Tuple object based on the
         # infered shape
@@ -307,7 +321,7 @@ class Tensor:
     def __init__(self, _shape, _dtype, name=None, **kwargs):
 
         self._shape = tuple(_shape)
-        self._dtype = _dtype
+        self._dtype = jax.dtypes.dtype(_dtype)
 
         if name is not None:
             assert "/" not in name
@@ -383,7 +397,6 @@ class Op(Tensor):
             args=args,
             kwargs=kwargs,
             jax_function=_jax_function,
-            **kwargs,
         )
 
     def __repr__(self):
@@ -540,10 +553,11 @@ class Variable(Tensor):
         self, initializer, name="unnamed_variable", trainable=True, dtype=None
     ):
 
+        if trainable and dtype == "bool":
+            raise RuntimeError("error impossible learning with dtype bool")
         self.trainable = trainable
         self.initializer = initializer
         self._dtype = dtype
-
         super().__init__(self.value.shape, str(self.value.dtype), name=name)
 
     def reset(self):
@@ -572,8 +586,28 @@ class Variable(Tensor):
 
     def update(self, update_value):
         """assign a new value for the variable"""
+        new_value = symjax.current_graph().get(update_value)
 
-        self._value = symjax.current_graph().get(update_value)
+        if self.shape != jax.numpy.shape(new_value):
+            warnings.warn(
+                "Variable and update {} {}".format(self, new_value)
+                + "are not the same shape... attempting to reshape"
+            )
+            new_value = jax.numpy.reshape(new_value, self.shape)
+
+        if hasattr(new_value, "dtype"):
+            ntype = new_value.dtype
+        else:
+            ntype = type(new_value)
+        if self.dtype != ntype:
+            warnings.warn(
+                "Variable and update {}and {}".format(self, new_value)
+                + "are not the same dtype... attempting to cast"
+            )
+
+            new_value = jax.numpy.asarray(new_value).astype(self.dtype)
+
+        self._value = new_value
 
     def __repr__(self):
         name = "Variable(name={}, shape={}, dtype={}, trainable={}, scope={})"

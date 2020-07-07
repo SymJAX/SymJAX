@@ -26,6 +26,6 @@ for i in range(10):
     plt.imshow(image.transpose((1, 2, 0)) / image.max(), aspect="auto", cmap="Greys")
     plt.xticks([])
     plt.yticks([])
-    plt.title("{}:{}".format(label, cifar10["label_to_name"][label]))
+    plt.title("{}:{}".format(label, symjax.data.cifar10.label_to_name[label]))
 
 plt.tight_layout()

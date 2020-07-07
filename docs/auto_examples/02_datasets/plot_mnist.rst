@@ -29,7 +29,7 @@ This example shows how to download/load/import MNIST
  .. code-block:: none
 
     Loading mnist
-    Dataset mnist loaded in 0.61s.
+    Dataset mnist loaded in 0.99s.
 
 
 
@@ -51,17 +51,17 @@ This example shows how to download/load/import MNIST
     plt.figure(figsize=(10, 4))
     for i in range(10):
         plt.subplot(2, 5, 1 + i)
-        plt.imshow(mnist['train_set/images'][i, 0], aspect='auto', cmap='Greys')
+        plt.imshow(mnist["train_set/images"][i, 0], aspect="auto", cmap="Greys")
         plt.xticks([])
         plt.yticks([])
-        plt.title(str(mnist['train_set/labels'][i]))
+        plt.title(str(mnist["train_set/labels"][i]))
 
     plt.tight_layout()
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.773 seconds)
+   **Total running time of the script:** ( 0 minutes  1.169 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_datasets_plot_mnist.py:

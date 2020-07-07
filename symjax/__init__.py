@@ -13,6 +13,6 @@ __version__ = get_versions()["version"]
 del get_versions
 
 
-_graphs = [Graph("")]
+_graphs = [Graph("default")]
 
 __all__ = ["data", "tensor", "nn", "probabilities"]

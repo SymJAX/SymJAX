@@ -6,6 +6,7 @@ import jax.lax as jla
 import jax.numpy as jnp
 import numpy
 
+from . import ops_numpy as T
 from .base import jax_wrap
 from ..nn.ops_nn import relu
 
@@ -128,8 +129,7 @@ def one_hot(i, N, dtype="float32"):
     if hasattr(i, "shape"):
         return (x[:, None] == arange(k)).astype(dtype)
     else:
-        z = zeros(N, dtype)
-        print(i, N)
+        z = T.zeros(N, dtype)
         return index_add(z, i, 1)
 
 

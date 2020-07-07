@@ -43,10 +43,10 @@ def normal(shape, mean=0.0, std=1.0):
 
     Parameters
     ----------
-    
+
     std: float
         Std of initial parameters.
-    
+
     mean: float
         Mean of initial parameters.
         :param shape:
@@ -65,17 +65,27 @@ def orthogonal(shape, gain=1):
     return gain * q
 
 
-def _compute_fans(shape, in_axis=0, out_axis=1):
-    print(shape)
-    receptive_field_size = np.prod(shape) / (shape[in_axis] * shape[out_axis])
-    fan_in = shape[in_axis] * receptive_field_size
-    fan_out = shape[out_axis] * receptive_field_size
+def _compute_fans(shape, in_axis, out_axis):
+    fan_in = np.prod([shape[i] for i in in_axis])
+    fan_out = np.prod([shape[i] for i in out_axis])
     return fan_in, fan_out
 
 
-def variance_scaling(mode, shape, gain, distribution=normal, in_axis=0, out_axis=1):
+def variance_scaling(
+    mode, shape, gain, distribution=normal, in_axis=None, out_axis=None
+):
     """Variance Scaling initialization.
     """
+
+    if in_axis is None:
+        if len(shape) == 2:
+            in_axis = [0]
+        else:
+            in_axis = list(range(1, len(shape)))
+
+    if out_axis is None:
+        out_axis = [i for i in range(len(shape)) if i not in in_axis]
+
     if len(shape) < 2:
         raise RuntimeError("This initializer only works with shapes of length >= 2")
 
@@ -94,42 +104,42 @@ def variance_scaling(mode, shape, gain, distribution=normal, in_axis=0, out_axis
     return distribution(shape, std=std)
 
 
-def glorot(shape, gain=1, distribution=normal, in_axis=0, out_axis=1):
+def glorot(shape, gain=1, distribution=normal, in_axis=None, out_axis=None):
     """Glorot weight initialization.
 
     This is also known as Xavier initialization [1]_.
 
     Parameters
     ----------
-    
+
     initializer: lasagne.init.Initializer
         Initializer used to sample the weights, must accept `std` in its
         constructor to sample from a distribution with a given standard
         deviation.
-    
+
     gain: float or 'relu'
         Scaling factor for the weights. Set this to ``1.0`` for linear and
         sigmoid units, to 'relu' or ``sqrt(2)`` for rectified linear units, and
         to ``sqrt(2/(1+alpha**2))`` for leaky rectified linear units with
         leakiness ``alpha``. Other transfer functions may need different
         factors.
-    
+
     c01b: bool
         For a :class:`lasagne.layers.cuda_convnet.Conv2DCCLayer` constructed
         with ``dimshuffle=False``, `c01b` must be set to ``True`` to compute
         the correct fan-in and fan-out.
-    
+
     References
     ----------
-    
+
     .. [1] Xavier Glorot and Yoshua Bengio (2010):
            Understanding the difficulty of training deep feedforward neural
            networks. International conference on artificial intelligence and
            statistics.
-    
+
     Notes
     -----
-    
+
     For a :class:`DenseLayer <lasagne.layers.DenseLayer>`, if ``gain='relu'``
     and ``initializer=Uniform``, the weights are initialized as
     .. math::
@@ -148,11 +158,11 @@ def glorot(shape, gain=1, distribution=normal, in_axis=0, out_axis=1):
         raise RuntimeError("This initializer only works with shapes of length >= 2")
 
     return variance_scaling(
-        "fan_avg", shape, gain, distribution, in_axis=in_axis, out_axis=out_axis
+        "fan_avg", shape, gain, distribution, in_axis=in_axis, out_axis=out_axis,
     )
 
 
-def he(shape, gain=np.sqrt(2), distribution=normal, in_axis=0, out_axis=1):
+def he(shape, gain=np.sqrt(2), distribution=normal, in_axis=None, out_axis=None):
     """He weight initialization.
     Weights are initialized with a standard deviation of
     :param shape:
@@ -160,37 +170,37 @@ def he(shape, gain=np.sqrt(2), distribution=normal, in_axis=0, out_axis=1):
     :param in_axis:
     :param out_axis:
     :math:`\\sigma = gain \\sqrt{\\frac{1}{fan_{in}}}` [1]_.
-    
+
     Parameters
     ----------
-    
+
     initializer : lasagne.init.Initializer
         Initializer used to sample the weights, must accept `std` in its
         constructor to sample from a distribution with a given standard
         deviation.
-    
+
     gain : float or 'relu'
         Scaling factor for the weights. Set this to ``1.0`` for linear and
         sigmoid units, to 'relu' or ``sqrt(2)`` for rectified linear units, and
         to ``sqrt(2/(1+alpha**2))`` for leaky rectified linear units with
         leakiness ``alpha``. Other transfer functions may need different
         factors.
-    
+
     c01b : bool
         For a :class:`lasagne.layers.cuda_convnet.Conv2DCCLayer` constructed
         with ``dimshuffle=False``, `c01b` must be set to ``True`` to compute
         the correct fan-in and fan-out.
-    
+
     References
     ----------
-    
+
     .. [1] Kaiming He et al. (2015):
            Delving deep into rectifiers: Surpassing human-level performance on
            imagenet classification. arXiv preprint arXiv:1502.01852.
-    
+
     See Also
     ----------
-    
+
     HeNormal  : Shortcut with Gaussian initializer.
     HeUniform : Shortcut with uniform initializer.
     """
@@ -199,7 +209,7 @@ def he(shape, gain=np.sqrt(2), distribution=normal, in_axis=0, out_axis=1):
     )
 
 
-def lecun(shape, gain=1.0, distribution=normal, in_axis=0, out_axis=1):
+def lecun(shape, gain=1.0, distribution=normal, in_axis=None, out_axis=None):
     """LeCun weight initialization.
     Weights are initialized with a standard deviation of
     :math:`\\sigma = gain \\sqrt{\\frac{1}{fan_{in}}}`.
