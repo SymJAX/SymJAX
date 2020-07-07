@@ -116,9 +116,7 @@ def load(path=None, n_processes=6):
         name for name in tar.getnames() if "JPEG" in name and "train" in name
     ]
     test_names = [
-        name
-        for name in tar.getnames()
-        if "JPEG" in name and "train" not in name
+        name for name in tar.getnames() if "JPEG" in name and "train" not in name
     ]
 
     for name in tqdm(train_names, ascii=True, desc="Loading training set"):
@@ -135,12 +133,10 @@ def load(path=None, n_processes=6):
         test_images.append(image)
         test_labels.append(name.split("/")[2])
 
-    train_labels = (
-        np.unique(train_labels) == np.array(train_labels)[:, None]
-    ).argmax(1)
-    test_labels = (
-        np.unique(test_labels) == np.array(test_labels)[:, None]
-    ).argmax(1)
+    train_labels = (np.unique(train_labels) == np.array(train_labels)[:, None]).argmax(
+        1
+    )
+    test_labels = (np.unique(test_labels) == np.array(test_labels)[:, None]).argmax(1)
 
     data = {
         "train_set/images": train_images,

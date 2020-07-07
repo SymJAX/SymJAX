@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 # GRADIENT DESCENT
 z = T.Variable(3.0, dtype="float32", trainable=True)
-loss = T.power(z - 1, 2, name='loss')
+loss = T.power(z - 1, 2, name="loss")
 print(loss)
 Adam(loss, 0.1)
 

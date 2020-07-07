@@ -149,9 +149,7 @@ class Graph(nx.DiGraph):
                     if n in branch:
                         continue
                     args, kwargs = self._get_args_kwargs(n, evaluate=False)
-                    args = [
-                        branch[arg] if arg in branch else arg for arg in args
-                    ]
+                    args = [branch[arg] if arg in branch else arg for arg in args]
                     for arg in kwargs.keys():
                         if arg in branch:
                             kwargs[arg] = branch[arg]
@@ -197,9 +195,7 @@ class Graph(nx.DiGraph):
 
         elif isinstance(item, t.Placeholder):
             if item not in tracker:
-                raise ValueError(
-                    " no value given for placeholder {}".format(item)
-                )
+                raise ValueError(" no value given for placeholder {}".format(item))
 
         elif isinstance(item, t.Variable) or type(item) == t.Constant:
             tracker[item] = item.value
@@ -242,9 +238,7 @@ class Graph(nx.DiGraph):
             assert tracker is not None
 
             all_args = {
-                self.get_edge_data(parent, node)["name"]: self.get(
-                    parent, tracker
-                )
+                self.get_edge_data(parent, node)["name"]: self.get(parent, tracker)
                 for parent in self.predecessors(node)
             }
         else:
@@ -349,8 +343,7 @@ class Scope:
         cpt = 0
         if current + self.name + "/" in self.graph._scopes_history:
             while (
-                current + self.name + "_{}/".format(cpt)
-                in self.graph._scopes_history
+                current + self.name + "_{}/".format(cpt) in self.graph._scopes_history
             ):
                 cpt += 1
             self.name += "_{}".format(cpt)
@@ -371,8 +364,7 @@ class Scope:
     def save_variables(self, path):
         """Save graph."""
         numpy.savez(
-            path,
-            **dict([(v.name, symjax.tensor.get(v)) for v in self.variables])
+            path, **dict([(v.name, symjax.tensor.get(v)) for v in self.variables])
         )
 
     @property
@@ -614,9 +606,7 @@ def gradients(scalar, variables):
     if numpy.prod(scalar.shape) != 1:
         raise RuntimeError("the variable to differentiate is not a scalar")
     if not isinstance(scalar, t.Tensor):
-        raise RuntimeError(
-            "the variable used in gradients should be a Tensor type"
-        )
+        raise RuntimeError("the variable used in gradients should be a Tensor type")
 
     if scalar.shape != ():
         scalar = scalar.sum()
@@ -644,9 +634,7 @@ def gradients(scalar, variables):
     # to the scalar varible s.t. automatic diffenrentiation can be applied
 
     def fn(*args):
-        return current_graph().get(
-            scalar, dict(zip(input_variables, list(args)))
-        )
+        return current_graph().get(scalar, dict(zip(input_variables, list(args))))
 
     # now we obtain the grad function. In fact, Jax returns a function that,
     # when it is called, returns the gradient values, this function is then
@@ -828,9 +816,7 @@ class function:
         non_givens = set(placeholders_in_root) - set(self.classargs)
         if len(non_givens) > 0:
             raise RuntimeError(
-                "Missing placeholders form the function inputs: {}".format(
-                    non_givens
-                )
+                "Missing placeholders form the function inputs: {}".format(non_givens)
             )
 
         # the roots are made of variables, random tensors, placeholders. We
@@ -870,10 +856,7 @@ class function:
             assert len(fnargs) == len(self.classargs)
             for fnarg, classarg in zip(fnargs, self.classargs):
                 if hasattr(fnarg, "shape"):
-                    if (
-                        fnarg.shape != classarg.shape
-                        and 0 not in classarg.shape
-                    ):
+                    if fnarg.shape != classarg.shape and 0 not in classarg.shape:
                         raise RuntimeError(
                             "wrong input given for {}".format(classarg)
                             + ", given is {}".format(fnarg)
@@ -884,9 +867,7 @@ class function:
             jited_add_inputs = symjax.current_graph().get(
                 self.updates_keys + self.extra_inputs, tracker={"rng": rng}
             )
-            jitoutputs, jitupdates = self.jited(
-                *fnargs, *jited_add_inputs, seed=rng
-            )
+            jitoutputs, jitupdates = self.jited(*fnargs, *jited_add_inputs, seed=rng)
             for key, update in zip(self.updates_keys, jitupdates):
                 key.update(update)
 
@@ -913,9 +894,7 @@ class function:
         if rng is None:
             rng = random._seed
             random._seed += 1
-        pargs = [
-            numpy.array(arg) if type(arg) == list else arg for arg in args
-        ]
+        pargs = [numpy.array(arg) if type(arg) == list else arg for arg in args]
         outputs = self.meta(*pargs, rng=rng)
         if type(outputs) == list:
             if len(outputs) == 0:

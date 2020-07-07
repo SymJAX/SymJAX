@@ -21,9 +21,7 @@ def test_bn():
 
     bn = nn.layers.BatchNormalization(input, [1], deterministic=deterministic)
 
-    update = symjax.function(
-        input, deterministic, outputs=bn, updates=sj.get_updates()
-    )
+    update = symjax.function(input, deterministic, outputs=bn, updates=sj.get_updates())
     get_output = symjax.function(input, deterministic, outputs=bn)
     get_stats = symjax.function(input, outputs=bn.avg_mean)
 
