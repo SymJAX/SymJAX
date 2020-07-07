@@ -127,6 +127,8 @@ class Graph(nx.DiGraph):
             for node in nodes:
                 self.roots(node, roots)
         else:
+            if self.nodes[nodes]["root"]:
+                roots.append(nodes)
             for i in nx.algorithms.ancestors(self, nodes):
                 if self.nodes[i]["root"]:
                     roots.append(i)
@@ -806,20 +808,21 @@ class function:
         # underlying functions otherwise they are treated as constants
         # and any change in their value will not appear when running the
         # function
-        outs = list(updates.values())
-        outs += [outputs] if isinstance(outputs, t.Tensor) else outputs
-        self.all_roots = set(symjax.current_graph().roots(outs))
+        self.updates_keys = list(updates.keys())
+        self.updates_values = list(updates.values())
         self.classargs = classargs
         self.outputs = outputs
-        items = list(updates.items())
-        self.updates.keys() = [item[0] for item in items]
-        self.updates_values = [item[1] for item in items]
+
+        outs = self.updates_values
+        outs += [outputs] if isinstance(outputs, t.Tensor) else outputs
+
+        self.all_roots = set(symjax.current_graph().roots(outs))
 
         # check the function inputs, they must be at least contain all the
         # placeholders needed to compute the outputs values
-        placeholders_in_root = filter(
-            lambda x: isinstance(x, t.Placeholder), self.all_roots
-        )
+        placeholders_in_root = [
+            x for x in self.all_roots if isinstance(x, t.Placeholder)
+        ]
 
         # check for
         non_givens = set(placeholders_in_root) - set(self.classargs)
@@ -835,11 +838,12 @@ class function:
         # function. Now we must ensure that the other ones will also be given
         # as inputs to not be treated as constants by jax.
         # we also remove update keys because we will expicitly feed them
-        self.extra_inputs = set(self.all_roots) - (
-            set(self.classargs).union(updates.keys())
+        self.extra_inputs = set(self.all_roots) - set(self.classargs).union(
+            self.updates_keys
         )
+
         self.extra_inputs = list(self.extra_inputs)
-        allargs = list(self.classargs) + updates.keys() + self.extra_inputs
+        allargs = list(self.classargs) + self.updates_keys + self.extra_inputs
 
         def to_jit(*jitargs, seed):
 
@@ -862,7 +866,6 @@ class function:
         # define the frontend function that takes as input the inputs variables
         # and internally compute and update the variables from updates if any
         def meta(*fnargs, rng):
-
             # ensure that the number of arguments is correct
             assert len(fnargs) == len(self.classargs)
             for fnarg, classarg in zip(fnargs, self.classargs):
@@ -879,14 +882,13 @@ class function:
 
             # retreive the function outputs, updated values and apply them
             jited_add_inputs = symjax.current_graph().get(
-                updates.keys() + self.extra_inputs, tracker={"rng": rng}
+                self.updates_keys + self.extra_inputs, tracker={"rng": rng}
             )
             jitoutputs, jitupdates = self.jited(
                 *fnargs, *jited_add_inputs, seed=rng
             )
-            for key, update in zip(updates.keys(), jitupdates):
+            for key, update in zip(self.updates_keys, jitupdates):
                 key.update(update)
-                print(key, update)
 
             if type(jitoutputs) == list or type(jitoutputs) == tuple:
                 npy_jitoutputs = [
