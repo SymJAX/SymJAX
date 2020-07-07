@@ -34,6 +34,12 @@ def current_graph():
 class Graph(nx.DiGraph):
     def __init__(self, name, *args, **kwargs):
 
+        super().__init__(*args, **kwargs)
+        self._name = name
+        self.reset()
+
+    def reset(self):
+        self.clear()
         self._current_scope = "/"
         self._scopes = [Scope("main", graph=self)]
         self._variables = {}
@@ -42,7 +48,26 @@ class Graph(nx.DiGraph):
         self._ops = {}
         self._scopes_history = []
 
-        super().__init__(*args, name=name, **kwargs)
+    def __repr__(self):
+        msg = "Graph(name:{}, n_edges:{}, n_nodes:{})".format(
+            self.name, self.n_edges, self.n_nodes
+        )
+        return msg
+
+    def __str__(self):
+        return self.__repr__()
+
+    @property
+    def n_nodes(self):
+        return len(self.nodes)
+
+    @property
+    def n_edges(self):
+        return len(self.edges)
+
+    @property
+    def name(self):
+        return self._name
 
     def add(self, tensor, branch=None, **kwargs):
 
@@ -814,6 +839,10 @@ class function:
 
         # check for
         non_givens = set(placeholders_in_root) - set(self.classargs)
+        print("non", non_givens)
+        print(set(placeholders_in_root), set(self.classargs))
+        print("outs", outs)
+
         if len(non_givens) > 0:
             raise RuntimeError(
                 "Missing placeholders form the function inputs: {}".format(non_givens)

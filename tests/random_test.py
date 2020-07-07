@@ -5,11 +5,6 @@ __author__ = "Randall Balestriero"
 
 
 import symjax
-import numpy as np
-import symjax.tensor as tt
-import jax
-import jax.numpy as jnp
-import jax.scipy as jsp
 
 
 def test_base():

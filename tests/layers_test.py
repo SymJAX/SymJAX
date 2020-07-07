@@ -9,21 +9,20 @@ example of batch-normalization classification
 import symjax.tensor as T
 import symjax as sj
 from symjax import nn
-import symjax
 import numpy as np
 
 
 def test_bn():
+    sj.current_graph().reset()
     BATCH_SIZE = 5
     DIM = 2
     input = T.Placeholder((BATCH_SIZE, DIM), "float32", name="input")
-    deterministic = T.Placeholder((1,), "bool")
+    deterministic = T.Placeholder((1,), "bool", name="deterministic")
 
     bn = nn.layers.BatchNormalization(input, [1], deterministic=deterministic)
 
-    update = symjax.function(input, deterministic, outputs=bn, updates=sj.get_updates())
-    get_output = symjax.function(input, deterministic, outputs=bn)
-    get_stats = symjax.function(input, outputs=bn.avg_mean)
+    update = sj.function(input, deterministic, outputs=bn, updates=sj.get_updates())
+    get_stats = sj.function(input, outputs=bn.avg_mean)
 
     data = np.random.randn(50, DIM) * 4 + 2
 
@@ -34,7 +33,7 @@ def test_bn():
         batch = data[BATCH_SIZE * i : BATCH_SIZE * (i + 1)]
         output = update(batch, 0)
         assert np.allclose(
-            output, (batch - batch.mean(0)) / (1e-4 + batch.std(0)), 1e-5
+            output, (batch - batch.mean(0)) / (1e-4 + batch.std(0)), 1e-4
         )
         actual_means.append(get_stats(batch))
         if i == 0:
@@ -45,4 +44,7 @@ def test_bn():
     true_means = np.array(true_means)
     actual_means = np.array(actual_means).squeeze()
 
-    assert np.allclose(true_means, actual_means, 1e-6)
+    assert np.allclose(true_means, actual_means, 1e-4)
+
+
+test_bn()

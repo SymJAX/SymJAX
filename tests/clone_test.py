@@ -10,6 +10,7 @@ import symjax.tensor as T
 
 
 def test_clone_0():
+    sj.current_graph().reset()
     w = T.Variable(1.0, dtype="float32")
     with sj.Scope("placing"):
         u = T.Placeholder((), "float32", name="u")
@@ -22,6 +23,7 @@ def test_clone_0():
 
 
 def test_clone_base():
+    sj.current_graph().reset()
     w = T.Variable(1.0, dtype="float32")
     w2 = T.Variable(1.0, dtype="float32")
     u = T.Placeholder((), "float32", name="u")

@@ -4,10 +4,12 @@
 __author__ = "Randall Balestriero"
 
 import symjax
+import symjax as sj
 import numpy as np
 
 
 def test_reset():
+    sj.current_graph().reset()
     w = symjax.tensor.Variable(1.0, name="w", dtype="float32")
     x = symjax.tensor.Variable(2.0, name="x", dtype="float32")
     f = symjax.function(outputs=[w, x], updates={w: w + 1, x: x + 1})
@@ -24,6 +26,7 @@ def test_reset():
 
 
 def test_accessing_variables():
+    sj.current_graph().reset()
     w1 = symjax.tensor.Variable(1.0, trainable=True)
     w2 = symjax.tensor.Variable(1.0, trainable=True)
     w3 = symjax.tensor.Variable(1.0, trainable=False)
@@ -39,6 +42,7 @@ def test_accessing_variables():
 
 
 def test_updating_variables():
+    sj.current_graph().reset()
     w1 = symjax.tensor.Variable(1.0, dtype="float32")
     input = symjax.tensor.Placeholder((), "float32")
     update = w1 + input + 1
@@ -50,6 +54,7 @@ def test_updating_variables():
 
 
 def test_update():
+    sj.current_graph().reset()
     w = symjax.tensor.zeros(10)
     for i in range(10):
         w = symjax.tensor.index_update(w, i, i)

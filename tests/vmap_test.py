@@ -4,9 +4,11 @@
 import numpy as np
 
 import symjax
+import symjax as sj
 
 
 def test_vectorize():
+    sj.current_graph().reset()
     x = symjax.tensor.Placeholder((0, 2), "float32")
     w = symjax.tensor.Variable(1.0, dtype="float32")
     p = x.sum(1)
@@ -20,6 +22,7 @@ def test_vectorize():
 
 
 def test_vectorize_sgd():
+    sj.current_graph().reset()
     x = symjax.tensor.Placeholder((0, 2), "float32")
     y = symjax.tensor.Placeholder((0,), "float32")
 

@@ -11,6 +11,7 @@ import networkx as nx
 
 
 def test_map():
+    sj.current_graph().reset()
     w = T.Variable(1.0, dtype="float32")
     u = T.Placeholder((), "float32")
     out = T.map(lambda a, w, u: (u - w) * a, [T.range(3)], non_sequences=[w, u])
@@ -21,6 +22,7 @@ def test_map():
 
 
 def test_grad_map():
+    sj.current_graph().reset()
     w = T.Variable(1.0, dtype="float32")
     u = T.Placeholder((), "float32", name="u")
     out = T.map(lambda a, w, u: w * a * u, (T.range(3),), non_sequences=(w, u))
@@ -32,6 +34,7 @@ def test_grad_map():
 
 
 def test_grad_map_v2():
+    sj.current_graph().reset()
     out = T.map(lambda a, b: a * b, (T.range(3), T.range(3)))
     f = sj.function(outputs=out)
 
@@ -39,6 +42,7 @@ def test_grad_map_v2():
 
 
 def test_while():
+    sj.current_graph().reset()
     w = T.Variable(1.0, dtype="float32")
     v = T.Placeholder((), "float32")
     out = T.while_loop(
