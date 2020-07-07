@@ -839,10 +839,6 @@ class function:
 
         # check for
         non_givens = set(placeholders_in_root) - set(self.classargs)
-        print("non", non_givens)
-        print(set(placeholders_in_root), set(self.classargs))
-        print("outs", outs)
-
         if len(non_givens) > 0:
             raise RuntimeError(
                 "Missing placeholders form the function inputs: {}".format(non_givens)

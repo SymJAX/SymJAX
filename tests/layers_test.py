@@ -47,4 +47,28 @@ def test_bn():
     assert np.allclose(true_means, actual_means, 1e-4)
 
 
+def test_dropout():
+    np.random.seed(0)
+    sj.current_graph().reset()
+    BATCH_SIZE = 2048
+    DIM = 8
+    input = T.Placeholder((BATCH_SIZE, DIM), "float32", name="input")
+    deterministic = T.Placeholder((1,), "bool", name="deterministic")
+
+    bn = nn.layers.Dropout(input, p=0.2, deterministic=deterministic)
+
+    update = sj.function(input, deterministic, outputs=bn)
+
+    data = np.ones((BATCH_SIZE, DIM))
+
+    output1 = update(data, 0)
+    output2 = update(data, 0)
+    output3 = update(data, 1)
+
+    assert not np.allclose(output1, output2, 1e-1)
+    assert np.allclose(output1.mean(0) / 2 + output2.mean(0) / 2, 0.2, 0.05)
+    assert np.all(output3)
+
+
 test_bn()
+test_dropout()
