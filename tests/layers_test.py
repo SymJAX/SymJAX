@@ -70,5 +70,32 @@ def test_dropout():
     assert np.all(output3)
 
 
-test_bn()
-test_dropout()
+def test_flip():
+    np.random.seed(0)
+    sj.current_graph().reset()
+    BATCH_SIZE = 2048
+    DIM = 8
+    input = T.Placeholder((BATCH_SIZE, DIM, DIM), "float32", name="input")
+    deterministic = T.Placeholder((1,), "bool", name="deterministic")
+
+    bn = nn.layers.RandomFlip(input, axis=2, p=0.5, deterministic=deterministic)
+
+    update = sj.function(input, deterministic, outputs=bn)
+
+    data = np.ones((BATCH_SIZE, DIM, DIM))
+    data[:, :, : DIM // 2] = 0
+
+    output1 = update(data, 0)
+    output2 = update(data, 0)
+    output3 = update(data, 1)
+
+    assert not np.allclose(output1, output2, 1e-1)
+    assert np.allclose(output1.mean(0) / 2 + output2.mean(0) / 2, 0.5, 0.05)
+    assert np.allclose(data, output3, 1e-6)
+
+
+if __name__ == "__main__":
+
+    test_bn()
+    test_flip()
+    test_dropout()
