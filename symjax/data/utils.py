@@ -312,10 +312,12 @@ def values_to_boundary(x, duplicate=0):
         np.pad(np.abs(x[:, 1:] - x[:, :-1]), [[0, 0], [1, 0]], "constant"), 0
     )
     g_diagonaldo = np.greater(
-        np.pad(np.abs(x[1:, 1:] - x[:-1, :-1]), [[1, 0], [1, 0]], "constant"), 0,
+        np.pad(np.abs(x[1:, 1:] - x[:-1, :-1]), [[1, 0], [1, 0]], "constant"),
+        0,
     )
     g_diagonalup = np.greater(
-        np.pad(np.abs(x[:-1:, 1:] - x[1:, :-1]), [[1, 0], [1, 0]], "constant"), 0,
+        np.pad(np.abs(x[:-1:, 1:] - x[1:, :-1]), [[1, 0], [1, 0]], "constant"),
+        0,
     )
     overall = g_vertical + g_horizontal + g_diagonaldo + g_diagonalup
     if duplicate > 0:
@@ -392,7 +394,8 @@ def resample_images(
 
     if data_format == "channels_first":
         output_images = np.zeros(
-            (len(images), images[0].shape[0]) + target_shape, dtype=images[0].dtype,
+            (len(images), images[0].shape[0]) + target_shape,
+            dtype=images[0].dtype,
         )
     else:
         output_images = np.zeros(
@@ -410,15 +413,18 @@ def resample_images(
             width_change = target_shape[1] / image.shape[2]
             height_change = target_shape[0] / image.shape[1]
             change = min(width_change, height_change)
-
-        x = np.linspace(0, image.shape[1] - 1, int(np.ceil(image.shape[1] * change)))
-        y = np.linspace(0, image.shape[2] - 1, int(np.ceil(image.shape[2] * change)))
+        x = np.linspace(0, image.shape[1] - 1, int(image.shape[1] * change))
+        y = np.linspace(0, image.shape[2] - 1, int(image.shape[2] * change))
         coordinates = np.stack(np.meshgrid(x, y))
-        coordinates = np.stack([coordinates[0].reshape(-1), coordinates[1].reshape(-1)])
+        coordinates = np.stack(
+            [coordinates[0].reshape(-1), coordinates[1].reshape(-1)]
+        )
 
         new_image = np.stack(
             [
-                ndimage.map_coordinates(channel, coordinates, order=order, mode=mode)
+                ndimage.map_coordinates(
+                    channel, coordinates, order=order, mode=mode
+                )
                 .reshape((len(y), len(x)))
                 .T
                 for channel in image

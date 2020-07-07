@@ -25,6 +25,20 @@ inauthentic French accent. If you've seen Peter Sellars in The Pink Panther,
 """
 
 
+imagenette_map = {
+    "n01440764": "tench",
+    "n02102040": "springer",
+    "n02979186": "casette_player",
+    "n03000684": "chain_saw",
+    "n03028079": "church",
+    "n03394916": "French_horn",
+    "n03417042": "garbage_truck",
+    "n03425413": "gas_pump",
+    "n03445777": "golf_ball",
+    "n03888257": "parachute",
+}
+
+
 def download(path):
     """
     Download the MNIST dataset and store the result into the given
@@ -102,7 +116,9 @@ def load(path=None, n_processes=6):
         name for name in tar.getnames() if "JPEG" in name and "train" in name
     ]
     test_names = [
-        name for name in tar.getnames() if "JPEG" in name and "train" not in name
+        name
+        for name in tar.getnames()
+        if "JPEG" in name and "train" not in name
     ]
 
     for name in tqdm(train_names, ascii=True, desc="Loading training set"):
@@ -119,10 +135,12 @@ def load(path=None, n_processes=6):
         test_images.append(image)
         test_labels.append(name.split("/")[2])
 
-    train_labels = (np.unique(train_labels) == np.array(train_labels)[:, None]).argmax(
-        1
-    )
-    test_labels = (np.unique(test_labels) == np.array(test_labels)[:, None]).argmax(1)
+    train_labels = (
+        np.unique(train_labels) == np.array(train_labels)[:, None]
+    ).argmax(1)
+    test_labels = (
+        np.unique(test_labels) == np.array(test_labels)[:, None]
+    ).argmax(1)
 
     data = {
         "train_set/images": train_images,
