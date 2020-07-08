@@ -503,25 +503,18 @@ def reset_variables(name="*", trainable=None):
 
     """
 
-    variables = get_variables(name, trainable)
+    variables = get_variables(name, trainable=trainable)
     for var in variables:
         var.reset()
 
 
-def save_variables(name, path):
+def save_variables(
+    name, path, scope="*", trainable=None,
+):
     """Save graph."""
-    matched = fnmatch.filter(symjax._variables.keys(), name)
+    variables = get_variables(name, scope, trainable)
     numpy.savez(
-        path,
-        **dict(
-            [
-                (
-                    symjax._variables[v].scope + symjax._variables[v].name,
-                    symjax.tensor.get(symjax._variables[v]),
-                )
-                for v in matched
-            ]
-        )
+        path, **dict([(v.scope + v.name, symjax.tensor.get(v),) for v in variables])
     )
 
 
