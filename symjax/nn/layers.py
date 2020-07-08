@@ -77,7 +77,9 @@ class Layer(T.Op):
             tensor = tensor_or_func(shape=shape).astype(dtype)
         return tensor
 
-    def create_variable(self, name, tensor_or_func, shape, trainable, dtype=None):
+    def create_variable(
+        self, name, tensor_or_func, shape, trainable, dtype=None
+    ):
         if tensor_or_func is None:
             self.__dict__[name] = None
             return
@@ -133,7 +135,9 @@ class Upsample2D(Layer):
         p1 = T.upsample_1d(
             input, repeat=repeat[0], axis=axis[0], mode=mode, value=value,
         )
-        p2 = T.upsample_1d(p1, repeat=repeat[1], axis=axis[1], mode=mode, value=value,)
+        p2 = T.upsample_1d(
+            p1, repeat=repeat[1], axis=axis[1], mode=mode, value=value,
+        )
         return p2
 
 
@@ -157,12 +161,17 @@ class Dense(Layer):
     ):
 
         self.create_variable(
-            "W", W, (numpy.prod(input.shape[1:]), units), trainable=trainable_W,
+            "W",
+            W,
+            (numpy.prod(input.shape[1:]), units),
+            trainable=trainable_W,
         )
         self.create_variable("b", b, (units,), trainable=trainable_b)
 
         if numpy.prod(input.shape[1:]) != self.W.shape[0]:
-            raise RuntimeError("input to Dense layer {} has different dim".format(self))
+            raise RuntimeError(
+                "input to Dense layer {} has different dim".format(self)
+            )
 
         if self.b is not None:
             return T.dot(T.flatten2d(input), self.W) + self.b
@@ -200,7 +209,10 @@ class Conv1D(Layer):
         self.padding = padding
 
         self.create_variable(
-            "W", W, (n_filters, input.shape[1], filter_length), trainable=trainable_W,
+            "W",
+            W,
+            (n_filters, input.shape[1], filter_length),
+            trainable=trainable_W,
         )
         self.create_variable("b", b, (n_filters,), trainable=trainable_b)
         conv = nn.convNd(
@@ -321,7 +333,9 @@ class Pool1D(Layer):
 
     __NAME__ = "Pool1D"
 
-    def forward(self, input_or_shape, pool_shape, pool_type="MAX", strides=None):
+    def forward(
+        self, input_or_shape, pool_shape, pool_type="MAX", strides=None
+    ):
 
         self.init_input(input_or_shape)
         self.pool_type = pool_type
@@ -332,7 +346,10 @@ class Pool1D(Layer):
             self.strides = (1, 1, strides)
 
         return T.poolNd(
-            input, self.pool_shape, strides=self.strides, reducer=self.pool_type,
+            input,
+            self.pool_shape,
+            strides=self.strides,
+            reducer=self.pool_type,
         )
 
 
@@ -356,7 +373,10 @@ class Pool2D(Layer):
                 self.strides = (1, 1, strides, strides)
 
         return nn.poolNd(
-            input, self.pool_shape, strides=self.strides, reducer=self.pool_type,
+            input,
+            self.pool_shape,
+            strides=self.strides,
+            reducer=self.pool_type,
         )
 
 
@@ -500,7 +520,8 @@ class RandomCrop(Layer):
         # else
         else:
             self.pad_shape = [
-                (pad, pad) if not hasattr(pad, "__len__") else pad for pad in padding
+                (pad, pad) if not hasattr(pad, "__len__") else pad
+                for pad in padding
             ]
 
         assert len(self.pad_shape) == len(self.crop_shape)
@@ -536,14 +557,18 @@ class RandomCrop(Layer):
 
         routput = T.stack(
             [
-                T.dynamic_slice(pinput[n], self.start_indices[n], self.crop_shape)
+                T.dynamic_slice(
+                    pinput[n], self.start_indices[n], self.crop_shape
+                )
                 for n in range(input.shape[0])
             ],
             0,
         )
         doutput = T.stack(
             [
-                T.dynamic_slice(pinput[n], self.fixed_indices[n], self.crop_shape)
+                T.dynamic_slice(
+                    pinput[n], self.fixed_indices[n], self.crop_shape
+                )
                 for n in range(input.shape[0])
             ],
             0,
@@ -619,14 +644,22 @@ class BatchNormalization(Layer):
         self.create_variable("W", W, parameter_shape, trainable=trainable_W)
         self.create_variable("b", b, parameter_shape, trainable=trainable_b)
 
-        input_mean = T.mean(input, reduce_axes, keepdims=True)
-        input_inv_std = 1 / (T.std(input, reduce_axes, keepdims=True) + const)
+        self.input_mean = T.mean(input, reduce_axes, keepdims=True)
+        self.input_inv_std = 1 / (
+            T.std(input, reduce_axes, keepdims=True) + const
+        )
 
-        self.avg_mean = schedules.ExponentialMovingAverage(input_mean, beta1)[1]
-        self.avg_inv_std = schedules.ExponentialMovingAverage(input_inv_std, beta2)[1]
+        self.avg_mean = schedules.ExponentialMovingAverage(
+            self.input_mean, beta1
+        )[1]
+        self.avg_inv_std = schedules.ExponentialMovingAverage(
+            self.input_inv_std, beta2
+        )[1]
 
-        use_mean = T.where(deterministic, self.avg_mean, input_mean)
-        use_inv_std = T.where(deterministic, self.avg_inv_std, input_inv_std)
+        use_mean = T.where(deterministic, self.avg_mean, self.input_mean)
+        use_inv_std = T.where(
+            deterministic, self.avg_inv_std, self.input_inv_std
+        )
         W = self.W or 1.0
         b = self.b if self.b is not None else 0.0
         return W * (input - use_mean) * use_inv_std + b
@@ -656,7 +689,9 @@ class RNN(Layer):
         only_last=False,
     ):
 
-        self.create_variable("W", W, (sequence.shape[2], units), trainable=trainable_W)
+        self.create_variable(
+            "W", W, (sequence.shape[2], units), trainable=trainable_W
+        )
         self.create_variable("H", H, (units, units), trainable=trainable_H)
         self.create_variable("b", b, (units), trainable=trainable_b)
 
@@ -736,13 +771,17 @@ class GRU(Layer):
             self.create_variable(
                 "Wr", Wr, (sequence.shape[2], units), trainable=trainable_Wr
             )
-            self.create_variable("Ur", Ur, (units, units), trainable=trainable_Ur)
+            self.create_variable(
+                "Ur", Ur, (units, units), trainable=trainable_Ur
+            )
             self.create_variable("br", br, (units), trainable=trainable_br)
 
         if gate == "minimal":
 
             def fn(h, x, Wh, Uh, bh, Wz, Uz, bz):
-                return self.minimal_gate(h, x, Wh, Uh, bh, Wz, Uz, bz, activation, phi)
+                return self.minimal_gate(
+                    h, x, Wh, Uh, bh, Wz, Uz, bz, activation, phi
+                )
 
         elif gate == "full":
 
