@@ -70,9 +70,7 @@ class SGD(Optimizer):
     def create_updates(self, grads_or_loss, learning_rate, params=None):
 
         if params is None:
-            params = [v for k, v in get_graph().variables.items() if v.trainable]
-        elif type(params) is not list and type(params) is not tuple:
-            params = [params]
+            params = symjax.get_variables(trainable=True)
 
         grads = self._get_grads(grads_or_loss, params)
 
@@ -117,10 +115,12 @@ class NesterovMomentum(Optimizer):
 
     __NAME__ = "NesterovMomentumOptimizer"
 
-    def create_updates(self, grads_or_loss, learning_rate, momentum, params=None):
+    def create_updates(
+        self, grads_or_loss, learning_rate, momentum, params=None
+    ):
 
         if params is None:
-            params = [v for k, v in get_graph().variables.items() if v.trainable]
+            params = symjax.get_variables(trainable=True)
 
         grads = self._get_grads(grads_or_loss, params)
 
@@ -203,7 +203,9 @@ class Adam(Optimizer):
         updates = dict()
         for param, grad in zip(params, grads):
             m = symjax.nn.schedules.ExponentialMovingAverage(grad, beta1)[0]
-            v = symjax.nn.schedules.ExponentialMovingAverage(grad ** 2, beta2)[0]
+            v = symjax.nn.schedules.ExponentialMovingAverage(grad ** 2, beta2)[
+                0
+            ]
             update = m / (tensor.sqrt(v) + epsilon)
             updates[param] = param - learning_rate * update
 
