@@ -28,8 +28,8 @@ This example shows how to download/load/import CIFAR10
 
  .. code-block:: none
 
-    Loading cifar10:   0%|          | 0/5 [00:00<?, ?it/s]    Loading cifar10:  20%|##        | 1/5 [00:02<00:10,  2.61s/it]    Loading cifar10:  40%|####      | 2/5 [00:03<00:06,  2.09s/it]    Loading cifar10:  60%|######    | 3/5 [00:04<00:03,  1.67s/it]    Loading cifar10:  80%|########  | 4/5 [00:04<00:01,  1.24s/it]    Loading cifar10: 100%|##########| 5/5 [00:05<00:00,  1.13s/it]    Loading cifar10: 100%|##########| 5/5 [00:05<00:00,  1.06s/it]
-    Dataset cifar10 loaded in5.99s.
+    Loading cifar10:   0%|          | 0/5 [00:00<?, ?it/s]    Loading cifar10:  20%|##        | 1/5 [00:03<00:12,  3.09s/it]    Loading cifar10:  40%|####      | 2/5 [00:03<00:07,  2.41s/it]    Loading cifar10:  60%|######    | 3/5 [00:04<00:03,  1.87s/it]    Loading cifar10:  80%|########  | 4/5 [00:04<00:01,  1.37s/it]    Loading cifar10: 100%|##########| 5/5 [00:05<00:00,  1.20s/it]    Loading cifar10: 100%|##########| 5/5 [00:05<00:00,  1.11s/it]
+    Dataset cifar10 loaded in6.15s.
 
 
 
@@ -56,9 +56,7 @@ This example shows how to download/load/import CIFAR10
         image = cifar10["train_set/images"][i]
         label = cifar10["train_set/labels"][i]
 
-        plt.imshow(
-            image.transpose((1, 2, 0)) / image.max(), aspect="auto", cmap="Greys"
-        )
+        plt.imshow(image.transpose((1, 2, 0)) / image.max(), aspect="auto", cmap="Greys")
         plt.xticks([])
         plt.yticks([])
         plt.title("{}:{}".format(label, symjax.data.cifar10.label_to_name[label]))
@@ -68,7 +66,7 @@ This example shows how to download/load/import CIFAR10
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  6.225 seconds)
+   **Total running time of the script:** ( 0 minutes  6.365 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_datasets_plot_cifar10.py:

@@ -5,7 +5,7 @@ import warnings
 import jax
 import jax.numpy as jnp
 import numpy
-
+import os
 import symjax
 
 
@@ -66,11 +66,11 @@ def isvar(item):
     if isinstance(item, slice):
         return False
     elif isinstance(item, list) or isinstance(item, tuple):
-        return numpy.sum([isvar(value) for value in item])
+        return numpy.any([isvar(value) for value in item])
     # otherwise cheack that it is a subtype of Tensor or a Tracer and not
     # a callable
     else:
-        cond1 = isinstance(item, Tensor) or type(item) in [Constant, OpTuple]
+        cond1 = isinstance(item, Tensor) or (type(item) in [Constant, MultiOutputOp])
         #        cond2 = isinstance(item, jax.interpreters.partial_eval.JaxprTracer)
         cond3 = callable(item)
         return cond1 and not cond3  # (cond1 or cond2) and cond3
@@ -179,7 +179,7 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
         if type(tree) == list or type(tree) == tuple:
             shapes = [t.shape for t in tree]
             dtypes = [t.dtype for t in tree]
-            return OpTuple(
+            return MultiOutputOp(
                 *args,
                 _jax_function=func,
                 _shapes=shapes,
@@ -309,45 +309,46 @@ class Tensor:
 
     __array_priority__ = 1000
 
-    def __init__(self, _shape, _dtype, name=None, **kwargs):
+    def __init__(self, *args, **kwargs):
 
-        self._shape = tuple(_shape)
-        self._dtype = jax.dtypes.dtype(_dtype)
-
-        if name is not None:
-            assert "/" not in name
-            self._name = name
-        else:
-            self._name = "unnamed"
-
-        symjax.current_graph().add(self, **kwargs)
+        symjax.current_graph()._add(self, *args, **kwargs)
 
     @property
     def name(self):
-        return self._name
+        return symjax.current_graph().nodes[self]["name"]
 
-    def _set_name(self, new_name):
-        self._name = new_name
+    @property
+    def scope(self):
+        return symjax.current_graph().nodes[self]["scope"]
 
     def clone(self, givens):
         return symjax.current_graph().clone(self, givens)
 
     @property
     def shape(self):
-        return self._shape
+        return symjax.current_graph().nodes[self]["shape"]
 
     @property
     def dtype(self):
-        return self._dtype
+        return symjax.current_graph().nodes[self]["dtype"]
 
     @property
     def ndim(self):
         return len(self.shape)
 
 
-class Constant:
+class Constant(Tensor):
     def __init__(self, value):
-        self.value = value
+
+        name, scope = symjax.current_graph()._get_name_scope("constant", self)
+
+        super().__init__(
+            _attrs={"name": name, "scope": scope, "value": value, "root": False,},
+        )
+
+    @property
+    def value(self):
+        return symjax.current_graph().nodes[self]["value"]
 
     def __repr__(self):
         return "ConstantValue({})".format(type(self.value))
@@ -360,69 +361,81 @@ class Op(Tensor):
     """an Op generates a Tensor object obtained from a function"""
 
     def __init__(
-        self, *args, _jax_function, _shape=None, _dtype=None, name=None, **kwargs,
+        self, *args, _jax_function, _shape, _dtype, name=None, **kwargs,
     ):
-        self._fn = _jax_function.__name__
-        # if the _shape and _dtype is not given (thus this class is
-        # instanciated from anything else than the jax_wrap call)
-        # then we get shape and dtype manually
-        if _shape is None and _dtype is None:
-            tree = get_output_tree(_jax_function, *args, **kwargs)
-            _shape, _dtype = tree.shape, tree.dtype
-
-        assert _shape is not None and _dtype is not None
 
         if name is None:
             name = _jax_function.__name__
 
+        name, scope = symjax.current_graph()._get_name_scope(name, self)
+
         super().__init__(
-            _shape,
-            _dtype,
-            name=name,
-            args=args,
-            kwargs=kwargs,
-            jax_function=_jax_function,
+            *args,
+            _attrs={
+                "name": name,
+                "scope": scope,
+                "shape": _shape,
+                "dtype": _dtype,
+                "jax_function": _jax_function,
+                "root": False,
+            },
+            **kwargs,
         )
+
+    @property
+    def fn_name(self):
+        return symjax.current_graph().nodes[self]["jax_function"].__name__
 
     def __repr__(self):
 
         name = "Op(name={}, fn={}, shape={}, dtype={}, scope={})"
-        return name.format(self.name, self._fn, self.shape, self.dtype, self.scope)
+        return name.format(self.name, self.fn_name, self.shape, self.dtype, self.scope)
 
     def __str__(self):
 
         return self.__repr__()
 
 
-class OpTuple:
+class MultiOutputOp(Op, Tensor):
     def __init__(self, *args, _jax_function, _shapes, _dtypes, name=None, **kwargs):
 
         if name is None:
             name = _jax_function.__name__
-        self._name = name
-        symjax.current_graph().add(
-            self, jax_function=_jax_function, args=args, kwargs=kwargs, **kwargs,
+
+        name, scope = symjax.current_graph()._get_name_scope(name, self)
+
+        Tensor.__init__(
+            self,
+            *args,
+            _attrs={
+                "name": name,
+                "scope": scope,
+                "shape": (len(args),),
+                "dtype": tuple,
+                "jax_function": _jax_function,
+                "root": False,
+            },
+            **kwargs,
         )
+
         for i, (shape, dtype) in enumerate(zip(_shapes, _dtypes)):
-            OpTupleItem(
-                shape, dtype, index=i, parent=self, name=name + "[{}]".format(i),
+            OpItem(
+                _attrs={
+                    "name": name + "[{}]".format(i),
+                    "scope": scope,
+                    "jax_function": _jax_function,
+                    "root": False,
+                    "parent_index": i,
+                    "parent": self,
+                    "shape": shape,
+                    "dtype": dtype,
+                }
             )
 
     def __repr__(self):
         successors = symjax.current_graph().successors(self)
 
         return "(" + ", ".join([str(a) for a in successors]) + ")"
-
-    @property
-    def name(self):
-        return self._name
-
-    def _set_name(self, name):
-        self._name = name
-
-    def __str__(self):
-
-        return self.__repr__()
 
     def __iter__(self):
         """ Returns the Iterator object """
@@ -431,25 +444,33 @@ class OpTuple:
     def __getitem__(self, item):
         assert type(item) == int
         for node in symjax.current_graph().successors(self):
-            if symjax.current_graph()[self][node]["index"] == item:
+            if symjax.current_graph().nodes[node]["parent_index"] == item:
                 return node
 
 
-class OpTupleItem(Tensor):
-    def __init__(self, shape, dtype, index, parent, name):
-        super().__init__(shape, dtype, name=name, parent=parent, index=index)
+class OpItem(Op, Tensor):
+    def __init__(self, *args, **kwargs):
+        Tensor.__init__(self, *args, **kwargs)
 
-    def __repr__(self):
+    @property
+    def parent(self):
+        return symjax.current_graph().nodes[self]["parent"]
 
-        name = "OpTupleItem(name={}, shape={}, dtype={}, scope={})"
-        return name.format(self.name, self.shape, self.dtype, self.scope)
-
-    def __str__(self):
-
-        return self.__repr__()
+    @property
+    def parent_index(self):
+        return symjax.current_graph().nodes[self]["parent_index"]
 
 
-class RandomOp(Op):
+def _tuple(*args):
+    return tuple(args)
+
+
+_tuple.__name__ = "jax_tuple"
+
+Tuple = jax_wrap(_tuple)
+
+
+class RandomOp(Op, Tensor):
     """
     This class creates a :obj:`Tensor` object that given a function (see below)
     and its inputs can be used as a Node in the graph construction. This class
@@ -470,23 +491,40 @@ class RandomOp(Op):
 
     """
 
-    def __init__(self, *args, _jax_function, _shape, _dtype, _seed, name, **kwargs):
-        self._shape = _shape
-        self._dtype = _dtype
-        self._fn = _jax_function.__name__
-        super().__init__(
+    def __init__(
+        self, *args, _jax_function, _shape, _dtype, _seed, name=None, **kwargs
+    ):
+
+        if name is None:
+            name = _jax_function.__name__
+
+        name, scope = symjax.current_graph()._get_name_scope(name, self)
+
+        _seed = ord(os.urandom(1)) if _seed is None else _seed
+        seed_op = Seed(_seed)
+
+        Tensor.__init__(
+            self,
+            seed_op,
             *args,
-            _jax_function=_jax_function,
-            _shape=_shape,
-            _dtype=_dtype,
-            name=name,
-            _seed=_seed,
+            _attrs={
+                "name": name,
+                "scope": scope,
+                "shape": _shape,
+                "dtype": _dtype,
+                "jax_function": _jax_function,
+                "root": False,
+            },
             **kwargs,
         )
 
+    @property
+    def seed(self):
+        return symjax.current_graph().nodes[self]["seed"]
+
     def __repr__(self):
-        name = "RandomTensor(name={}, fn={}, shape={}, dtype={}, scope={})"
-        return name.format(self.name, self._fn, self.shape, self.dtype, self.scope)
+        name = "RandomOp(name={}, fn={}, shape={}, dtype={}, scope={})"
+        return name.format(self.name, self.fn_name, self.shape, self.dtype, self.scope)
 
 
 class Variable(Tensor):
@@ -518,30 +556,53 @@ class Variable(Tensor):
             attribute and can be accessed.
     """
 
-    def __init__(
-        self, initializer, name="unnamed_variable", trainable=True, dtype=None
-    ):
+    def __init__(self, initializer, name="unnamed", trainable=True, dtype=None):
 
         if trainable and dtype == "bool":
             raise RuntimeError("error impossible learning with dtype bool")
-        self.trainable = trainable
-        self.initializer = initializer
-        self._dtype = dtype
-        super().__init__(self.value.shape, str(self.value.dtype), name=name)
 
-    def reset(self):
+        name, scope = symjax.current_graph()._get_name_scope(name, self)
+        value = self._reset(initializer, dtype)
+
+        super().__init__(
+            _attrs={
+                "name": name,
+                "scope": scope,
+                "shape": value.shape,
+                "dtype": jax.numpy.dtype(value.dtype),
+                "trainable": trainable,
+                "initializer": initializer,
+                "root": True,
+                "value": value,
+            }
+        )
+
+    @property
+    def trainable(self):
+        return symjax.current_graph().nodes[self]["trainable"]
+
+    @property
+    def initializer(self):
+        return symjax.current_graph().nodes[self]["initializer"]
+
+    def _reset(self, init, dtype):
         """reset the value of the variable based on the initial one, whether
         it was an array or initializer. If it was a random initializer,
         nothing guarantees that the reset will give back the original value
         as opposed to the array case
         """
-        if isinstance(self.initializer, Tensor):
-            self._value = symjax.current_graph().get(self.initializer)
+        if isinstance(init, Tensor):
+            value = symjax.current_graph().get(init)
         else:
-            self._value = numpy.array(self.initializer)
+            value = numpy.array(init)
 
-        if self._dtype is not None:
-            self._value = self._value.astype(self._dtype)
+        if dtype is not None:
+            return value.astype(dtype)
+        else:
+            return value
+
+    def reset(self):
+        self.update(self._reset(self.initializer, self.dtype))
 
     @property
     def value(self):
@@ -549,9 +610,7 @@ class Variable(Tensor):
             the actual value. It deals with cases where the input
             was a function or not etc
         """
-        if not hasattr(self, "_value"):
-            self.reset()
-        return self._value
+        return symjax.current_graph().nodes[self]["value"]
 
     def update(self, update_value):
         """assign a new value for the variable"""
@@ -570,19 +629,50 @@ class Variable(Tensor):
             ntype = type(new_value)
         if self.dtype != ntype:
             warnings.warn(
-                "Variable and update {}and {}".format(self, new_value)
-                + "are not the same dtype... attempting to cast"
+                "Variable and update of {}".format(self)
+                + "are not the same dtype (expected {}, got {}".format(
+                    self.dtype, ntype
+                )
+                + "... attempting to cast"
             )
 
             new_value = jax.numpy.asarray(new_value).astype(self.dtype)
 
-        self._value = new_value
+        symjax.current_graph().nodes[self]["value"] = new_value
 
     def __repr__(self):
         name = "Variable(name={}, shape={}, dtype={}, trainable={}, scope={})"
         return name.format(
             self.name, self.shape, self.dtype, self.trainable, self.scope
         )
+
+
+class Seed(Variable, Tensor):
+    """an Op generates a Tensor object obtained from a function"""
+
+    def __init__(self, seed):
+
+        name, scope = symjax.current_graph()._get_name_scope("seed", self)
+
+        Tensor.__init__(
+            self,
+            _attrs={
+                "name": name,
+                "scope": scope,
+                "value": jax.random.PRNGKey(seed),
+                "root": True,
+                "shape": (2,),
+                "dtype": "uint32",
+            },
+        )
+
+    def update(self):
+        new_key = jax.random.split(self.value, 1)[0]
+        symjax.current_graph().nodes[self]["value"] = new_key
+
+    def __repr__(self):
+        name = "Seed(name={}, scope={})"
+        return name.format(self.name, self.scope)
 
 
 class Placeholder(Tensor):
@@ -605,7 +695,18 @@ class Placeholder(Tensor):
     """
 
     def __init__(self, shape, dtype, name="unnamed"):
-        super().__init__(shape, dtype, name=name)
+
+        name, scope = symjax.current_graph()._get_name_scope(name, self)
+
+        super().__init__(
+            _attrs={
+                "name": name,
+                "scope": scope,
+                "shape": shape,
+                "dtype": dtype,
+                "root": True,
+            }
+        )
 
     def __repr__(self):
         name = "Placeholder(name={}, shape={}, dtype={}, scope={})"

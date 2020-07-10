@@ -1,8 +1,9 @@
 """
-Basic 1d interpolation
-======================
+Basic 1d upsampling
+===================
 
-demonstration on how to perform basic 1d interpolation
+In this example we demonstrate how to employ the utility functions from
+:py:mod:`symjax.tensor.interpolation` which can be used for upsampling
 
 """
 

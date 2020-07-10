@@ -17,7 +17,7 @@ def ExponentialMovingAverage(value, alpha):
 
         new_value = T.where(first_step, value, var * alpha + (1 - alpha) * value)
 
-        current_graph().add({var: new_value, first_step: False})
+        current_graph().add_updates({var: new_value, first_step: False})
 
     return new_value, var
 
@@ -33,6 +33,6 @@ def PiecewiseConstant(init, steps_and_values):
 
         value = all_values[(step < all_steps).argmin() - 1]
 
-        current_graph().add({step: step + 1})
+        current_graph().add_updates({step: step + 1})
 
     return value

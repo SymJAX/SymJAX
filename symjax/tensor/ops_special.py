@@ -53,14 +53,30 @@ def hat_1D(x, t_left, t_center, t_right):
 
 
 def _extract_signal_patches(signal, window_length, hop=1, data_format="NCW"):
-    assert not hasattr(window_length, "__len__")
-    assert signal.ndim == 3
+    if hasattr(window_length, "shape"):
+        assert window_length.shape == ()
+    else:
+        assert not hasattr(window_length, "__len__")
+
     if data_format == "NCW":
-        N = (signal.shape[2] - window_length) // hop + 1
+        if signal.ndim == 2:
+            signal_3d = signal[:, None, :]
+        elif signal.ndim == 1:
+            signal_3d = signal[None, None, :]
+        else:
+            signal_3d = signal
+
+        N = (signal_3d.shape[2] - window_length) // hop + 1
         indices = jnp.arange(window_length) + jnp.expand_dims(jnp.arange(N) * hop, 1)
         indices = jnp.reshape(indices, [1, 1, N * window_length])
-        patches = jnp.take_along_axis(signal, indices, 2)
-        return jnp.reshape(patches, signal.shape[:2] + (N, window_length))
+        patches = jnp.take_along_axis(signal_3d, indices, 2)
+        output = jnp.reshape(patches, signal_3d.shape[:2] + (N, window_length))
+        if signal.ndim == 1:
+            return output[0, 0]
+        elif signal.ndim == 2:
+            return output[:, 0, :]
+        else:
+            return output
     else:
         error
 
@@ -75,7 +91,7 @@ def _extract_image_patches(
         p1 = window_shape[0] - 1
         p2 = window_shape[1] - 1
         image = jnp.pad(
-            image, [(0, 0), (0, 0), (p1 // 2, p1 - p1 // 2), (p2 // 2, p2 - p2 // 2)]
+            image, [(0, 0), (0, 0), (p1 // 2, p1 - p1 // 2), (p2 // 2, p2 - p2 // 2)],
         )
     if not hasattr(hop, "__len__"):
         hop = (hop, hop)

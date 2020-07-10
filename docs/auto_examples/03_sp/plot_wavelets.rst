@@ -62,7 +62,7 @@ This example shows how to generate a wavelet filter-bank.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  7.259 seconds)
+   **Total running time of the script:** ( 0 minutes  8.351 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03_sp_plot_wavelets.py:

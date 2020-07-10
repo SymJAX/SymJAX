@@ -56,13 +56,18 @@ def normal(shape, mean=0.0, std=1.0):
 
 
 def orthogonal(shape, gain=1):
-    flat_shape = (shape[0], np.prod(shape[1:]))
-    a = np.random.normal(flat_shape)
-    u, _, v = np.linalg.svd(a, full_matrices=False)
-    # pick the one with the correct shape
-    q = u if u.shape == flat_shape else v
-    q = q.reshape(shape)
-    return gain * q
+    assert len(shape) == 2
+    if shape[0] == 1 and shape[1] == 1:
+        return np.random.randn(1, 1) * gain
+
+    a = np.random.randn(shape[0], shape[1])
+    q, r = np.linalg.qr(a)
+    # Make Q uniform
+    d = np.diag(r)
+    q *= np.sign(d)
+    if shape[0] < shape[1]:
+        q = q.T
+    return gain * np.reshape(q, shape)
 
 
 def _compute_fans(shape, in_axis, out_axis):
@@ -102,6 +107,10 @@ def variance_scaling(
         )
     std = gain * np.sqrt(1.0 / den)
     return distribution(shape, std=std)
+
+
+def glorot_uniform(shape, gain=1, in_axis=None, out_axis=None):
+    return glorot(shape, gain, uniform, in_axis, out_axis)
 
 
 def glorot(shape, gain=1, distribution=normal, in_axis=None, out_axis=None):

@@ -13,6 +13,7 @@ from symjax import tensor as t
 from symjax.tensor import random
 import networkx as nx
 import re
+import collections
 
 
 def natural_key(string_):
@@ -46,6 +47,7 @@ class Graph(nx.DiGraph):
         self._placeholders = {}
         self._updates = {}
         self._ops = {}
+        self._other_nodes = {}
         self._scopes_history = []
 
     def __repr__(self):
@@ -69,77 +71,69 @@ class Graph(nx.DiGraph):
     def name(self):
         return self._name
 
-    def add(self, tensor, branch=None, **kwargs):
+    def add_updates(self, updates):
+        # TODO
+        # we add just in case there are some lists or something
+        # this might not be needed
 
-        if type(tensor) == dict:
-            for i in tensor.values():
-                self.add(i)
-            self._updates.update(tensor)
+        for i in updates.values():
+            self._add(i)
+        self._updates.update(updates)
 
-        if not t.isvar(tensor):
+    def _get_name_scope(self, name, tensor):
+        return self.scope._get_name_scope(name, tensor)
+
+    def _add(self, tensor, *args, _attrs=None, **kwargs):
+
+        _attrs = _attrs or {}
+
+        if isinstance({}, collections.Hashable):
+            if tensor in self.nodes:
+                return tensor
+
+        elif not t.isvar(tensor):
             try:
                 self.add_node(tensor, root=False)
                 return tensor
             except TypeError:
                 const_node = t.Constant(tensor)
-                self.add_node(const_node, root=False)
                 return const_node
 
-        if tensor in self.nodes:
-            return tensor
+        elif type(tensor) == list or type(tensor) == tuple:
+            new_node = t.Tuple(*tensor)
+            return new_node
 
-        self.scope.add(tensor)
+        if isinstance(tensor, t.Tensor):
+            self.add_node(tensor, **_attrs)
 
-        if isinstance(tensor, t.Placeholder) or isinstance(tensor, t.Variable):
-            self.add_node(tensor, branch=branch, root=True)
+            if isinstance(tensor, t.OpItem):
 
-        elif type(tensor) == t.OpTupleItem:
-            self.add_node(tensor, root=False)
-            self.add_edge(kwargs["parent"], tensor, index=kwargs["index"])
-
-        elif isinstance(tensor, t.Op) or isinstance(tensor, t.OpTuple):
-
-            if isinstance(tensor, t.RandomOp):
-                self.add_node(
+                self.add_edge(
+                    tensor.parent,
                     tensor,
-                    branch=branch,
-                    root=True,
-                    jax_function=kwargs["jax_function"],
-                    seed=kwargs["kwargs"]["_seed"],
-                )
-                del kwargs["kwargs"]["_seed"]
-            else:
-                self.add_node(
-                    tensor,
-                    branch=branch,
-                    root=False,
-                    jax_function=kwargs["jax_function"],
+                    name="parent_index{}".format(tensor.parent_index),
                 )
 
-            for i, arg in enumerate(kwargs["args"]):
+            elif isinstance(tensor, t.Op):
 
-                # all parents should already be in, however if one
-                # of the arg is like a tuple then this is a new node
-                # and thus it is not already in thus we add it
-                node = self.add(arg)
-                if self.has_edge(node, tensor):
-                    self[node][tensor]["name"] += "+arg{}".format(i)
-                else:
-                    self.add_edge(node, tensor, name="arg{}".format(i))
+                for i, arg in enumerate(args):
 
-            for key, arg in kwargs["kwargs"].items():
+                    # all parents should already be in, however if one
+                    # of the arg is like a tuple then this is a new node
+                    # and thus it is not already in thus we add it
+                    node = self._add(arg)
+                    if self.has_edge(node, tensor):
+                        self[node][tensor]["name"] += "+arg{}".format(i)
+                    else:
+                        self.add_edge(node, tensor, name="arg{}".format(i))
 
-                node = self.add(arg)
-                if self.has_edge(node, tensor):
-                    self[node][tensor]["name"] += "+" + key
-                else:
-                    self.add_edge(node, tensor, name=key)
+                for key, arg in kwargs.items():
 
-        elif type(tensor) == tuple:
-            self.add_node(tensor, root=False)
-            for i in tensor:
-                other = self.add(i)
-                self.add_edge(other, tensor)
+                    node = self._add(arg)
+                    if self.has_edge(node, tensor):
+                        self[node][tensor]["name"] += "+" + key
+                    else:
+                        self.add_edge(node, tensor, name=key)
 
         return tensor
 
@@ -179,21 +173,20 @@ class Graph(nx.DiGraph):
                         if arg in branch:
                             kwargs[arg] = branch[arg]
                     fun = self.get_node_attribute(n, "jax_function")
-                    kwargs.update(
-                        {
-                            "_jax_function": fun,
-                            "_shape": n._shape,
-                            "_dtype": n._dtype,
-                            "name": n.name + "_clone",
-                        }
+                    branch[n] = t.Op(
+                        *args,
+                        _shape=n.shape,
+                        _dtype=n.dtype,
+                        _jax_function=fun,
+                        name=n.name + "clone",
+                        **kwargs,
                     )
-                    branch[n] = t.Op(*args, **kwargs)
         return branch[node]
 
     def get_node_attribute(self, node, attr):
         return nx.get_node_attributes(self, attr)[node]
 
-    def get(self, item, tracker=None, seed=None):
+    def get(self, item, tracker=None, frozen=True):
         """
         Example:
 
@@ -209,11 +202,17 @@ class Graph(nx.DiGraph):
 
         if not t.isvar(item):
             return item
-
         if type(item) == list:
-            return [self.get(i, tracker) for i in item]
+            return [self.get(i, tracker, frozen=frozen) for i in item]
         elif type(item) == tuple:
-            return tuple([self.get(i, tracker) for i in item])
+            return tuple([self.get(i, tracker, frozen=frozen) for i in item])
+        # elif type(item) == t.Tuple:
+        #     return tuple(
+        #         [
+        #             self.get(i, tracker, frozen=frozen)
+        #             for i in self.predecessors(item)
+        #         ]
+        #     )
 
         elif item in tracker:
             return tracker[item]
@@ -224,52 +223,35 @@ class Graph(nx.DiGraph):
 
         elif isinstance(item, t.Variable) or type(item) == t.Constant:
             tracker[item] = item.value
+            if not frozen and isinstance(item, t.Seed):
+                item.update()
             return tracker[item]
 
-        elif type(item) == t.OpTupleItem:
+        elif type(item) == t.OpItem:
 
-            preds = list(self.predecessors(item))
-            assert len(preds) == 1
-            parent = preds[0]
-            index = self.get_edge_data(parent, item)["index"]
-            return self.get(parent, tracker)[index]
+            return self.get(item.parent, tracker)[item.parent_index]
 
-        elif isinstance(item, t.RandomOp):
-            seed = seed or numpy.random.randint(0, 1000000)
-            intra_seed = 1 or self.get_node_attribute(item, "seed")
-            key = jax.random.PRNGKey(seed + intra_seed)
-            args, kwargs = self._get_args_kwargs(item, tracker)
-            tracker[item] = self.get_node_attribute(item, "jax_function")(
-                key, *args, **kwargs
-            )
-            return tracker[item]
-
-        elif isinstance(item, t.Op) or isinstance(item, t.OpTuple):
+        elif isinstance(item, t.Op):
 
             # first get the actual parents nodes (aka inputs to the function)
-            args, kwargs = self._get_args_kwargs(item, tracker)
-            tracker[item] = self.get_node_attribute(item, "jax_function")(
-                *args, **kwargs
-            )
+            args, kwargs = self._get_args_kwargs(item, tracker, frozen=frozen)
+            tracker[item] = self.nodes[item]["jax_function"](*args, **kwargs)
 
             return tracker[item]
 
         else:
             return item
 
-    def _get_args_kwargs(self, node, tracker=None, evaluate=True):
-
+    def _get_args_kwargs(self, node, tracker=None, evaluate=True, frozen=True):
         if evaluate:
             assert tracker is not None
-
             all_args = {
-                self.get_edge_data(parent, node)["name"]: self.get(parent, tracker)
+                self[parent][node]["name"]: self.get(parent, tracker, frozen=frozen)
                 for parent in self.predecessors(node)
             }
         else:
             all_args = {
-                self.get_edge_data(parent, node)["name"]: parent
-                for parent in self.predecessors(node)
+                self[parent][node]["name"]: parent for parent in self.predecessors(node)
             }
         # now we inspect if there are duplicate args
         for arg in list(all_args.keys()):
@@ -305,7 +287,7 @@ class Graph(nx.DiGraph):
 
     @property
     def ops(self):
-        ops = [n for n in self.nodes if type(n) in [t.Op, t.OpTupleItem]]
+        ops = [n for n in self.nodes if type(n) in [t.Op, t.MultiOutputOp]]
         return ops
 
     def updates(self, name="*"):
@@ -389,7 +371,7 @@ class Scope:
     def save_variables(self, path):
         """Save graph."""
         numpy.savez(
-            path, **dict([(v.name, symjax.tensor.get(v)) for v in self.variables])
+            path, **dict([(v.name, symjax.tensor.get(v)) for v in self.variables]),
         )
 
     @property
@@ -415,6 +397,33 @@ class Scope:
 
         for var in self.variables:
             var.reset()
+
+    def _get_name_scope(self, name, tensor):
+
+        if self.full_name is None:
+            self.__enter__()
+
+        scope = self.full_name
+        test_name = self.full_name + name
+        if isinstance(tensor, symjax.tensor.Placeholder):
+            names = self.graph._placeholders
+        elif isinstance(tensor, symjax.tensor.Variable):
+            names = self.graph._variables
+        elif isinstance(tensor, symjax.tensor.Op):
+            names = self.graph._ops
+        else:
+            names = self.graph._other_nodes
+
+        if test_name not in names.keys():
+            names[test_name] = tensor
+            return name, scope
+
+        count = 1
+        while test_name + "_" + str(count) in names.keys():
+            count += 1
+
+        names[test_name + "_" + str(count)] = tensor
+        return name + "_" + str(count), scope
 
     def add(self, tensor):
 
@@ -514,7 +523,7 @@ def save_variables(
     """Save graph."""
     variables = get_variables(name, scope, trainable)
     numpy.savez(
-        path, **dict([(v.scope + v.name, symjax.tensor.get(v),) for v in variables])
+        path, **dict([(v.scope + v.name, symjax.tensor.get(v),) for v in variables]),
     )
 
 
@@ -582,7 +591,7 @@ def get_ops(name="*", scope="*"):
     return output
 
 
-def add_updates(udpates):
+def add_updates(updates):
     current_scope().add_updates(updates)
 
 
@@ -792,7 +801,8 @@ class function:
         updates=None,  # noqa
         device=None,
         backend=None,
-        default_value=None
+        default_value=None,
+        frozen=False
     ):
         """Initialize."""
         # check the given updates (if any) and ensure that they only
@@ -800,7 +810,7 @@ class function:
         if updates is None:
             updates = {}
         else:
-            current_graph().add(updates)
+            current_graph().add_updates(updates)
 
         for update in updates.keys():
             if not isinstance(update, t.Variable):
@@ -894,6 +904,11 @@ class function:
             jitoutputs, jitupdates = self.jited(*fnargs, *jited_add_inputs, seed=rng)
             for key, update in zip(self.updates_keys, jitupdates):
                 key.update(update)
+
+            if not frozen:
+                for i in self.extra_inputs:
+                    if isinstance(i, t.Seed):
+                        i.update()
 
             if type(jitoutputs) == list or type(jitoutputs) == tuple:
                 npy_jitoutputs = [

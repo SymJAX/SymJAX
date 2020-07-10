@@ -1,11 +1,11 @@
 """
-CIFAR10 classification
-======================
+MNIST classification
+====================
 
-example of image classification
+example of image (MNIST) classification on small part of the data
+and with a small architecture
 """
 import symjax.tensor as T
-import symjax as sj
 from symjax import nn
 import symjax
 import numpy as np
@@ -16,11 +16,14 @@ from symjax.data.utils import batchify
 import os
 
 os.environ["DATASET_PATH"] = "/home/vrael/DATASETS/"
-
+symjax.current_graph().reset()
 # load the dataset
 mnist = mnist.load()
 
-# some renormalization
+# some renormalization, and we only keep the first 2000 images
+mnist["train_set/images"] = mnist["train_set/images"][:2000]
+mnist["train_set/labels"] = mnist["train_set/labels"][:2000]
+
 mnist["train_set/images"] /= mnist["train_set/images"].max((1, 2, 3), keepdims=True)
 mnist["test_set/images"] /= mnist["test_set/images"].max((1, 2, 3), keepdims=True)
 
@@ -35,8 +38,8 @@ layer = [nn.layers.Identity(images)]
 
 for l in range(3):
     layer.append(nn.layers.Conv2D(layer[-1], 32, (3, 3), b=None, pad="SAME"))
-    layer.append(nn.layers.BatchNormalization(layer[-1], [0, 2, 3], deterministic))
-    layer.append(nn.layers.Lambda(layer[-1], nn.leaky_relu))
+    layer.append(nn.layers.BatchNormalization(layer[-1], [1], deterministic))
+    layer.append(nn.leaky_relu(layer[-1]))
     layer.append(nn.layers.Pool2D(layer[-1], (2, 2)))
 
 layer.append(nn.layers.Pool2D(layer[-1], layer[-1].shape[2:], pool_type="AVG"))
@@ -51,10 +54,7 @@ for l in layer:
 loss = nn.losses.sparse_crossentropy_logits(labels, layer[-1]).mean()
 accuracy = nn.losses.accuracy(labels, layer[-1])
 
-lr = nn.schedules.PiecewiseConstant(0.01, {15: 0.001, 25: 0.0001})
-
-
-nn.optimizers.Adam(loss, lr)
+nn.optimizers.Adam(loss, 0.01)
 
 test = symjax.function(images, labels, deterministic, outputs=[loss, accuracy])
 
@@ -68,7 +68,7 @@ train = symjax.function(
 
 test_accuracy = []
 
-for epoch in range(3):
+for epoch in range(10):
     L = list()
     for x, y in batchify(
         mnist["test_set/images"],
@@ -88,9 +88,8 @@ for epoch in range(3):
     ):
         L.append(train(x, y, 0))
     print("Train Loss and Accu", np.mean(L, 0))
-    lr.update()
 
 plt.plot(test_accuracy)
 plt.xlabel("epochs")
 plt.ylabel("accuracy")
-plt.title("CIFAR10 classification task")
+plt.title("MNIST (1K data) classification task")

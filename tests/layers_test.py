@@ -50,7 +50,7 @@ def test_bn():
 def test_dropout():
     np.random.seed(0)
     sj.current_graph().reset()
-    BATCH_SIZE = 2048
+    BATCH_SIZE = 4096
     DIM = 8
     input = T.Placeholder((BATCH_SIZE, DIM), "float32", name="input")
     deterministic = T.Placeholder((1,), "bool", name="deterministic")

@@ -9,10 +9,11 @@
     .. _sphx_glr_auto_examples_plot_interpolation.py:
 
 
-Basic 1d interpolation
-======================
+Basic 1d upsampling
+===================
 
-demonstration on how to perform basic 1d interpolation
+In this example we demonstrate how to employ the utility functions from
+:py:mod:`symjax.tensor.interpolation` which can be used for upsampling
 
 
 
@@ -75,7 +76,7 @@ demonstration on how to perform basic 1d interpolation
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.337 seconds)
+   **Total running time of the script:** ( 0 minutes  0.372 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_interpolation.py:

@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 z = T.Variable(3.0, dtype="float32")
 loss = (z - 1) ** 2
 g_z = symjax.gradients(loss, [z])[0]
-symjax.current_graph().add({z: z - 0.1 * g_z})
+symjax.current_graph().add_updates({z: z - 0.1 * g_z})
 
 train = symjax.function(outputs=[loss, z], updates=symjax.get_updates())
 

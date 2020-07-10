@@ -44,7 +44,13 @@ class Layer(T.Op):
 
         with symjax.Scope(name):
             output = self.forward(*args, **kwargs)
-            super().__init__(output, 0, _jax_function=jax.numpy.add)
+            super().__init__(
+                output,
+                0,
+                _shape=output.shape,
+                _dtype=output.dtype,
+                _jax_function=jax.numpy.add,
+            )
 
     def variables(self, trainable=True):
         if not hasattr(self, "_variables"):
@@ -154,20 +160,27 @@ class Dense(Layer):
         b=numpy.zeros,
         trainable_W=True,
         trainable_b=True,
+        flatten=True,
     ):
+        if flatten:
+            width_in = numpy.prod(input.shape[1:])
+        else:
+            width_in = input.shape[-1]
 
         self.create_variable(
-            "W", W, (numpy.prod(input.shape[1:]), units), trainable=trainable_W,
+            "W", W, (width_in, units), trainable=trainable_W,
         )
         self.create_variable("b", b, (units,), trainable=trainable_b)
 
-        if numpy.prod(input.shape[1:]) != self.W.shape[0]:
-            raise RuntimeError("input to Dense layer {} has different dim".format(self))
+        if flatten:
+            flat_input = T.flatten2d(input)
+        else:
+            flat_input = input
 
         if self.b is not None:
-            return T.dot(T.flatten2d(input), self.W) + self.b
+            return T.dot(flat_input, self.W) + self.b
         else:
-            return T.dot(T.flatten2d(input), self.W)
+            return T.dot(flat_input, self.W)
 
 
 class Conv1D(Layer):
@@ -636,7 +649,7 @@ class BatchNormalization(Layer):
 
 class RNN(Layer):
 
-    __NAME__ = "BatchNormalization"
+    __NAME__ = "RNN"
 
     @staticmethod
     def gate(h, x, W, H, b, sigma):
@@ -648,8 +661,8 @@ class RNN(Layer):
         sequence,
         init_h,
         units,
-        W=initializers.he,
-        H=initializers.he,
+        W=initializers.glorot,
+        H=initializers.orthogonal,
         b=T.zeros,
         trainable_W=True,
         trainable_H=True,
@@ -676,7 +689,7 @@ class RNN(Layer):
 
 class GRU(Layer):
 
-    __NAME__ = "BatchNormalization"
+    __NAME__ = "GRU"
 
     @staticmethod
     def full_gate(h, x, Wh, Uh, bh, Wz, Uz, bz, Wr, Ur, br, sigma, phi):
@@ -698,14 +711,14 @@ class GRU(Layer):
         sequence,
         init_h,
         units,
-        Wh=initializers.he,
-        Uh=initializers.he,
+        Wh=initializers.glorot_uniform,
+        Uh=initializers.orthogonal,
         bh=T.zeros,
-        Wz=initializers.he,
-        Uz=initializers.he,
+        Wz=initializers.glorot_uniform,
+        Uz=initializers.orthogonal,
         bz=T.zeros,
-        Wr=initializers.he,
-        Ur=initializers.he,
+        Wr=initializers.glorot_uniform,
+        Ur=initializers.orthogonal,
         br=T.zeros,
         trainable_Wh=True,
         trainable_Uh=True,
@@ -743,22 +756,161 @@ class GRU(Layer):
 
         if gate == "minimal":
 
-            def fn(h, x, Wh, Uh, bh, Wz, Uz, bz):
-                return self.minimal_gate(h, x, Wh, Uh, bh, Wz, Uz, bz, activation, phi)
+            def fn(*args):
+                return self.minimal_gate(*args, activation, phi)
+
+            last, output = T.scan(
+                fn,
+                init=init_h,
+                sequences=[sequence.transpose((1, 0, 2))],
+                non_sequences=[self.Wh, self.Uh, self.bh, self.Wz, self.Uz, self.bz,],
+            )
 
         elif gate == "full":
 
-            def fn(h, x, Wh, Uh, bh, Wz, Uz, bz):
-                return self.full_gate(
-                    h, x, Wh, Uh, bh, Wz, Uz, bz, Wr, Ur, br, activation, phi
-                )
+            def fn(*args):
+                return self.full_gate(*args, activation, phi)
 
+            last, output = T.scan(
+                fn,
+                init=init_h,
+                sequences=[sequence.transpose((1, 0, 2))],
+                non_sequences=[
+                    self.Wh,
+                    self.Uh,
+                    self.bh,
+                    self.Wz,
+                    self.Uz,
+                    self.bz,
+                    self.Wr,
+                    self.Ur,
+                    self.br,
+                ],
+            )
+
+        if only_last:
+            return last
+        else:
+            return output.transpose((1, 0, 2))
+
+
+class LSTM(Layer):
+
+    __NAME__ = "GRU"
+
+    @staticmethod
+    def gate(
+        carry,
+        x,
+        Wf,
+        Uf,
+        bf,
+        Wi,
+        Ui,
+        bi,
+        Wo,
+        Uo,
+        bo,
+        Wc,
+        Uc,
+        bc,
+        sigma_g,
+        sigma_c,
+        sigma_h,
+    ):
+        h, c = carry[0], carry[1]
+        f = sigma_g(T.dot(x, Wf) + bf + T.dot(h, Uf))
+        i = sigma_g(T.dot(x, Wi) + bi + T.dot(h, Ui))
+        o = sigma_g(T.dot(x, Wo) + bo + T.dot(h, Uo))
+        ctilde = sigma_c(T.dot(x, Wc) + bc + T.dot(h, Uc))
+        cnew = f * c + i * ctilde
+        hnew = o * sigma_h(cnew)
+        return T.stack([hnew, cnew]), h
+
+    def forward(
+        self,
+        sequence,
+        init_h,
+        units,
+        Wf=initializers.glorot_uniform,
+        Uf=initializers.orthogonal,
+        bf=T.zeros,
+        Wi=initializers.glorot_uniform,
+        Ui=initializers.orthogonal,
+        bi=T.zeros,
+        Wo=initializers.glorot_uniform,
+        Uo=initializers.orthogonal,
+        bo=T.zeros,
+        Wc=initializers.glorot_uniform,
+        Uc=initializers.orthogonal,
+        bc=T.zeros,
+        trainable_Wf=True,
+        trainable_Uf=True,
+        trainable_bf=True,
+        trainable_Wi=True,
+        trainable_Ui=True,
+        trainable_bi=True,
+        trainable_Wo=True,
+        trainable_Uo=True,
+        trainable_bo=True,
+        trainable_Wc=True,
+        trainable_Uc=True,
+        trainable_bc=True,
+        activation_g=nn.sigmoid,
+        activation_c=T.tanh,
+        activation_h=T.tanh,
+        only_last=False,
+        gate="minimal",
+    ):
+
+        self.create_variable(
+            "Wf", Wf, (sequence.shape[2], units), trainable=trainable_Wf
+        )
+        self.create_variable("Uf", Uf, (units, units), trainable=trainable_Uf)
+        self.create_variable("bf", bf, (units), trainable=trainable_bf)
+
+        self.create_variable(
+            "Wi", Wi, (sequence.shape[2], units), trainable=trainable_Wi
+        )
+        self.create_variable("Ui", Ui, (units, units), trainable=trainable_Ui)
+        self.create_variable("bi", bi, (units), trainable=trainable_bi)
+
+        self.create_variable(
+            "Wo", Wo, (sequence.shape[2], units), trainable=trainable_Wo
+        )
+        self.create_variable("Uo", Uo, (units, units), trainable=trainable_Uo)
+        self.create_variable("bo", bo, (units), trainable=trainable_bo)
+
+        self.create_variable(
+            "Wc", Wc, (sequence.shape[2], units), trainable=trainable_Wc
+        )
+        self.create_variable("Uc", Uc, (units, units), trainable=trainable_Uc)
+        self.create_variable("bc", bc, (units), trainable=trainable_bc)
+
+        def fn(*args):
+            return self.gate(*args, activation_g, activation_c, activation_h)
+
+        init = T.stack((init_h, T.zeros(init_h.shape, init_h.dtype)))
         last, output = T.scan(
             fn,
-            init=init_h,
+            init=init,
             sequences=[sequence.transpose((1, 0, 2))],
-            non_sequences=[self.W, self.H, self.b],
+            non_sequences=[
+                self.Wf,
+                self.Uf,
+                self.bf,
+                self.Wi,
+                self.Ui,
+                self.bi,
+                self.Wo,
+                self.Uo,
+                self.bo,
+                self.Wc,
+                self.Uc,
+                self.bc,
+            ],
         )
+
         if only_last:
             return last
         else:

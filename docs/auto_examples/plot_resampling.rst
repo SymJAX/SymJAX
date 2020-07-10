@@ -21,27 +21,8 @@ demonstration on how to perform basic image preprocessing
     :class: sphx-glr-single-img
 
 
-.. rst-class:: sphx-glr-script-out
-
- Out:
-
- .. code-block:: none
-
-    [[0.  0.5 1.  0.  0.5 1.  0.  0.5 1.  0.  0.5 1.  0.  0.5 1.  0.  0.5 1. ]
-     [0.  0.  0.  0.6 0.6 0.6 1.2 1.2 1.2 1.8 1.8 1.8 2.4 2.4 2.4 3.  3.  3. ]]
-    [[0.  0.6 1.2 1.8 2.4 3.  0.  0.6 1.2 1.8 2.4 3.  0.  0.6 1.2 1.8 2.4 3. ]
-     [0.  0.  0.  0.  0.  0.  0.5 0.5 0.5 0.5 0.5 0.5 1.  1.  1.  1.  1.  1. ]]
-    [[0.  0.6 1.2 1.8 2.4 3.  0.  0.6 1.2 1.8 2.4 3.  0.  0.6 1.2 1.8 2.4 3.
-      0.  0.6 1.2 1.8 2.4 3.  0.  0.6 1.2 1.8 2.4 3.  0.  0.6 1.2 1.8 2.4 3. ]
-     [0.  0.  0.  0.  0.  0.  0.6 0.6 0.6 0.6 0.6 0.6 1.2 1.2 1.2 1.2 1.2 1.2
-      1.8 1.8 1.8 1.8 1.8 1.8 2.4 2.4 2.4 2.4 2.4 2.4 3.  3.  3.  3.  3.  3. ]]
 
 
-
-
-
-
-|
 
 
 .. code-block:: default
@@ -63,16 +44,12 @@ demonstration on how to perform basic image preprocessing
     for i in range(3):
 
         plt.subplot(2, 3, i + 1)
-        plt.imshow(
-            all_images[i].transpose(1, 2, 0), aspect="auto", vmax=10, cmap="jet"
-        )
+        plt.imshow(all_images[i].transpose(1, 2, 0), aspect="auto", vmax=10, cmap="jet")
         plt.xticks([])
         plt.yticks([])
 
         plt.subplot(2, 3, i + 4)
-        plt.imshow(
-            images[i].transpose(1, 2, 0), aspect="auto", vmax=10, cmap="jet"
-        )
+        plt.imshow(images[i].transpose(1, 2, 0), aspect="auto", vmax=10, cmap="jet")
         plt.xticks([])
         plt.yticks([])
 
@@ -81,7 +58,7 @@ demonstration on how to perform basic image preprocessing
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.189 seconds)
+   **Total running time of the script:** ( 0 minutes  0.150 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_resampling.py:

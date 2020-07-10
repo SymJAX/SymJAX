@@ -28,7 +28,7 @@ rule to minimize some loss function
 
  .. code-block:: none
 
-    /home/rbal/anaconda3/lib/python3.7/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
+    /home/vrael/anaconda3/envs/jax/lib/python3.7/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
       warnings.warn('No GPU/TPU found, falling back to CPU.')
 
 
@@ -50,7 +50,7 @@ rule to minimize some loss function
     z = T.Variable(3.0, dtype="float32")
     loss = (z - 1) ** 2
     g_z = symjax.gradients(loss, [z])[0]
-    symjax.current_graph().add({z: z - 0.1 * g_z})
+    symjax.current_graph().add_updates({z: z - 0.1 * g_z})
 
     train = symjax.function(outputs=[loss, z], updates=symjax.get_updates())
 
@@ -81,7 +81,7 @@ rule to minimize some loss function
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.261 seconds)
+   **Total running time of the script:** ( 0 minutes  0.251 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_sgd.py:

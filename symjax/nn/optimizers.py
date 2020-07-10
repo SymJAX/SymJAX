@@ -35,7 +35,7 @@ class Optimizer:
 
     def add_updates(self, update):
         self.updates.update(update)
-        symjax.current_graph().add(update)
+        symjax.current_graph().add_updates(update)
 
 
 class SGD(Optimizer):
@@ -73,11 +73,6 @@ class SGD(Optimizer):
             params = symjax.get_variables(trainable=True)
 
         grads = self._get_grads(grads_or_loss, params)
-
-        if not numpy.isscalar(learning_rate) and not isinstance(
-            learning_rate, tensor.Placeholder
-        ):
-            learning_rate = learning_rate()
 
         updates = dict()
         for param, grad in zip(params, grads):
@@ -121,11 +116,6 @@ class NesterovMomentum(Optimizer):
             params = symjax.get_variables(trainable=True)
 
         grads = self._get_grads(grads_or_loss, params)
-
-        if not numpy.isscalar(learning_rate) and not isinstance(
-            learning_rate, tensor.Placeholder
-        ):
-            learning_rate = learning_rate()
 
         updates = dict()
         variables = []
@@ -193,10 +183,6 @@ class Adam(Optimizer):
             params = symjax.get_variables(trainable=True)
 
         grads = self._get_grads(grads_or_loss, params)
-
-        # get the learning rate
-        if callable(learning_rate):
-            learning_rate = learning_rate()
 
         updates = dict()
         for param, grad in zip(params, grads):

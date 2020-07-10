@@ -64,12 +64,33 @@ Introductory examples that teach how to use SymJAX.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="demonstration on how to perform basic 1d interpolation">
+    <div class="sphx-glr-thumbcontainer" tooltip="demonstration on how to use Adam optimizer to minimize a loss">
+
+.. only:: html
+
+ .. figure:: /auto_examples/images/thumb/sphx_glr_plot_adam_thumb.svg
+     :alt: Basic Adam update (and reset)
+
+     :ref:`sphx_glr_auto_examples_plot_adam.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/plot_adam
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this example we demonstrate how to employ the utility functions from :py:mod:`symjax.tensor....">
 
 .. only:: html
 
  .. figure:: /auto_examples/images/thumb/sphx_glr_plot_interpolation_thumb.svg
-     :alt: Basic 1d interpolation
+     :alt: Basic 1d upsampling
 
      :ref:`sphx_glr_auto_examples_plot_interpolation.py`
 
@@ -82,6 +103,27 @@ Introductory examples that teach how to use SymJAX.
    :hidden:
 
    /auto_examples/plot_interpolation
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this example we demonstrate how to employ the :py:func:`symjax.tensor.scan` and other simila...">
+
+.. only:: html
+
+ .. figure:: /auto_examples/images/thumb/sphx_glr_plot_loops_thumb.svg
+     :alt: Basic scan/loops examples
+
+     :ref:`sphx_glr_auto_examples_plot_loops.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/plot_loops
 .. raw:: html
 
     <div class="sphx-glr-clear"></div>
@@ -100,14 +142,14 @@ Deep Neural Networks
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="example of image classification">
+    <div class="sphx-glr-thumbcontainer" tooltip="example of vanilla RNN for time series regression">
 
 .. only:: html
 
- .. figure:: /auto_examples/01_nns/images/thumb/sphx_glr_mnist_classif_thumb.png
-     :alt: CIFAR10 classification
+ .. figure:: /auto_examples/01_nns/images/thumb/sphx_glr_plot_rnn_thumb.svg
+     :alt: RNN/GRU example
 
-     :ref:`sphx_glr_auto_examples_01_nns_mnist_classif.py`
+     :ref:`sphx_glr_auto_examples_01_nns_plot_rnn.py`
 
 .. raw:: html
 
@@ -117,18 +159,18 @@ Deep Neural Networks
 .. toctree::
    :hidden:
 
-   /auto_examples/01_nns/mnist_classif
+   /auto_examples/01_nns/plot_rnn
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="example of image classification">
+    <div class="sphx-glr-thumbcontainer" tooltip="example of image (MNIST) classification on small part of the data and with a small architecture">
 
 .. only:: html
 
- .. figure:: /auto_examples/01_nns/images/thumb/sphx_glr_cifar10_classif_thumb.png
-     :alt: CIFAR10 classification
+ .. figure:: /auto_examples/01_nns/images/thumb/sphx_glr_plot_mnist_classif_thumb.svg
+     :alt: MNIST classification
 
-     :ref:`sphx_glr_auto_examples_01_nns_cifar10_classif.py`
+     :ref:`sphx_glr_auto_examples_01_nns_plot_mnist_classif.py`
 
 .. raw:: html
 
@@ -138,7 +180,7 @@ Deep Neural Networks
 .. toctree::
    :hidden:
 
-   /auto_examples/01_nns/cifar10_classif
+   /auto_examples/01_nns/plot_mnist_classif
 .. raw:: html
 
     <div class="sphx-glr-clear"></div>
@@ -203,7 +245,7 @@ Datasets
 
 .. only:: html
 
- .. figure:: /auto_examples/02_datasets/images/thumb/sphx_glr_plot_cifar10_thumb.png
+ .. figure:: /auto_examples/02_datasets/images/thumb/sphx_glr_plot_cifar10_thumb.svg
      :alt: CIFAR10 Dataset
 
      :ref:`sphx_glr_auto_examples_02_datasets_plot_cifar10.py`
@@ -288,13 +330,13 @@ Signal Processing
 
   .. container:: sphx-glr-download sphx-glr-download-python
 
-    :download:`Download all examples in Python source code: auto_examples_python.zip <//home/rbal/SymJAX/docs/auto_examples/auto_examples_python.zip>`
+    :download:`Download all examples in Python source code: auto_examples_python.zip <//home/vrael/SymJAX/docs/auto_examples/auto_examples_python.zip>`
 
 
 
   .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-    :download:`Download all examples in Jupyter notebooks: auto_examples_jupyter.zip <//home/rbal/SymJAX/docs/auto_examples/auto_examples_jupyter.zip>`
+    :download:`Download all examples in Jupyter notebooks: auto_examples_jupyter.zip <//home/vrael/SymJAX/docs/auto_examples/auto_examples_jupyter.zip>`
 
 
 .. only:: html
