@@ -21,6 +21,7 @@ __DOC__ = """Street number classification.
     Street View images. 
     """
 
+
 def download(path):
     """
     Download the SVHN dataset and store the result into the given
@@ -51,6 +52,7 @@ def download(path):
     if not os.path.exists(path + "svhn/test_32x32.mat"):
         url = "http://ufldl.stanford.edu/housenumbers/test_32x32.mat"
         urllib.request.urlretrieve(url, path + "svhn/test_32x32.mat")
+
 
 def load(path=None):
     """
@@ -95,8 +97,10 @@ def load(path=None):
     test_labels = np.squeeze(data["y"]) - 1
 
     print("Dataset svhn loaded in", "{0:.2f}".format(time.time() - t0), "s.")
-    dataset = {'train_set/images': train_images.astype('float32'),
-               'train_set/labels': train_labels.astype('int32'),
-               'test_set/images': test_images.astype('float32'),
-               'test_set/labels': test_labels.astype('int32')}
+    dataset = {
+        "train_set/images": train_images.astype("float32"),
+        "train_set/labels": train_labels.astype("int32"),
+        "test_set/images": test_images.astype("float32"),
+        "test_set/labels": test_labels.astype("int32"),
+    }
     return dataset
