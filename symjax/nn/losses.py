@@ -290,7 +290,7 @@ def FGMM_VAE(
     return -(E1 + E2_1 + E2_2 + E2_3 + E2_4 + E3 + E4 + H + Ha)
 
 
-def sparse_crossentropy_logits(p, q, weights=None):
+def sparse_softmax_crossentropy_logits(p, q, weights=None):
     """Cross entropy loss given that :math:`p` is sparse and
     :math:`q` is the log-probability.
 
@@ -329,7 +329,7 @@ def sparse_crossentropy_logits(p, q, weights=None):
         return logsumexp - linear
 
 
-def crossentropy_logits(p, q, p_sparse=True):
+def softmax_crossentropy_logits(p, q):
     """see sparse cross entropy"""
     linear = (p * q).sum(1)
     logsumexp = T.logsumexp(q, 1)
@@ -374,7 +374,7 @@ def multiclass_hinge_loss(predictions, targets, delta=1):
     return T.activations.relu(rest - corrects + delta)
 
 
-def squared_difference(targets, predictions):
+def squared_differences(targets, predictions):
     return (targets - predictions) ** 2
 
 

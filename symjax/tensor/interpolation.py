@@ -4,16 +4,17 @@
 
 import numpy as np
 from .. import tensor as T
+import jax
 
 __author__ = "Randall Balestriero"
 
 _HERMITE = np.array(
-    [[1, 0, -3, 2], [0, 0, 3, -2], [0, 1, -2, 1], [0, 0, -1, 1]], dtype="float32"
+    [[1, 0, -3, 2], [0, 0, 3, -2], [0, 1, -2, 1], [0, 0, -1, 1]], dtype="float32",
 )
 
 
 def upsample_1d(
-    tensor, repeat, axis=-1, mode="constant", value=0.0, boundary_condition="periodic"
+    tensor, repeat, axis=-1, mode="constant", value=0.0, boundary_condition="periodic",
 ):
     """1-d upsampling of tensor
 
@@ -206,3 +207,6 @@ def hermite_2d(values, n_x, n_y):
     y = T.pow(t_y, T.arange(4)[:, None])  # (4,T-1)
     values = T.einsum("xnmij,ia,jb->xnamb", MFM, x, y)
     return T.reshape(values, (n, (R_N) * (n - 1), (R_M) * (n - 1)))
+
+
+map_coordinates = T.jax_wrap(jax.scipy.ndimage.map_coordinates)

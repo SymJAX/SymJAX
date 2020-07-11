@@ -12,7 +12,7 @@ from_scipy = [
     "cho_solve",
     "eigh",
     "expm",
-    "expm_frechet",
+    #   "expm_frechet",
     "inv",
     "lu",
     "lu_factor",

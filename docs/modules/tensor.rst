@@ -27,14 +27,292 @@ of the input data.
 
 Not every function in NumPy is implemented; contributions are welcome!
 
-For/While/Scan
-==============
 
-.. automodule:: symjax.tensor.control_flow
-   :members:
+Numpy Ops
+=========
 
-Numpy
-=====
+
+.. autosummary::
+
+    abs
+    absolute
+    add
+    all
+    allclose
+    alltrue
+    amax
+    amin
+    angle
+    any
+    append
+    arange
+    arccos
+    arccosh
+    arcsin
+    arcsinh
+    arctan
+    arctan2
+    arctanh
+    argmax
+    argmin
+    argsort
+    argwhere
+    around
+    array
+    array_repr
+    array_str
+    asarray
+    atleast_1d
+    atleast_2d
+    atleast_3d
+    bartlett
+    bincount
+    bitwise_and
+    bitwise_not
+    bitwise_or
+    bitwise_xor
+    blackman
+    block
+    broadcast_arrays
+    broadcast_to
+    can_cast
+    ceil
+    clip
+    column_stack
+    compress
+    concatenate
+    conj
+    conjugate
+    convolve
+    copysign
+    corrcoef
+    correlate
+    cos
+    cosh
+    count_nonzero
+    cov
+    cross
+    cumsum
+    cumprod
+    cumproduct
+    deg2rad
+    degrees
+    diag
+    diag_indices
+    diag_indices_from
+    diagflat
+    diagonal
+    digitize
+    divide
+    divmod
+    dot
+    dsplit
+    dstack
+    ediff1d
+    einsum
+    equal
+    empty
+    empty_like
+    exp
+    exp2
+    expand_dims
+    expm1
+    extract
+    eye
+    fabs
+    fix
+    flatnonzero
+    flip
+    fliplr
+    flipud
+    float_power
+    floor
+    floor_divide
+    fmax
+    fmin
+    fmod
+    frexp
+    full
+    full_like
+    gcd
+    geomspace
+    greater
+    greater_equal
+    hamming
+    hanning
+    heaviside
+    histogram
+    histogram_bin_edges
+    hsplit
+    hstack
+    hypot
+    identity
+    imag
+    in1d
+    indices
+    inner
+    isclose
+    iscomplex
+    isfinite
+    isin
+    isinf
+    isnan
+    isneginf
+    isposinf
+    isreal
+    isscalar
+    issubdtype
+    issubsctype
+    ix_
+    kaiser
+    kron
+    lcm
+    ldexp
+    left_shift
+    less
+    less_equal
+    linspace
+    log
+    log10
+    log1p
+    log2
+    logaddexp
+    logaddexp2
+    logical_and
+    logical_not
+    logical_or
+    logical_xor
+    logspace
+    matmul
+    max
+    maximum
+    mean
+    median
+    meshgrid
+    min
+    minimum
+    mod
+    moveaxis
+    msort
+    multiply
+    nan_to_num
+    nanargmax
+    nanargmin
+    nancumprod
+    nancumsum
+    nanmax
+    nanmedian
+    nanmin
+    nanpercentile
+    nanprod
+    nanquantile
+    nansum
+    negative
+    nextafter
+    nonzero
+    not_equal
+    ones
+    ones_like
+    outer
+    packbits
+    pad
+    percentile
+    polyadd
+    polyder
+    polymul
+    polysub
+    polyval
+    power
+    positive
+    prod
+    product
+    promote_types
+    ptp
+    quantile
+    rad2deg
+    radians
+    ravel
+    real
+    reciprocal
+    remainder
+    repeat
+    reshape
+    result_type
+    right_shift
+    rint
+    roll
+    rollaxis
+    roots
+    rot90
+    round
+    row_stack
+    searchsorted
+    select
+    sign
+    signbit
+    sin
+    sinc
+    sinh
+    sometrue
+    sort
+    split
+    sqrt
+    square
+    squeeze
+    stack
+    std
+    subtract
+    sum
+    swapaxes
+    take
+    take_along_axis
+    tan
+    tanh
+    tensordot
+    tile
+    trace
+    transpose
+    tri
+    tril
+    tril_indices
+    tril_indices_from
+    triu
+    triu_indices
+    triu_indices_from
+    true_divide
+    trunc
+    unique
+    unpackbits
+    unravel_index
+    unwrap
+    vander
+    var
+    vdot
+    vsplit
+    vstack
+    where
+    zeros
+    zeros_like
+
+
+
+Control flow Ops
+================
+
+.. autosummary::
+
+    cond
+    fori_loop
+    map
+    scan
+    while_loop
+
+
+
+
+
+Detailed Descriptions
+=====================
 
 
 .. autofunction:: symjax.tensor.abs
@@ -244,6 +522,12 @@ Numpy
 .. autofunction:: symjax.tensor.vstack
 .. autofunction:: symjax.tensor.zeros
 .. autofunction:: symjax.tensor.zeros_like
+
+
+.. automodule:: symjax.tensor.control_flow
+   :members:
+
+
 
 Extra
 =====

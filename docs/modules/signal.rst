@@ -11,41 +11,43 @@ Apodization Windows
 
 .. autosummary::
 
-   symjax.tensor.signal.blackman
-   symjax.tensor.signal.bartlett
-   symjax.tensor.signal.hamming
-   symjax.tensor.signal.hanning
-   symjax.tensor.signal.kaiser
-   symjax.tensor.signal.tukey
+  blackman
+  bartlett
+  hamming
+  hanning
+  kaiser
+  tukey
 
 
 Additional Time-Frequency Representations
 =========================================
 
 .. autosummary::
-  symjax.tensor.signal.mfcc
-  symjax.tensor.signal.dct
-  symjax.tensor.signal.wvd
-  symjax.tensor.signal.hilbert_transform
+  mfcc
+  stft
+  dct
+  wvd
+  hilbert_transform
 
 Filters (Banks)
 ===============
 
 .. autosummary::
-  symjax.tensor.signal.fourier_complex_morlet
-  symjax.tensor.signal.complex_morlet
-  symjax.tensor.signal.morlet
-  symjax.tensor.signal.sinc_bandpass
-  symjax.tensor.signal.mel_filterbank
+  fourier_complex_morlet
+  complex_morlet
+  sinc_bandpass
+  mel_filterbank
 
 Operations
 ==========
 
 .. autosummary::
-  symjax.tensor.signal.convolve
-  symjax.tensor.signal.convolve2d
-  symjax.tensor.signal.correlate
-  symjax.tensor.signal.correlate2d
+  convolve
+  batch_convolve
+  convolve2d
+  correlate
+  correlate2d
+  batch_pool
 
 
 Detailed Descritpions
@@ -56,9 +58,22 @@ Detailed Descritpions
 .. autofunction:: hamming
 .. autofunction:: hanning
 .. autofunction:: kaiser
-
+.. autofunction:: tukey
 
 .. autofunction:: mfcc
+.. autofunction:: stft
 .. autofunction:: dct
 .. autofunction:: wvd
 .. autofunction:: hilbert_transform
+
+.. autofunction:: fourier_complex_morlet
+.. autofunction:: complex_morlet
+.. autofunction:: sinc_bandpass
+.. autofunction:: mel_filterbank
+
+.. autofunction:: convolve
+.. autofunction:: batch_convolve
+.. autofunction:: convolve2d
+.. autofunction:: correlate
+.. autofunction:: correlate2d
+.. autofunction:: batch_pool

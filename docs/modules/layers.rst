@@ -11,7 +11,6 @@ Renormalization
 ===============
 
 .. autosummary::
-  :toctree: _autosummary
 
   BatchNormalization
 
@@ -20,7 +19,6 @@ Data Augmentation
 =================
 
 .. autosummary::
-  :toctree: _autosummary
 
   RandomCrop
   RandomFlip
@@ -31,7 +29,6 @@ Convolution
 ===========
 
 .. autosummary::
-  :toctree: _autosummary
 
   Conv1D
   Conv2D
@@ -40,7 +37,6 @@ Pooling
 =======
 
 .. autosummary::
-  :toctree: _autosummary
 
   Pool1D
   Pool2D
@@ -49,9 +45,26 @@ Recurrent
 =========
 
 .. autosummary::
-  :toctree: _autosummary
 
   RNN
   GRU
   LSTM
 
+
+Detailed Description
+====================
+
+.. autoclass:: BatchNormalization
+.. autoclass:: RandomCrop
+.. autoclass:: RandomFlip
+.. autoclass:: Dropout
+
+.. autoclass:: Conv1D
+.. autoclass:: Conv2D
+
+.. autoclass:: Pool1D
+.. autoclass:: Pool2D
+
+.. autoclass:: RNN
+.. autoclass:: GRU
+.. autoclass:: LSTM

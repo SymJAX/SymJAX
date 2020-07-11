@@ -42,7 +42,7 @@ class Graph(nx.DiGraph):
     def reset(self):
         self.clear()
         self._current_scope = "/"
-        self._scopes = [Scope("main", graph=self)]
+        self._scopes = [Scope("", graph=self)]
         self._updates = {}
         self._scopes_history = []
 
@@ -336,8 +336,8 @@ class Scope:
         if graph is None:
             graph = current_graph()
         self.graph = graph
-        assert len(name)
-        assert "_" != name[-1]
+        # assert len(name)
+        # assert "_" != name[-1]
         self.name = name
         self.full_name = None
 
@@ -353,8 +353,11 @@ class Scope:
                 cpt += 1
             self.name += "_{}".format(cpt)
 
-        self.graph._current_scope += self.name + "/"
-        self.full_name = self.graph._current_scope
+        if len(self.name):
+            self.graph._current_scope += self.name + "/"
+            self.full_name = self.graph._current_scope
+        else:
+            self.full_name = self.graph._current_scope
         self.graph._scopes.append(self)
         self.graph._scopes_history.append(self.full_name)
 

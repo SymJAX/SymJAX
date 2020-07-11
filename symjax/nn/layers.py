@@ -216,7 +216,7 @@ class Conv1D(Layer):
             "W", W, (n_filters, input.shape[1], filter_length), trainable=trainable_W,
         )
         self.create_variable("b", b, (n_filters,), trainable=trainable_b)
-        conv = nn.convNd(
+        conv = T.signal.batch_convolve(
             input,
             self.W,
             strides=self.stride,
@@ -266,7 +266,7 @@ class Conv2DTranspose(Layer):
         )
         self.create_variable("b", b, (n_filters,), trainable=trainable_b)
 
-        conv = T.convNd_transpose(
+        conv = T.signal.batch_convolve_transpose(
             input,
             self.W,
             strides=self.strides,
@@ -313,7 +313,7 @@ class Conv2D(Layer):
         )
         self.create_variable("b", b, (n_filters,), trainable=trainable_b)
 
-        conv = nn.convNd(
+        conv = T.signal.batch_convolve(
             input,
             self.W,
             strides=self.strides,
@@ -344,7 +344,7 @@ class Pool1D(Layer):
         else:
             self.strides = (1, 1, strides)
 
-        return T.poolNd(
+        return T.signal.batch_pool(
             input, self.pool_shape, strides=self.strides, reducer=self.pool_type,
         )
 
@@ -368,7 +368,7 @@ class Pool2D(Layer):
             else:
                 self.strides = (1, 1, strides, strides)
 
-        return nn.poolNd(
+        return T.signal.batch_pool(
             input, self.pool_shape, strides=self.strides, reducer=self.pool_type,
         )
 

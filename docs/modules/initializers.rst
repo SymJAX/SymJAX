@@ -1,9 +1,29 @@
  .. _symjax-nn-initializers:
 
 :mod:`symjax.nn.initializers`
---------------------------
-
-.. autoclass:: symjax.nn.initializers
+-----------------------------
 
 .. automodule:: symjax.nn.initializers
-   :members:
+
+.. autosummary::
+  
+  constant
+  uniform
+  normal
+  orthogonal
+  glorot_uniform
+  glorot
+  he
+  lecun
+
+Detailed Descriptions
+=====================
+
+.. autofunction:: constant
+.. autofunction:: uniform
+.. autofunction:: normal
+.. autofunction:: orthogonal
+.. autofunction:: glorot_uniform
+.. autofunction:: glorot
+.. autofunction:: he
+.. autofunction:: lecun
