@@ -97,6 +97,7 @@ Gallery
   modules/signal
   modules/fft
   modules/random
+  modules/linalg
   modules/nn
   modules/initializers
   modules/layers

@@ -1,17 +1,39 @@
 :mod:`symjax`
 ----------------
 
-.. autoclass:: symjax.function
-
-
-Graph access/manipulation
-'''''''''''''''''''''''''
-
 .. automodule:: symjax
-   :members: get_variables, get_ops, get_placeholers, reset_variables
+
+Graph and Compilation
+=====================
+
+
+.. autosummary::
+  
+  function
+  Graph
+  Scope
+
 
 Derivatives
-'''''''''''
+===========
 
-.. automodule:: symjax
-   :members: gradients, jacobians
+.. autosummary::
+  gradients
+  jacobians
+  
+
+Graph Acces and Manipulation
+============================
+
+.. autosummary::
+  clone
+  current_graph
+  get_variables
+  get_ops
+  get_placeholders
+  get_updates
+  reset_variables
+
+
+
+

@@ -8,22 +8,23 @@
 
 .. autosummary::
 
-  symjax.tensor.signal.fft
-  symjax.tensor.signal.ifft
-  symjax.tensor.signal.fft2
-  symjax.tensor.signal.ifft2
-  symjax.tensor.signal.fftn
-  symjax.tensor.signal.ifftn
-  symjax.tensor.signal.rfft
-  symjax.tensor.signal.irfft
-  symjax.tensor.signal.rfft2
-  symjax.tensor.signal.irfft2
-  symjax.tensor.signal.rfftn
-  symjax.tensor.signal.irfftn
-  symjax.tensor.signal.fftfreq
-  symjax.tensor.signal.rfftfreq
+  fft
+  ifft
+  fft2
+  ifft2
+  fftn
+  ifftn
+  rfft
+  irfft
+  rfft2
+  irfft2
+  rfftn
+  irfftn
+  fftfreq
+  rfftfreq
 
-Detailed Descritpions
+
+Detailed Descriptions
 =====================
 
 

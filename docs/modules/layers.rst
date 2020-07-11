@@ -5,29 +5,33 @@
 
 .. automodule:: symjax.nn.layers
 
+
+
 Renormalization
 ===============
 
 .. autosummary::
+  :toctree: _autosummary
 
-   BatchNormalization
- 
+  BatchNormalization
+
 
 Data Augmentation
 =================
 
 .. autosummary::
+  :toctree: _autosummary
 
-   RandomCrop
-   RandomFlip
-   Dropout
-
+  RandomCrop
+  RandomFlip
+  Dropout
 
 
 Convolution
 ===========
 
 .. autosummary::
+  :toctree: _autosummary
 
   Conv1D
   Conv2D
@@ -36,13 +40,18 @@ Pooling
 =======
 
 .. autosummary::
+  :toctree: _autosummary
 
   Pool1D
   Pool2D
 
-Utilities
+Recurrent
 =========
 
 .. autosummary::
-  forward
+  :toctree: _autosummary
+
+  RNN
+  GRU
+  LSTM
 

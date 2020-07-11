@@ -33,7 +33,7 @@ def test_bn():
         batch = data[BATCH_SIZE * i : BATCH_SIZE * (i + 1)]
         output = update(batch, 0)
         assert np.allclose(
-            output, (batch - batch.mean(0)) / (1e-4 + batch.std(0)), 1e-4
+            output, (batch - batch.mean(0)) / (1e-4 + batch.std(0)), 1e-3
         )
         actual_means.append(get_stats(batch))
         if i == 0:
@@ -66,7 +66,7 @@ def test_dropout():
     output3 = update(data, 1)
 
     assert not np.allclose(output1, output2, 1e-1)
-    assert np.allclose(output1.mean(0) / 2 + output2.mean(0) / 2, 0.2, 0.05)
+    assert np.allclose(output1.mean(0) / 2 + output2.mean(0) / 2, 0.2, 0.08)
     assert np.all(output3)
 
 

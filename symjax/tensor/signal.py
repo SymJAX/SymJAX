@@ -100,7 +100,7 @@ def littewood_paley_normalization(filter_bank, down=None, up=None):
 
 
 def tukey(M, alpha=0.5):
-    r"""Return a Tukey window, also known as a tapered cosine window.
+    """Return a Tukey window, also known as a tapered cosine window.
     Parameters
     ----------
     M : int
@@ -409,7 +409,7 @@ def mfcc(
     https://librosa.github.io/librosa/_modules/librosa/feature/spectral.html#mfcc
     """
     tf = melspectrogram(
-        signal, window, hop, n_filter, low_freq, high_freq, nyquist, nfft, mode, apod
+        signal, window, hop, n_filter, low_freq, high_freq, nyquist, nfft, mode, apod,
     )
     tf_db = power_to_db(tf)
     M = dct(tf_db, axes=(2,))
