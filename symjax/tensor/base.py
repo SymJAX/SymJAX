@@ -70,7 +70,9 @@ def isvar(item):
     # otherwise cheack that it is a subtype of Tensor or a Tracer and not
     # a callable
     else:
-        cond1 = isinstance(item, Tensor) or (type(item) in [Constant, MultiOutputOp])
+        cond1 = isinstance(item, Tensor) or (
+            type(item) in [Constant, MultiOutputOp]
+        )
         #        cond2 = isinstance(item, jax.interpreters.partial_eval.JaxprTracer)
         cond3 = callable(item)
         return cond1 and not cond3  # (cond1 or cond2) and cond3
@@ -229,7 +231,10 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
         docstr = (
             "{summary}\n\nLAX-backend implementation of :func:`{fun}`.\n"
             "{lax_description}Original docstring below.\n\n{body}".format(
-                summary=summary, lax_description=desc, fun=func.__name__, body=body,
+                summary=summary,
+                lax_description=desc,
+                fun=func.__name__,
+                body=body,
             )
         )
 
@@ -251,12 +256,16 @@ def wrap_class(c, method_exceptions=None):
             new_kwargs = {}
             for i in range(len(args)):
                 if isinstance(args[i], Tensor):
-                    new_args.append(jnp.zeros(args[i].shape, dtype=args[i].dtype))
+                    new_args.append(
+                        jnp.zeros(args[i].shape, dtype=args[i].dtype)
+                    )
                 else:
                     new_args.append(args[i])
             for i in kwargs:
                 if isinstance(kwargs[i], Tensor):
-                    new_kwargs[i] = jnp.zeros(kwargs[i].shape, dtype=kwargs[i].dtype)
+                    new_kwargs[i] = jnp.zeros(
+                        kwargs[i].shape, dtype=kwargs[i].dtype
+                    )
                 else:
                     new_kwargs[i] = kwargs[i]
 
@@ -271,7 +280,9 @@ def wrap_class(c, method_exceptions=None):
             news = [
                 n
                 for n in news
-                if isinstance(instance.__dict__[n], jax.interpreters.xla.DeviceArray)
+                if isinstance(
+                    instance.__dict__[n], jax.interpreters.xla.DeviceArray
+                )
             ]
 
             # this function maps the class inputs to the creator generated
@@ -343,7 +354,12 @@ class Constant(Tensor):
         name, scope = symjax.current_graph()._get_name_scope("constant", self)
 
         super().__init__(
-            _attrs={"name": name, "scope": scope, "value": value, "root": False,},
+            _attrs={
+                "name": name,
+                "scope": scope,
+                "value": value,
+                "root": False,
+            },
         )
 
     @property
@@ -389,7 +405,9 @@ class Op(Tensor):
     def __repr__(self):
 
         name = "Op(name={}, fn={}, shape={}, dtype={}, scope={})"
-        return name.format(self.name, self.fn_name, self.shape, self.dtype, self.scope)
+        return name.format(
+            self.name, self.fn_name, self.shape, self.dtype, self.scope
+        )
 
     def __str__(self):
 
@@ -397,7 +415,9 @@ class Op(Tensor):
 
 
 class MultiOutputOp(Op, Tensor):
-    def __init__(self, *args, _jax_function, _shapes, _dtypes, name=None, **kwargs):
+    def __init__(
+        self, *args, _jax_function, _shapes, _dtypes, name=None, **kwargs
+    ):
 
         if name is None:
             name = _jax_function.__name__
@@ -524,7 +544,9 @@ class RandomOp(Op, Tensor):
 
     def __repr__(self):
         name = "RandomOp(name={}, fn={}, shape={}, dtype={}, scope={})"
-        return name.format(self.name, self.fn_name, self.shape, self.dtype, self.scope)
+        return name.format(
+            self.name, self.fn_name, self.shape, self.dtype, self.scope
+        )
 
 
 class Variable(Tensor):
@@ -556,20 +578,30 @@ class Variable(Tensor):
             attribute and can be accessed.
     """
 
-    def __init__(self, initializer, name="unnamed", trainable=True, dtype=None):
+    def __init__(
+        self,
+        initializer,
+        name="unnamed",
+        trainable=True,
+        shape=None,
+        dtype=None,
+    ):
 
         if trainable and dtype == "bool":
             raise RuntimeError("error impossible learning with dtype bool")
 
         name, scope = symjax.current_graph()._get_name_scope(name, self)
-        value = self._reset(initializer, dtype)
+        value = self._reset(initializer, shape, dtype)
+
+        shape = shape if shape is not None else value.shape
+        dtype = jax.numpy.dtype(dtype) if dtype is not None else value.dtype
 
         super().__init__(
             _attrs={
                 "name": name,
                 "scope": scope,
-                "shape": value.shape,
-                "dtype": jax.numpy.dtype(value.dtype),
+                "shape": shape,
+                "dtype": dtype,
                 "trainable": trainable,
                 "initializer": initializer,
                 "root": True,
@@ -585,24 +617,41 @@ class Variable(Tensor):
     def initializer(self):
         return symjax.current_graph().nodes[self]["initializer"]
 
-    def _reset(self, init, dtype):
+    def _reset(self, init, shape, dtype):
         """reset the value of the variable based on the initial one, whether
         it was an array or initializer. If it was a random initializer,
         nothing guarantees that the reset will give back the original value
         as opposed to the array case
         """
+        if type(shape) == list:
+            shape = tuple(shape)
+
+        if callable(init):
+            if shape is None:
+                warnings.warn("given shape was None, using ()")
+                shape = ()
+            init = init(shape)
+
         if isinstance(init, Tensor):
             value = symjax.current_graph().get(init)
         else:
             value = numpy.array(init)
 
         if dtype is not None:
-            return value.astype(dtype)
-        else:
-            return value
+            value = value.astype(dtype)
+
+        if shape is not None:
+            if shape != jax.numpy.shape(value):
+                raise RuntimeError(
+                    "given value and shape do not match (got {} expected {})".format(
+                        value.shape, shape
+                    )
+                )
+
+        return value
 
     def reset(self):
-        self.update(self._reset(self.initializer, self.dtype))
+        self.update(self._reset(self.initializer, self.shape, self.dtype))
 
     @property
     def value(self):
@@ -663,6 +712,7 @@ class Seed(Variable, Tensor):
                 "root": True,
                 "shape": (2,),
                 "dtype": "uint32",
+                "trainable": False,
             },
         )
 

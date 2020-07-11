@@ -52,62 +52,23 @@ class Layer(T.Op):
                 _jax_function=jax.numpy.add,
             )
 
-    def variables(self, trainable=True):
-        if not hasattr(self, "_variables"):
-            return []
-        if trainable is not None:
-            return [v for v in self._variables if v.trainable == trainable]
-        else:
-            return self._variables
-
-    def init_input(self, input_or_shape):
-        if _is_shape(input_or_shape):
-            self.input = T.Placeholder(input_or_shape, "float32")
-        else:
-            self.input = input_or_shape
-
-    def create_tensor(self, tensor_or_func, shape, dtype=None):
-        if not callable(tensor_or_func):
-            if tensor_or_func is None:
-                return None
-            assert tensor_or_func.shape == shape
-            if tensor_or_func.dtype != dtype and dtype is not None:
-                return tensor_or_func.astype(dtype)
-            else:
-                return tensor_or_func
-        if dtype is None:
-            dtype = "float32"
-        try:
-            tensor = tensor_or_func(shape=shape, dtype=dtype)
-        except TypeError:
-            tensor = tensor_or_func(shape=shape).astype(dtype)
-        return tensor
-
-    def create_variable(self, name, tensor_or_func, shape, trainable, dtype=None):
+    def create_variable(
+        self, name, tensor_or_func, shape, trainable, dtype="float32"
+    ):
         if tensor_or_func is None:
             self.__dict__[name] = None
             return
-        t = self.create_tensor(tensor_or_func, shape, dtype)
 
-        if not trainable:
-            self.__dict__[name] = t
-        else:
-            self.__dict__[name] = T.Variable(t, name=name, trainable=True)
-            self.add_variable(self.__dict__[name])
+        self.__dict__[name] = T.Variable(
+            tensor_or_func,
+            name=name,
+            shape=shape,
+            dtype=dtype,
+            trainable=trainable,
+        )
 
-    @property
-    def updates(self):
-        if not hasattr(self, "_updates"):
-            self._updates = {}
-        return self._updates
-
-    def add_update(self, update):
-        symjax.current_graph().add(update)
-
-    def add_variable(self, variable):
-        if not hasattr(self, "_variables"):
-            self._variables = list()
-        self._variables.append(variable)
+    def add_updates(self, update):
+        symjax.current_graph().add_updates(update)
 
     def forward(self):
         pass
@@ -139,7 +100,9 @@ class Upsample2D(Layer):
         p1 = T.upsample_1d(
             input, repeat=repeat[0], axis=axis[0], mode=mode, value=value,
         )
-        p2 = T.upsample_1d(p1, repeat=repeat[1], axis=axis[1], mode=mode, value=value,)
+        p2 = T.upsample_1d(
+            p1, repeat=repeat[1], axis=axis[1], mode=mode, value=value,
+        )
         return p2
 
 
@@ -213,7 +176,10 @@ class Conv1D(Layer):
         self.padding = padding
 
         self.create_variable(
-            "W", W, (n_filters, input.shape[1], filter_length), trainable=trainable_W,
+            "W",
+            W,
+            (n_filters, input.shape[1], filter_length),
+            trainable=trainable_W,
         )
         self.create_variable("b", b, (n_filters,), trainable=trainable_b)
         conv = T.signal.batch_convolve(
@@ -334,7 +300,9 @@ class Pool1D(Layer):
 
     __NAME__ = "Pool1D"
 
-    def forward(self, input_or_shape, pool_shape, pool_type="MAX", strides=None):
+    def forward(
+        self, input_or_shape, pool_shape, pool_type="MAX", strides=None
+    ):
 
         self.init_input(input_or_shape)
         self.pool_type = pool_type
@@ -345,7 +313,10 @@ class Pool1D(Layer):
             self.strides = (1, 1, strides)
 
         return T.signal.batch_pool(
-            input, self.pool_shape, strides=self.strides, reducer=self.pool_type,
+            input,
+            self.pool_shape,
+            strides=self.strides,
+            reducer=self.pool_type,
         )
 
 
@@ -369,7 +340,10 @@ class Pool2D(Layer):
                 self.strides = (1, 1, strides, strides)
 
         return T.signal.batch_pool(
-            input, self.pool_shape, strides=self.strides, reducer=self.pool_type,
+            input,
+            self.pool_shape,
+            strides=self.strides,
+            reducer=self.pool_type,
         )
 
 
@@ -513,7 +487,8 @@ class RandomCrop(Layer):
         # else
         else:
             self.pad_shape = [
-                (pad, pad) if not hasattr(pad, "__len__") else pad for pad in padding
+                (pad, pad) if not hasattr(pad, "__len__") else pad
+                for pad in padding
             ]
 
         assert len(self.pad_shape) == len(self.crop_shape)
@@ -549,14 +524,18 @@ class RandomCrop(Layer):
 
         routput = T.stack(
             [
-                T.dynamic_slice(pinput[n], self.start_indices[n], self.crop_shape)
+                T.dynamic_slice(
+                    pinput[n], self.start_indices[n], self.crop_shape
+                )
                 for n in range(input.shape[0])
             ],
             0,
         )
         doutput = T.stack(
             [
-                T.dynamic_slice(pinput[n], self.fixed_indices[n], self.crop_shape)
+                T.dynamic_slice(
+                    pinput[n], self.fixed_indices[n], self.crop_shape
+                )
                 for n in range(input.shape[0])
             ],
             0,
@@ -633,15 +612,21 @@ class BatchNormalization(Layer):
         self.create_variable("b", b, parameter_shape, trainable=trainable_b)
 
         self.input_mean = T.mean(input, reduce_axes, keepdims=True)
-        self.input_inv_std = 1 / (T.std(input, reduce_axes, keepdims=True) + const)
+        self.input_inv_std = 1 / (
+            T.std(input, reduce_axes, keepdims=True) + const
+        )
 
-        self.avg_mean = schedules.ExponentialMovingAverage(self.input_mean, beta1)[1]
+        self.avg_mean = schedules.ExponentialMovingAverage(
+            self.input_mean, beta1
+        )[1]
         self.avg_inv_std = schedules.ExponentialMovingAverage(
             self.input_inv_std, beta2
         )[1]
 
         use_mean = T.where(deterministic, self.avg_mean, self.input_mean)
-        use_inv_std = T.where(deterministic, self.avg_inv_std, self.input_inv_std)
+        use_inv_std = T.where(
+            deterministic, self.avg_inv_std, self.input_inv_std
+        )
         W = self.W or 1.0
         b = self.b if self.b is not None else 0.0
         return W * (input - use_mean) * use_inv_std + b
@@ -671,7 +656,9 @@ class RNN(Layer):
         only_last=False,
     ):
 
-        self.create_variable("W", W, (sequence.shape[2], units), trainable=trainable_W)
+        self.create_variable(
+            "W", W, (sequence.shape[2], units), trainable=trainable_W
+        )
         self.create_variable("H", H, (units, units), trainable=trainable_H)
         self.create_variable("b", b, (units), trainable=trainable_b)
 
@@ -751,7 +738,9 @@ class GRU(Layer):
             self.create_variable(
                 "Wr", Wr, (sequence.shape[2], units), trainable=trainable_Wr
             )
-            self.create_variable("Ur", Ur, (units, units), trainable=trainable_Ur)
+            self.create_variable(
+                "Ur", Ur, (units, units), trainable=trainable_Ur
+            )
             self.create_variable("br", br, (units), trainable=trainable_br)
 
         if gate == "minimal":
@@ -763,7 +752,14 @@ class GRU(Layer):
                 fn,
                 init=init_h,
                 sequences=[sequence.transpose((1, 0, 2))],
-                non_sequences=[self.Wh, self.Uh, self.bh, self.Wz, self.Uz, self.bz,],
+                non_sequences=[
+                    self.Wh,
+                    self.Uh,
+                    self.bh,
+                    self.Wz,
+                    self.Uz,
+                    self.bz,
+                ],
             )
 
         elif gate == "full":
