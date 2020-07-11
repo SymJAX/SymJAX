@@ -106,6 +106,27 @@ Introductory examples that teach how to use SymJAX.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="demonstration on how to learn a deconvolutional filter based on some flavors of gradietn descen...">
+
+.. only:: html
+
+ .. figure:: /auto_examples/images/thumb/sphx_glr_plot_deconvolution_thumb.svg
+     :alt: Basic (linear) deconvolution filter learning
+
+     :ref:`sphx_glr_auto_examples_plot_deconvolution.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/plot_deconvolution
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="In this example we demonstrate how to employ the :py:func:`symjax.tensor.scan` and other simila...">
 
 .. only:: html

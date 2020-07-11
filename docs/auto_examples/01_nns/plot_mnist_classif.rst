@@ -29,7 +29,9 @@ and with a small architecture
  .. code-block:: none
 
     Loading mnist
-    Dataset mnist loaded in 0.80s.
+    Dataset mnist loaded in 1.94s.
+    /home/vrael/anaconda3/envs/jax/lib/python3.7/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
+      warnings.warn('No GPU/TPU found, falling back to CPU.')
     (32, 1, 28, 28)
     (32, 32, 28, 28)
     (32, 32, 28, 28)
@@ -46,27 +48,27 @@ and with a small architecture
     (32, 32, 1, 1)
     (32, 10)
     Test Loss and Accu: [2.302591   0.09805689]
-    Train Loss and Accu [3.4418683 0.46875  ]
-    Test Loss and Accu: [1.73178   0.5822316]
-    Train Loss and Accu [0.7434195 0.7883065]
-    Test Loss and Accu: [0.61963654 0.7948718 ]
-    Train Loss and Accu [0.4261073 0.8770161]
-    Test Loss and Accu: [0.37661102 0.8838141 ]
-    Train Loss and Accu [0.32130373 0.9107863 ]
-    Test Loss and Accu: [0.3132592 0.9092548]
-    Train Loss and Accu [0.26758078 0.92741936]
-    Test Loss and Accu: [0.26993492 0.9197716 ]
-    Train Loss and Accu [0.21081425 0.9395161 ]
-    Test Loss and Accu: [0.2637209  0.92327726]
-    Train Loss and Accu [0.17054023 0.95060486]
-    Test Loss and Accu: [0.2689621  0.92007214]
-    Train Loss and Accu [0.14728892 0.9621976 ]
-    Test Loss and Accu: [0.2956763  0.90494794]
-    Train Loss and Accu [0.12621711 0.96622986]
-    Test Loss and Accu: [0.20010045 0.93940306]
-    Train Loss and Accu [0.10153283 0.97278225]
+    Train Loss and Accu [4.317519  0.4077621]
+    Test Loss and Accu: [2.0085776  0.54096556]
+    Train Loss and Accu [1.0729111  0.71622986]
+    Test Loss and Accu: [0.761555   0.76742786]
+    Train Loss and Accu [0.5668073 0.8210685]
+    Test Loss and Accu: [0.5893349  0.79977965]
+    Train Loss and Accu [0.39215317 0.88508064]
+    Test Loss and Accu: [0.36009136 0.9001402 ]
+    Train Loss and Accu [0.3160174 0.9077621]
+    Test Loss and Accu: [0.40013826 0.8711939 ]
+    Train Loss and Accu [0.28734395 0.9128024 ]
+    Test Loss and Accu: [0.33410507 0.8999399 ]
+    Train Loss and Accu [0.216163  0.9470766]
+    Test Loss and Accu: [0.29659674 0.9097556 ]
+    Train Loss and Accu [0.19616833 0.95060486]
+    Test Loss and Accu: [0.28937742 0.91215944]
+    Train Loss and Accu [0.18014076 0.95060486]
+    Test Loss and Accu: [0.30587545 0.9082532 ]
+    Train Loss and Accu [0.16285737 0.95715725]
 
-    Text(0.5, 1.0, 'MNIST (1K data) classification task')
+    Text(0.5, 0.98, 'MNIST (1K data) classification task')
 
 
 
@@ -143,6 +145,7 @@ and with a small architecture
     )
 
     test_accuracy = []
+    train_accuracy = []
 
     for epoch in range(10):
         L = list()
@@ -163,17 +166,30 @@ and with a small architecture
             option="random_see_all",
         ):
             L.append(train(x, y, 0))
+        train_accuracy.append(np.mean(L, 0))
         print("Train Loss and Accu", np.mean(L, 0))
 
-    plt.plot(test_accuracy)
+    train_accuracy = np.array(train_accuracy)
+    test_accuracy = np.array(test_accuracy)
+
+    plt.subplot(121)
+    plt.plot(test_accuracy[:, 1], c="k")
+    plt.plot(train_accuracy[:, 1], c="b")
     plt.xlabel("epochs")
     plt.ylabel("accuracy")
-    plt.title("MNIST (1K data) classification task")
+
+    plt.subplot(122)
+    plt.plot(test_accuracy[:, 0], c="k")
+    plt.plot(train_accuracy[:, 0], c="b")
+    plt.xlabel("epochs")
+    plt.ylabel("accuracy")
+
+    plt.suptitle("MNIST (1K data) classification task")
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 1 minutes  3.856 seconds)
+   **Total running time of the script:** ( 1 minutes  26.475 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_nns_plot_mnist_classif.py:

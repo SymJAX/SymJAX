@@ -81,7 +81,7 @@ rule to minimize some loss function
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.251 seconds)
+   **Total running time of the script:** ( 0 minutes  0.433 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_sgd.py:

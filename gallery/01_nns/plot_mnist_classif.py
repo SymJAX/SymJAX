@@ -91,6 +91,9 @@ for epoch in range(10):
     train_accuracy.append(np.mean(L, 0))
     print("Train Loss and Accu", np.mean(L, 0))
 
+train_accuracy = np.array(train_accuracy)
+test_accuracy = np.array(test_accuracy)
+
 plt.subplot(121)
 plt.plot(test_accuracy[:, 1], c="k")
 plt.plot(train_accuracy[:, 1], c="b")

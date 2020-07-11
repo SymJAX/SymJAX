@@ -118,7 +118,7 @@ tiem series regression and classification
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  2.589 seconds)
+   **Total running time of the script:** ( 0 minutes  4.380 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_datasets_plot_rntk.py:

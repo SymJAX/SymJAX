@@ -67,6 +67,7 @@ train = symjax.function(
 )
 
 test_accuracy = []
+train_accuracy = []
 
 for epoch in range(10):
     L = list()
@@ -87,9 +88,22 @@ for epoch in range(10):
         option="random_see_all",
     ):
         L.append(train(x, y, 0))
+    train_accuracy.append(np.mean(L, 0))
     print("Train Loss and Accu", np.mean(L, 0))
 
-plt.plot(test_accuracy)
+train_accuracy = np.array(train_accuracy)
+test_accuracy = np.array(test_accuracy)
+
+plt.subplot(121)
+plt.plot(test_accuracy[:, 1], c="k")
+plt.plot(train_accuracy[:, 1], c="b")
 plt.xlabel("epochs")
 plt.ylabel("accuracy")
-plt.title("MNIST (1K data) classification task")
+
+plt.subplot(122)
+plt.plot(test_accuracy[:, 0], c="k")
+plt.plot(train_accuracy[:, 0], c="b")
+plt.xlabel("epochs")
+plt.ylabel("accuracy")
+
+plt.suptitle("MNIST (1K data) classification task")

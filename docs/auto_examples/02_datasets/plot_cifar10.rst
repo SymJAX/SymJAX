@@ -28,8 +28,8 @@ This example shows how to download/load/import CIFAR10
 
  .. code-block:: none
 
-    Loading cifar10:   0%|          | 0/5 [00:00<?, ?it/s]    Loading cifar10:  20%|##        | 1/5 [00:03<00:12,  3.09s/it]    Loading cifar10:  40%|####      | 2/5 [00:03<00:07,  2.41s/it]    Loading cifar10:  60%|######    | 3/5 [00:04<00:03,  1.87s/it]    Loading cifar10:  80%|########  | 4/5 [00:04<00:01,  1.37s/it]    Loading cifar10: 100%|##########| 5/5 [00:05<00:00,  1.20s/it]    Loading cifar10: 100%|##########| 5/5 [00:05<00:00,  1.11s/it]
-    Dataset cifar10 loaded in6.15s.
+    Loading cifar10:   0%|          | 0/5 [00:00<?, ?it/s]    Loading cifar10:  20%|##        | 1/5 [00:04<00:16,  4.13s/it]    Loading cifar10:  40%|####      | 2/5 [00:05<00:09,  3.25s/it]    Loading cifar10:  60%|######    | 3/5 [00:06<00:05,  2.54s/it]    Loading cifar10:  80%|########  | 4/5 [00:06<00:01,  1.86s/it]    Loading cifar10: 100%|##########| 5/5 [00:07<00:00,  1.64s/it]    Loading cifar10: 100%|##########| 5/5 [00:07<00:00,  1.52s/it]
+    Dataset cifar10 loaded in10.33s.
 
 
 
@@ -66,7 +66,7 @@ This example shows how to download/load/import CIFAR10
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  6.365 seconds)
+   **Total running time of the script:** ( 0 minutes  10.720 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_datasets_plot_cifar10.py:

@@ -43,11 +43,7 @@ class Graph(nx.DiGraph):
         self.clear()
         self._current_scope = "/"
         self._scopes = [Scope("main", graph=self)]
-        self._variables = {}
-        self._placeholders = {}
         self._updates = {}
-        self._ops = {}
-        self._other_nodes = {}
         self._scopes_history = []
 
     def __repr__(self):
@@ -202,17 +198,12 @@ class Graph(nx.DiGraph):
 
         if not t.isvar(item):
             return item
+
         if type(item) == list:
             return [self.get(i, tracker, frozen=frozen) for i in item]
+
         elif type(item) == tuple:
             return tuple([self.get(i, tracker, frozen=frozen) for i in item])
-        # elif type(item) == t.Tuple:
-        #     return tuple(
-        #         [
-        #             self.get(i, tracker, frozen=frozen)
-        #             for i in self.predecessors(item)
-        #         ]
-        #     )
 
         elif item in tracker:
             return tracker[item]
@@ -290,13 +281,20 @@ class Graph(nx.DiGraph):
         ops = [n for n in self.nodes if type(n) in [t.Op, t.MultiOutputOp]]
         return ops
 
-    def updates(self, name="*"):
-        sub = {}
-        for v in self._updates:
-            matched = fnmatch.filter([v.name], name)
-            if len(matched):
-                sub[v] = self._updates[v]
-        return sub
+    @property
+    def updates(self):
+        return self._updates
+
+    @property
+    def other_nodes(self):
+        return list(
+            set(self.nodes)
+            - (
+                set(self.ops).union(
+                    set(self.placeholders).union(set(self.variables(None)))
+                )
+            )
+        )
 
 
 class Scope:
@@ -403,63 +401,63 @@ class Scope:
         if self.full_name is None:
             self.__enter__()
 
+        if isinstance(tensor, symjax.tensor.Placeholder):
+            nodes = self.graph.placeholders
+        elif isinstance(tensor, symjax.tensor.Variable):
+            nodes = self.graph.variables(None)
+        elif isinstance(tensor, symjax.tensor.Op):
+            nodes = self.graph.ops
+        else:
+            nodes = self.graph.other_nodes
+
+        names = [m.scope + m.name for m in nodes if hasattr(m, "name")]
         scope = self.full_name
         test_name = self.full_name + name
-        if isinstance(tensor, symjax.tensor.Placeholder):
-            names = self.graph._placeholders
-        elif isinstance(tensor, symjax.tensor.Variable):
-            names = self.graph._variables
-        elif isinstance(tensor, symjax.tensor.Op):
-            names = self.graph._ops
-        else:
-            names = self.graph._other_nodes
 
-        if test_name not in names.keys():
-            names[test_name] = tensor
+        if test_name not in names:
             return name, scope
 
         count = 1
-        while test_name + "_" + str(count) in names.keys():
+        while test_name + "_" + str(count) in names:
             count += 1
 
-        names[test_name + "_" + str(count)] = tensor
         return name + "_" + str(count), scope
 
-    def add(self, tensor):
+    # def add(self, tensor):
 
-        if not t.isvar(tensor) or type(tensor) == tuple:
-            return
+    #     if not t.isvar(tensor) or type(tensor) == tuple:
+    #         return
 
-        # fake graph entrance if not used by user
-        if self.full_name is None:
-            self.__enter__()
+    #     # fake graph entrance if not used by user
+    #     if self.full_name is None:
+    #         self.__enter__()
 
-        # in this case we were given updates
-        if type(tensor) == dict:
-            self.graph._updates.update(tensor)
-            return
+    #     # in this case we were given updates
+    #     if type(tensor) == dict:
+    #         self.graph._updates.update(tensor)
+    #         return
 
-        tensor.scope = self.full_name
-        name = self.full_name + tensor.name
-        if isinstance(tensor, symjax.tensor.Placeholder):
-            names = self.graph._placeholders
-        elif isinstance(tensor, symjax.tensor.Variable):
-            names = self.graph._variables
-        else:
-            names = self.graph._ops
+    #     tensor.scope = self.full_name
+    #     name = self.full_name + tensor.name
+    #     if isinstance(tensor, symjax.tensor.Placeholder):
+    #         names = self.graph._placeholders
+    #     elif isinstance(tensor, symjax.tensor.Variable):
+    #         names = self.graph._variables
+    #     else:
+    #         names = self.graph._ops
 
-        if name not in names.keys():
-            names[name] = tensor
-            return
+    #     if name not in names.keys():
+    #         names[name] = tensor
+    #         return
 
-        count = 1
-        while True:
-            if name + "_" + str(count) in names.keys():
-                count += 1
-            else:
-                break
-        names[name + "_" + str(count)] = tensor
-        tensor._set_name(tensor.name + "_" + str(count))
+    #     count = 1
+    #     while True:
+    #         if name + "_" + str(count) in names.keys():
+    #             count += 1
+    #         else:
+    #             break
+    #     names[name + "_" + str(count)] = tensor
+    #     tensor._set_name(tensor.name + "_" + str(count))
 
 
 def reset_variables(name="*", trainable=None):
@@ -591,15 +589,29 @@ def get_ops(name="*", scope="*"):
     return output
 
 
+def get_updates(name="*", scope="*", variables=None):
+    """
+    Same as symjax.variable but for ops
+    """
+    matched = current_graph().updates
+    output = {}
+
+    if variables is not None:
+        for v in variables:
+            if v in matched:
+                output[v] = matched[v]
+        return output
+
+    for m in matched:
+        if len(fnmatch.filter([m.name], name)) and len(
+            fnmatch.filter([m.scope], scope)
+        ):
+            output[m] = matched[m]
+    return output
+
+
 def add_updates(updates):
     current_scope().add_updates(updates)
-
-
-def get_updates(name="*"):
-    """
-    Same as symjax.get_variables but for updates
-    """
-    return current_graph().updates(name)
 
 
 def gradients(scalar, variables):

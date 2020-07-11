@@ -27,7 +27,7 @@ example of vanilla RNN for time series regression
 
  .. code-block:: none
 
-    /home/vrael/SymJAX/gallery/01_nns/plot_rnn.py:92: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+    /home/vrael/SymJAX/gallery/01_nns/plot_rnn.py:90: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
       plt.show()
 
 
@@ -55,9 +55,7 @@ example of vanilla RNN for time series regression
 
     np.random.seed(0)
 
-    timeseries = T.Placeholder(
-        (BATCH_SIZE, TIME, C), "float32", name="time-series"
-    )
+    timeseries = T.Placeholder((BATCH_SIZE, TIME, C), "float32", name="time-series")
     target = T.Placeholder((BATCH_SIZE, TIME), "float32", name="target")
 
     rnn = nn.layers.RNN(timeseries, np.zeros((BATCH_SIZE, WIDTH)), WIDTH)
@@ -130,7 +128,7 @@ example of vanilla RNN for time series regression
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  34.405 seconds)
+   **Total running time of the script:** ( 0 minutes  47.108 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_nns_plot_rnn.py:
