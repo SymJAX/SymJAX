@@ -566,7 +566,7 @@ class Variable(Tensor):
         name, scope = symjax.current_graph()._get_name_scope(name, self)
         value = self._reset(initializer, shape, dtype)
 
-        shape = shape if shape is not None else value.shape
+        shape = tuple(shape) if shape is not None else value.shape
         dtype = jax.numpy.dtype(dtype) if dtype is not None else value.dtype
 
         super().__init__(
@@ -640,8 +640,11 @@ class Variable(Tensor):
 
         if self.shape != jax.numpy.shape(new_value):
             warnings.warn(
-                "Variable and update {} {}".format(self, new_value)
-                + "are not the same shape... attempting to reshape"
+                "Variable and update of {}".format(self)
+                + "are not the same shape (expected {}, got {}".format(
+                    self.shape, jax.numpy.shape(new_value)
+                )
+                + "... attempting to cast"
             )
             new_value = jax.numpy.reshape(new_value, self.shape)
 
@@ -696,6 +699,9 @@ class Seed(Variable, Tensor):
     def __repr__(self):
         name = "Seed(name={}, scope={})"
         return name.format(self.name, self.scope)
+
+    def reset(self):
+        pass
 
 
 class Placeholder(Tensor):
