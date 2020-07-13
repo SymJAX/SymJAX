@@ -22,7 +22,8 @@ from_scipy = [
     "triu",
 ]
 
-NAMES = [c[0] for c in inspect.getmembers(jnpl, inspect.isfunction)]
+NAMES = [c[0] for c in inspect.getmembers(jnpl, inspect.isfunction)] + ["pinv"]
+
 module = sys.modules[__name__]
 for name in NAMES:
     if name not in from_scipy:
