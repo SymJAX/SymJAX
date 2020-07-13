@@ -5,12 +5,14 @@
 
 Computation times
 =================
-**00:26.230** total execution time for **auto_examples** files:
+**00:01.973** total execution time for **auto_examples** files:
 
 +---------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_auto_examples_plot_deconvolution.py` (``plot_deconvolution.py``) | 00:26.230 | 0.0 MB |
+| :ref:`sphx_glr_auto_examples_plot_tps.py` (``plot_tps.py``)                     | 00:01.973 | 0.0 MB |
 +---------------------------------------------------------------------------------+-----------+--------+
 | :ref:`sphx_glr_auto_examples_plot_adam.py` (``plot_adam.py``)                   | 00:00.000 | 0.0 MB |
++---------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_plot_deconvolution.py` (``plot_deconvolution.py``) | 00:00.000 | 0.0 MB |
 +---------------------------------------------------------------------------------+-----------+--------+
 | :ref:`sphx_glr_auto_examples_plot_interpolation.py` (``plot_interpolation.py``) | 00:00.000 | 0.0 MB |
 +---------------------------------------------------------------------------------+-----------+--------+

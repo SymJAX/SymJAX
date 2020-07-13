@@ -106,6 +106,27 @@ Introductory examples that teach how to use SymJAX.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="we demonstrate in this toy example how to use the coordinate interpolation techniques with lear...">
+
+.. only:: html
+
+ .. figure:: /auto_examples/images/thumb/sphx_glr_plot_tps_thumb.svg
+     :alt: Pixel interpolation learning
+
+     :ref:`sphx_glr_auto_examples_plot_tps.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/plot_tps
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="demonstration on how to learn a deconvolutional filter based on some flavors of gradietn descen...">
 
 .. only:: html

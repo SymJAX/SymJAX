@@ -51,7 +51,7 @@ for l in layer:
     print(l.shape)
 
 
-loss = nn.losses.sparse_crossentropy_logits(labels, layer[-1]).mean()
+loss = nn.losses.sparse_softmax_crossentropy_logits(labels, layer[-1]).mean()
 accuracy = nn.losses.accuracy(labels, layer[-1])
 
 nn.optimizers.Adam(loss, 0.01)
