@@ -463,7 +463,7 @@ class Scope:
     #     tensor._set_name(tensor.name + "_" + str(count))
 
 
-def reset_variables(name="*", trainable=None):
+def reset_variables(name="*", scope="*", trainable=None):
     """
     utility to reset variables based on their names
 
@@ -513,7 +513,7 @@ def reset_variables(name="*", trainable=None):
 
     """
 
-    variables = get_variables(name, trainable=trainable)
+    variables = get_variables(name=name, scope=scope, trainable=trainable)
     for var in variables:
         var.reset()
 

@@ -556,20 +556,25 @@ class Variable(Tensor):
             attribute and can be accessed.
     """
 
-    def __init__(self, initializer, name="unnamed", trainable=True, dtype=None):
+    def __init__(
+        self, initializer, name="unnamed", trainable=True, shape=None, dtype=None,
+    ):
 
         if trainable and dtype == "bool":
             raise RuntimeError("error impossible learning with dtype bool")
 
         name, scope = symjax.current_graph()._get_name_scope(name, self)
-        value = self._reset(initializer, dtype)
+        value = self._reset(initializer, shape, dtype)
+
+        shape = tuple(shape) if shape is not None else value.shape
+        dtype = jax.numpy.dtype(dtype) if dtype is not None else value.dtype
 
         super().__init__(
             _attrs={
                 "name": name,
                 "scope": scope,
-                "shape": value.shape,
-                "dtype": jax.numpy.dtype(value.dtype),
+                "shape": shape,
+                "dtype": dtype,
                 "trainable": trainable,
                 "initializer": initializer,
                 "root": True,
@@ -585,24 +590,41 @@ class Variable(Tensor):
     def initializer(self):
         return symjax.current_graph().nodes[self]["initializer"]
 
-    def _reset(self, init, dtype):
+    def _reset(self, init, shape, dtype):
         """reset the value of the variable based on the initial one, whether
         it was an array or initializer. If it was a random initializer,
         nothing guarantees that the reset will give back the original value
         as opposed to the array case
         """
+        if type(shape) == list:
+            shape = tuple(shape)
+
+        if callable(init):
+            if shape is None:
+                warnings.warn("given shape was None, using ()")
+                shape = ()
+            init = init(shape)
+
         if isinstance(init, Tensor):
             value = symjax.current_graph().get(init)
         else:
             value = numpy.array(init)
 
         if dtype is not None:
-            return value.astype(dtype)
-        else:
-            return value
+            value = value.astype(dtype)
+
+        if shape is not None:
+            if shape != jax.numpy.shape(value):
+                raise RuntimeError(
+                    "given value and shape do not match (got {} expected {})".format(
+                        value.shape, shape
+                    )
+                )
+
+        return value
 
     def reset(self):
-        self.update(self._reset(self.initializer, self.dtype))
+        self.update(self._reset(self.initializer, self.shape, self.dtype))
 
     @property
     def value(self):
@@ -618,8 +640,11 @@ class Variable(Tensor):
 
         if self.shape != jax.numpy.shape(new_value):
             warnings.warn(
-                "Variable and update {} {}".format(self, new_value)
-                + "are not the same shape... attempting to reshape"
+                "Variable and update of {}".format(self)
+                + "are not the same shape (expected {}, got {}".format(
+                    self.shape, jax.numpy.shape(new_value)
+                )
+                + "... attempting to cast"
             )
             new_value = jax.numpy.reshape(new_value, self.shape)
 
@@ -663,6 +688,7 @@ class Seed(Variable, Tensor):
                 "root": True,
                 "shape": (2,),
                 "dtype": "uint32",
+                "trainable": False,
             },
         )
 
@@ -673,6 +699,9 @@ class Seed(Variable, Tensor):
     def __repr__(self):
         name = "Seed(name={}, scope={})"
         return name.format(self.name, self.scope)
+
+    def reset(self):
+        pass
 
 
 class Placeholder(Tensor):

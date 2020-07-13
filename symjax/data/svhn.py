@@ -6,8 +6,7 @@ import numpy as np
 import time
 
 
-class svhn:
-    """Street number classification.
+__DOC__ = """Street number classification.
 
     The `SVHN <http://ufldl.stanford.edu/housenumbers/>`_
     dataset is a real-world 
@@ -22,78 +21,86 @@ class svhn:
     Street View images. 
     """
 
-    def download(path):
-        """
-        Download the SVHN dataset and store the result into the given
-        path
 
-        Parameters
-        ----------
+def download(path):
+    """
+    Download the SVHN dataset and store the result into the given
+    path
 
-            path: str
-                the path where the downloaded files will be stored. If the
-                directory does not exist, it is created.
-        """
+    Parameters
+    ----------
 
-        # Load the dataset (download if necessary) and set
-        # the class attributess.
-        print("Loading svhn")
+        path: str
+            the path where the downloaded files will be stored. If the
+            directory does not exist, it is created.
+    """
 
-        t0 = time.time()
+    # Load the dataset (download if necessary) and set
+    # the class attributess.
+    print("Loading svhn")
 
-        if not os.path.isdir(path + "svhn"):
-            os.mkdir(path + "svhn")
-            print("\tCreating svhn Directory")
+    t0 = time.time()
 
-        if not os.path.exists(path + "svhn/train_32x32.mat"):
-            url = "http://ufldl.stanford.edu/housenumbers/train_32x32.mat"
-            urllib.request.urlretrieve(url, path + "svhn/train_32x32.mat")
+    if not os.path.isdir(path + "svhn"):
+        os.mkdir(path + "svhn")
+        print("\tCreating svhn Directory")
 
-        if not os.path.exists(path + "svhn/test_32x32.mat"):
-            url = "http://ufldl.stanford.edu/housenumbers/test_32x32.mat"
-            urllib.request.urlretrieve(url, path + "svhn/test_32x32.mat")
+    if not os.path.exists(path + "svhn/train_32x32.mat"):
+        url = "http://ufldl.stanford.edu/housenumbers/train_32x32.mat"
+        urllib.request.urlretrieve(url, path + "svhn/train_32x32.mat")
 
-    def load(path=None):
-        """
-        Parameters
-        ----------
-            path: str (optional)
-                default $DATASET_PATH, the path to look for the data and
-                where the data will be downloaded if not present
-
-        Returns
-        -------
-
-            train_images: array
-
-            train_labels: array
-
-            test_images: array
-
-            test_labels: array
+    if not os.path.exists(path + "svhn/test_32x32.mat"):
+        url = "http://ufldl.stanford.edu/housenumbers/test_32x32.mat"
+        urllib.request.urlretrieve(url, path + "svhn/test_32x32.mat")
 
 
-        """
-        if path is None:
-            path = os.environ["DATASET_PATH"]
+def load(path=None):
+    """
+    Parameters
+    ----------
+        path: str (optional)
+            default $DATASET_PATH, the path to look for the data and
+            where the data will be downloaded if not present
 
-        svhn.download(path)
+    Returns
+    -------
 
-        # Load the dataset (download if necessary) and set
-        # the class attributess.
-        print("Loading svhn")
+        train_images: array
 
-        t0 = time.time()
+        train_labels: array
 
-        # Train set
-        data = sio.loadmat(path + "svhn/train_32x32.mat")
-        train_images = data["X"].transpose([3, 2, 0, 1])
-        train_labels = np.squeeze(data["y"]) - 1
+        test_images: array
 
-        # Test set
-        data = sio.loadmat(path + "svhn/test_32x32.mat")
-        test_images = data["X"].transpose([3, 2, 0, 1])
-        test_labels = np.squeeze(data["y"]) - 1
+        test_labels: array
 
-        print("Dataset svhn loaded in", "{0:.2f}".format(time.time() - t0), "s.")
-        return train_images, train_labels, test_images, test_labels
+
+    """
+    if path is None:
+        path = os.environ["DATASET_PATH"]
+
+    download(path)
+
+    # Load the dataset (download if necessary) and set
+    # the class attributess.
+    print("Loading svhn")
+
+    t0 = time.time()
+
+    # Train set
+    data = sio.loadmat(path + "svhn/train_32x32.mat")
+    train_images = data["X"].transpose([3, 2, 0, 1])
+    train_labels = np.squeeze(data["y"]) - 1
+
+    # Test set
+    data = sio.loadmat(path + "svhn/test_32x32.mat")
+    test_images = data["X"].transpose([3, 2, 0, 1])
+    test_labels = np.squeeze(data["y"]) - 1
+
+    print("Dataset svhn loaded in", "{0:.2f}".format(time.time() - t0), "s.")
+    dataset = {
+        "train_set/images": train_images.astype("float32"),
+        "train_set/labels": train_labels.astype("int32"),
+        "test_set/images": test_images.astype("float32"),
+        "test_set/labels": test_labels.astype("int32"),
+    }
+    return dataset

@@ -52,62 +52,17 @@ class Layer(T.Op):
                 _jax_function=jax.numpy.add,
             )
 
-    def variables(self, trainable=True):
-        if not hasattr(self, "_variables"):
-            return []
-        if trainable is not None:
-            return [v for v in self._variables if v.trainable == trainable]
-        else:
-            return self._variables
-
-    def init_input(self, input_or_shape):
-        if _is_shape(input_or_shape):
-            self.input = T.Placeholder(input_or_shape, "float32")
-        else:
-            self.input = input_or_shape
-
-    def create_tensor(self, tensor_or_func, shape, dtype=None):
-        if not callable(tensor_or_func):
-            if tensor_or_func is None:
-                return None
-            assert tensor_or_func.shape == shape
-            if tensor_or_func.dtype != dtype and dtype is not None:
-                return tensor_or_func.astype(dtype)
-            else:
-                return tensor_or_func
-        if dtype is None:
-            dtype = "float32"
-        try:
-            tensor = tensor_or_func(shape=shape, dtype=dtype)
-        except TypeError:
-            tensor = tensor_or_func(shape=shape).astype(dtype)
-        return tensor
-
-    def create_variable(self, name, tensor_or_func, shape, trainable, dtype=None):
+    def create_variable(self, name, tensor_or_func, shape, trainable, dtype="float32"):
         if tensor_or_func is None:
             self.__dict__[name] = None
             return
-        t = self.create_tensor(tensor_or_func, shape, dtype)
 
-        if not trainable:
-            self.__dict__[name] = t
-        else:
-            self.__dict__[name] = T.Variable(t, name=name, trainable=True)
-            self.add_variable(self.__dict__[name])
+        self.__dict__[name] = T.Variable(
+            tensor_or_func, name=name, shape=shape, dtype=dtype, trainable=trainable,
+        )
 
-    @property
-    def updates(self):
-        if not hasattr(self, "_updates"):
-            self._updates = {}
-        return self._updates
-
-    def add_update(self, update):
-        symjax.current_graph().add(update)
-
-    def add_variable(self, variable):
-        if not hasattr(self, "_variables"):
-            self._variables = list()
-        self._variables.append(variable)
+    def add_updates(self, update):
+        symjax.current_graph().add_updates(update)
 
     def forward(self):
         pass
@@ -635,9 +590,11 @@ class BatchNormalization(Layer):
         self.input_mean = T.mean(input, reduce_axes, keepdims=True)
         self.input_inv_std = 1 / (T.std(input, reduce_axes, keepdims=True) + const)
 
-        self.avg_mean = schedules.ExponentialMovingAverage(self.input_mean, beta1)[1]
+        self.avg_mean = schedules.ExponentialMovingAverage(
+            self.input_mean, beta1, init=T.zeros_like(self.input_mean)
+        )[1]
         self.avg_inv_std = schedules.ExponentialMovingAverage(
-            self.input_inv_std, beta2
+            self.input_inv_std, beta2, init=T.ones_like(self.input_mean)
         )[1]
 
         use_mean = T.where(deterministic, self.avg_mean, self.input_mean)

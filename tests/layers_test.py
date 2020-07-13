@@ -37,7 +37,7 @@ def test_bn():
         )
         actual_means.append(get_stats(batch))
         if i == 0:
-            true_means.append(batch.mean(0))
+            true_means.append(np.zeros_like(batch.mean(0)))
         else:
             true_means.append(0.9 * true_means[-1] + 0.1 * batch.mean(0))
 
