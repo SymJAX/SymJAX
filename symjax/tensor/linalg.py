@@ -12,7 +12,7 @@ from_scipy = [
     "cho_solve",
     "eigh",
     "expm",
-    #   "expm_frechet",
+    # "expm_frechet",
     "inv",
     "lu",
     "lu_factor",
@@ -22,7 +22,10 @@ from_scipy = [
     "triu",
 ]
 
-NAMES = [c[0] for c in inspect.getmembers(jnpl, inspect.isfunction)] + ["pinv"]
+NAMES = [c[0] for c in inspect.getmembers(jnpl, inspect.isfunction)] + [
+    "pinv",
+    "slogdet",
+]
 
 module = sys.modules[__name__]
 for name in NAMES:
