@@ -599,7 +599,7 @@ class BatchNormalization(Layer):
 
         use_mean = T.where(deterministic, self.avg_mean, self.input_mean)
         use_inv_std = T.where(deterministic, self.avg_inv_std, self.input_inv_std)
-        W = self.W or 1.0
+        W = self.W if self.W is not None else 1.0
         b = self.b if self.b is not None else 0.0
         return W * (input - use_mean) * use_inv_std + b
 
