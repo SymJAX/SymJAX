@@ -10,4 +10,5 @@ from . import (
     picidae,
     svhn,
     speech_commands,
+    audiomnist,
 )

@@ -54,9 +54,7 @@ def download(path=None):
 
     # Check if file exists
     if not os.path.exists(path + "speech_commands_v0.01.tar.gz"):
-        url = (
-            "http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz"
-        )
+        url = "http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz"
         urllib.request.urlretrieve(url, path + "speech_commands_v0.01.tar.gz")
 
 
@@ -70,9 +68,7 @@ def load(path=None):
 
     print("Loading speech command")
 
-    tar = tarfile.open(
-        path + "speech_commands/speech_commands_v0.01.tar.gz", "r:gz"
-    )
+    tar = tarfile.open(path + "speech_commands/speech_commands_v0.01.tar.gz", "r:gz")
 
     # Load train set
     wavs = list()
@@ -96,9 +92,9 @@ def load(path=None):
     labels = np.array(labels)
     unique_labels = np.unique(labels)
     y = np.squeeze(
-        np.array(
-            [np.nonzero(label == unique_labels)[0] for label in labels]
-        ).astype("int32")
+        np.array([np.nonzero(label == unique_labels)[0] for label in labels]).astype(
+            "int32"
+        )
     )
 
     data = {
@@ -109,8 +105,6 @@ def load(path=None):
         "noises_labels": noise_labels,
     }
 
-    print(
-        "Dataset speech commands loaded in{0:.2f}s.".format(time.time() - t0)
-    )
+    print("Dataset speech commands loaded in{0:.2f}s.".format(time.time() - t0))
 
     return data
