@@ -1,6 +1,15 @@
 import numpy as np
 from multiprocessing import Pool, Queue, Lock, Process
 from scipy import ndimage
+import time
+import os
+import urllib
+
+from tqdm import tqdm
+
+import tarfile
+import gzip
+import zipfile
 
 
 def create_cmap(values, colors):
@@ -441,3 +450,69 @@ def resample_images(
                 middle_width : middle_width + len(y),
             ] = new_image
     return output_images
+
+
+class DownloadProgressBar(tqdm):
+    def update_to(self, b=1, bsize=1, tsize=None):
+        if tsize is not None:
+            self.total = tsize
+        self.update(b * bsize - self.n)
+
+
+def download_url(url, output_path):
+    with DownloadProgressBar(
+        unit="B", unit_scale=True, miniters=1, desc=url.split("/")[-1]
+    ) as t:
+        urllib.request.urlretrieve(url, filename=output_path, reporthook=t.update_to)
+
+
+def download_dataset(path, dataset, urls_names, baseurl="", extract=False):
+    """dataset downlading utility
+
+    Args:
+
+    path: string
+        the path where the dataset should be download
+
+    dataset: string
+        the name of the dataset, used as the folder name
+
+    urls_names: dict
+        dictionnary mapping urls to filename. If the urls have a
+        common root, then it can be omited from this variable
+        and put into the baseurl argument
+
+    baseurl: string
+        the common url to prepend onto each url in urls_names
+
+    """
+
+    print("Downloading dataset")
+
+    t = time.time()
+
+    if not os.path.isdir(os.path.join(path, dataset)):
+        print("\tCreating Directory")
+        os.mkdir(os.path.join(path, dataset))
+
+    for file in urls_names:
+        print("\t...Downloading {}".format(urls_names[file]))
+        target = os.path.join(path, dataset, urls_names[file])
+        if not os.path.exists(target):
+            download_url(baseurl + file, target)
+            if extract:
+                print("\t...Extracting...")
+                extract_file(target, os.path.join(path, dataset))
+
+    print("{} downloaded in {} sec.".format(dataset, time.time() - t))
+
+
+def extract_file(filename, target):
+
+    if filename[-3:] == "tgz" or filename[-6:] == "tar.gz":
+        tar = tarfile.open(filename, "r:gz")
+        tar.extractall(target)
+        tar.close()
+    elif filename[-3:] == "zip":
+        with zipfile.ZipFile(filename, "r") as zip_ref:
+            zip_ref.extractall(target)

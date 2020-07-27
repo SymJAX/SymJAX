@@ -1,7 +1,6 @@
 import scipy.io as sio
 import os
-import pickle, gzip
-import urllib.request
+from .utils import download_dataset
 import numpy as np
 import time
 
@@ -9,49 +8,24 @@ import time
 __DOC__ = """Street number classification.
 
     The `SVHN <http://ufldl.stanford.edu/housenumbers/>`_
-    dataset is a real-world 
-    image dataset for developing machine learning and object 
-    recognition algorithms with minimal requirement on data 
-    preprocessing and formatting. It can be seen as similar in flavor 
-    to MNIST (e.g., the images are of small cropped digits), but 
-    incorporates an order of magnitude more labeled data (over 600,000 
-    digit images) and comes from a significantly harder, unsolved, 
-    real world problem (recognizing digits and numbers in natural 
-    scene images). SVHN is obtained from house numbers in Google 
-    Street View images. 
+    dataset is a real-world
+    image dataset for developing machine learning and object
+    recognition algorithms with minimal requirement on data
+    preprocessing and formatting. It can be seen as similar in flavor
+    to MNIST (e.g., the images are of small cropped digits), but
+    incorporates an order of magnitude more labeled data (over 600,000
+    digit images) and comes from a significantly harder, unsolved,
+    real world problem (recognizing digits and numbers in natural
+    scene images). SVHN is obtained from house numbers in Google
+    Street View images.
     """
 
-
-def download(path):
-    """
-    Download the SVHN dataset and store the result into the given
-    path
-
-    Parameters
-    ----------
-
-        path: str
-            the path where the downloaded files will be stored. If the
-            directory does not exist, it is created.
-    """
-
-    # Load the dataset (download if necessary) and set
-    # the class attributess.
-    print("Loading svhn")
-
-    t0 = time.time()
-
-    if not os.path.isdir(path + "svhn"):
-        os.mkdir(path + "svhn")
-        print("\tCreating svhn Directory")
-
-    if not os.path.exists(path + "svhn/train_32x32.mat"):
-        url = "http://ufldl.stanford.edu/housenumbers/train_32x32.mat"
-        urllib.request.urlretrieve(url, path + "svhn/train_32x32.mat")
-
-    if not os.path.exists(path + "svhn/test_32x32.mat"):
-        url = "http://ufldl.stanford.edu/housenumbers/test_32x32.mat"
-        urllib.request.urlretrieve(url, path + "svhn/test_32x32.mat")
+_dataset = "svhn"
+_baseurl = "http://ufldl.stanford.edu/housenumbers/"
+_urls = {
+    "train_32x32.mat": "train_32x32.mat",
+    "test_32x32.mat": "test_32x32.mat",
+}
 
 
 def load(path=None):
@@ -78,7 +52,7 @@ def load(path=None):
     if path is None:
         path = os.environ["DATASET_PATH"]
 
-    download(path)
+    download_dataset(path, _dataset, _urls, _baseurl)
 
     # Load the dataset (download if necessary) and set
     # the class attributess.

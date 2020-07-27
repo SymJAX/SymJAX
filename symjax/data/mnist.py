@@ -1,34 +1,22 @@
 import os
-import pickle, gzip
-import urllib.request
-import numpy as np
+import pickle
+import gzip
+from .utils import download_dataset
 import time
 
+_dataset = "mnist"
 
-def download(path):
-    """
-    Download the MNIST dataset and store the result into the given
-    path
+DOC = """The MNIST database of handwritten digits, available from this page
+has a training set of 60,000 examples, and a test set of 10,000 examples.
+It is a subset of a larger set available from NIST. The digits have been
+size-normalized and centered in a fixed-size image.
 
-    Parameters
-    ----------
-
-        path: str
-            the path where the downloaded files will be stored. If the
-            directory does not exist, it is created.
+It is a good database for people who want to try learning techniques
+and pattern recognition methods on real-world data while spending minimal
+efforts on preprocessing and formatting.
     """
 
-    # Check if directory exists
-    if not os.path.isdir(path + "mnist"):
-        print("Creating mnist Directory")
-        os.mkdir(path + "mnist")
-
-    # Check if file exists
-    if not os.path.exists(path + "mnist/mnist.pkl.gz"):
-        td = time.time()
-        print("Creating mnist")
-        url = "http://deeplearning.net/data/mnist/mnist.pkl.gz"
-        urllib.request.urlretrieve(url, path + "mnist/mnist.pkl.gz")
+_urls = {"http://deeplearning.net/data/mnist/mnist.pkl.gz": "mnist.pkl.gz"}
 
 
 def load(path=None):
@@ -59,13 +47,13 @@ def load(path=None):
     if path is None:
         path = os.environ["DATASET_PATH"]
 
-    download(path)
+    download_dataset(path, _dataset, _urls)
 
     t0 = time.time()
 
     # Loading the file
     print("Loading mnist")
-    f = gzip.open(path + "mnist/mnist.pkl.gz", "rb")
+    f = gzip.open(os.path.join(path, "mnist/mnist.pkl.gz"), "rb")
     train_set, valid_set, test_set = pickle.load(f, encoding="latin1")
     f.close()
 

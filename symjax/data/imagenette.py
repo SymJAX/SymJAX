@@ -1,16 +1,14 @@
 import os
 import tarfile
 import time
-import urllib.request
 import matplotlib.image
-from multiprocessing import Pool
-from functools import partial
+from .utils import download_dataset
 
 import numpy as np
 from tqdm import tqdm
 
 
-__DESCRIPTION__ = """Imagenette is a subset of 10 easily classified classes 
+DOC = """Imagenette is a subset of 10 easily classified classes 
 from Imagenet (tench, English springer, cassette player, chain saw, church, 
 French horn, garbage truck, gas pump, golf ball, parachute).
 
@@ -38,42 +36,10 @@ imagenette_map = {
     "n03888257": "parachute",
 }
 
-
-def download(path):
-    """
-    Download the MNIST dataset and store the result into the given
-    path
-
-    Parameters
-    ----------
-
-        path: str
-            the path where the downloaded files will be stored. If the
-            directory does not exist, it is created.
-    """
-
-    # Check if directory exists
-    if not os.path.isdir(path + "imagenette"):
-        print("\tCreating imagenette Directory")
-        os.mkdir(path + "imagenette")
-
-    # Check if file exists
-    if not os.path.exists(path + "imagenette/imagenette2.tgz"):
-        print("\tDownloading imagenette")
-        url = "https://s3.amazonaws.com/fast-ai-imageclas/imagenette2.tgz"
-        urllib.request.urlretrieve(url, path + "imagenette/imagenette2.tgz")
-
-        print("Extracting...")
-        tar = tarfile.open(path + "imagenette/imagenette2.tgz", "r:gz")
-        tar.extractall(path + "imagenette/")
-        tar.close()
-
-
-def load_image(tar, name):
-    file = tar.extractfile(name)
-    image = matplotlib.image.imread(file, "JPEG")
-    print("image", image)
-    return image
+_dataset = "imagenette"
+_urls = {
+    "https://s3.amazonaws.com/fast-ai-imageclas/imagenette2.tgz": "imagenette2.tgz"
+}
 
 
 def load(path=None, n_processes=6):
@@ -100,7 +66,7 @@ def load(path=None, n_processes=6):
     if path is None:
         path = os.environ["DATASET_PATH"]
 
-    download(path)
+    download_dataset(path, _dataset, _urls, extract=True)
 
     t0 = time.time()
 

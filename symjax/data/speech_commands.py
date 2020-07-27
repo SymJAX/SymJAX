@@ -5,7 +5,7 @@ import tarfile
 import time
 from tqdm import tqdm
 from scipy.io.wavfile import read as wav_read
-
+from .utils import download_dataset
 
 DOC = """speech commands classification
 
@@ -39,30 +39,17 @@ name2class = {
     "rock": 9,
 }
 
-
-def download(path=None):
-    if path is None:
-        path = os.environ["DATASET_path"]
-    path += "speech_commands/"
-
-    print("Downloading speech commands")
-
-    # Check if directory exists
-    if not os.path.isdir(path):
-        print("\tCreating Directory")
-        os.mkdir(path)
-
-    # Check if file exists
-    if not os.path.exists(path + "speech_commands_v0.01.tar.gz"):
-        url = "http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz"
-        urllib.request.urlretrieve(url, path + "speech_commands_v0.01.tar.gz")
+_dataset = "speech_commands"
+_urls = {
+    "http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz": "speech_commands_v0.01.tar.gz"
+}
 
 
 def load(path=None):
 
     if path is None:
         path = os.environ["DATASET_PATH"]
-    download(path)
+    download_dataset(path, _dataset, _urls)
 
     t0 = time.time()
 

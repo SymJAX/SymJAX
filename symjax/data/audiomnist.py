@@ -1,7 +1,7 @@
 import io
 import os
 import time
-import urllib.request
+from .utils import download_dataset
 import zipfile
 
 import numpy as np
@@ -27,31 +27,20 @@ DOC = """digit recognition
         English pronunciations
     """
 
-
-def download(path):
-
-    # Check if directory exists
-    if not os.path.isdir(path + "audiomnist"):
-        print("Creating audiomnist Directory")
-        os.mkdir(path + "audiomnist")
-    url = "https://github.com/soerenab/AudioMNIST/archive/master.zip"
-    # Check if file exists
-    if not os.path.exists(path + "audiomnist/data.zip"):
-        td = time.time()
-        print("Downloading Audio-MNIST")
-        urllib.request.urlretrieve(url, path + "audiomnist/data.zip")
-        print("Done in {} s.".format(time.time() - td))
+_dataset = "audiomnist"
+_urls = {"https://github.com/soerenab/AudioMNIST/archive/master.zip": "data.zip"}
 
 
-def load(path=None, subsample=1):
+def load(path=None):
 
     if path is None:
         path = os.environ["DATASET_PATH"]
-    download(path)
+    download_dataset(path, _dataset, _urls)
+
     t0 = time.time()
 
     # load wavs
-    f = zipfile.ZipFile(path + "audiomnist/data.zip")
+    f = zipfile.ZipFile(os.path.join(path, _dataset, "data.zip"))
     wavs = list()
     digits = list()
     speakers = list()
@@ -64,7 +53,7 @@ def load(path=None, subsample=1):
         speakers.append(int(filename_end.split("_")[1]) - 1)
         wavfile = f.read(filename)
         byt = io.BytesIO(wavfile)
-        wavs.append(wav_read(byt)[1].astype("float32")[::subsample])
+        wavs.append(wav_read(byt)[1].astype("float32"))
         N = max(N, len(wavs[-1]))
 
     digits = np.array(digits)

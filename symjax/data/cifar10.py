@@ -2,13 +2,13 @@ import os
 import pickle
 import tarfile
 import time
-import urllib.request
+from .utils import download_dataset
 
 import numpy as np
 from tqdm import tqdm
 
 
-__DESCRIPTION__ = """Image classification.
+DOC = """Image classification.
 The `CIFAR-10 < https: // www.cs.toronto.edu/~kriz/cifar.html >`_ dataset
 was collected by Alex Krizhevsky, Vinod Nair, and Geoffrey
 Hinton. It consists of 60000 32x32 colour images in 10 classes, with
@@ -20,6 +20,12 @@ remaining images in random order, but some training batches may
 contain more images from one class than another. Between them, the
 training batches contain exactly 5000 images from each class.
 """
+
+_dataset = "cifar10"
+_urls = {
+    "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz": "cifar-10-python.tar.gz"
+}
+
 
 label_to_name = {
     0: "airplane",
@@ -33,33 +39,6 @@ label_to_name = {
     8: "sheep",
     9: "truck",
 }
-
-
-def download(path):
-    """
-    Download the MNIST dataset and store the result into the given
-    path
-
-    Parameters
-    ----------
-
-        path: str
-            the path where the downloaded files will be stored. If the
-            directory does not exist, it is created.
-    """
-
-    t0 = time.time()
-
-    # Check if directory exists
-    if not os.path.isdir(path + "cifar10"):
-        print("\tCreating cifar10 Directory")
-        os.mkdir(path + "cifar10")
-
-    # Check if file exists
-    if not os.path.exists(path + "cifar10/cifar10.tar.gz"):
-        print("\tDownloading cifar10")
-        url = "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
-        urllib.request.urlretrieve(url, path + "cifar10/cifar10.tar.gz")
 
 
 def load(path=None):
@@ -86,11 +65,11 @@ def load(path=None):
     if path is None:
         path = os.environ["DATASET_PATH"]
 
-    download(path)
+    download_dataset(path, _dataset, _urls)
 
     t0 = time.time()
 
-    tar = tarfile.open(path + "cifar10/cifar10.tar.gz", "r:gz")
+    tar = tarfile.open(os.path.join(path, _dataset, "cifar10.tar.gz"), "r:gz")
 
     # Load train set
     train_images = list()

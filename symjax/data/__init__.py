@@ -6,6 +6,7 @@ from . import (
     mnist,
     cifar10,
     cifar100,
+    patch_camelyon,
     imagenette,
     picidae,
     svhn,

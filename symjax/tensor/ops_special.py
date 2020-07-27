@@ -167,3 +167,14 @@ for name in _NAMES:
     if name[0] == "_":
         continue
     module.__dict__.update({name: jax_wrap(jax.scipy.special.__dict__[name])})
+
+
+def reshape_weight_to_matrix(self, weight, dim=1):
+
+    if dim != 0:
+        # permute dim to front
+        weight_t = weight.permute(dim, *[d for d in range(weight.ndim) if d != dim])
+    else:
+        weight_t = weight
+
+    return weight_t.flatten2d()

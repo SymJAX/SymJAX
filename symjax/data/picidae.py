@@ -5,7 +5,7 @@ __author__ = "Randall Balestriero"
 
 import os
 import io
-import urllib.request
+from .utils import download_dataset
 import numpy as np
 import time
 from tqdm import tqdm
@@ -13,7 +13,7 @@ import zipfile
 from scipy.io.wavfile import read as wav_read
 
 
-__INFO__ = """An Annotated Acoustic Dataset of 7 Picidae Species
+DOC = """An Annotated Acoustic Dataset of 7 Picidae Species
 
     The proposed dataset contains 1669 labeled audio files from
     the following Picidae species doing 3 types of birdsongs:
@@ -50,27 +50,10 @@ __INFO__ = """An Annotated Acoustic Dataset of 7 Picidae Species
 
    """
 
-
-def download(path):
-    """
-    Download the dataset and store the result into the given
-    path
-
-    Parameters
-    ----------
-
-        path: str
-            the path where the downloaded files will be stored. If the
-            directory does not exist, it is created.
-    """
-
-    # Check if directory exists
-    if not os.path.isdir(path + "picidae"):
-        print("Creating picidae Directory")
-        os.mkdir(path + "picidae")
-    url = "https://zenodo.org/record/574438/files/PicidaeDataset.zip?download=1"
-    if not os.path.exists(path + "picidae/PicidaeDataset.zip"):
-        urllib.request.urlretrieve(url, path + "picidae/PicidaeDataset.zip")
+_dataset = "picidae"
+_urls = {
+    "https://zenodo.org/record/574438/files/PicidaeDataset.zip?download=1": "PicidaeDataset.zip"
+}
 
 
 def load(path=None):
@@ -98,7 +81,7 @@ def load(path=None):
     if path is None:
         path = os.environ["DATASET_PATH"]
 
-    download(path)
+    download_dataset(path, _dataset, _urls, extract=True)
 
     t0 = time.time()
 

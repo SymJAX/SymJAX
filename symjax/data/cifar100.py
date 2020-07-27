@@ -2,12 +2,12 @@ import os
 import pickle
 import tarfile
 import time
-import urllib.request
+from .utils import download_dataset
 
 import numpy as np
 
 
-DESCRIPTION = """Image classification.
+DOC = """Image classification.
 
 The `CIFAR-100 < https: // www.cs.toronto.edu/~kriz/cifar.html >`_ dataset is
 just like the CIFAR-10, except it has 100 classes containing 600 images
@@ -121,43 +121,20 @@ labels_list = [
 ]
 
 
-def download(path):
-    """
-    Download the CIFAR100 dataset and store the result into the given
-    path
-
-    Parameters
-    ----------
-
-        path: str
-            the path where the downloaded files will be stored. If the
-            directory does not exist, it is created.
-    """
-
-    print("Loading cifar100")
-    t0 = time.time()
-
-    if not os.path.isdir(path + "cifar100"):
-        print("\tCreating cifar100 Directory")
-        os.mkdir(path + "cifar100")
-
-    if not os.path.exists(path + "cifar100/cifar100.tar.gz"):
-        url = "https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz"
-        #        with DownloadProgressBar(
-        #            unit="B", unit_scale=True, miniters=1, desc="Downloading dataset"
-        #        ) as t:
-        urllib.request.urlretrieve(url, path + "cifar100/cifar100.tar.gz")
+_dataset = "cifar100"
+_urls = {"https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz": "cifar100.tar.gz"}
 
 
 def load(path=None):
 
-    t0 = time.time()
     if path is None:
         path = os.environ["DATASET_PATH"]
-    download(path)
 
+    download_dataset(path, _dataset, _urls)
+
+    t0 = time.time()
     # Loading the file
-    tar = tarfile.open(path + "cifar100/cifar100.tar.gz", "r:gz")
+    tar = tarfile.open(os.path.join(path, _dataset, "cifar100.tar.gz"), "r:gz")
 
     # Loading training set
     f = tar.extractfile("cifar-100-python/train").read()

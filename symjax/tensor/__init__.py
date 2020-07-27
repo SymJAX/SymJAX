@@ -17,3 +17,4 @@ from . import signal
 from . import linalg
 from . import fft
 from . import interpolation
+from . import normalization
