@@ -3,140 +3,110 @@
 :mod:`symjax.data`
 ------------------
 
+
+.. automodule:: symjax.data
+
 Utilities
 =========
 
 .. autosummary::
-   symjax.data.batchify
-   symjax.data.patchify_1d
-   symjax.data.patchify_2d
+    patchify_1d
+    patchify_2d
+    train_test_split
+    batchify
+    resample_images
+    download_dataset
+    extract_file
+
 
 Images
 ======
 
 .. autosummary::
 
-   symjax.data.mnist
-   symjax.data.emnist
-   symjax.data.fashionmnist
-   symjax.data.dsprites
-   symjax.data.svhn
-   symjax.data.cifar10
-   symjax.data.cifar100
-   symjax.data.celebA
-   symjax.data.ibeans
-   symjax.data.cassava
-   symjax.data.stl10
-   symjax.data.tinyimagenet
+   mnist
+   emnist
+   fashionmnist
+   dsprites
+   svhn
+   cifar10
+   cifar100
+   celebA
+   ibeans
+   cassava
+   stl10
+   tinyimagenet
 
 Audio
 =====
 
 .. autosummary::
 
-   symjax.data.audiomnist
-   symjax.data.univariate_timeseries
-   symjax.data.speech_commands
-   symjax.data.picidae
-   symjax.data.esc
-   symjax.data.warblr
-   symjax.data.gtzan
-   symjax.data.dclde
-   symjax.data.irmas
-   symjax.data.vocalset
-   symjax.data.freefield1010
-   symjax.data.birdvox_70k
-   symjax.data.birdvox_dcase_20k
-   symjax.data.seizures_neonatal
-   symjax.data.sonycust
-   symjax.data.gtzan
-   symjax.data.FSDKaggle2018
-   symjax.data.TUTacousticscences2017
+   audiomnist
+   univariate_timeseries
+   speech_commands
+   picidae
+   esc
+   warblr
+   gtzan
+   dclde
+   irmas
+   vocalset
+   freefield1010
+   birdvox_70k
+   birdvox_dcase_20k
+   seizures_neonatal
+   sonycust
+   gtzan
+   FSDKaggle2018
+   TUTacousticscences2017
 
 
-Detailed description (Utils)
-============================
+Detailed description
+====================
 
+
+.. autofunction:: symjax.data.patchify_1d
+.. autofunction:: symjax.data.patchify_2d
+.. autofunction:: symjax.data.train_test_split
 .. autoclass:: symjax.data.batchify
-   :members:
-
-.. autoclass:: symjax.data.patchify_1d
-   :members:
-
-.. autoclass:: symjax.data.patchify_2d
-   :members:
-
-Detailed description (Image)
-============================
-
-.. autoclass:: symjax.data.mnist
-   :members:
-
-.. autoclass:: symjax.data.emnist
-   :members:
-
-.. autoclass:: symjax.data.fashionmnist
-   :members:
-
-.. autoclass:: symjax.data.dsprites
-   :members:
-
-.. autoclass:: symjax.data.svhn
-   :members:
-
-.. autoclass:: symjax.data.cifar10
-   :members:
-
-.. autoclass:: symjax.data.cifar100
-   :members:
-
-.. autoclass:: symjax.data.ibeans
-   :members:
-
-.. autoclass:: symjax.data.cassava
-   :members:
-
-.. autoclass:: symjax.data.stl10
-   :members:
- 
-.. autoclass:: symjax.data.tinyimagenet
-   :members:
-  
-  
-Detailed description (Audio)
-============================
-
-.. autoclass:: symjax.data.audiomnist
-   :members:
-
-.. autoclass:: symjax.data.univariate_timeseries
-   :members:
+.. autofunction:: symjax.data.resample_images
+.. autofunction:: symjax.data.download_dataset
+.. autofunction:: symjax.data.extract_file
 
 
-.. autoclass:: symjax.data.esc
-   :members:
+.. autosummary::
 
-.. autoclass:: symjax.data.warblr
-   :members:
+.. autofunction:: symjax.data.mnist
+.. autofunction:: symjax.data.emnist
+.. autofunction:: symjax.data.fashionmnist
+.. autofunction:: symjax.data.dsprites
+.. autofunction:: symjax.data.svhn
+.. autofunction:: symjax.data.cifar10
+.. autofunction:: symjax.data.cifar100
+.. autofunction:: symjax.data.celebA
+.. autofunction:: symjax.data.ibeans
+.. autofunction:: symjax.data.cassava
+.. autofunction:: symjax.data.stl10
+.. autofunction:: symjax.data.tinyimagenet
 
-.. autoclass:: symjax.data.gtzan
-   :members:
+.. autosummary::
 
-.. autoclass:: symjax.data.dclde
-   :members:
-
-.. autoclass:: symjax.data.irmas
-   :members:
-
-.. autoclass:: symjax.data.vocalset
-   :members:
-
-.. autoclass:: symjax.data.freefield1010 
-   :members:
-
-.. autoclass:: symjax.data.birdvox_70k
-   :members:
-
-.. autoclass:: symjax.data.birdvox_dcase_20k
-   :members:
- 
+..autofunction:: symjax.data.audiomnist
+..autofunction:: symjax.data.univariate_timeseries
+..autofunction:: symjax.data.speech_commands
+..autofunction:: symjax.data.picidae
+..autofunction:: symjax.data.esc
+..autofunction:: symjax.data.warblr
+..autofunction:: symjax.data.gtzan
+..autofunction:: symjax.data.dclde
+..autofunction:: symjax.data.irmas
+..autofunction:: symjax.data.vocalset
+..autofunction:: symjax.data.freefield1010
+..autofunction:: symjax.data.birdvox_70k
+..autofunction:: symjax.data.birdvox_dcase_20k
+..autofunction:: symjax.data.seizures_neonatal
+..autofunction:: symjax.data.sonycust
+..autofunction:: symjax.data.gtzan
+..autofunction:: symjax.data.FSDKaggle2018
+..autofunction:: symjax.data.TUTacousticscences2017

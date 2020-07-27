@@ -33,7 +33,7 @@ Modules
 
 We briefly describe below the structure of `SymJAX`_ and what are (in term of functionalities) the closest analog from other known libraries:
 
-- :ref:`symjax-data` : everything related to downloading/importing/batchifying/patchifying datasets. Large corpus of time-series and computer vision dataset.
+- :ref:`symjax-data` : everything related to downloading/importing/batchifying/patchifying datasets. Large corpus of time-series and computer vision dataset, similar to :py:mod:`tensorflow_datasets` with additional utilities
 
 - :ref:`symjax-tensor` : everything related to operating with tensors (array like objects) similar to :py:mod:`numpy` and :py:mod:`theano.tensor`, specialized submodules are
 

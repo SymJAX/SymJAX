@@ -28,8 +28,11 @@ and with a small architecture
 
  .. code-block:: none
 
+    Downloading dataset
+            ...Downloading mnist.pkl.gz
+    mnist downloaded in 9.417533874511719e-05 sec.
     Loading mnist
-    Dataset mnist loaded in 0.65s.
+    Dataset mnist loaded in 1.06s.
     (32, 1, 28, 28)
     (32, 32, 28, 28)
     (32, 32, 28, 28)
@@ -45,26 +48,26 @@ and with a small architecture
     (32, 32, 3, 3)
     (32, 32, 1, 1)
     (32, 10)
-    Test Loss and Accu: [2.302591   0.09805689]
-    Train Loss and Accu [2.5187576  0.47731856]
-    Test Loss and Accu: [0.82739866 0.72475964]
-    Train Loss and Accu [0.58374846 0.8356855 ]
-    Test Loss and Accu: [0.5027868 0.8526643]
-    Train Loss and Accu [0.35838518 0.9107863 ]
-    Test Loss and Accu: [0.412006   0.88261217]
-    Train Loss and Accu [0.31178302 0.922379  ]
-    Test Loss and Accu: [0.30057317 0.9128606 ]
-    Train Loss and Accu [0.22730261 0.9445565 ]
-    Test Loss and Accu: [0.26589385 0.9202724 ]
-    Train Loss and Accu [0.20366332 0.9485887 ]
-    Test Loss and Accu: [0.25773227 0.9254808 ]
-    Train Loss and Accu [0.16644305 0.95715725]
-    Test Loss and Accu: [0.25478134 0.9256811 ]
-    Train Loss and Accu [0.1466423  0.96370965]
-    Test Loss and Accu: [0.29236767 0.91646636]
-    Train Loss and Accu [0.13658892 0.96320564]
-    Test Loss and Accu: [0.23402435 0.9285857 ]
-    Train Loss and Accu [0.10274839 0.9778226 ]
+    Test Loss and Accu: [13.667457    0.11358173]
+    Train Loss and Accu [2.51855    0.47580644]
+    Test Loss and Accu: [0.83005077 0.7250601 ]
+    Train Loss and Accu [0.5856196 0.8361895]
+    Test Loss and Accu: [0.51251316 0.84965944]
+    Train Loss and Accu [0.35827753 0.9122984 ]
+    Test Loss and Accu: [0.3994482 0.8861178]
+    Train Loss and Accu [0.30982602 0.9208669 ]
+    Test Loss and Accu: [0.31684965 0.90715146]
+    Train Loss and Accu [0.22507313 0.9460685 ]
+    Test Loss and Accu: [0.2670917 0.9188702]
+    Train Loss and Accu [0.20896448 0.9455645 ]
+    Test Loss and Accu: [0.2620399 0.9238782]
+    Train Loss and Accu [0.16814166 0.95665324]
+    Test Loss and Accu: [0.2639234  0.92207533]
+    Train Loss and Accu [0.1434637  0.96370965]
+    Test Loss and Accu: [0.25480032 0.9234776 ]
+    Train Loss and Accu [0.13074145 0.9657258 ]
+    Test Loss and Accu: [0.23176932 0.9323918 ]
+    Train Loss and Accu [0.10278148 0.9778226 ]
 
     Text(0.5, 0.98, 'MNIST (1K data) classification task')
 
@@ -96,12 +99,8 @@ and with a small architecture
     mnist["train_set/images"] = mnist["train_set/images"][:2000]
     mnist["train_set/labels"] = mnist["train_set/labels"][:2000]
 
-    mnist["train_set/images"] /= mnist["train_set/images"].max(
-        (1, 2, 3), keepdims=True
-    )
-    mnist["test_set/images"] /= mnist["test_set/images"].max(
-        (1, 2, 3), keepdims=True
-    )
+    mnist["train_set/images"] /= mnist["train_set/images"].max((1, 2, 3), keepdims=True)
+    mnist["test_set/images"] /= mnist["test_set/images"].max((1, 2, 3), keepdims=True)
 
     # create the network
     BATCH_SIZE = 32
@@ -187,7 +186,7 @@ and with a small architecture
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 1 minutes  4.349 seconds)
+   **Total running time of the script:** ( 1 minutes  24.028 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_nns_plot_mnist_classif.py:

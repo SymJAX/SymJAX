@@ -30,16 +30,19 @@ image values from learned coordinates
 
  .. code-block:: none
 
+    Downloading dataset
+            ...Downloading mnist.pkl.gz
+    mnist downloaded in 0.0003371238708496094 sec.
     Loading mnist
-    Dataset mnist loaded in 0.69s.
-    /home/vrael/anaconda3/envs/jax/lib/python3.7/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
+    Dataset mnist loaded in 1.08s.
+    /home/vrael/anaconda3/lib/python3.7/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
       warnings.warn('No GPU/TPU found, falling back to CPU.')
     [[ 0.  0.  0. ... 27. 27. 27.]
      [ 0.  1.  2. ... 25. 26. 27.]]
-    /home/vrael/SymJAX/gallery/plot_tps.py:104: UserWarning: tight_layout not applied: number of columns in subplot specifications must be multiples of one another.
-      plt.tight_layout()
-    /home/vrael/SymJAX/gallery/plot_tps.py:105: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
-      plt.show()
+    /home/vrael/anaconda3/lib/python3.7/site-packages/matplotlib/tight_layout.py:345: UserWarning: tight_layout not applied: number of columns in subplot specifications mustbe multiples of one another.
+      warnings.warn('tight_layout not applied: '
+    /home/vrael/anaconda3/lib/python3.7/site-packages/matplotlib/figure.py:445: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+      % get_backend())
 
 
 
@@ -73,13 +76,11 @@ image values from learned coordinates
 
     coordinates = T.meshgrid(T.range(28), T.range(28))
     coordinates = T.Variable(
-        T.stack([coordinates[1].flatten(), coordinates[0].flatten()]).astype(
-            "float32"
-        )
+        T.stack([coordinates[1].flatten(), coordinates[0].flatten()]).astype("float32")
     )
-    interp = T.interpolation.map_coordinates(
-        images[0], coordinates, order=1
-    ).reshape((28, 28))
+    interp = T.interpolation.map_coordinates(images[0], coordinates, order=1).reshape(
+        (28, 28)
+    )
 
     loss = ((interp - images[1]) ** 2).mean()
 
@@ -150,7 +151,7 @@ image values from learned coordinates
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  1.973 seconds)
+   **Total running time of the script:** ( 0 minutes  3.190 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_tps.py:
