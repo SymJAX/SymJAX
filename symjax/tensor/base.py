@@ -731,8 +731,8 @@ class Placeholder(Tensor):
             _attrs={
                 "name": name,
                 "scope": scope,
-                "shape": shape,
-                "dtype": dtype,
+                "shape": tuple(shape),
+                "dtype": jax.numpy.dtype(dtype),
                 "root": True,
             }
         )
