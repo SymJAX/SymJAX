@@ -3,4 +3,4 @@
 
 __all__ = ["pdfs"]
 
-from . import *
+from .base import Categorical
