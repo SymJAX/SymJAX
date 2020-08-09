@@ -22,6 +22,45 @@ def test_clone_0():
     assert np.array_equal([f(1), g(1), f(2), g(2)], [2, 2, 4, 8])
 
 
+def test_clone_1():
+    sj.current_graph().reset()
+    w = T.Variable(1.0, dtype="float32")
+    ww = T.Variable(1.0, dtype="float32")
+    x = T.Placeholder((), "float32")
+    z = x * 2
+    loss = z * w * ww + 1 + 2 + 3
+    grad = sj.gradients(loss, [w])[0]
+    loss2 = loss.clone({z: x})
+    grad2 = sj.gradients(loss2, [w])[0]
+
+    f = sj.function(x, outputs=grad)
+    g = sj.function(x, outputs=grad2)
+
+    assert np.array_equal(f(3), g(6))
+    assert np.array_equal(f(3), 6.0)
+
+    ww.update(2.0)
+
+    assert np.array_equal(f(3), g(6))
+    assert np.array_equal(f(3), 12.0)
+
+
+def test_clone_2():
+    sj.current_graph().reset()
+    w = T.Variable(1.0, dtype="float32")
+    ww = T.Variable(1.0, dtype="float32")
+    x = T.Placeholder((100,), "float32")
+    y = T.Placeholder((100,), "float32")
+    loss = T.sum(x * w + ww)
+    other = loss.clone({x: y})
+    grad = sj.gradients(other, [w, ww])
+
+    f = sj.function(y, outputs=grad)
+
+    assert np.array_equal(f(np.ones(100) * 2)[1], 100.0)
+    assert np.array_equal(f(np.ones(100) * 2)[0], 200.0)
+
+
 def test_clone_base():
     sj.current_graph().reset()
     w = T.Variable(1.0, dtype="float32")
@@ -50,3 +89,5 @@ def test_clone_base():
 if __name__ == "__main__":
     test_clone_base()
     test_clone_0()
+    test_clone_1()
+    test_clone_2()

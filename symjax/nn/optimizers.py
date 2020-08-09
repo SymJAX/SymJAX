@@ -5,6 +5,38 @@ from symjax import tensor
 from ..base import gradients
 
 
+def conjugate_gradients(Ax, b):
+    """
+    Conjugate gradient algorithm
+    (see https://en.wikipedia.org/wiki/Conjugate_gradient_method)
+    """
+
+    def ones_step():
+        z = Ax(p)
+        alpha = r_dot_old / (np.dot(p, z) + EPS)
+        x += alpha * p
+        r -= alpha * z
+        r_dot_new = np.dot(r, r)
+        p = r + (r_dot_new / r_dot_old) * p
+        r_dot_old = r_dot_new
+
+    x = T.zeros_like(b)
+    r = (
+        b.copy()
+    )  # Note: should be 'b - Ax(x)', but for x=0, Ax(x)=0. Change if doing warm start.
+    p = r.copy()
+    r_dot_old = np.dot(r, r)
+    for _ in range(cg_iters):
+        z = Ax(p)
+        alpha = r_dot_old / (np.dot(p, z) + EPS)
+        x += alpha * p
+        r -= alpha * z
+        r_dot_new = np.dot(r, r)
+        p = r + (r_dot_new / r_dot_old) * p
+        r_dot_old = r_dot_new
+    return x
+
+
 class Optimizer:
     def __init__(self, *args, name=None, **kwargs):
 
@@ -28,7 +60,13 @@ class Optimizer:
 
     def _get_grads(self, grads_or_loss, params):
         # get grads if given is loss
-        if isinstance(grads_or_loss, tensor.Tensor):
+        if (
+            isinstance(grads_or_loss, tuple)
+            or isinstance(grads_or_loss, list)
+            or isinstance(grads_or_loss, tensor.MultiOutputOp)
+        ):
+            return grads_or_loss
+        elif isinstance(grads_or_loss, tensor.Tensor):
             return gradients(grads_or_loss, params)
         else:
             return grads_or_loss
