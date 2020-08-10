@@ -20,7 +20,8 @@ class ddpg:
 
         if continuous:
             num_actions = env.action_space.shape[0]
-            action_max = env.action_space.high[0]
+            action_min = env.action_space.low
+            action_max = env.action_space.high
         else:
             num_actions = env.action_space.n
             action_max = 1
@@ -43,7 +44,9 @@ class ddpg:
 
         with symjax.Scope("actor_critic"):
             with symjax.Scope("actor"):
-                suggested_actions = action_max * actor(state)
+                suggested_actions = action_min + (action_max - action_min) * actor(
+                    state
+                )
             with symjax.Scope("critic"):
                 q_values_of_given_actions = critic(state, action)
 
@@ -52,7 +55,9 @@ class ddpg:
         )
 
         with symjax.Scope("actor_critic_target"):
-            slow_target_next_actions = action_max * actor(next_state)
+            slow_target_next_actions = action_min + (action_max - action_min) * actor(
+                next_state
+            )
             slow_q_values_next = critic(next_state, slow_target_next_actions)
 
         # One step TD targets y_i for (s,a) from experience replay

@@ -111,7 +111,7 @@ class Dense(Layer):
         self,
         input,
         units,
-        W=initializers.he,
+        W=initializers.glorot_uniform,
         b=numpy.zeros,
         trainable_W=True,
         trainable_b=True,

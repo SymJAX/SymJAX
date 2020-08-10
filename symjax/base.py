@@ -151,10 +151,13 @@ class Graph(nx.DiGraph):
 
     def clone(self, node, input_givens):
 
+        if isinstance(node, t.Constant):
+            return node.value
         # first simple case, if node is already in givens
         if node in input_givens:
             return input_givens[node]
-
+        elif len(input_givens) == 0:
+            return node
         givens = input_givens.copy()
 
         # first we remove the redundant givens
@@ -169,10 +172,8 @@ class Graph(nx.DiGraph):
         for key in set(givens.keys()) - ancestors:
             givens.pop(key)
 
-        if type(node) == list:
+        if type(node) == list or type(node) == list or type(node) == t.Tuple:
             return [self.clone(n, givens) for n in node]
-        elif type(node) == tuple:
-            return tuple([self.clone(n, givens) for n in node])
 
         # next we create a unique identifier. This will allow us to detect
         # in case this clone has already been created

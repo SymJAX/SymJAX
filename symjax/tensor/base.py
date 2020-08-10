@@ -350,7 +350,14 @@ class Constant(Tensor):
         name, scope = symjax.current_graph()._get_name_scope("constant", self)
 
         super().__init__(
-            _attrs={"name": name, "scope": scope, "value": value, "root": False,},
+            _attrs={
+                "name": name,
+                "scope": scope,
+                "value": value,
+                "root": False,
+                "shape": "??",
+                "dtype": "??",
+            },
         )
 
     @property
@@ -449,19 +456,6 @@ class MultiOutputOp(Op, tuple, Tensor):
             )
             symjax.current_graph().nodes[child]["parent"] = self
 
-    # def __repr__(self):
-    #     successors = symjax.current_graph().successors(self)
-
-    #     return "(" + ", ".join([str(a) for a in successors]) + ")"
-
-    # def __iter__(self):
-    #     """ Returns the Iterator object """
-    #     return symjax.current_graph().successors(self)
-
-    # def __getitem__(self, item):
-    #     assert type(item) == int
-    #     for node in symjax.current_graph().successors(self):
-    #         if symjax.current_graph().nodes[node]["parent_index"] == item:
     #             return node
 
 
