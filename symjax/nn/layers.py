@@ -630,7 +630,7 @@ class RNN(Layer):
 
         self.create_variable("W", W, (sequence.shape[2], units), trainable=trainable_W)
         self.create_variable("H", H, (units, units), trainable=trainable_H)
-        self.create_variable("b", b, (units), trainable=trainable_b)
+        self.create_variable("b", b, (units,), trainable=trainable_b)
 
         last, output = T.scan(
             lambda h, x, W, H, b: self.gate(h, x, W, H, b, activation),
@@ -696,20 +696,20 @@ class GRU(Layer):
             "Wh", Wh, (sequence.shape[2], units), trainable=trainable_Wh
         )
         self.create_variable("Uh", Uh, (units, units), trainable=trainable_Uh)
-        self.create_variable("bh", bh, (units), trainable=trainable_bh)
+        self.create_variable("bh", bh, (units,), trainable=trainable_bh)
 
         self.create_variable(
             "Wz", Wz, (sequence.shape[2], units), trainable=trainable_Wz
         )
         self.create_variable("Uz", Uz, (units, units), trainable=trainable_Uz)
-        self.create_variable("bz", bz, (units), trainable=trainable_bz)
+        self.create_variable("bz", bz, (units,), trainable=trainable_bz)
 
         if gate == "full":
             self.create_variable(
                 "Wr", Wr, (sequence.shape[2], units), trainable=trainable_Wr
             )
             self.create_variable("Ur", Ur, (units, units), trainable=trainable_Ur)
-            self.create_variable("br", br, (units), trainable=trainable_br)
+            self.create_variable("br", br, (units,), trainable=trainable_br)
 
         if gate == "minimal":
 
@@ -824,25 +824,25 @@ class LSTM(Layer):
             "Wf", Wf, (sequence.shape[2], units), trainable=trainable_Wf
         )
         self.create_variable("Uf", Uf, (units, units), trainable=trainable_Uf)
-        self.create_variable("bf", bf, (units), trainable=trainable_bf)
+        self.create_variable("bf", bf, (units,), trainable=trainable_bf)
 
         self.create_variable(
             "Wi", Wi, (sequence.shape[2], units), trainable=trainable_Wi
         )
         self.create_variable("Ui", Ui, (units, units), trainable=trainable_Ui)
-        self.create_variable("bi", bi, (units), trainable=trainable_bi)
+        self.create_variable("bi", bi, (units,), trainable=trainable_bi)
 
         self.create_variable(
             "Wo", Wo, (sequence.shape[2], units), trainable=trainable_Wo
         )
         self.create_variable("Uo", Uo, (units, units), trainable=trainable_Uo)
-        self.create_variable("bo", bo, (units), trainable=trainable_bo)
+        self.create_variable("bo", bo, (units,), trainable=trainable_bo)
 
         self.create_variable(
             "Wc", Wc, (sequence.shape[2], units), trainable=trainable_Wc
         )
         self.create_variable("Uc", Uc, (units, units), trainable=trainable_Uc)
-        self.create_variable("bc", bc, (units), trainable=trainable_bc)
+        self.create_variable("bc", bc, (units,), trainable=trainable_bc)
 
         def fn(*args):
             return self.gate(*args, activation_g, activation_c, activation_h)

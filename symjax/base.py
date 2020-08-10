@@ -38,6 +38,7 @@ class Graph(nx.DiGraph):
         super().__init__(*args, **kwargs)
         self._name = name
         self.reset()
+        self._jax_to_op = {}
 
     def reset(self):
         self.clear()
@@ -45,6 +46,7 @@ class Graph(nx.DiGraph):
         self._scopes = [Scope("", graph=self)]
         self._updates = {}
         self._scopes_history = []
+        self._branches = {}
 
     def __repr__(self):
         msg = "Graph(name:{}, n_edges:{}, n_nodes:{})".format(
@@ -150,33 +152,68 @@ class Graph(nx.DiGraph):
 
         return list(set(roots))
 
-    def clone(self, node, givens):
+    def clone(self, node, input_givens):
+
+        # first simple case, if node is already in givens
+        if node in input_givens:
+            return input_givens[node]
+
+        givens = input_givens.copy()
+
+        # first we remove the redundant givens
+        ancestors = nx.algorithms.ancestors(self, node)
+        ancestors = set(ancestors).intersection(set(givens.keys()))
+
+        # first is there is no more candidate, nothing todo
+        if len(ancestors) == 0:
+            return node
+
+        # otherwise we remove the irrelevant ones
+        for key in set(givens.keys()) - ancestors:
+            givens.pop(key)
+
+        # next we create a unique identifier. This will allow us to detect
+        # in case this clone has already been created
+        # this identifier is unique given a givens dictionnary
         names = [
             "{}{}->{}{}".format(m.scope, m.name, v.scope, v.name)
             for m, v in givens.items()
         ]
         names.sort()
         name = "_".join(names)
+
+        if name in self._branches:
+            return self._branches[name]
+
+        args, kwargs = self.get_args_kwargs(node, evaluate=False)
+        new_args = [self.clone(n, givens) for n in args]
+        new_kwargs = {name: self.clone(n, givens) for name, n in kwargs.items()}
+
+        fun = self.get_node_attribute(node, "jax_function")
+        self._branches[name] = symjax._fn_to_op[fun](*new_args, **new_kwargs)
+        return self._branches[name]
+
         branch = givens.copy()
         for start in givens.keys():
             for path in nx.all_simple_paths(self, source=start, target=node):
                 for n in path[1:]:
                     if n in branch:
                         continue
-                    args, kwargs = self._get_args_kwargs(n, evaluate=False)
+                    args, kwargs = self.get_args_kwargs(n, evaluate=False)
                     args = [branch[arg] if arg in branch else arg for arg in args]
                     for arg in kwargs.keys():
                         if arg in branch:
                             kwargs[arg] = branch[arg]
                     fun = self.get_node_attribute(n, "jax_function")
-                    branch[n] = t.Op(
-                        *args,
-                        _shape=n.shape,
-                        _dtype=n.dtype,
-                        _jax_function=fun,
-                        name=n.name + "clone",
-                        **kwargs,
-                    )
+                    branch[n] = symjax._fn_to_op(*args, _func=fun, **kwargs)
+                    # branch[n] = t.Op(
+                    #     *args,
+                    #     _shape=n.shape,
+                    #     _dtype=n.dtype,
+                    #     _jax_function=fun,
+                    #     name=n.name + "clone",
+                    #     **kwargs,
+                    # )
         return branch[node]
 
     def get_node_attribute(self, node, attr):
@@ -225,7 +262,7 @@ class Graph(nx.DiGraph):
         elif isinstance(item, t.Op):
 
             # first get the actual parents nodes (aka inputs to the function)
-            args, kwargs = self._get_args_kwargs(item, tracker, frozen=frozen)
+            args, kwargs = self.get_args_kwargs(item, tracker, frozen=frozen)
             tracker[item] = self.nodes[item]["jax_function"](*args, **kwargs)
 
             return tracker[item]
@@ -233,7 +270,7 @@ class Graph(nx.DiGraph):
         else:
             return item
 
-    def _get_args_kwargs(self, node, tracker=None, evaluate=True, frozen=True):
+    def get_args_kwargs(self, node, tracker=None, evaluate=True, frozen=True):
         if evaluate:
             assert tracker is not None
             all_args = {
@@ -925,17 +962,18 @@ class function:
                     if isinstance(i, t.Seed):
                         i.update()
 
-            if type(jitoutputs) == list or type(jitoutputs) == tuple:
-                npy_jitoutputs = [
-                    jax.api.device_get(arr)
-                    if isinstance(arr, jax.interpreters.xla.DeviceArray)
-                    else arr
-                    for arr in jitoutputs
-                ]
-                return npy_jitoutputs
+            return jitoutputs
+            # if type(jitoutputs) == list or type(jitoutputs) == tuple:
+            #     npy_jitoutputs = [
+            #         jax.api.device_get(arr)
+            #         if isinstance(arr, jax.interpreters.xla.DeviceArray)
+            #         else arr
+            #         for arr in jitoutputs
+            #     ]
+            #     return npy_jitoutputs
 
-            else:
-                return jax.api.device_get(jitoutputs)
+            # else:
+            #     return jax.api.device_get(jitoutputs)
 
         self.meta = meta
 
@@ -948,9 +986,7 @@ class function:
         if rng is None:
             rng = random._seed
             random._seed += 1
-        pargs = [numpy.array(arg) if type(arg) == list else arg for arg in args]
-        outputs = self.meta(*pargs, rng=rng)
-        if type(outputs) == list:
-            if len(outputs) == 0:
-                return None
+
+        outputs = self.meta(*args, rng=rng)
+
         return outputs

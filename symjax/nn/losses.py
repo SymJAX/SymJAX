@@ -290,7 +290,7 @@ def FGMM_VAE(
     return -(E1 + E2_1 + E2_2 + E2_3 + E2_4 + E3 + E4 + H + Ha)
 
 
-def sparse_softmax_crossentropy_logits(p, q, weights=None):
+def sparse_softmax_crossentropy_logits(p, q):
     """Cross entropy loss given that :math:`p` is sparse and
     :math:`q` is the log-probability.
 
@@ -323,10 +323,7 @@ def sparse_softmax_crossentropy_logits(p, q, weights=None):
     # the linear part of the loss
     linear = T.take_along_axis(q, p[:, None], 1).squeeze()
     logsumexp = T.logsumexp(q, 1)
-    if weights is not None:
-        return weights * (-linear + logsumexp)
-    else:
-        return logsumexp - linear
+    return logsumexp - linear
 
 
 def softmax_crossentropy_logits(p, q):

@@ -142,7 +142,7 @@ def get_output_tree(
     return tree
 
 
-def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
+def jax_wrap(func, doc_func=None):
     if doc_func is None:
         doc_func = func
 
@@ -209,6 +209,7 @@ def jax_wrap(func, insert_default_kwargs=True, doc_func=None, is_method=False):
                 **kwargs,
             )
 
+    symjax._fn_to_op[func] = op
     if not hasattr(func, "__doc__") or func.__doc__ is None:
         return op
 
@@ -634,8 +635,11 @@ class Variable(Tensor):
         """
         return symjax.current_graph().nodes[self]["value"]
 
-    def update(self, update_value):
+    def update(self, update_value, fast=False):
         """assign a new value for the variable"""
+        if fast:
+            symjax.current_graph().nodes[self]["value"] = update_value
+
         new_value = symjax.current_graph().get(update_value)
 
         if self.shape != jax.numpy.shape(new_value):

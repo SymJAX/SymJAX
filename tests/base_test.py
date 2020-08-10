@@ -17,6 +17,29 @@ def test_add():
     assert symjax.current_graph().get(a.max()) == 1
 
 
+def test_stop():
+    a = symjax.tensor.ones(())
+    b = a + a ** 2
+    g = symjax.gradients(b, [a])[0]
+    f = symjax.function(outputs=g)
+    assert f() == 3
+    b = a + symjax.tensor.stop_gradient(a ** 2)
+    g = symjax.gradients(b, [a])[0]
+    f = symjax.function(outputs=g)
+    assert f() == 1
+
+
+def test_g():
+    a = symjax.tensor.ones(())
+    b = symjax.tensor.Variable(1.0)
+    l = a * b
+    g = symjax.gradients(l, [a])[0]
+    f = symjax.function(outputs=g, updates={b: b + 1.0})
+    assert f() == 1
+    assert f() == 2
+    assert f() == 3
+
+
 def test_pymc():
     class RandomVariable(symjax.tensor.Variable):
         def __init__(self, name, shape, observed):
@@ -102,3 +125,5 @@ if __name__ == "__main__":
     test_grad()
     test_add()
     test_pymc()
+    test_stop()
+    test_g()

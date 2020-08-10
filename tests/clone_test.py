@@ -61,6 +61,26 @@ def test_clone_2():
     assert np.array_equal(f(np.ones(100) * 2)[0], 200.0)
 
 
+def test_clone_3():
+    sj.current_graph().reset()
+    w = T.Variable(T.ones(10), dtype="float32")
+    z = T.Variable(T.ones(3), dtype="float32")
+
+    x = T.Placeholder((10,), "float32")
+    y = T.Placeholder((3,), "float32")
+
+    v1 = x * w
+    total = v1.sum()
+
+    v2 = v1.clone({x: y, w: z})
+    print(v2)
+    total2 = v2.sum()
+
+    f = sj.function(x, y, outputs=[total, total2])
+
+    assert np.array_equal(f(np.ones(10), np.ones(3)), [10, 3])
+
+
 def test_clone_base():
     sj.current_graph().reset()
     w = T.Variable(1.0, dtype="float32")
@@ -91,3 +111,4 @@ if __name__ == "__main__":
     test_clone_0()
     test_clone_1()
     test_clone_2()
+    test_clone_3()
