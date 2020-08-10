@@ -193,7 +193,6 @@ class Graph(nx.DiGraph):
 
         fun = self.get_node_attribute(node, "jax_function")
 
-        print(args, new_args, fun)
         self._branches[name] = symjax._fn_to_op[fun](*new_args, **new_kwargs)
         return self._branches[name]
 
