@@ -28,7 +28,7 @@ def _scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
 
 @jax_wrap
 def _while_loop(
-    cond_fun, body_fun, sequences, non_sequences_cond=None, non_sequences_body=None
+    cond_fun, body_fun, sequences, non_sequences_cond=None, non_sequences_body=None,
 ):
 
     # get the fully jaxed function
@@ -99,13 +99,9 @@ def map(f, sequences, non_sequences=None):
 
     g = lambda _, *args: (1, f(*args))
 
-    if type(non_sequences) == list:
-        non_sequences = tuple(non_sequences)
-    if type(sequences) == list:
-        sequences = tuple(sequences)
-    ys = scan(g, 0, sequences, non_sequences=non_sequences)[1]
+    ys = scan(g, 0, sequences, non_sequences=non_sequences)
 
-    return ys
+    return ys[1]
 
 
 def scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
@@ -204,7 +200,7 @@ def scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
 
 
 def while_loop(
-    cond_fun, body_fun, sequences, non_sequences_cond=None, non_sequences_body=None
+    cond_fun, body_fun, sequences, non_sequences_cond=None, non_sequences_body=None,
 ):
     """Call ``body_fun`` repeatedly in a loop while ``cond_fun`` is True.
 

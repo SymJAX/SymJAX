@@ -7,6 +7,7 @@ import jax.numpy as jnp
 import numpy
 import os
 import symjax
+import networkx as nx
 
 
 def list2tuple(item):
@@ -119,6 +120,8 @@ def get_output_tree(
     for name, arg in list(kwargs.items()):
         if not isvar(arg):
             static_kwargs.update({name: arg})
+        elif isinstance(arg, MultiOutputOp):
+            var_kwargs.update({name: list(arg)})
         else:
             var_kwargs.update({name: arg})
 
@@ -126,6 +129,9 @@ def get_output_tree(
     who_static = [int(not isvar(arg)) for arg in args]
     static_args = [arg for i, arg in zip(who_static, args) if i]
     var_args = [arg for i, arg in zip(who_static, args) if not i]
+    var_args = [
+        list(arg) if isinstance(arg, MultiOutputOp) else arg for arg in var_args
+    ]
 
     # we need to define an abstract function that only takes as input the
     # non-static arguments, internally join them with the static ones
@@ -397,9 +403,27 @@ class Op(Tensor):
         return self.__repr__()
 
 
-class MultiOutputOp(Op, Tensor):
-    def __init__(self, *args, _jax_function, _shapes, _dtypes, name=None, **kwargs):
+class MultiOutputOp(Op, tuple, Tensor):
+    def __new__(cls, *args, _jax_function, _shapes, _dtypes, name=None, **kwargs):
+        scope = symjax.current_graph().scope.full_name
+        items = []
+        for i, (shape, dtype) in enumerate(zip(_shapes, _dtypes)):
+            items.append(
+                OpItem(
+                    _attrs={
+                        "name": _jax_function.__name__ + "[{}]".format(i),
+                        "scope": scope,
+                        "jax_function": _jax_function,
+                        "root": False,
+                        "parent_index": i,
+                        "shape": shape,
+                        "dtype": dtype,
+                    }
+                )
+            )
+        return super(MultiOutputOp, cls).__new__(cls, tuple(items))
 
+    def __init__(self, *args, _jax_function, _shapes, _dtypes, name=None, **kwargs):
         if name is None:
             name = _jax_function.__name__
 
@@ -419,34 +443,26 @@ class MultiOutputOp(Op, Tensor):
             **kwargs,
         )
 
-        for i, (shape, dtype) in enumerate(zip(_shapes, _dtypes)):
-            OpItem(
-                _attrs={
-                    "name": name + "[{}]".format(i),
-                    "scope": scope,
-                    "jax_function": _jax_function,
-                    "root": False,
-                    "parent_index": i,
-                    "parent": self,
-                    "shape": shape,
-                    "dtype": dtype,
-                }
+        for i, child in enumerate(self):
+            symjax.current_graph().add_edge(
+                self, child, name="parent_index" + str(i),
             )
+            symjax.current_graph().nodes[child]["parent"] = self
 
-    def __repr__(self):
-        successors = symjax.current_graph().successors(self)
+    # def __repr__(self):
+    #     successors = symjax.current_graph().successors(self)
 
-        return "(" + ", ".join([str(a) for a in successors]) + ")"
+    #     return "(" + ", ".join([str(a) for a in successors]) + ")"
 
-    def __iter__(self):
-        """ Returns the Iterator object """
-        return symjax.current_graph().successors(self)
+    # def __iter__(self):
+    #     """ Returns the Iterator object """
+    #     return symjax.current_graph().successors(self)
 
-    def __getitem__(self, item):
-        assert type(item) == int
-        for node in symjax.current_graph().successors(self):
-            if symjax.current_graph().nodes[node]["parent_index"] == item:
-                return node
+    # def __getitem__(self, item):
+    #     assert type(item) == int
+    #     for node in symjax.current_graph().successors(self):
+    #         if symjax.current_graph().nodes[node]["parent_index"] == item:
+    #             return node
 
 
 class OpItem(Op, Tensor):

@@ -67,7 +67,7 @@ class Buffer:
         self.priorities = deque(maxlen=size)
 
     @property
-    def len(self):
+    def length(self):
         return len(self.buffer)
 
     def push(self, *args):
@@ -78,7 +78,7 @@ class Buffer:
             assert len(args) == self.n_components
 
         self.buffer.append(args)
-        self.priorities.append(1)
+        self.priorities.append(1.0)
 
     def update_priorities(self, indices, priorities):
         for indx, priority in zip(indices, priorities):
@@ -91,7 +91,9 @@ class Buffer:
         items = [[] for i in range(self.n_components)]
 
         indices = np.arange(len(self.buffer), dtype="int32")
-        batch = random.choices(indices, weights=self.priorities, k=length)
+        p = np.array(self.priorities)
+        p /= p.sum()
+        batch = np.random.choice(indices, p=p, size=length)
         self.current_indices = batch
 
         for experience in batch:
@@ -177,7 +179,7 @@ def run(
             state = next_state
 
             # Perform the updates
-            if buffer.len >= agent.batch_size:
+            if buffer.length >= agent.batch_size:
                 losses.append(agent.train(buffer, episode=i, step=j))
 
             if terminal or j == (max_episode_steps - 1):

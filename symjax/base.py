@@ -104,26 +104,23 @@ class Graph(nx.DiGraph):
         if isinstance(tensor, t.Tensor):
             self.add_node(tensor, **_attrs)
 
-            if isinstance(tensor, t.OpItem):
+            # if isinstance(tensor, t.OpItem):
 
-                self.add_edge(
-                    tensor.parent,
-                    tensor,
-                    name="parent_index{}".format(tensor.parent_index),
-                )
+            #     self.add_edge(
+            #         tensor.parent,
+            #         tensor,
+            #         name="parent_index{}".format(tensor.parent_index),
+            #     )
 
-            elif isinstance(tensor, t.Op):
+            if isinstance(tensor, t.Op):
 
                 for i, arg in enumerate(args):
 
-                    # all parents should already be in, however if one
-                    # of the arg is like a tuple then this is a new node
-                    # and thus it is not already in thus we add it
                     node = self._add(arg)
                     if self.has_edge(node, tensor):
-                        self[node][tensor]["name"] += "+arg{}".format(i)
+                        self[node][tensor]["name"] += "+arg" + str(i)
                     else:
-                        self.add_edge(node, tensor, name="arg{}".format(i))
+                        self.add_edge(node, tensor, name="arg" + str(i))
 
                 for key, arg in kwargs.items():
 
@@ -172,6 +169,11 @@ class Graph(nx.DiGraph):
         for key in set(givens.keys()) - ancestors:
             givens.pop(key)
 
+        if type(node) == list:
+            return [self.clone(n, givens) for n in node]
+        elif type(node) == tuple:
+            return tuple([self.clone(n, givens) for n in node])
+
         # next we create a unique identifier. This will allow us to detect
         # in case this clone has already been created
         # this identifier is unique given a givens dictionnary
@@ -190,6 +192,8 @@ class Graph(nx.DiGraph):
         new_kwargs = {name: self.clone(n, givens) for name, n in kwargs.items()}
 
         fun = self.get_node_attribute(node, "jax_function")
+
+        print(args, new_args, fun)
         self._branches[name] = symjax._fn_to_op[fun](*new_args, **new_kwargs)
         return self._branches[name]
 
@@ -963,21 +967,10 @@ class function:
                         i.update()
 
             return jitoutputs
-            # if type(jitoutputs) == list or type(jitoutputs) == tuple:
-            #     npy_jitoutputs = [
-            #         jax.api.device_get(arr)
-            #         if isinstance(arr, jax.interpreters.xla.DeviceArray)
-            #         else arr
-            #         for arr in jitoutputs
-            #     ]
-            #     return npy_jitoutputs
-
-            # else:
-            #     return jax.api.device_get(jitoutputs)
 
         self.meta = meta
 
-    def __call__(self, *args, rng=None):
+    def __call__(self, *args, rng=None, device_get=True):
         """Callable fn."""
         # in the presence of RandomTensor(s) in the graph, we keep track of the
         # number of functions calls to keep accumulating the PRNGKey of the jax
@@ -989,4 +982,6 @@ class function:
 
         outputs = self.meta(*args, rng=rng)
 
+        if device_get:
+            outputs = jax.device_get(outputs)
         return outputs

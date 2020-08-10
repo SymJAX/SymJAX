@@ -81,6 +81,29 @@ def test_clone_3():
     assert np.array_equal(f(np.ones(10), np.ones(3)), [10, 3])
 
 
+def test_clone_4():
+    sj.current_graph().reset()
+    a = T.ones((10, 1))
+    b = T.ones((10, 1))
+    c = T.concatenate([a, b], 1)
+    arg, kwargs = sj.current_graph().get_args_kwargs(c, evaluate=False)
+
+    w = T.Variable(T.ones((10, 1)))
+    d = c.clone({a: 2 * w})
+
+    f = sj.function(outputs=[c, d])
+
+    assert np.array_equal(f()[0], np.ones((10, 2)))
+    assert np.array_equal(
+        f()[1], np.concatenate([2 * np.ones((10, 1)), np.ones((10, 1))], 1)
+    )
+    w.update(np.ones((10, 1)) * 4)
+    assert np.array_equal(f()[0], np.ones((10, 2)))
+    assert np.array_equal(
+        f()[1], np.concatenate([8 * np.ones((10, 1)), np.ones((10, 1))], 1)
+    )
+
+
 def test_clone_base():
     sj.current_graph().reset()
     w = T.Variable(1.0, dtype="float32")
@@ -107,8 +130,9 @@ def test_clone_base():
 
 
 if __name__ == "__main__":
-    test_clone_base()
-    test_clone_0()
-    test_clone_1()
-    test_clone_2()
-    test_clone_3()
+    # test_clone_base()
+    # test_clone_0()
+    # test_clone_1()
+    # test_clone_2()
+    # test_clone_3()
+    test_clone_4()
