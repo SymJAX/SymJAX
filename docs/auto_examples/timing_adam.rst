@@ -3,58 +3,16 @@
     .. note::
         :class: sphx-glr-download-link-note
 
-        Click :ref:`here <sphx_glr_download_auto_examples_plot_adam.py>`     to download the full example code
+        Click :ref:`here <sphx_glr_download_auto_examples_timing_adam.py>`     to download the full example code
     .. rst-class:: sphx-glr-example-title
 
-    .. _sphx_glr_auto_examples_plot_adam.py:
+    .. _sphx_glr_auto_examples_timing_adam.py:
 
 
 Adam TF and SymJAX
 ==================
 
 In this example we demonstrate how to perform a simple optimization with Adam in TF and SymJAX
-
-
-.. rst-class:: sphx-glr-script-out
-
-
-.. code-block:: pytb
-
-    Traceback (most recent call last):
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/sphinx_gallery/gen_gallery.py", line 159, in call_memory
-        return 0., func()
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/sphinx_gallery/gen_rst.py", line 466, in __call__
-        exec(self.code, self.fake_main.__dict__)
-      File "/home/vrael/SymJAX/gallery/plot_adam.py", line 133, in <module>
-        values.append(TF2(X, Y, N, pre))
-      File "/home/vrael/SymJAX/gallery/plot_adam.py", line 89, in TF2
-        l = train(x, y)
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/eager/def_function.py", line 780, in __call__
-        result = self._call(*args, **kwds)
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/eager/def_function.py", line 840, in _call
-        return self._stateless_fn(*args, **kwds)
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 2829, in __call__
-        return graph_function._filtered_call(args, kwargs)  # pylint: disable=protected-access
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 1848, in _filtered_call
-        cancellation_manager=cancellation_manager)
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 1938, in _call_flat
-        flat_outputs = forward_function.call(ctx, args_with_tangents)
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 579, in call
-        executor_type=executor_type)
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/ops/functional_ops.py", line 1175, in partitioned_call
-        args = [ops.convert_to_tensor(x) for x in args]
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/ops/functional_ops.py", line 1175, in <listcomp>
-        args = [ops.convert_to_tensor(x) for x in args]
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/framework/ops.py", line 1465, in convert_to_tensor
-        raise RuntimeError("Attempting to capture an EagerTensor without "
-    RuntimeError: Attempting to capture an EagerTensor without building a function.
-
-
-
-
-
-
-|
 
 
 .. code-block:: default
@@ -209,10 +167,10 @@ In this example we demonstrate how to perform a simple optimization with Adam in
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  2.093 seconds)
+   **Total running time of the script:** ( 0 minutes  0.000 seconds)
 
 
-.. _sphx_glr_download_auto_examples_plot_adam.py:
+.. _sphx_glr_download_auto_examples_timing_adam.py:
 
 
 .. only :: html
@@ -224,13 +182,13 @@ In this example we demonstrate how to perform a simple optimization with Adam in
 
   .. container:: sphx-glr-download sphx-glr-download-python
 
-     :download:`Download Python source code: plot_adam.py <plot_adam.py>`
+     :download:`Download Python source code: timing_adam.py <timing_adam.py>`
 
 
 
   .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-     :download:`Download Jupyter notebook: plot_adam.ipynb <plot_adam.ipynb>`
+     :download:`Download Jupyter notebook: timing_adam.ipynb <timing_adam.ipynb>`
 
 
 .. only:: html

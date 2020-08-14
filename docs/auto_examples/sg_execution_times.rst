@@ -5,12 +5,12 @@
 
 Computation times
 =================
-**00:03.190** total execution time for **auto_examples** files:
+**00:20.081** total execution time for **auto_examples** files:
 
 +---------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_auto_examples_plot_tps.py` (``plot_tps.py``)                     | 00:03.190 | 0.0 MB |
+| :ref:`sphx_glr_auto_examples_plot_compare_adam.py` (``plot_compare_adam.py``)   | 00:17.988 | 0.0 MB |
 +---------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_auto_examples_plot_adam.py` (``plot_adam.py``)                   | 00:00.000 | 0.0 MB |
+| :ref:`sphx_glr_auto_examples_plot_adam.py` (``plot_adam.py``)                   | 00:02.093 | 0.0 MB |
 +---------------------------------------------------------------------------------+-----------+--------+
 | :ref:`sphx_glr_auto_examples_plot_deconvolution.py` (``plot_deconvolution.py``) | 00:00.000 | 0.0 MB |
 +---------------------------------------------------------------------------------+-----------+--------+
@@ -21,4 +21,6 @@ Computation times
 | :ref:`sphx_glr_auto_examples_plot_resampling.py` (``plot_resampling.py``)       | 00:00.000 | 0.0 MB |
 +---------------------------------------------------------------------------------+-----------+--------+
 | :ref:`sphx_glr_auto_examples_plot_sgd.py` (``plot_sgd.py``)                     | 00:00.000 | 0.0 MB |
++---------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_plot_tps.py` (``plot_tps.py``)                     | 00:00.000 | 0.0 MB |
 +---------------------------------------------------------------------------------+-----------+--------+

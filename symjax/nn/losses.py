@@ -3,6 +3,33 @@ import numpy as np
 from .ops_nn import softmax, log_softmax
 
 
+def huber(labels, predictions, delta=1.0):
+    """Adds a [Huber Loss](https://en.wikipedia.org/wiki/Huber_loss) term to the training procedure.
+  For each value x in `error=labels-predictions`, the following is calculated:
+  ```
+    0.5 * x^2                  if |x| <= d
+    0.5 * d^2 + d * (|x| - d)  if |x| > d
+  ```
+  where d is `delta`.
+
+    Args:
+    labels: The ground truth output tensor, same dimensions as 'predictions'.
+    predictions: The predicted outputs.
+    delta: `float`, the point where the huber loss function changes from a
+      quadratic to linear.
+  Returns:
+    Weighted loss float, this has the same
+    shape as `labels`
+    """
+
+    error = predictions - labels
+    abs_error = T.abs(error)
+    losses = T.where(
+        abs_error <= delta, 0.5 * error ** 2, delta * (abs_error - 0.5 * delta)
+    )
+    return losses
+
+
 def vae(x, x_hat, z_mu, z_logvar, mu, logvar, logvar_x=0.0, eps=1e-8):
     """N samples of dimension D to latent space in K dimension
 

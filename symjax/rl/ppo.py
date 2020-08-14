@@ -5,147 +5,170 @@ import numpy as np
 from symjax import nn
 import symjax.tensor as T
 from symjax.probabilities import Categorical, MultivariateNormal
-import math
-import matplotlib.pyplot as plt
-from collections import deque
 import gym
-import random
 
 
-import scipy.signal
+class ppo:
+    """Proximal Policy Optimization (by clipping),
 
-# https://gist.github.com/heerad/1983d50c6657a55298b67e69a2ceeb44
+    with early stopping based on approximate KL
+    """
 
-
-class PPO:
     def __init__(
         self,
-        state_dim,
-        action_dim,
-        lr,
-        gamma,
-        K_epochs,
-        eps_clip,
+        env,
         actor,
         critic,
-        batch_size,
-        continuous=True,
+        lr=1e-4,
+        batch_size=32,
+        n=1,
+        clip_ratio=0.2,
+        target_kl=0.01,
+        train_pi_iters=80,
+        train_v_iters=80,
     ):
-        self.lr = lr
-        self.gamma = gamma
-        self.eps_clip = eps_clip
-        self.K_epochs = K_epochs
-        self.batch_size = batch_size
 
-        state = T.Placeholder((batch_size,) + state_dim, "float32")
+        num_states = env.observation_space.shape[0]
+        continuous = type(env.action_space) == gym.spaces.box.Box
 
-        reward = T.Placeholder((batch_size,), "float32")
-        old_action_logprobs = T.Placeholder((batch_size,), "float32")
-
-        logits = actor(state)
-
-        if not continuous:
-            given_action = T.Placeholder((batch_size,), "int32")
-            dist = Categorical(logits=logits)
+        if continuous:
+            num_actions = env.action_space.shape[0]
+            action_min = env.action_space.low
+            action_max = env.action_space.high
         else:
-            mean = T.tanh(logits[:, : logits.shape[1] // 2])
-            std = T.exp(logits[:, logits.shape[1] // 2 :])
-            given_action = T.Placeholder((batch_size, action_dim), "float32")
-            dist = MultivariateNormal(mean=mean, diag_std=std)
+            num_actions = env.action_space.n
+            action_max = 1
 
-        sample = dist.sample()
-        sample_logprobs = dist.log_prob(sample)
+        self.batch_size = batch_size
+        self.num_states = num_states
+        self.num_actions = num_actions
+        self.state_dim = (batch_size, num_states)
+        self.action_dim = (batch_size, num_actions)
+        self.continuous = continuous
+        self.lr = lr
+        self.train_pi_iters = train_pi_iters
+        self.train_v_iters = train_v_iters
+        self.clip_ratio = clip_ratio
+        self.target_kl = target_kl
+        self.extras = {"logprob": ()}
 
-        self._act = symjax.function(state, outputs=[sample, sample_logprobs])
+        state_ph = T.Placeholder((batch_size, num_states), "float32")
+        ret_ph = T.Placeholder((batch_size,), "float32")
+        adv_ph = T.Placeholder((batch_size,), "float32")
+        act_ph = T.Placeholder((batch_size, num_actions), "float32")
+        logp_old_ph = T.Placeholder((batch_size,), "float32")
 
-        given_action_logprobs = dist.log_prob(given_action)
+        with symjax.Scope("actor"):
+            logits = actor(state_ph)
+            if not continuous:
+                pi = Categorical(logits=logits)
+            else:
+                logstd = T.Variable(
+                    -0.5 * np.ones(num_actions, dtype=np.float32), name="logstd",
+                )
+                pi = MultivariateNormal(mean=logits, diag_log_std=logstd)
 
-        # Finding the ratio (pi_theta / pi_theta__old):
-        ratios = T.exp(sample_logprobs - old_action_logprobs)
-        ratios = T.clip(ratios, None, 1 + self.eps_clip)
+            actions = pi.sample()  # pi
+            logprob_actions = pi.log_prob(actions)  # logp_pi
+            logprob_given_actions = pi.log_prob(act_ph)  # logp
 
-        state_value = critic(state)
-        advantages = reward - T.stop_gradient(state_value)
+        with symjax.Scope("critic"):
+            v = critic(state_ph)
 
-        loss = (
-            -T.mean(ratios * advantages)
-            + 0.5 * T.mean((state_value - reward) ** 2)
-            - 0.0 * dist.entropy().mean()
-        )
+        # PPO objectives
+        # pi(a|s) / pi_old(a|s)
+        ratio = T.exp(logprob_given_actions - logp_old_ph)
+        min_adv = T.where(adv_ph > 0, (1 + clip_ratio), (1 - clip_ratio)) * adv_ph
+        pi_loss = -T.minimum(ratio * adv_ph, min_adv).mean()
+        v_loss = ((ret_ph - v) ** 2).mean()
 
-        print(loss)
-        nn.optimizers.Adam(loss, self.lr)
+        # Info (useful to watch during learning)
 
-        self.learn = symjax.function(
-            state,
-            given_action,
-            reward,
-            old_action_logprobs,
-            outputs=T.mean(loss),
-            updates=symjax.get_updates(),
-        )
+        # a sample estimate for KL
+        approx_kl = (logp_old_ph - logprob_given_actions).mean()
+        # a sample estimate for entropy
+        approx_ent = -logprob_given_actions.mean()
+        clipped = T.logical_or(ratio > (1 + clip_ratio), ratio < (1 - clip_ratio))
+        clipfrac = clipped.astype("float32").mean()
 
-    def act(self, state, memory):
-        action, action_logprobs = self._act(state[None, :].repeat(self.batch_size, 0))
-        memory.states.append(state)
-        memory.actions.append(action[0])
-        memory.logprobs.append(action_logprobs[0])
-        return action
-
-    def train(self):
-
-        (s_batch, a_batch, r_batch, s2_batch, t_batch, batch,) = self.env.buffer.sample(
-            self.batch_size
-        )
-        # Calculate targets
-        target_q = self.critic_predict_target(
-            s2_batch, self.actor_predict_target(s2_batch)
-        )
-
-        y_i = r_batch + self.gamma * (1 - t_batch[:, None]) * target_q
-
-        if not self.continuous:
-            a_batch = (np.arange(self.num_actions) == a_batch[:, None]).astype(
-                "float32"
+        with symjax.Scope("update_pi"):
+            actor_params = symjax.get_variables(scope="/actor/")
+            print(len(actor_params), "actor parameters")
+            nn.optimizers.Adam(
+                pi_loss, self.lr, params=actor_params,
+            )
+        with symjax.Scope("update_v"):
+            critic_params = symjax.get_variables(scope="/critic/")
+            print(len(critic_params), "critic parameters")
+            nn.optimizers.Adam(
+                v_loss, self.lr, params=critic_params,
             )
 
-        td_error = np.abs(y_i - self.critic_predict(s_batch, a_batch))
-        self.env.buffer.update_priorities(batch, td_error)
+        self.learn_pi = symjax.function(
+            state_ph,
+            act_ph,
+            adv_ph,
+            logp_old_ph,
+            outputs=[pi_loss, approx_kl],
+            updates=symjax.get_updates(scope="/update_pi/*"),
+        )
+        self.learn_v = symjax.function(
+            state_ph,
+            ret_ph,
+            outputs=v_loss,
+            updates=symjax.get_updates(scope="/update_v/*"),
+        )
 
-        # Update the critic given the targets
-        q_loss, predicted_q_value = self.train_critic(s_batch, a_batch, y_i)
+        single_state = T.Placeholder((1, num_states), "float32")
 
-        # Update the actor policy using the sampled gradient
-        a_outs = self.actor_predict(s_batch)
-        # grads = self.get_action_grads(s_batch, a_outs)
-        a_loss = self.train_actor(s_batch)  # , grads)
+        single_action = actions.clone({state_ph: single_state})[0]
+        single_logp_action = logprob_actions.clone({state_ph: single_state})[0]
+        single_v = v.clone({state_ph: single_state})
 
-        # Update target networks
-        self.update_target()
-        return a_loss, q_loss
+        self._act = symjax.function(
+            single_state, outputs=[single_action, single_v, single_logp_action],
+        )
+        single_action = T.Placeholder((1, num_actions), "float32")
+        self.get_kl = symjax.function(
+            single_state,
+            single_action,
+            outputs=logprob_given_actions.clone(
+                {state_ph: single_state, act_ph: single_action}
+            ),
+        )
+        self.get_KL = symjax.function(
+            state_ph, act_ph, outputs=logprob_given_actions[0]
+        )
 
-        rewards = []
-        discounted_reward = 0
-        for reward, is_terminal in zip(
-            reversed(memory.rewards), reversed(memory.is_terminals)
-        ):
-            if is_terminal:
-                discounted_reward = 0
-            discounted_reward = reward + (self.gamma * discounted_reward)
-            rewards.insert(0, discounted_reward)
-        rewards = np.array(rewards)
+    def act(self, state):
+        action, v, logprob = self._act(state)
+        return action, {"V": v, "logprob": logprob}
 
-        # Normalizing the rewards:
-        rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-5)
+    def train(self, buffer, *args, **kwargs):
 
-        # convert list to tensor
-        old_states = memory.states
-        old_actions = memory.actions
-        old_logprobs = memory.logprobs
+        (s, a, r, adv, old_logprobs) = buffer.sample(
+            self.batch_size,
+            ["state", "action", "advantage", "reward-to-go", "logprob"],
+        )
 
-        # Optimize policy for K epochs:
-        for _ in range(4):
-            loss = self.learn(old_states, old_actions, rewards, old_logprobs)
-            print("loss", loss)
+        if not self.continuous:
+            a = (np.arange(self.num_actions) == a[:, None]).astype("float32")
 
-        # Copy new weights into old policy:
+        r -= r.mean()
+        r /= r.std()
+
+        # print(self.get_kl(s[[0]], a[[0]]))
+        # print(self.get_KL(s, a))
+        # print(self.get_kl(s[[0]], a[[0]]))
+        # print(self.get_KL(s, a))
+        # print(old_logprobs[0])
+        # adsf
+
+        for _ in range(self.train_pi_iters):
+            loss, kl = self.learn_pi(s, a, adv, old_logprobs)
+            if kl > 1.5 * self.target_kl:
+                print("Early stopping of pi learning at", _, kl, self.target_kl)
+                break
+
+        for _ in range(self.train_v_iters):
+            loss_v = self.learn_v(s, r)

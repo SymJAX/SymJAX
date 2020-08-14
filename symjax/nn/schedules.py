@@ -6,7 +6,7 @@ from ..base import current_graph, Scope
 import numpy as np
 
 
-def ExponentialMovingAverage(value, alpha, init=None):
+def ExponentialMovingAverage(value, alpha, init=None, decay_min=False, debias=True):
 
     """exponential moving average of a given value
 
@@ -32,6 +32,9 @@ def ExponentialMovingAverage(value, alpha, init=None):
     init: Tensor-like (same shape as value) optional
         the initialization of the EMA, if not given uses the value
         allowing for unbiased estimate
+
+    decay_min: bool
+        at early stages, clip the decay to avoid erratir behaviors
 
     Returns
     -------
@@ -99,19 +102,68 @@ def ExponentialMovingAverage(value, alpha, init=None):
 
     with Scope("ExponentialMovingAverage"):
 
-        init = init if init is not None else value
+        init = init if init is not None else T.zeros_like(value)
 
-        first_step = T.Variable(True, trainable=False, name="first_step", dtype="bool")
+        num_steps = T.Variable(0, trainable=False, name="num_steps", dtype="int32")
 
-        var = T.Variable(
-            T.zeros(value.shape), trainable=False, dtype="float32", name="EMA"
-        )
+        var = T.Variable(init, trainable=False, dtype="float32", name="EMA")
 
-        new_value = T.where(first_step, init, var * alpha + (1 - alpha) * value)
+        if decay_min:
+            decay = T.minimum(alpha, (1.0 + num_steps) / (10.0 + num_steps))
+        else:
+            decay = alpha
 
-        current_graph().add_updates({var: new_value, first_step: False})
+        ema = decay * var + (1 - decay) * value
+        var_update = T.where(T.equal(num_steps, 0), init, ema)
 
-    return new_value, T.where(first_step, init, var)
+        current_graph().add_updates({var: ema, num_steps: num_steps + 1})
+
+        if debias:
+            debiased_ema = ema_debias(ema, init, decay, num_steps + 1)
+            debiased_var = T.Variable(
+                init, trainable=False, dtype="float32", name="debiased_EMA"
+            )
+            current_graph().add_updates({debiased_var: debiased_ema})
+
+    if debias:
+        return debiased_ema, debiased_var
+    else:
+        return ema, var
+
+
+def ema_debias(biased_ema, init, decay, num_steps):
+    """Compute the delta required for a debiased Variable.
+    All exponential moving averages are biased to their init.
+    This function creates the debias updated amount according to
+    a scale factor, as in (Kingma et al., 2015):
+    ```
+    EMA = init*b^(t) + c*(1 - b)*b^(t-1) + c*(1 - b)*b^(t-2) + ...
+        = init*b^(t) + c*(1 - b^t)
+    ```
+    To have the true value `c`, we would substract `init*b^(t)` and
+    divide by the scale factor `1 - b^t`.
+
+    Args:
+    -----
+
+    biased_ema: Tensor
+        the ema (biased)
+    init: Tensor
+        the init that was used to compute the ema
+    decay: float
+        the decay parameter
+    num_steps:
+        number of steps used
+
+    Returns:
+    --------
+
+    unbiased_ema
+    """
+    bt = T.power(decay, num_steps)
+    shift = init * bt
+    scalor = 1 - bt
+    return (biased_ema - shift) / scalor
 
 
 def PiecewiseConstant(init, steps_and_values):

@@ -44,7 +44,9 @@ class MultivariateNormal:
 
     def log_prob(self, value):
         pre_sum = -0.5 * (
-            ((x - mu) / tf.exp(log_std)) ** 2 + 2 * log_std + np.log(2 * np.pi)
+            ((value - self.mean) / T.exp(self.diag_log_std)) ** 2
+            + 2 * self.diag_log_std
+            + np.log(2 * np.pi)
         )
         return pre_sum.sum(-1)
 

@@ -17,6 +17,21 @@ def test_add():
     assert symjax.current_graph().get(a.max()) == 1
 
 
+def test_ema():
+    symjax.current_graph().reset()
+    a = symjax.tensor.Placeholder((), "float32")
+    ema, var = symjax.nn.schedules.ExponentialMovingAverage(a, 0.9, debias=False)
+    # t = symjax.get_variables("*num_steps*", trainable=False)
+    f = symjax.function(a, outputs=[ema, var], updates=symjax.get_updates())
+    current = 0
+
+    for i in range(10):
+        out = f(1)
+        assert np.allclose(out[1], current)
+        current = 0.9 * current + 0.1 * 1
+        assert np.allclose(out[0], current)
+
+
 def test_stop():
     a = symjax.tensor.ones(())
     b = a + a ** 2
@@ -127,3 +142,4 @@ if __name__ == "__main__":
     test_pymc()
     test_stop()
     test_g()
+    test_ema()

@@ -591,10 +591,10 @@ class BatchNormalization(Layer):
         self.input_inv_std = 1 / (T.std(input, reduce_axes, keepdims=True) + const)
 
         self.avg_mean = schedules.ExponentialMovingAverage(
-            self.input_mean, beta1, init=T.zeros_like(self.input_mean)
+            self.input_mean, beta1, debias=False
         )[1]
         self.avg_inv_std = schedules.ExponentialMovingAverage(
-            self.input_inv_std, beta2, init=T.ones_like(self.input_mean)
+            self.input_inv_std, beta2, init=T.ones_like(self.input_mean), debias=False,
         )[1]
 
         use_mean = T.where(deterministic, self.avg_mean, self.input_mean)

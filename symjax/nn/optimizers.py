@@ -3,6 +3,7 @@ import numpy
 import symjax
 from symjax import tensor
 from ..base import gradients
+from symjax.nn.schedules import ExponentialMovingAverage
 
 
 def conjugate_gradients(Ax, b):
@@ -173,6 +174,39 @@ class NesterovMomentum(Optimizer):
 class Adam(Optimizer):
     """Adaptive Gradient Based Optimization with renormalization
 
+    If amsgrad = False:
+      Initialization:
+      $$m_0 := 0 \text{(Initialize initial 1st moment vector)}$$
+      $$v_0 := 0 \text{(Initialize initial 2nd moment vector)}$$
+      $$t := 0 \text{(Initialize timestep)}$$
+      The update rule for `variable` with gradient `g` uses an optimization
+      described at the end of section 2 of the paper:
+      $$t := t + 1$$
+      $$lr_t := \text{learning\_rate} * \sqrt{1 - beta_2^t} / (1 - beta_1^t)$$
+      $$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$
+      $$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$
+      $$variable := variable - lr_t * m_t / (\sqrt{v_t} + \epsilon)$$
+    If amsgrad = True:
+      Initialization:
+      $$m_0 := 0 \text{(Initialize initial 1st moment vector)}$$
+      $$v_0 := 0 \text{(Initialize initial 2nd moment vector)}$$
+      $$v_hat_0 := 0 \text{(Initialize initial 2nd moment vector)}$$
+      $$t := 0 \text{(Initialize timestep)}$$
+      The update rule for `variable` with gradient `g` uses an optimization
+      described at the end of section 2 of the paper:
+      $$t := t + 1$$
+      $$lr_t := \text{learning\_rate} * \sqrt{1 - beta_2^t} / (1 - beta_1^t)$$
+      $$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$
+      $$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$
+      $$v_hat_t := max(v_hat_{t-1}, v_t)$$
+      $$variable := variable - lr_t * m_t / (\sqrt{v_hat_t} + \epsilon)$$
+    The default value of 1e-7 for epsilon might not be a good default in
+    general. For example, when training an Inception network on ImageNet a
+    current good choice is 1.0 or 0.1. Note that since AdamOptimizer uses the
+    formulation just before Section 2.1 of the Kingma and Ba paper rather than
+    the formulation in Algorithm 1, the "epsilon" referred to here is "epsilon
+    hat" in the paper.
+
     Parameters
     ----------
 
@@ -211,6 +245,7 @@ class Adam(Optimizer):
         self,
         grads_or_loss,
         learning_rate,
+        amsgrad=False,
         beta1=0.9,
         beta2=0.999,
         epsilon=1e-8,
@@ -222,11 +257,25 @@ class Adam(Optimizer):
 
         grads = self._get_grads(grads_or_loss, params)
 
-        updates = dict()
+        local_step = tensor.Variable(1, dtype="int32", trainable=False)
+        updates = {local_step: local_step + 1}
+
+        beta1_t = tensor.power(beta1, local_step)
+        beta2_t = tensor.power(beta2, local_step)
+        lr = learning_rate * (tensor.sqrt(1 - beta2_t) / (1 - beta1_t))
+
         for param, grad in zip(params, grads):
-            m = symjax.nn.schedules.ExponentialMovingAverage(grad, beta1)[0]
-            v = symjax.nn.schedules.ExponentialMovingAverage(grad ** 2, beta2)[0]
-            update = m / (tensor.sqrt(v) + epsilon)
-            updates[param] = param - learning_rate * update
+            m = ExponentialMovingAverage(grad, beta1, debias=False)[0]
+            v = ExponentialMovingAverage(grad ** 2, beta2, debias=False)[0]
+            if amsgrad:
+                v_hat = tensor.Variable(
+                    tensor.zeros_like(param), name="v_hat", trainable=False
+                )
+                updates[v_hat] = tensor.maximum(v_hat, v)
+                update = m / (tensor.sqrt(updates[v_hat]) + epsilon)
+            else:
+                update = m / (tensor.sqrt(v) + epsilon)
+            update = tensor.where(local_step == 1, grad, update)
+            updates[param] = param - lr * update
 
         self.add_updates(updates)

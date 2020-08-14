@@ -64,27 +64,6 @@ Introductory examples that teach how to use SymJAX.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="demonstration on how to use Adam optimizer to minimize a loss">
-
-.. only:: html
-
- .. figure:: /auto_examples/images/thumb/sphx_glr_plot_adam_thumb.svg
-     :alt: Basic Adam update (and reset)
-
-     :ref:`sphx_glr_auto_examples_plot_adam.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /auto_examples/plot_adam
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="In this example we demonstrate how to employ the utility functions from :py:mod:`symjax.tensor....">
 
 .. only:: html
@@ -166,6 +145,48 @@ Introductory examples that teach how to use SymJAX.
    :hidden:
 
    /auto_examples/plot_loops
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this example we demonstrate how to perform a simple optimization with Adam in TF and SymJAX">
+
+.. only:: html
+
+ .. figure:: /auto_examples/images/thumb/sphx_glr_timing_adam_thumb.png
+     :alt: Adam TF and SymJAX
+
+     :ref:`sphx_glr_auto_examples_timing_adam.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/timing_adam
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this example we demonstrate how to perform a simple optimization with Adam in TF and SymJAX">
+
+.. only:: html
+
+ .. figure:: /auto_examples/images/thumb/sphx_glr_plot_compare_adam_thumb.svg
+     :alt: Adam TF and SymJAX
+
+     :ref:`sphx_glr_auto_examples_plot_compare_adam.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/plot_compare_adam
 .. raw:: html
 
     <div class="sphx-glr-clear"></div>

@@ -104,6 +104,22 @@ def test_clone_4():
     )
 
 
+def test_clone_5():
+    sj.current_graph().reset()
+    a = T.ones((10,))
+    b = T.random.randn((10,))
+    c = a.dot(b)
+    d = c.clone({a: 2 * a})
+
+    f = sj.function(outputs=[c, d])
+
+    outs = f()
+    assert np.allclose(outs[0] * 2, outs[1])
+    outs2 = f()
+    assert np.allclose(outs2[0] * 2, outs2[1])
+    assert not np.allclose(outs[0], outs2[0])
+
+
 def test_clone_base():
     sj.current_graph().reset()
     w = T.Variable(1.0, dtype="float32")
@@ -130,9 +146,10 @@ def test_clone_base():
 
 
 if __name__ == "__main__":
-    # test_clone_base()
-    # test_clone_0()
-    # test_clone_1()
-    # test_clone_2()
-    # test_clone_3()
+    test_clone_base()
+    test_clone_0()
+    test_clone_1()
+    test_clone_2()
+    test_clone_3()
     test_clone_4()
+    test_clone_5()

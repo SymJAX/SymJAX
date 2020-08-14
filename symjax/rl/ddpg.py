@@ -11,7 +11,7 @@ import gym
 
 class ddpg:
     def __init__(
-        self, env, actor, critic, gamma=0.99, tau=0.01, lr=1e-3, batch_size=32, n=1,
+        self, env, actor, critic, gamma=0.99, tau=0.01, lr=1e-4, batch_size=32, n=1,
     ):
 
         # get size of state space and action space
@@ -34,6 +34,8 @@ class ddpg:
         self.gamma = gamma
         self.continuous = continuous
         self.n = n
+        self.extras = {}
+        self.tau = tau
 
         # state
         state = T.Placeholder((batch_size, num_states), "float32")
@@ -42,40 +44,40 @@ class ddpg:
         terminal = T.Placeholder((batch_size,), "float32")
         action = T.Placeholder((batch_size, num_actions), "float32")
 
-        with symjax.Scope("actor_critic"):
-            with symjax.Scope("actor"):
-                suggested_actions = action_min + (action_max - action_min) * actor(
-                    state
-                )
-            with symjax.Scope("critic"):
-                q_values_of_given_actions = critic(state, action)
+        with symjax.Scope("critic"):
+            critic_value = critic(state, action)
 
-        q_values_of_suggested_actions = q_values_of_given_actions.clone(
-            {action: suggested_actions}
-        )
+        with symjax.Scope("target_actor"):
+            target_action = actor(next_state)
 
-        with symjax.Scope("actor_critic_target"):
-            slow_target_next_actions = action_min + (action_max - action_min) * actor(
-                next_state
+        with symjax.Scope("target_critic"):
+
+            # One step TD targets y_i for (s,a) from experience replay
+            # = r_i + gamma*Q_slow(s',mu_slow(s')) if s' is not terminal
+            # = r_i if s' terminal
+            # also refered as Bellman backup for Q function
+            y_i = rewards + self.gamma * (1 - terminal) * critic(
+                next_state, target_action
             )
-            slow_q_values_next = critic(next_state, slow_target_next_actions)
 
-        # One step TD targets y_i for (s,a) from experience replay
-        # = r_i + gamma*Q_slow(s',mu_slow(s')) if s' is not terminal
-        # = r_i if s' terminal
-        discount = self.gamma ** self.n
-        y_i = rewards + discount * (1 - terminal) * slow_q_values_next
+        # DDPG losses
+        critic_loss = nn.losses.squared_differences(critic_value, y_i).mean()
 
-        actor_loss = -q_values_of_suggested_actions.mean()
-        critic_loss = T.mean((q_values_of_given_actions - y_i) ** 2)
-
+        critic_params = symjax.get_variables(scope="/critic/")
+        print(len(critic_params), "critic parameters")
         nn.optimizers.Adam(
-            actor_loss, lr, params=symjax.get_variables(scope="/actor_critic/actor/*"),
+            critic_loss, lr, params=critic_params,
         )
+
+        with symjax.Scope("actor"):
+            actions = actor(state)
+
+        critic_value = critic_value.clone({action: actions})
+        actor_loss = -critic_value.mean()
+        actor_params = symjax.get_variables(scope="/actor/")
+        print(len(actor_params), "actor parameters")
         nn.optimizers.Adam(
-            critic_loss,
-            lr,
-            params=symjax.get_variables(scope="/actor_critic/critic/*"),
+            actor_loss, lr, params=actor_params,
         )
 
         self.update = symjax.function(
@@ -88,39 +90,40 @@ class ddpg:
             updates=symjax.get_updates(),
         )
 
-        self.critic_predict = symjax.function(
-            state, action, outputs=q_values_of_given_actions
+        t_params = symjax.get_variables(scope="/target_actor/") + symjax.get_variables(
+            scope="/target_critic/"
+        )
+        params = symjax.get_variables(scope="/actor/") + symjax.get_variables(
+            scope="/critic/"
         )
 
-        t_params = symjax.get_variables(scope="/actor_critic_target/*")
-        params = symjax.get_variables(scope="/actor_critic/*")
-
+        _tau = T.Placeholder((), "float32")
         self.update_target = symjax.function(
-            updates={t: tau * e + (1 - tau) * t for t, e in zip(t_params, params)}
+            _tau,
+            updates={t: _tau * e + (1 - _tau) * t for t, e in zip(t_params, params)},
         )
+        self.update_target(1)
 
         single_state = T.Placeholder((1, num_states), "float32")
         if not continuous:
             scaled_out = clean_action.argmax(-1)
 
-        self.act = symjax.function(
-            single_state, outputs=suggested_actions.clone({state: single_state})[0],
+        self._act = symjax.function(
+            single_state, outputs=actions.clone({state: single_state})[0],
         )
 
-    def train(self, buffer, *args, **kwargs):
-        import time
+    def act(self, state):
+        action = self._act(state)
+        return action, {"V": 0}
 
-        ti = time.time()
-        (s, a, r, s2, t,) = buffer.sample(self.batch_size)
+    def train(self, buffer, *args, **kwargs):
+
+        s, a, r, s2, t = buffer.sample(self.batch_size)
 
         if not self.continuous:
             a = (np.arange(self.num_actions) == a[:, None]).astype("float32")
 
-        if buffer.with_priorities:
-            td_error = np.abs(y_i - self.critic_predict(s, a))
-            buffer.update_priorities(buffer.current_indices, td_error)
-
         a_loss, q_loss = self.update(s, a, r, t, s2)
 
-        self.update_target()
+        self.update_target(self.tau)
         return a_loss, q_loss

@@ -30,6 +30,11 @@ _RANDOM_FUNCTIONS = [
     jnp.uniform,
 ]
 
+
+def seed(s):
+    _seed = s
+
+
 module = sys.modules[__name__]
 
 for name in _RANDOM_FUNCTIONS:

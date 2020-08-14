@@ -115,6 +115,8 @@ _TO_SKIP = [
     "unpackbits",
     "update_numpydoc",
     "who",
+    "zeros_like",
+    "ones_like",
 ]
 
 for name in _JNP_NAMES:
@@ -134,6 +136,14 @@ for name in [
     "logaddexp2",
 ]:
     module.__dict__.update({name: jax_wrap(jnp.__dict__[name])})
+
+
+def zeros_like(input):
+    return module.__dict__["zeros"](input.shape, input.dtype)
+
+
+def ones_like(input):
+    return module.__dict__["ones"](input.shape, input.dtype)
 
 
 cast = jax_wrap(jla.convert_element_type)

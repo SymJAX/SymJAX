@@ -85,32 +85,32 @@ class Graph(nx.DiGraph):
 
         _attrs = _attrs or {}
 
+        # first we check is the not is a hashable, if it is not
+        # already in the graph
         if isinstance({}, collections.Hashable):
             if tensor in self.nodes:
                 return tensor
 
+        # then, if the node is a constant (not tensor, variable, ...)
         elif not t.isvar(tensor):
-            try:
+
+            # if it is hashable then we can add it as is as a node
+            # and we return it since it is the same object
+            if isinstance({}, collections.Hashable):
                 self.add_node(tensor, root=False)
                 return tensor
-            except TypeError:
-                const_node = t.Constant(tensor)
-                return const_node
+            # otherwise we have to make it hashable, to do so we use
+            # the constant object
+            # during creation of the object, it will be added to the
+            # graph automatically, we can return the object
+            return t.Constant(tensor)
 
+        # now check if it is a list of a tuple
         elif type(tensor) == list or type(tensor) == tuple:
-            new_node = t.Tuple(*tensor)
-            return new_node
+            return t.Tuple(*tensor)
 
         if isinstance(tensor, t.Tensor):
             self.add_node(tensor, **_attrs)
-
-            # if isinstance(tensor, t.OpItem):
-
-            #     self.add_edge(
-            #         tensor.parent,
-            #         tensor,
-            #         name="parent_index{}".format(tensor.parent_index),
-            #     )
 
             if isinstance(tensor, t.Op):
 
@@ -185,7 +185,11 @@ class Graph(nx.DiGraph):
         names.sort()
         name = "_".join(names)
 
-        if name in self._branches:
+        # ToDo: work on that, it is not
+        # good as it keeps in memory wrong
+        # tensors that resutls from previous
+        # call with different neighbours
+        if 0:  # name in self._branches:
             return self._branches[name]
 
         args, kwargs = self.get_args_kwargs(node, evaluate=False)
@@ -196,29 +200,6 @@ class Graph(nx.DiGraph):
 
         self._branches[name] = symjax._fn_to_op[fun](*new_args, **new_kwargs)
         return self._branches[name]
-
-        branch = givens.copy()
-        for start in givens.keys():
-            for path in nx.all_simple_paths(self, source=start, target=node):
-                for n in path[1:]:
-                    if n in branch:
-                        continue
-                    args, kwargs = self.get_args_kwargs(n, evaluate=False)
-                    args = [branch[arg] if arg in branch else arg for arg in args]
-                    for arg in kwargs.keys():
-                        if arg in branch:
-                            kwargs[arg] = branch[arg]
-                    fun = self.get_node_attribute(n, "jax_function")
-                    branch[n] = symjax._fn_to_op(*args, _func=fun, **kwargs)
-                    # branch[n] = t.Op(
-                    #     *args,
-                    #     _shape=n.shape,
-                    #     _dtype=n.dtype,
-                    #     _jax_function=fun,
-                    #     name=n.name + "clone",
-                    #     **kwargs,
-                    # )
-        return branch[node]
 
     def get_node_attribute(self, node, attr):
         return nx.get_node_attributes(self, attr)[node]
@@ -594,18 +575,18 @@ def load_variables(name, path_or_file, scope_mapping=None):
         symjax._variables[name].update(data[name_in_file])
 
 
-def get_variables(name="*", scope="*", trainable=None):
+def get_variables(name="*", scope="/", trainable=True):
     matched = current_graph().variables(trainable)
     output = []
     for m in matched:
         if len(fnmatch.filter([m.name], name)) and len(
-            fnmatch.filter([m.scope], scope)
+            fnmatch.filter([m.scope], scope + "*")
         ):
             output.append(m)
     return output
 
 
-def get_placeholders(name="*", scope="*"):
+def get_placeholders(name="*", scope="/"):
     """
     Same as symjax.variable but for placeholders
     """
@@ -613,13 +594,13 @@ def get_placeholders(name="*", scope="*"):
     output = []
     for m in matched:
         if len(fnmatch.filter([m.name], name)) and len(
-            fnmatch.filter([m.scope], scope)
+            fnmatch.filter([m.scope], scope + "*")
         ):
             output.append(m)
     return output
 
 
-def get_ops(name="*", scope="*"):
+def get_ops(name="*", scope="/"):
     """
     Same as symjax.variable but for ops
     """
@@ -627,13 +608,13 @@ def get_ops(name="*", scope="*"):
     output = []
     for m in matched:
         if len(fnmatch.filter([m.name], name)) and len(
-            fnmatch.filter([m.scope], scope)
+            fnmatch.filter([m.scope], scope + "*")
         ):
             output.append(m)
     return output
 
 
-def get_updates(name="*", scope="*", variables=None):
+def get_updates(name="*", scope="/", variables=None):
     """
     Same as symjax.variable but for ops
     """
@@ -648,7 +629,7 @@ def get_updates(name="*", scope="*", variables=None):
 
     for m in matched:
         if len(fnmatch.filter([m.name], name)) and len(
-            fnmatch.filter([m.scope], scope)
+            fnmatch.filter([m.scope], scope + "*")
         ):
             output[m] = matched[m]
     return output
@@ -906,7 +887,12 @@ class function:
         non_givens = set(placeholders_in_root) - set(self.classargs)
         if len(non_givens) > 0:
             raise RuntimeError(
-                "Missing placeholders form the function inputs: {}".format(non_givens)
+                """\
+                Missing placeholders from the function inputs...\n\
+                \t...Givens are: {}\n\
+                \t...Missings are: {}""".format(
+                    placeholders_in_root, non_givens
+                )
             )
 
         # the roots are made of variables, random tensors, placeholders. We
