@@ -487,24 +487,23 @@ def download_dataset(path, dataset, urls_names, baseurl="", extract=False):
 
     """
 
-    print("Downloading dataset")
-
-    t = time.time()
-
     if not os.path.isdir(os.path.join(path, dataset)):
         print("\tCreating Directory")
         os.mkdir(os.path.join(path, dataset))
 
     for file in urls_names:
-        print("\t...Downloading {}".format(urls_names[file]))
         target = os.path.join(path, dataset, urls_names[file])
         if not os.path.exists(target):
+            print("\t...Downloading {}".format(urls_names[file]))
             _download_url(baseurl + file, target)
             if extract:
                 print("\t...Extracting...")
                 extract_file(target, os.path.join(path, dataset))
-
-    print("{} downloaded in {} sec.".format(dataset, time.time() - t))
+        else:
+            # we assume that the correct extraction process was done
+            # before
+            # ToDo: check for extraction...
+            print("\t... {} already exists".format(urls_names[file]))
 
 
 def extract_file(filename, target):
