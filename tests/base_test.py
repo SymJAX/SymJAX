@@ -32,6 +32,20 @@ def test_ema():
         assert np.allclose(out[0], current)
 
 
+def test_sma():
+    symjax.current_graph().reset()
+    a = symjax.tensor.Placeholder((4,), "float32")
+    sma, var = symjax.nn.schedules.SimpleMovingAverage(a, 3)
+    f = symjax.function(a, outputs=[sma, var], updates=symjax.get_updates())
+
+    data = np.random.randn(4, 4)
+    current = [data[0], data[:2].mean(0), data[:3].mean(0), data[1:4].mean(0)]
+
+    for i in range(data.shape[0]):
+        out = f(data[i])
+        assert np.allclose(out[0], current[i])
+
+
 def test_stop():
     a = symjax.tensor.ones(())
     b = a + a ** 2
@@ -143,3 +157,4 @@ if __name__ == "__main__":
     test_stop()
     test_g()
     test_ema()
+    test_sma()

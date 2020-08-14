@@ -35,6 +35,9 @@ jobs:
       run: |
         sudo apt-get install python-pygraph python-pygraphviz
         sudo apt-get install libsndfile1
+    - name: Install Tensorflow
+      run: |
+        pip install tensorflow
     - name: Run tests
       run: |
         pip install -e .

@@ -234,3 +234,70 @@ def PiecewiseConstant(init, steps_and_values):
         current_graph().add_updates({step: step + 1})
 
     return value
+
+
+def SimpleMovingAverage(value, n):
+    """simple moving average
+
+
+    Args
+    ----
+
+    value: tensor
+        the initial value of the variable that will remain as is until a step
+        and update is reached
+
+    n: int
+
+    Returns
+    -------
+
+    variable: float-like
+
+    Example
+    -------
+
+    .. doctest ::
+    >>> import symjax
+    >>> symjax.current_graph().reset()
+    >>> var = symjax.nn.schedules.PiecewiseConstant(0.1, {4:1, 8:2})
+    >>> # in the background, symjax automatically records that everytime
+    >>> # a function is using this variable an udnerlying update should occur
+    >>> print(symjax.get_updates())
+    {Variable(name=step, shape=(), dtype=int32, trainable=False, scope=/PiecewiseConstant/): Op(name=add, fn=add, shape=(), dtype=int32, scope=/PiecewiseConstant/)}
+    >>> # it is up to the user to use it or not, if not used, the internal counter
+    >>> # is never updated and this the variable never changes.
+    >>> # example of use:
+    >>> f = symjax.function(outputs=var, updates=symjax.get_updates())
+    >>> for i in range(10):
+    ...     print(i, f())
+    0 0.1
+    1 0.1
+    2 0.1
+    3 0.1
+    4 1.0
+    5 1.0
+    6 1.0
+    7 1.0
+    8 2.0
+    9 2.0
+
+    """
+
+    with Scope("SimpleMovingAverage"):
+        last_values = T.Variable(
+            np.ones((n,) + value.shape) * np.nan,
+            trainable=False,
+            name="n_last_values",
+            dtype="float32",
+        )
+        index = T.Variable(0, trainable=False, dtype="int32", name="index")
+        var = T.Variable(
+            T.zeros_like(value), trainable=False, dtype="float32", name="SMA"
+        )
+
+        updated = T.index_update(last_values, T.mod(index, n), value)
+        avg = T.nanmean(updated, axis=0)
+        current_graph().add_updates({var: avg, index: index + 1, last_values: updated})
+
+    return avg, var
