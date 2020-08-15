@@ -123,9 +123,10 @@ def create_dummy(item):
         return item.get(), 1
     elif isinstance(item, OpItem) and isinstance(item.parent, Shape):
         return item.get(), 1
+
     elif isinstance(item, MultiOutputOp):
         items = [
-            dummy(symjax.current_graph().get_shape_dtype(a).shape, a.dtype,)
+            dummy(symjax.current_graph().get_shape_dtype(a).shape, a.dtype)
             for a in item
         ]
         return items, 0
@@ -454,9 +455,7 @@ class Op(Tensor):
     def __repr__(self):
 
         name = "Op(name={}, fn={}, shape={}, dtype={}, scope={})"
-        return name.format(
-            self.name, self.fn_name, self.shape.get(), self.dtype, self.scope
-        )
+        return name.format(self.name, self.fn_name, self.shape, self.dtype, self.scope)
 
     def __str__(self):
 
@@ -516,6 +515,11 @@ class MultiOutputOp(Op, tuple, Tensor):
 
 class Shape(MultiOutputOp):
     pass
+
+    def get(self):
+        if not hasattr(self, "_get"):
+            self._get = symjax.current_graph().get(self)
+        return self._get
 
 
 class OpItem(Op, Tensor):
@@ -637,7 +641,6 @@ class Variable(Tensor):
 
         assert not isvar(shape)
         name, scope = symjax.current_graph()._get_name_scope(name, self)
-        print("var", initializer, shape, dtype)
         value = self._reset(initializer, shape, dtype)
 
         shape = tuple(shape) if shape is not None else value.shape
@@ -698,7 +701,7 @@ class Variable(Tensor):
         return value
 
     def reset(self):
-        self.update(self._reset(self.initializer, self.shape, self.dtype))
+        self.update(self._reset(self.initializer, self.shape.get(), self.dtype))
 
     @property
     def value(self):

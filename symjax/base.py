@@ -193,11 +193,10 @@ class Graph(nx.DiGraph):
             return self._branches[name]
 
         args, kwargs = self.get_args_kwargs(node, evaluate=False)
-        new_args = [self.clone(n, givens) for n in args]
+        new_args = [self.clone(n, givens) for n in args if not isinstance(n, t.Seed)]
         new_kwargs = {name: self.clone(n, givens) for name, n in kwargs.items()}
 
         fun = self.get_node_attribute(node, "jax_function")
-
         self._branches[name] = symjax._fn_to_op[fun](*new_args, **new_kwargs)
         return self._branches[name]
 

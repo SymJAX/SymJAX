@@ -58,45 +58,63 @@ class ppo:
         ret_ph = T.Placeholder((batch_size,), "float32")
         adv_ph = T.Placeholder((batch_size,), "float32")
         act_ph = T.Placeholder((batch_size, num_actions), "float32")
-        logp_old_ph = T.Placeholder((batch_size,), "float32")
 
         with symjax.Scope("actor"):
             logits = actor(state_ph)
-            if not continuous:
-                pi = Categorical(logits=logits)
-            else:
+            if continuous:
                 logstd = T.Variable(
                     -0.5 * np.ones(num_actions, dtype=np.float32), name="logstd",
                 )
-                pi = MultivariateNormal(mean=logits, diag_log_std=logstd)
+        with symjax.Scope("old_actor"):
+            old_logits = actor(state_ph)
+            if continuous:
+                old_logstd = T.Variable(
+                    -0.5 * np.ones(num_actions, dtype=np.float32), name="logstd",
+                )
 
-            actions = T.clip(pi.sample(), -2, 2)  # pi
-            logprob_actions = pi.log_prob(actions)  # logp_pi
-            logprob_given_actions = pi.log_prob(act_ph)  # logp
+        if not continuous:
+            pi = Categorical(logits=logits)
+        else:
+            pi = MultivariateNormal(mean=logits, diag_log_std=logstd)
 
-        with symjax.Scope("critic"):
-            v = critic(state_ph)
+        actions = T.clip(pi.sample(), -2, 2)  # pi
+
+        actor_params = actor_params = symjax.get_variables(scope="/actor/")
+        old_actor_params = actor_params = symjax.get_variables(scope="/old_actor/")
+
+        self.update_target = symjax.function(
+            updates={o: a for o, a in zip(old_actor_params, actor_params)}
+        )
 
         # PPO objectives
         # pi(a|s) / pi_old(a|s)
-        ratio = T.exp(logprob_given_actions - logp_old_ph)
+        pi_log_prob = pi.log_prob(act_ph)
+        old_pi_log_prob = pi_log_prob.clone({logits: old_logits, logstd: old_logstd})
+
+        ratio = T.exp(pi_log_prob - old_pi_log_prob)
         surr1 = ratio * adv_ph
-        surr2 = T.clip(ratio, 1.0 - clip_ratio, 1.0 + clip_ratio) * adv_ph
+        surr2 = adv_ph * T.clip(ratio, 1.0 - clip_ratio, 1.0 + clip_ratio)
+
         pi_loss = -T.minimum(surr1, surr2).mean()
+        # ent_loss = pi.entropy().mean() * self.entcoeff
+
+        with symjax.Scope("critic"):
+            v = critic(state_ph)
+        # critic loss
         v_loss = ((ret_ph - v) ** 2).mean()
-        ent_loss = pi.entropy().mean() * self.entcoeff
 
         # Info (useful to watch during learning)
 
         # a sample estimate for KL
-        approx_kl = (logp_old_ph - logprob_given_actions).mean()
+        approx_kl = (old_pi_log_prob - pi_log_prob).mean()
         # a sample estimate for entropy
-        approx_ent = -logprob_given_actions.mean()
-        clipped = T.logical_or(ratio > (1 + clip_ratio), ratio < (1 - clip_ratio))
-        clipfrac = clipped.astype("float32").mean()
+        # approx_ent = -logprob_given_actions.mean()
+        # clipped = T.logical_or(
+        #     ratio > (1 + clip_ratio), ratio < (1 - clip_ratio)
+        # )
+        # clipfrac = clipped.astype("float32").mean()
 
         with symjax.Scope("update_pi"):
-            actor_params = symjax.get_variables(scope="/actor/")
             print(len(actor_params), "actor parameters")
             nn.optimizers.Adam(
                 pi_loss, self.lr, params=actor_params,
@@ -115,7 +133,6 @@ class ppo:
             state_ph,
             act_ph,
             adv_ph,
-            logp_old_ph,
             outputs=[pi_loss, approx_kl],
             updates=symjax.get_updates(scope="/update_pi/"),
         )

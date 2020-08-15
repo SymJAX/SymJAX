@@ -227,14 +227,18 @@ class Buffer(dict):
         else:
             vals = np.append(self["V"][path_slice], last_val)
         rews = np.append(self["reward"][path_slice], last_val)
+
         # temporal-difference (TD) error
         deltas = rews[:-1] + self.gamma * vals[1:] - vals[:-1]
+        self["TD-error"][path_slice] = deltas
+
         self["advantage"][path_slice] = discount_cumsum(deltas, self.gamma * self.lam)
 
         # computes rewards-to-go, (targets of value function)
         self["reward-to-go"][path_slice] = discount_cumsum(rews, self.gamma)[:-1]
 
-        self["TD-error"][path_slice] = deltas
+        self["advantage"][path_slice] = self["reward-to-go"][path_slice] - vals[:-1]
+
         self["priority"][path_slice] = 1 + deltas
 
         self.path_start_ptr = self.ptr
@@ -377,8 +381,11 @@ def run(
                     j,
                 )
 
-                # ToDo if not terminal get Q/V value instead of 0
-                buffer.finish_path(agent.last_act(state[None, :]))
+                # bootstrap value
+                if not terminal:
+                    buffer.finish_path(agent.get_v(state))
+                else:
+                    buffer.finish_path(0)
 
                 if wait_end_path and global_step > update_after:
                     losses.append(agent.train(buffer, episode=i, step=j))
