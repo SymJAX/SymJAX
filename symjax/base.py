@@ -214,6 +214,11 @@ class Graph(nx.DiGraph):
             >>> T.get(w+v)
             DeviceArray(15., dtype=float32)
         """
+        if isinstance(item, t.Shape):
+            args, kwargs = self.get_args_kwargs(item, evaluate=False)
+            assert len(args) == 1
+            assert len(kwargs) == 0
+            return self.get_shape_dtype(args[0]).shape
 
         if tracker is None:
             tracker = {}
@@ -254,6 +259,32 @@ class Graph(nx.DiGraph):
 
         else:
             return item
+
+    def get_shape_dtype(self, item):
+        """
+        Example:
+
+            >>> import symjax.tensor as T
+            >>> w = T.ones(10).sum()+4
+            >>> v = T.Variable(1., name='v', dtype='float32')
+            >>> T.get(w+v)
+            DeviceArray(15., dtype=float32)
+        """
+
+        if "fixed_shape" in self.nodes[item]:
+            return jax.ShapeDtypeStruct(
+                self.nodes[item]["fixed_shape"], self.nodes[item]["dtype"]
+            )
+
+        elif type(item) == t.OpItem:
+
+            return self.get_shape_dtype(item.parent)[item.parent_index]
+
+        elif isinstance(item, t.Op):
+
+            # first get the actual parents nodes (aka inputs to the function)
+            args, kwargs = self.get_args_kwargs(item, evaluate=False)
+            return t.get_output_tree(self.nodes[item]["jax_function"], *args, **kwargs)
 
     def get_args_kwargs(self, node, tracker=None, evaluate=True, frozen=True):
         if evaluate:
@@ -627,11 +658,11 @@ def get_updates(name="*", scope="/", variables=None):
                 output[v] = matched[v]
         return output
 
-    for m in matched:
-        if len(fnmatch.filter([m.name], name)) and len(
-            fnmatch.filter([m.scope], scope + "*")
+    for var, update in matched.items():
+        if len(fnmatch.filter([update.name], name)) and len(
+            fnmatch.filter([update.scope], scope + "*")
         ):
-            output[m] = matched[m]
+            output[var] = update
     return output
 
 
@@ -673,7 +704,7 @@ def gradients(scalar, variables):
         [6. 6. 6.]
 
     """
-    if numpy.prod(scalar.shape) != 1:
+    if numpy.prod(scalar.shape.get()) != 1:
         raise RuntimeError("the variable to differentiate is not a scalar")
     if not isinstance(scalar, t.Tensor):
         raise RuntimeError("the variable used in gradients should be a Tensor type")
@@ -684,7 +715,7 @@ def gradients(scalar, variables):
         input_variables = [variables]
         input_list = False
     else:
-        input_variables = variables
+        input_variables = variables.copy()
         input_list = True
 
     # get the argnum of the variables that we differentiate one
@@ -932,7 +963,10 @@ class function:
             assert len(fnargs) == len(self.classargs)
             for fnarg, classarg in zip(fnargs, self.classargs):
                 if hasattr(fnarg, "shape"):
-                    if fnarg.shape != classarg.shape and 0 not in classarg.shape:
+                    if (
+                        fnarg.shape != classarg.shape.get()
+                        and 0 not in classarg.shape.get()
+                    ):
                         raise RuntimeError(
                             "wrong input given for {}".format(classarg)
                             + ", given is {}".format(fnarg)

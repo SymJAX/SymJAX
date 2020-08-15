@@ -58,7 +58,11 @@ class Layer(T.Op):
             return
 
         self.__dict__[name] = T.Variable(
-            tensor_or_func, name=name, shape=shape, dtype=dtype, trainable=trainable,
+            tensor_or_func,
+            name=name,
+            shape=symjax.current_graph().get(shape),
+            dtype=dtype,
+            trainable=trainable,
         )
 
     def add_updates(self, update):
@@ -359,7 +363,9 @@ class Dropout(Layer):
     def forward(self, input, p, deterministic, seed=None):
 
         self.p = p
-        self.mask = T.random.bernoulli(shape=input.shape, p=p, seed=seed)
+        self.mask = T.random.bernoulli(
+            shape=symjax.current_graph().get(input.shape), p=p, seed=seed
+        )
 
         return T.where(deterministic, input, self.mask * input)
 
@@ -408,7 +414,9 @@ class RandomFlip(Layer):
         self.axis = axis
         extra_dims = input.ndim - 1
         self.flip = T.random.bernoulli(
-            shape=(input.shape[0],) + (1,) * extra_dims, p=p, seed=seed
+            shape=symjax.current_graph().get((input.shape[0],) + (1,) * extra_dims),
+            p=p,
+            seed=seed,
         )
 
         dirac = T.cast(deterministic, "float32")
@@ -594,7 +602,10 @@ class BatchNormalization(Layer):
             self.input_mean, beta1, debias=False
         )[1]
         self.avg_inv_std = schedules.ExponentialMovingAverage(
-            self.input_inv_std, beta2, init=T.ones_like(self.input_mean), debias=False,
+            self.input_inv_std,
+            beta2,
+            init=T.ones_like(self.input_mean, detach=True),
+            debias=False,
         )[1]
 
         use_mean = T.where(deterministic, self.avg_mean, self.input_mean)

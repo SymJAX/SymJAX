@@ -378,9 +378,9 @@ def run(
                 )
 
                 # ToDo if not terminal get Q/V value instead of 0
-                buffer.finish_path(0)
+                buffer.finish_path(agent.last_act(state[None, :]))
 
-                if wait_end_path:
+                if wait_end_path and global_step > update_after:
                     losses.append(agent.train(buffer, episode=i, step=j))
 
                 if noise:

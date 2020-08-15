@@ -116,6 +116,9 @@ class ddpg:
         action = self._act(state)
         return action, {"V": 0}
 
+    def last_act(self, state):
+        return 0
+
     def train(self, buffer, *args, **kwargs):
 
         s, a, r, s2, t = buffer.sample(self.batch_size)

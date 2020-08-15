@@ -101,7 +101,6 @@ _TO_SKIP = [
     "sctype2char",
     "searchsorted",
     "select",
-    "shape",
     "shares_memory",
     "show",
     "size",
@@ -138,12 +137,23 @@ for name in [
     module.__dict__.update({name: jax_wrap(jnp.__dict__[name])})
 
 
-def zeros_like(input):
-    return module.__dict__["zeros"](input.shape, input.dtype)
+_zeros_like = jax_wrap(jnp.zeros_like)
+_ones_like = jax_wrap(jnp.ones_like)
 
 
-def ones_like(input):
-    return module.__dict__["ones"](input.shape, input.dtype)
+def zeros_like(input, detach=False):
+    if detach:
+        print(input.shape.get(), input.dtype)
+        return module.__dict__["zeros"](input.shape.get(), input.dtype)
+    else:
+        return module.__dict__["_zeros_like"](input)
+
+
+def ones_like(input, detach=False):
+    if detach:
+        return module.__dict__["ones"](input.shape.get(), input.dtype)
+    else:
+        return module.__dict__["_ones_like"](input)
 
 
 cast = jax_wrap(jla.convert_element_type)
@@ -222,4 +232,4 @@ _add_method(Tensor)(module.__dict__["expand_dims"], "expand_dims")
 _add_method(Tensor)(module.__dict__["matmul"], "matmul")
 _add_method(Tensor)(module.__dict__["round"], "round")
 _add_method(Tensor)(module.__dict__["transpose"], "transpose")
-_add_method(Tensor)(module.__dict__["transpose"], "t")
+_add_method(Tensor)(module.__dict__["clip"], "clip")

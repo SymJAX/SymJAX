@@ -23,9 +23,10 @@ class ppo:
         batch_size=32,
         n=1,
         clip_ratio=0.2,
+        entcoeff=0.01,
         target_kl=0.01,
-        train_pi_iters=80,
-        train_v_iters=80,
+        train_pi_iters=4,
+        train_v_iters=4,
     ):
 
         num_states = env.observation_space.shape[0]
@@ -51,6 +52,7 @@ class ppo:
         self.clip_ratio = clip_ratio
         self.target_kl = target_kl
         self.extras = {"logprob": ()}
+        self.entcoeff = entcoeff
 
         state_ph = T.Placeholder((batch_size, num_states), "float32")
         ret_ph = T.Placeholder((batch_size,), "float32")
@@ -68,7 +70,7 @@ class ppo:
                 )
                 pi = MultivariateNormal(mean=logits, diag_log_std=logstd)
 
-            actions = pi.sample()  # pi
+            actions = T.clip(pi.sample(), -2, 2)  # pi
             logprob_actions = pi.log_prob(actions)  # logp_pi
             logprob_given_actions = pi.log_prob(act_ph)  # logp
 
@@ -78,9 +80,11 @@ class ppo:
         # PPO objectives
         # pi(a|s) / pi_old(a|s)
         ratio = T.exp(logprob_given_actions - logp_old_ph)
-        min_adv = T.where(adv_ph > 0, (1 + clip_ratio), (1 - clip_ratio)) * adv_ph
-        pi_loss = -T.minimum(ratio * adv_ph, min_adv).mean()
+        surr1 = ratio * adv_ph
+        surr2 = T.clip(ratio, 1.0 - clip_ratio, 1.0 + clip_ratio) * adv_ph
+        pi_loss = -T.minimum(surr1, surr2).mean()
         v_loss = ((ret_ph - v) ** 2).mean()
+        ent_loss = pi.entropy().mean() * self.entcoeff
 
         # Info (useful to watch during learning)
 
@@ -100,9 +104,12 @@ class ppo:
         with symjax.Scope("update_v"):
             critic_params = symjax.get_variables(scope="/critic/")
             print(len(critic_params), "critic parameters")
+
             nn.optimizers.Adam(
                 v_loss, self.lr, params=critic_params,
             )
+
+        self.get_params = symjax.function(outputs=critic_params)
 
         self.learn_pi = symjax.function(
             state_ph,
@@ -110,24 +117,26 @@ class ppo:
             adv_ph,
             logp_old_ph,
             outputs=[pi_loss, approx_kl],
-            updates=symjax.get_updates(scope="/update_pi/*"),
+            updates=symjax.get_updates(scope="/update_pi/"),
         )
         self.learn_v = symjax.function(
             state_ph,
             ret_ph,
             outputs=v_loss,
-            updates=symjax.get_updates(scope="/update_v/*"),
+            updates=symjax.get_updates(scope="/update_v/"),
         )
 
         single_state = T.Placeholder((1, num_states), "float32")
+        single_v = v.clone({state_ph: single_state})
+        single_sample = actions.clone({state_ph: single_state})
+        print(single_sample)
+        asdf
 
         single_action = actions.clone({state_ph: single_state})[0]
-        single_logp_action = logprob_actions.clone({state_ph: single_state})[0]
-        single_v = v.clone({state_ph: single_state})
 
-        self._act = symjax.function(
-            single_state, outputs=[single_action, single_v, single_logp_action],
-        )
+        self._act = symjax.function(single_state, outputs=single_sample)
+        self._get_v = symjax.function(single_state, outputs=single_v)
+
         single_action = T.Placeholder((1, num_actions), "float32")
         self.get_kl = symjax.function(
             single_state,
@@ -136,19 +145,21 @@ class ppo:
                 {state_ph: single_state, act_ph: single_action}
             ),
         )
-        self.get_KL = symjax.function(
-            state_ph, act_ph, outputs=logprob_given_actions[0]
-        )
 
-    def act(self, state):
-        action, v, logprob = self._act(state)
-        return action, {"V": v, "logprob": logprob}
+    def choose_action(self, s):
+        if s.ndim < 2:
+            s = s[np.newaxis, :]
+        return self._act(s)
+
+    def get_v(self, s):
+        if s.ndim < 2:
+            s = s[np.newaxis, :]
+        return self._get_v(s)[0, 0]
 
     def train(self, buffer, *args, **kwargs):
 
         (s, a, r, adv, old_logprobs) = buffer.sample(
-            self.batch_size,
-            ["state", "action", "advantage", "reward-to-go", "logprob"],
+            buffer.length, ["state", "action", "advantage", "reward-to-go", "logprob"],
         )
 
         if not self.continuous:
@@ -165,10 +176,24 @@ class ppo:
         # adsf
 
         for _ in range(self.train_pi_iters):
-            loss, kl = self.learn_pi(s, a, adv, old_logprobs)
-            if kl > 1.5 * self.target_kl:
-                print("Early stopping of pi learning at", _, kl, self.target_kl)
-                break
-
+            losses = []
+            for s1, a1, adv1, old_logprobs1 in symjax.data.utils.batchify(
+                s,
+                a,
+                adv,
+                old_logprobs,
+                batch_size=self.batch_size,
+                option="random_see_all",
+            ):
+                loss, kl = self.learn_pi(s1, a1, adv1, old_logprobs1)
+                losses.append(loss)
+                if kl > 1.5 * self.target_kl:
+                    1
+                    # break
         for _ in range(self.train_v_iters):
-            loss_v = self.learn_v(s, r)
+            losses = []
+            for s1, r1 in symjax.data.utils.batchify(
+                s, r, batch_size=self.batch_size, option="random_see_all",
+            ):
+
+                losses.append(self.learn_v(s1, r1))

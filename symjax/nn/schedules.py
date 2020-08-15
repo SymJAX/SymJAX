@@ -102,7 +102,7 @@ def ExponentialMovingAverage(value, alpha, init=None, decay_min=False, debias=Tr
 
     with Scope("ExponentialMovingAverage"):
 
-        init = init if init is not None else T.zeros_like(value)
+        init = init if init is not None else T.zeros_like(value, detach=True)
 
         num_steps = T.Variable(0, trainable=False, name="num_steps", dtype="int32")
 
@@ -286,14 +286,17 @@ def SimpleMovingAverage(value, n):
 
     with Scope("SimpleMovingAverage"):
         last_values = T.Variable(
-            np.ones((n,) + value.shape) * np.nan,
+            np.ones((n,) + value.shape.get()) * np.nan,
             trainable=False,
             name="n_last_values",
             dtype="float32",
         )
         index = T.Variable(0, trainable=False, dtype="int32", name="index")
         var = T.Variable(
-            T.zeros_like(value), trainable=False, dtype="float32", name="SMA"
+            T.zeros_like(value, detach=True),
+            trainable=False,
+            dtype="float32",
+            name="SMA",
         )
 
         updated = T.index_update(last_values, T.mod(index, n), value)

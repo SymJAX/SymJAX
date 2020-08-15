@@ -53,7 +53,7 @@ class Optimizer:
 
     @property
     def updates(self):
-        if hasattr(self, "_update"):
+        if hasattr(self, "_updates"):
             return self._updates
         else:
             self._updates = {}
@@ -73,7 +73,9 @@ class Optimizer:
             return grads_or_loss
 
     def add_updates(self, update):
-        self.updates.update(update)
+        if not hasattr(self, "_update"):
+            self._updates = {}
+        self._updates.update(update)
         symjax.current_graph().add_updates(update)
 
 
@@ -251,7 +253,6 @@ class Adam(Optimizer):
         epsilon=1e-8,
         params=None,
     ):
-
         if params is None:
             params = symjax.get_variables(trainable=True)
 

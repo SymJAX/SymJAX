@@ -20,11 +20,8 @@ class ac:
         critic,
         lr=1e-4,
         batch_size=32,
-        n=1,
-        clip_ratio=0.2,
-        target_kl=0.01,
-        train_pi_iters=1,
-        train_v_iters=1,
+        train_pi_iters=80,
+        train_v_iters=80,
     ):
 
         num_states = env.observation_space.shape[0]
