@@ -143,7 +143,6 @@ _ones_like = jax_wrap(jnp.ones_like)
 
 def zeros_like(input, detach=False):
     if detach:
-        print(input.shape.get(), input.dtype)
         return module.__dict__["zeros"](input.shape.get(), input.dtype)
     else:
         return module.__dict__["_zeros_like"](input)

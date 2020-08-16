@@ -47,7 +47,7 @@ class Layer(T.Op):
             super().__init__(
                 output,
                 0,
-                _shape=output.shape,
+                _shape=output.shape.get(),
                 _dtype=output.dtype,
                 _jax_function=jax.numpy.add,
             )

@@ -270,9 +270,9 @@ class Graph(nx.DiGraph):
             DeviceArray(15., dtype=float32)
         """
 
-        if "fixed_shape" in self.nodes[item]:
+        if "_shape" in self.nodes[item]:
             return jax.ShapeDtypeStruct(
-                self.nodes[item]["fixed_shape"], self.nodes[item]["dtype"]
+                self.nodes[item]["_shape"], self.nodes[item]["dtype"]
             )
 
         elif type(item) == t.OpItem:

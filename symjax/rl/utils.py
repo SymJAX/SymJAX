@@ -220,12 +220,7 @@ class Buffer(dict):
         path_slice = np.arange(self.path_start_ptr, self.ptr) % self.size
 
         # the next lines implement GAE-Lambda advantage calculation
-        if "V" not in self:
-            assert "Q" in self
-            # 𝑄𝜋(𝑠,𝜋(𝑠))=𝑉𝜋(𝑠)
-            vals = np.append(self["Q"][path_slice], last_val).sum(1)
-        else:
-            vals = np.append(self["V"][path_slice], last_val)
+        vals = np.append(self["V"][path_slice], last_val)
         rews = np.append(self["reward"][path_slice], last_val)
 
         # temporal-difference (TD) error
@@ -332,13 +327,15 @@ def run(
 
         for j in range(max_episode_steps):
 
-            action, extra = agent.act(state[None, :])
+            action = agent.choose_action(state)
             global_step += 1
 
             if noise:
                 action = noise(action, episode=i)
             if action_processor:
                 action = action_processor(action)
+
+            value = agent.get_value(state)
 
             reward = 0
             for k in range(skip_frames):
@@ -349,6 +346,7 @@ def run(
             reward /= k + 1
 
             base = {
+                "V": value,
                 "state": state,
                 "action": action,
                 "reward": reward,
@@ -356,7 +354,6 @@ def run(
                 "terminal": terminal,
                 "episode": i,
             }
-            base.update(extra)
             buffer.push(base)
 
             state = next_state

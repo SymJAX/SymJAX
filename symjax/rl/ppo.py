@@ -146,37 +146,35 @@ class ppo:
         single_state = T.Placeholder((1, num_states), "float32")
         single_v = v.clone({state_ph: single_state})
         single_sample = actions.clone({state_ph: single_state})
-        print(single_sample)
-        asdf
-
-        single_action = actions.clone({state_ph: single_state})[0]
 
         self._act = symjax.function(single_state, outputs=single_sample)
         self._get_v = symjax.function(single_state, outputs=single_v)
 
         single_action = T.Placeholder((1, num_actions), "float32")
-        self.get_kl = symjax.function(
-            single_state,
-            single_action,
-            outputs=logprob_given_actions.clone(
-                {state_ph: single_state, act_ph: single_action}
-            ),
-        )
+        # self.get_kl = symjax.function(
+        #     single_state,
+        #     single_action,
+        #     outputs=logprob_given_actions.clone(
+        #         {state_ph: single_state, act_ph: single_action}
+        #     ),
+        # )
 
     def choose_action(self, s):
         if s.ndim < 2:
             s = s[np.newaxis, :]
-        return self._act(s)
+        return self._act(s)[0]
 
-    def get_v(self, s):
+    def get_value(self, s):
         if s.ndim < 2:
             s = s[np.newaxis, :]
-        return self._get_v(s)[0, 0]
+        return self._get_v(s)
 
     def train(self, buffer, *args, **kwargs):
 
-        (s, a, r, adv, old_logprobs) = buffer.sample(
-            buffer.length, ["state", "action", "advantage", "reward-to-go", "logprob"],
+        self.update_target()
+
+        (s, a, r, adv) = buffer.sample(
+            buffer.length, ["state", "action", "advantage", "reward-to-go"],
         )
 
         if not self.continuous:
@@ -184,6 +182,7 @@ class ppo:
 
         r -= r.mean()
         r /= r.std()
+        # r = np.maximum(np.minimum(r, 1), -1)
 
         # print(self.get_kl(s[[0]], a[[0]]))
         # print(self.get_KL(s, a))
@@ -194,19 +193,13 @@ class ppo:
 
         for _ in range(self.train_pi_iters):
             losses = []
-            for s1, a1, adv1, old_logprobs1 in symjax.data.utils.batchify(
-                s,
-                a,
-                adv,
-                old_logprobs,
-                batch_size=self.batch_size,
-                option="random_see_all",
+            for s1, a1, adv1 in symjax.data.utils.batchify(
+                s, a, adv, batch_size=self.batch_size, option="random_see_all",
             ):
-                loss, kl = self.learn_pi(s1, a1, adv1, old_logprobs1)
-                losses.append(loss)
-                if kl > 1.5 * self.target_kl:
-                    1
-                    # break
+                loss = self.learn_pi(s1, a1, adv1)
+                # losses.append(loss)
+                # if kl > 1.5 * self.target_kl:
+                # break
         for _ in range(self.train_v_iters):
             losses = []
             for s1, r1 in symjax.data.utils.batchify(

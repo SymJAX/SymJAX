@@ -113,6 +113,9 @@ class dummy:
         self.shape = shape
         self.dtype = dtype
 
+    def __str__(self):
+        return str(self.shape)
+
 
 def create_dummy(item):
     if not isvar(item):
@@ -440,7 +443,7 @@ class Op(Tensor):
             _attrs={
                 "name": name,
                 "scope": scope,
-                # "shape": shape(self),
+                "_shape": _shape,
                 "dtype": _dtype,
                 "jax_function": _jax_function,
                 "root": False,
@@ -455,7 +458,9 @@ class Op(Tensor):
     def __repr__(self):
 
         name = "Op(name={}, fn={}, shape={}, dtype={}, scope={})"
-        return name.format(self.name, self.fn_name, self.shape, self.dtype, self.scope)
+        return name.format(
+            self.name, self.fn_name, self.shape.get(), self.dtype, self.scope
+        )
 
     def __str__(self):
 
@@ -475,6 +480,7 @@ class MultiOutputOp(Op, tuple, Tensor):
                         "jax_function": _jax_function,
                         "root": False,
                         "parent_index": i,
+                        "_shape": shape,
                         "dtype": dtype,
                     }
                 )
@@ -584,7 +590,7 @@ class RandomOp(Op, Tensor):
             _attrs={
                 "name": name,
                 "scope": scope,
-                # "shape": _shape,
+                "_shape": _shape,
                 "dtype": _dtype,
                 "jax_function": _jax_function,
                 "root": False,
@@ -640,17 +646,21 @@ class Variable(Tensor):
             raise RuntimeError("error impossible learning with dtype bool")
 
         assert not isvar(shape)
+
         name, scope = symjax.current_graph()._get_name_scope(name, self)
         value = self._reset(initializer, shape, dtype)
-
-        shape = tuple(shape) if shape is not None else value.shape
+        shape = (
+            tuple(shape)
+            if shape is not None
+            else symjax.current_graph().get(value.shape)
+        )
         dtype = jax.numpy.dtype(dtype) if dtype is not None else value.dtype
 
         super().__init__(
             _attrs={
                 "name": name,
                 "scope": scope,
-                "fixed_shape": shape,
+                "_shape": shape,
                 "dtype": dtype,
                 "trainable": trainable,
                 "initializer": initializer,
@@ -718,7 +728,7 @@ class Variable(Tensor):
 
         new_value = symjax.current_graph().get(update_value)
 
-        if self.shape != jax.numpy.shape(new_value):
+        if self.shape.get() != jax.numpy.shape(new_value):
             warnings.warn(
                 "Variable and update of {}".format(self)
                 + "are not the same shape (expected {}, got {}".format(
@@ -748,7 +758,7 @@ class Variable(Tensor):
     def __repr__(self):
         name = "Variable(name={}, shape={}, dtype={}, trainable={}, scope={})"
         return name.format(
-            self.name, self.shape, self.dtype, self.trainable, self.scope
+            self.name, self.shape.get(), self.dtype, self.trainable, self.scope
         )
 
 
@@ -766,7 +776,7 @@ class Seed(Variable, Tensor):
                 "scope": scope,
                 "value": jax.random.PRNGKey(seed),
                 "root": True,
-                "fixed_shape": (2,),
+                "_shape": (2,),
                 "dtype": "uint32",
                 "trainable": False,
             },
@@ -811,7 +821,7 @@ class Placeholder(Tensor):
             _attrs={
                 "name": name,
                 "scope": scope,
-                "fixed_shape": tuple(shape),
+                "_shape": tuple(shape),
                 "dtype": jax.numpy.dtype(dtype),
                 "root": True,
             }
@@ -819,7 +829,7 @@ class Placeholder(Tensor):
 
     def __repr__(self):
         name = "Placeholder(name={}, shape={}, dtype={}, scope={})"
-        return name.format(self.name, self.shape, self.dtype, self.scope)
+        return name.format(self.name, self.shape.get(), self.dtype, self.scope)
 
 
 def placeholder_like(item, name=""):
