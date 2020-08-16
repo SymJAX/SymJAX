@@ -510,17 +510,14 @@ class RandomCrop(Layer):
         # pad the input
         pinput = T.pad(input, [(0, 0)] + self.pad_shape)
 
-        routput = T.stack(
-            [
-                T.dynamic_slice(pinput[n], self.start_indices[n], self.crop_shape)
-                for n in range(input.shape[0])
-            ],
-            0,
+        routput = T.map(
+            lambda x, indices: T.dynamic_slice(x, indices, self.crop_shape),
+            sequences=[pinput, self.start_indices],
         )
         doutput = T.stack(
             [
                 T.dynamic_slice(pinput[n], self.fixed_indices[n], self.crop_shape)
-                for n in range(input.shape[0])
+                for n in range(input.shape[0].get())
             ],
             0,
         )
