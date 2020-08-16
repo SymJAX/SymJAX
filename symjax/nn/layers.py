@@ -135,7 +135,6 @@ class Dense(Layer):
             flat_input = T.flatten2d(input)
         else:
             flat_input = input
-        print(flat_input, self.W, "WWWW")
         if self.b is not None:
             return T.dot(flat_input, self.W) + self.b
         else:
@@ -514,12 +513,9 @@ class RandomCrop(Layer):
             lambda x, indices: T.dynamic_slice(x, indices, self.crop_shape),
             sequences=[pinput, self.start_indices],
         )
-        doutput = T.stack(
-            [
-                T.dynamic_slice(pinput[n], self.fixed_indices[n], self.crop_shape)
-                for n in range(input.shape[0].get())
-            ],
-            0,
+        doutput = T.map(
+            lambda x, indices: T.dynamic_slice(x, indices, self.crop_shape),
+            sequences=[pinput, self.fixed_indices],
         )
 
         return doutput * dirac + (1 - dirac) * routput
