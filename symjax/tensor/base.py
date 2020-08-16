@@ -570,6 +570,9 @@ class Shape(MultiOutputOp):
             self._get = symjax.current_graph().get(self)
         return self._get
 
+    def __getitem__(self, i):
+        return symjax.tensor.getitem(self, i)
+
 
 class OpItem(Op, Tensor):
     def __init__(self, *args, **kwargs):
