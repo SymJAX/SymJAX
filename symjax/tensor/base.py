@@ -16,6 +16,22 @@ def list2tuple(item):
         return item
 
 
+def only_involves_shapes_or_constants(item):
+    if isinstance(item, Shape) or isinstance(item, Constant) or not isvar(item):
+        return True
+    elif isinstance(item, OpItem) and isinstance(item.parent, Shape):
+        return True
+    elif isinstance(item, Variable) or isinstance(item, Placeholder):
+        return False
+    elif isinstance(item, Op):
+        parents = []
+        for p in symjax.current_graph().predecessors(item):
+            parents.append(only_involves_shapes_or_constants(p))
+        return numpy.all(parents)
+    elif type(item) in [list, tuple]:
+        return numpy.all([only_involves_shapes_or_constants(p) for p in item])
+
+
 def _add_method(cls):
     # important we keep the self inside the function call !
     def decorator(func, name=""):
@@ -118,28 +134,29 @@ class dummy:
 
 
 def create_dummy(item):
-    if not isvar(item):
-        return item, 1
-    elif isinstance(item, Constant):
-        return item.value, 1
-    elif isinstance(item, Shape):
-        return item.get(), 1
-    elif isinstance(item, OpItem) and isinstance(item.parent, Shape):
-        return item.get(), 1
+    static = int(only_involves_shapes_or_constants(item))
+    # if it is static we can just return it straight without need for a
+    # shape dtype class dummy
+    if static:
+        # maybe it is a constant not yet added to the graph
+        if not isvar(item):
+            return item, static
+        # for all other cases (shapes, partial shapes, constants, ...)
+        return symjax.current_graph().get(item), static
 
-    elif isinstance(item, MultiOutputOp):
+    if isinstance(item, MultiOutputOp):
         items = [
             dummy(symjax.current_graph().get_shape_dtype(a).shape, a.dtype)
             for a in item
         ]
-        return items, 0
+        return items, static
     elif isinstance(item, list) or isinstance(item, tuple):
         items = [create_dummy(i) for i in item]
         static = numpy.all([i[1] for i in items])
         return tuple([i[0] for i in items]), static
     else:
         items = dummy(symjax.current_graph().get_shape_dtype(item).shape, item.dtype)
-        return items, 0
+        return items, static
 
 
 def get_output_tree(
@@ -419,6 +436,9 @@ class Constant(Tensor):
     def value(self):
         return symjax.current_graph().nodes[self]["value"]
 
+    def get(self):
+        return self.value
+
     def __repr__(self):
         return "ConstantValue({})".format(type(self.value))
 
@@ -649,11 +669,8 @@ class Variable(Tensor):
 
         name, scope = symjax.current_graph()._get_name_scope(name, self)
         value = self._reset(initializer, shape, dtype)
-        shape = (
-            tuple(shape)
-            if shape is not None
-            else symjax.current_graph().get(value.shape)
-        )
+        shape = shape or value.shape
+        shape = tuple(numpy.array(symjax.current_graph().get(shape)))
         dtype = jax.numpy.dtype(dtype) if dtype is not None else value.dtype
 
         super().__init__(

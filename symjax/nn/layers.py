@@ -135,7 +135,7 @@ class Dense(Layer):
             flat_input = T.flatten2d(input)
         else:
             flat_input = input
-
+        print(flat_input, self.W, "WWWW")
         if self.b is not None:
             return T.dot(flat_input, self.W) + self.b
         else:

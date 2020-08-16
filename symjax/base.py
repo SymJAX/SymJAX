@@ -252,6 +252,7 @@ class Graph(nx.DiGraph):
 
             # first get the actual parents nodes (aka inputs to the function)
             args, kwargs = self.get_args_kwargs(item, tracker, frozen=frozen)
+            print(self.nodes[item]["jax_function"], args, kwargs)
             tracker[item] = self.nodes[item]["jax_function"](*args, **kwargs)
 
             return tracker[item]

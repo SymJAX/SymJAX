@@ -69,6 +69,20 @@ def test_dropout():
     assert np.all(output3)
 
 
+def test_global_pool():
+    np.random.seed(0)
+    sj.current_graph().reset()
+    BATCH_SIZE = 4096
+    DIM = 8
+    input = T.Placeholder((BATCH_SIZE, DIM), "float32", name="input")
+
+    output = nn.layers.Dense(input, 64)
+    output = nn.layers.Dense(output, output.shape[-1] * 2)
+    output = nn.layers.Dense(output, output.shape[-1] * 2)
+    get = sj.function(input, outputs=output)
+    assert get(np.ones((BATCH_SIZE, DIM))).shape == (BATCH_SIZE, 64 * 4)
+
+
 def test_flip():
     np.random.seed(0)
     sj.current_graph().reset()
@@ -95,6 +109,7 @@ def test_flip():
 
 if __name__ == "__main__":
 
-    test_bn()
-    test_flip()
-    test_dropout()
+    # test_bn()
+    # test_flip()
+    # test_dropout()
+    test_global_pool()
