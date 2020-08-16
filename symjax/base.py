@@ -213,6 +213,22 @@ class Graph(nx.DiGraph):
             >>> T.get(w+v)
             DeviceArray(15., dtype=float32)
         """
+        value = self._get(item, tracker, frozen)
+        if isinstance(value, jax.interpreters.xla.DeviceArray):
+            return jax.device_get(value)
+
+        return value
+
+    def _get(self, item, tracker, frozen):
+        """
+        Example:
+
+            >>> import symjax.tensor as T
+            >>> w = T.ones(10).sum()+4
+            >>> v = T.Variable(1., name='v', dtype='float32')
+            >>> T.get(w+v)
+            DeviceArray(15., dtype=float32)
+        """
         if isinstance(item, t.Shape):
             args, kwargs = self.get_args_kwargs(item, evaluate=False)
             assert len(args) == 1
