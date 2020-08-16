@@ -438,6 +438,7 @@ class Constant(Tensor):
                 "scope": scope,
                 "value": value,
                 "root": False,
+                "only_involves_shapes_or_constants": True,
                 "shape": "??",
                 "dtype": "??",
             },
@@ -469,6 +470,9 @@ class Op(Tensor):
 
         name, scope = symjax.current_graph()._get_name_scope(name, self)
 
+        value = only_involves_shapes_or_constants(args)
+        if len(kwargs):
+            value = value * only_involves_shapes_or_constants(list(kwargs.values()))
         super().__init__(
             *args,
             _attrs={
@@ -476,6 +480,7 @@ class Op(Tensor):
                 "scope": scope,
                 "_shape": _shape,
                 "dtype": _dtype,
+                "only_involves_shapes_or_constants": value,
                 "jax_function": _jax_function,
                 "root": False,
             },
@@ -502,6 +507,7 @@ class MultiOutputOp(Op, tuple, Tensor):
     def __new__(cls, *args, _jax_function, _shapes, _dtypes, name=None, **kwargs):
         scope = symjax.current_graph().scope.full_name
         items = []
+
         for i, (shape, dtype) in enumerate(zip(_shapes, _dtypes)):
             items.append(
                 OpItem(
@@ -523,7 +529,9 @@ class MultiOutputOp(Op, tuple, Tensor):
             name = _jax_function.__name__
 
         name, scope = symjax.current_graph()._get_name_scope(name, self)
-
+        value = only_involves_shapes_or_constants(args)
+        if len(kwargs):
+            value = value * only_involves_shapes_or_constants(list(kwargs.values()))
         Tensor.__init__(
             self,
             *args,
@@ -532,6 +540,7 @@ class MultiOutputOp(Op, tuple, Tensor):
                 "scope": scope,
                 "dtype": MultiOutputOp,
                 "jax_function": _jax_function,
+                "only_involves_shapes_or_constants": value,
                 "root": False,
             },
             **kwargs,
@@ -542,6 +551,9 @@ class MultiOutputOp(Op, tuple, Tensor):
                 self, child, name="parent_index" + str(i),
             )
             symjax.current_graph().nodes[child]["parent"] = self
+            symjax.current_graph().nodes[child][
+                "only_involves_shapes_or_constants"
+            ] = value
 
     def __str__(self):
         return tuple.__str__(self)
@@ -623,6 +635,7 @@ class RandomOp(Op, Tensor):
                 "scope": scope,
                 "_shape": _shape,
                 "dtype": _dtype,
+                "only_involves_shapes_or_constants": False,
                 "jax_function": _jax_function,
                 "root": False,
             },
@@ -693,6 +706,7 @@ class Variable(Tensor):
                 "trainable": trainable,
                 "initializer": initializer,
                 "root": True,
+                "only_involves_shapes_or_constants": False,
                 "value": value,
             }
         )
@@ -806,6 +820,7 @@ class Seed(Variable, Tensor):
                 "root": True,
                 "_shape": (2,),
                 "dtype": "uint32",
+                "only_involves_shapes_or_constants": False,
                 "trainable": False,
             },
         )
@@ -850,6 +865,7 @@ class Placeholder(Tensor):
                 "name": name,
                 "scope": scope,
                 "_shape": tuple(shape),
+                "only_involves_shapes_or_constants": False,
                 "dtype": jax.numpy.dtype(dtype),
                 "root": True,
             }
