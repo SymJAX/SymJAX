@@ -16,8 +16,20 @@ def list2tuple(item):
         return item
 
 
-def only_involves_shapes_or_constants(item):
-    if isinstance(item, Shape) or isinstance(item, Constant) or not isvar(item):
+def only_involves_shapes_or_constants(item, search_within=True):
+    key = "only_involves_shapes_or_constants"
+    if not isvar(item):
+        return True
+    elif type(item) in [list, tuple]:
+        return numpy.all([only_involves_shapes_or_constants(p) for p in item])
+    elif item in symjax.current_graph().nodes and search_within:
+        if key in symjax.current_graph().nodes[item]:
+            return symjax.current_graph().nodes[item][key]
+        else:
+            value = only_involves_shapes_or_constants(item, False)
+            symjax.current_graph().nodes[item][key] = value
+            return value
+    elif isinstance(item, Shape) or isinstance(item, Constant):
         return True
     elif isinstance(item, OpItem) and isinstance(item.parent, Shape):
         return True
@@ -27,9 +39,8 @@ def only_involves_shapes_or_constants(item):
         parents = []
         for p in symjax.current_graph().predecessors(item):
             parents.append(only_involves_shapes_or_constants(p))
-        return numpy.all(parents)
-    elif type(item) in [list, tuple]:
-        return numpy.all([only_involves_shapes_or_constants(p) for p in item])
+        value = numpy.all(parents)
+        return value
 
 
 def _add_method(cls):
