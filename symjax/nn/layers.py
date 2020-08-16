@@ -484,7 +484,7 @@ class RandomCrop(Layer):
         self.start_indices = list()
         self.fixed_indices = list()
         for i, (pad, dim, crop) in enumerate(
-            zip(self.pad_shape, input.shape[1:], self.crop_shape)
+            zip(self.pad_shape, input.shape[1:].get(), self.crop_shape)
         ):
             maxval = pad[0] + pad[1] + dim - crop
             assert maxval >= 0
