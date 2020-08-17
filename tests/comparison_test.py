@@ -116,6 +116,54 @@ def SJ(x, y, N, lr, model, preallocate=False):
     return losses
 
 
+def test_bn():
+
+    symjax.current_graph().reset()
+    import tensorflow as tf
+
+    tf.compat.v1.reset_default_graph()
+
+    from tensorflow.keras import layers
+    import symjax.nn as nn
+
+    batch_size = 128
+
+    W = np.random.randn(5, 5, 3, 2)
+
+    inputs = layers.Input(shape=(3, 32, 32))
+    out = layers.Permute((2, 3, 1))(inputs)
+    init = lambda *args, **kwargs: W
+    out = layers.Conv2D(2, 5, activation="linear", kernel_initializer=init)(out)
+    out = layers.BatchNormalization(-1)(out)
+    model = tf.keras.Model(inputs, out)
+
+    input = T.Placeholder((batch_size, 3, 32, 32), "float32")
+    deterministic = T.Placeholder((), "bool")
+
+    out = nn.layers.Conv2D(input, 2, (5, 5), W=W.transpose((3, 2, 0, 1)))
+    out = nn.layers.BatchNormalization(out, [1], deterministic=deterministic)
+    f = symjax.function(input, deterministic, outputs=out.transpose((0, 2, 3, 1)))
+    g = symjax.function(
+        input,
+        deterministic,
+        outputs=out.transpose((0, 2, 3, 1)),
+        updates=symjax.get_updates(),
+    )
+
+    x = np.random.randn(batch_size, 3, 32, 32)
+
+    # test in deterministic mode
+    assert np.isclose(f(x, 1), model(x, training=False), atol=1e-6).mean() > 0.95
+
+    # test in training mode
+    for i in range(100):
+        x = np.random.randn(batch_size, 3, 32, 32)
+        assert np.isclose(g(x, 0), model(x, training=True), atol=1e-5).mean() > 0.99
+    # then retest a posteriori
+    x = np.random.randn(batch_size, 3, 32, 32)
+    assert np.isclose(f(x, 1), model(x, training=False), atol=1e-6).mean() > 0.95
+
+
 def test_ema():
     np.random.seed(0)
     sample = np.random.randn(100)
@@ -140,5 +188,6 @@ def test_adam():
 
 
 if __name__ == "__main__":
+    test_bn()
     test_ema()
     test_adam()
