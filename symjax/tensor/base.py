@@ -9,38 +9,31 @@ import os
 import symjax
 
 
-def list2tuple(item):
-    if type(item) == list or type(item) == tuple and type(item) != slice:
-        return tuple([list2tuple(i) for i in item])
-    else:
-        return item
+def only_involves_shapes_or_constants(item):
+    """checks if node only depends on constants/shapes"""
 
-
-def only_involves_shapes_or_constants(item, search_within=True):
     key = "only_involves_shapes_or_constants"
-    if not isvar(item):
+    if isinstance(item, Shape) or isinstance(item, Constant) or not isvar(item):
         return True
+    elif (
+        isinstance(item, Variable)
+        or isinstance(item, Placeholder)
+        or isinstance(item, RandomOp)
+        or isinstance(item, Seed)
+    ):
+        return False
+    elif isinstance(item, OpItem):
+        return only_involves_shapes_or_constants(item.parent)
     elif type(item) in [list, tuple]:
         return numpy.all([only_involves_shapes_or_constants(p) for p in item])
-    elif item in symjax.current_graph().nodes and search_within:
-        if key in symjax.current_graph().nodes[item]:
-            return symjax.current_graph().nodes[item][key]
-        else:
-            value = only_involves_shapes_or_constants(item, False)
-            symjax.current_graph().nodes[item][key] = value
-            return value
-    elif isinstance(item, Shape) or isinstance(item, Constant):
-        return True
-    elif isinstance(item, OpItem) and isinstance(item.parent, Shape):
-        return True
-    elif isinstance(item, Variable) or isinstance(item, Placeholder):
-        return False
     elif isinstance(item, Op):
+        if item in symjax.current_graph().nodes:
+            if key in symjax.current_graph().nodes[item]:
+                return symjax.current_graph().nodes[item][key]
         parents = []
         for p in symjax.current_graph().predecessors(item):
             parents.append(only_involves_shapes_or_constants(p))
-        value = numpy.all(parents)
-        return value
+        return numpy.all(parents)
 
 
 def _add_method(cls):
@@ -172,7 +165,8 @@ def get_output_tree(
 ):
 
     # we need to remove the static arguments first
-    # we first do it for the kwars
+
+    # we first do it for the kwargs
     static_kwargs = {}
     var_kwargs = {}
     for name, arg in list(kwargs.items()):
@@ -183,8 +177,6 @@ def get_output_tree(
             var_kwargs.update({name: dummy})
 
     # we need to do the same for the args
-
-    argnames = jax.numpy.ones.__code__.co_varnames[: len(args)]
     static_args = []
     var_args = []
     who_static = []
@@ -217,104 +209,67 @@ def jax_wrap(func, doc_func=None):
 
     @wraps(doc_func)
     def op(*args, seed=None, **kwargs):
-        # now we evaluate the shape from the jax built-in function
 
         # if there is a name we remove it for now to use the jax tracer
-        if "name" in kwargs:
-            op_name = kwargs["name"]
-            del kwargs["name"]
-        else:
-            op_name = None
-
-        # args = list2tuple(args)
-        # for i in kwargs:
-        #     kwargs[i] = list2tuple(kwargs[i])
+        op_name = kwargs.pop("name", None)
 
         # first we check if we are in a random function to be careful
-        # with the key
-        from . import random
-
-        # this is just to get shape and dtype so we do not bother
+        # with the key. this is just to get shape and dtype so we do not bother
         # to use the correct seed yet
-        if func in random._RANDOM_FUNCTIONS:
-            temp_args = (jax.random.PRNGKey(0),) + args
-        else:
-            temp_args = args
-
+        is_random = func in symjax.tensor.random._RANDOM_FUNCTIONS
+        temp_args = ((jax.random.PRNGKey(0),) if is_random else ()) + args
         tree = get_output_tree(func, *temp_args, **kwargs)
 
-        # now we determine if it is an Op or a Tuple object based on the
-        # infered shape
+        # now we determine what type of Tensor subclass it will produce
+        feed = {"_jax_function": func, "name": op_name}
         if type(tree) == list or type(tree) == tuple:
-            shapes = [t.shape for t in tree]
-            dtypes = [t.dtype for t in tree]
+            feed.update(
+                {
+                    "_shapes": [t.shape for t in tree],
+                    "_dtypes": [t.dtype for t in tree],
+                }
+            )
             if func == jax.numpy.shape:
-                return Shape(
-                    *args,
-                    _jax_function=func,
-                    _shapes=shapes,
-                    _dtypes=dtypes,
-                    name=op_name,
-                    **kwargs,
-                )
+                return Shape(*args, **feed, **kwargs,)
             else:
-                return MultiOutputOp(
-                    *args,
-                    _jax_function=func,
-                    _shapes=shapes,
-                    _dtypes=dtypes,
-                    name=op_name,
-                    **kwargs,
-                )
-        elif func in random._RANDOM_FUNCTIONS:
-            shape, dtype = tree.shape, tree.dtype
-            return RandomOp(
-                *args,
-                _jax_function=func,
-                _shape=shape,
-                _dtype=dtype,
-                _seed=seed,
-                name=op_name,
-                **kwargs,
-            )
+                return MultiOutputOp(*args, **feed, **kwargs,)
         else:
-            shape, dtype = tree.shape, tree.dtype
-            return Op(
-                *args,
-                _jax_function=func,
-                _shape=shape,
-                _dtype=dtype,
-                name=op_name,
-                **kwargs,
-            )
+            feed.update({"_shape": tree.shape, "_dtype": tree.dtype})
+            if is_random:
+                return RandomOp(*args, _seed=seed, **feed, **kwargs)
+            else:
+                return Op(*args, **feed, **kwargs)
 
     symjax._fn_to_op[func] = op
     if not hasattr(func, "__doc__") or func.__doc__ is None:
         return op
 
     if doc_func is not None:
-        sections = func.__doc__.split("\n\n")
+        # sections = func.__doc__.split("\n\n")
 
-        signatures = []
-        summary = None
-        for i in range(len(sections)):
-            if _numpy_signature_re.match(sections[i]):
-                signatures.append(sections[i])
-            else:
-                summary = sections[i].strip()
-                break
-        body = "\n\n".join(signatures + sections[i + 1 :])
-        body = update_numpydoc(body, func, op)
-        desc = "ADDITION"
-        docstr = (
-            "{summary}\n\nLAX-backend implementation of :func:`{fun}`.\n"
-            "{lax_description}Original docstring below.\n\n{body}".format(
-                summary=summary, lax_description=desc, fun=func.__name__, body=body,
-            )
-        )
+        # signatures = []
+        # summary = None
+        # for i in range(len(sections)):
+        #     if _numpy_signature_re.match(sections[i]):
+        #         signatures.append(sections[i])
+        #     else:
+        #         summary = sections[i].strip()
+        #         break
+        # body = "\n\n".join(signatures + sections[i + 1 :])
+        # body = update_numpydoc(body, func, op)
+        # desc = "ADDITION"
+        # docstr = (
+        #     "{summary}\n\nLAX-backend implementation of :func:`{fun}`.\n"
+        #     "{lax_description}Original docstring below.\n\n{body}".format(
+        #         summary=summary,
+        #         lax_description=desc,
+        #         fun=func.__name__,
+        #         body=body,
+        #     )
+        # )
 
         op.__name__ = func.__name__
-        op.__doc__ = docstr
+        # op.__doc__ = docstr
 
     return op
 
@@ -392,6 +347,13 @@ class Tensor:
     def __init__(self, *args, **kwargs):
 
         symjax.current_graph()._add(self, *args, **kwargs)
+        if not isinstance(self, OpItem):
+            self._set_shape_constant()
+
+    def _set_shape_constant(self):
+        symjax.current_graph().nodes[self][
+            "only_involves_shapes_or_constants"
+        ] = only_involves_shapes_or_constants(self)
 
     @property
     def name(self):
@@ -406,10 +368,9 @@ class Tensor:
 
     @property
     def shape(self):
-        from .ops_numpy import shape
 
         if "shape" not in symjax.current_graph().nodes[self]:
-            symjax.current_graph().nodes[self]["shape"] = shape(self)
+            symjax.current_graph().nodes[self]["shape"] = symjax.tensor.shape(self)
         return symjax.current_graph().nodes[self]["shape"]
 
     @property
@@ -430,20 +391,20 @@ class Constant(Tensor):
         name, scope = symjax.current_graph()._get_name_scope("constant", self)
 
         super().__init__(
-            _attrs={
-                "name": name,
-                "scope": scope,
-                "value": value,
-                "root": False,
-                "only_involves_shapes_or_constants": True,
-                "shape": "??",
-                "dtype": "??",
-            },
+            _attrs={"name": name, "scope": scope, "value": value, "root": False,},
         )
 
     @property
     def value(self):
         return symjax.current_graph().nodes[self]["value"]
+
+    @property
+    def shape(self):
+        return None
+
+    @property
+    def dtype(self):
+        return None
 
     def get(self):
         return self.value
@@ -467,9 +428,6 @@ class Op(Tensor):
 
         name, scope = symjax.current_graph()._get_name_scope(name, self)
 
-        value = only_involves_shapes_or_constants(args)
-        if len(kwargs):
-            value = value * only_involves_shapes_or_constants(list(kwargs.values()))
         super().__init__(
             *args,
             _attrs={
@@ -477,7 +435,6 @@ class Op(Tensor):
                 "scope": scope,
                 "_shape": _shape,
                 "dtype": _dtype,
-                "only_involves_shapes_or_constants": value,
                 "jax_function": _jax_function,
                 "root": False,
             },
@@ -526,12 +483,7 @@ class MultiOutputOp(Op, tuple, Tensor):
             name = _jax_function.__name__
 
         name, scope = symjax.current_graph()._get_name_scope(name, self)
-        if type(self) == Shape:
-            value = True
-        else:
-            value = only_involves_shapes_or_constants(args)
-            if len(kwargs):
-                value = value * only_involves_shapes_or_constants(list(kwargs.values()))
+
         Tensor.__init__(
             self,
             *args,
@@ -540,7 +492,6 @@ class MultiOutputOp(Op, tuple, Tensor):
                 "scope": scope,
                 "dtype": MultiOutputOp,
                 "jax_function": _jax_function,
-                "only_involves_shapes_or_constants": value,
                 "root": False,
             },
             **kwargs,
@@ -551,9 +502,7 @@ class MultiOutputOp(Op, tuple, Tensor):
                 self, child, name="parent_index" + str(i),
             )
             symjax.current_graph().nodes[child]["parent"] = self
-            symjax.current_graph().nodes[child][
-                "only_involves_shapes_or_constants"
-            ] = value
+            child._set_shape_constant()
 
     def __str__(self):
         return tuple.__str__(self)
@@ -563,8 +512,6 @@ class MultiOutputOp(Op, tuple, Tensor):
 
 
 class Shape(MultiOutputOp):
-    pass
-
     def get(self):
         if not hasattr(self, "_get"):
             self._get = symjax.current_graph().get(self)
@@ -638,7 +585,6 @@ class RandomOp(Op, Tensor):
                 "scope": scope,
                 "_shape": _shape,
                 "dtype": _dtype,
-                "only_involves_shapes_or_constants": False,
                 "jax_function": _jax_function,
                 "root": False,
             },
@@ -709,7 +655,6 @@ class Variable(Tensor):
                 "trainable": trainable,
                 "initializer": initializer,
                 "root": True,
-                "only_involves_shapes_or_constants": False,
                 "value": value,
             }
         )
@@ -823,7 +768,6 @@ class Seed(Variable, Tensor):
                 "root": True,
                 "_shape": (2,),
                 "dtype": "uint32",
-                "only_involves_shapes_or_constants": False,
                 "trainable": False,
             },
         )
@@ -868,7 +812,6 @@ class Placeholder(Tensor):
                 "name": name,
                 "scope": scope,
                 "_shape": tuple(shape),
-                "only_involves_shapes_or_constants": False,
                 "dtype": jax.numpy.dtype(dtype),
                 "root": True,
             }
