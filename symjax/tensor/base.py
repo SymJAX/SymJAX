@@ -140,9 +140,6 @@ class dummy:
         self.shape = shape
         self.dtype = dtype
 
-    def __str__(self):
-        return str(self.shape)
-
 
 def create_dummy(item):
     static = int(only_involves_shapes_or_constants(item))
@@ -166,8 +163,8 @@ def create_dummy(item):
         static = numpy.all([i[1] for i in items])
         return tuple([i[0] for i in items]), static
     else:
-        items = dummy(symjax.current_graph().get_shape_dtype(item).shape, item.dtype)
-        return items, static
+        item = dummy(symjax.current_graph().get_shape_dtype(item).shape, item.dtype)
+        return item, static
 
 
 def get_output_tree(
@@ -529,9 +526,12 @@ class MultiOutputOp(Op, tuple, Tensor):
             name = _jax_function.__name__
 
         name, scope = symjax.current_graph()._get_name_scope(name, self)
-        value = only_involves_shapes_or_constants(args)
-        if len(kwargs):
-            value = value * only_involves_shapes_or_constants(list(kwargs.values()))
+        if type(self) == Shape:
+            value = True
+        else:
+            value = only_involves_shapes_or_constants(args)
+            if len(kwargs):
+                value = value * only_involves_shapes_or_constants(list(kwargs.values()))
         Tensor.__init__(
             self,
             *args,

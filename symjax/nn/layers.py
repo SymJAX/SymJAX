@@ -37,6 +37,24 @@ def forward(input, layers):
 
 
 class Layer(T.Op):
+    # def __new__(cls, *args, name=None, **kwargs):
+
+    #     if name is None:
+    #         name = cls.__NAME__
+
+    #     with symjax.Scope(name):
+    #         output = cls.forward(*args, **kwargs)
+    #     return output
+
+    # def __init__(self, *args, _jax_function, _shapes, _dtypes, name=None, **kwargs):
+    #     if name is None:
+    #         name = _jax_function.__name__
+
+    #     name, scope = symjax.current_graph()._get_name_scope(name, self)
+    #     value = only_involves_shapes_or_constants(args)
+    #     if len(kwargs):
+    #         value = value * only_involves_shapes_or_constants(list(kwargs.values()))
+
     def __init__(self, *args, name=None, **kwargs):
 
         if name is None:
@@ -47,7 +65,7 @@ class Layer(T.Op):
             super().__init__(
                 output,
                 0,
-                _shape=output.shape.get(),
+                _shape=symjax.current_graph().get_shape_dtype(output).shape,
                 _dtype=output.dtype,
                 _jax_function=jax.numpy.add,
             )
@@ -471,7 +489,7 @@ class RandomCrop(Layer):
         self.crop_shape = crop_shape
         # if given only a scalar
         if not hasattr(padding, "__len__"):
-            self.pad_shape = [(padding, padding)] * (input.shape - 1)
+            self.pad_shape = [(padding, padding)] * (input.ndim - 1)
         # else
         else:
             self.pad_shape = [
@@ -479,15 +497,15 @@ class RandomCrop(Layer):
             ]
 
         assert len(self.pad_shape) == len(self.crop_shape)
-        assert len(self.pad_shape) == (len(input.shape) - 1)
+        assert len(self.pad_shape) == input.ndim - 1
 
         self.start_indices = list()
         self.fixed_indices = list()
+        print("asdfasdf")
         for i, (pad, dim, crop) in enumerate(
-            zip(self.pad_shape, input.shape[1:].get(), self.crop_shape)
+            zip(self.pad_shape, input.shape[1:], self.crop_shape)
         ):
             maxval = pad[0] + pad[1] + dim - crop
-            assert maxval >= 0
             self.start_indices.append(
                 T.random.randint(
                     minval=0,
