@@ -249,6 +249,7 @@ def SimpleMovingAverage(value, n):
 
     n: int
 
+
     Returns
     -------
 

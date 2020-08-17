@@ -116,82 +116,6 @@ def SJ(x, y, N, lr, model, preallocate=False):
     return losses
 
 
-def test_classif():
-    symjax.current_graph().reset()
-    from symjax import nn
-    import tensorflow as tf
-    from tensorflow.keras import layers
-
-    batch_size = 64
-
-    inputs = layers.Input(shape=(3, 32, 32))
-    out = layers.Permute((2, 3, 1))(inputs)
-    out = layers.Conv2D(32, 3, activation="relu")(out)
-    out = layers.Conv2D(8, 3, activation="relu")(out)
-    out = layers.Flatten()(out)
-    # out = layers.Dense(128, activation="relu")(out)
-    # out = layers.Dense(128, activation="relu")(out)
-    outputs = layers.Dense(10, activation="linear")(out)
-
-    model = tf.keras.Model(inputs, outputs)
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
-
-    mnist = symjax.data.cifar10()
-    train_x, train_y = mnist["train_set/images"], mnist["train_set/labels"]
-    test_x, test_y = mnist["test_set/images"], mnist["test_set/labels"]
-    train_x /= train_x.max()
-    test_x /= test_x.max()
-
-    for epoch in range(4):
-        for x, y in symjax.data.utils.batchify(
-            train_x, train_y, batch_size=batch_size, option="random"
-        ):
-            with tf.GradientTape() as tape:
-                preds = model(x)
-                loss = tf.reduce_mean(
-                    tf.nn.sparse_softmax_cross_entropy_with_logits(y, preds)
-                )
-
-            grads = tape.gradient(loss, model.trainable_variables)
-            optimizer.apply_gradients(zip(grads, model.trainable_variables))
-        accu = 0
-        for x, y in symjax.data.utils.batchify(
-            test_x, test_y, batch_size=batch_size, option="continuous"
-        ):
-            preds = model(x)
-            accu += tf.reduce_mean(tf.cast(y == tf.argmax(preds, 1), "float32"))
-        print(accu / (len(test_x) // batch_size))
-
-    input = T.Placeholder((batch_size, 3, 32, 32), "float32")
-    labels = T.Placeholder((batch_size,), "int32")
-
-    out = nn.relu(nn.layers.Conv2D(input, 32, (3, 3)))
-    out = nn.relu(nn.layers.Conv2D(out, 8, (3, 3)))
-    outputs = nn.layers.Dense(out, 10)
-
-    loss = nn.losses.sparse_softmax_crossentropy_logits(labels, outputs).mean()
-    nn.optimizers.Adam(loss, 0.001)
-
-    accu = T.equal(outputs.argmax(1), labels).astype("float32").mean()
-
-    train = symjax.function(input, labels, outputs=loss, updates=symjax.get_updates())
-    test = symjax.function(input, labels, outputs=accu)
-
-    for epoch in range(4):
-        for x, y in symjax.data.utils.batchify(
-            train_x, train_y, batch_size=batch_size, option="random"
-        ):
-            train(x, y)
-
-        accu = 0
-        for x, y in symjax.data.utils.batchify(
-            test_x, test_y, batch_size=batch_size, option="continuous"
-        ):
-            accu += test(x, y)
-        print(accu / (len(test_x) // batch_size))
-    asdf
-
-
 def test_ema():
     np.random.seed(0)
     sample = np.random.randn(100)
@@ -216,6 +140,5 @@ def test_adam():
 
 
 if __name__ == "__main__":
-    test_classif()
     test_ema()
     test_adam()

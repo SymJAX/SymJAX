@@ -35,11 +35,11 @@ def test_bn():
 
         output = update(batch, 0)
         assert np.allclose(
-            output, (batch - batch.mean(0)) / (1e-4 + batch.std(0)), 1e-4
+            output, (batch - batch.mean(0)) / np.sqrt(0.001 + batch.var(0)), 1e-4,
         )
 
         actual_means.append(get_stats(batch))
-        true_means.append(0.9 * true_means[-1] + 0.1 * batch.mean(0))
+        true_means.append(0.99 * true_means[-1] + 0.01 * batch.mean(0))
 
     true_means = np.array(true_means)
     actual_means = np.array(actual_means).squeeze()

@@ -348,16 +348,12 @@ def sparse_softmax_crossentropy_logits(p, q):
     vectors which should be nonnegative and sum to one.
     """
     # the linear part of the loss
-    linear = T.take_along_axis(q, p[:, None], 1).squeeze()
-    logsumexp = T.logsumexp(q, 1)
-    return logsumexp - linear
+    return -T.take_along_axis(log_softmax(q), p[:, None], 1).squeeze(1)
 
 
 def softmax_crossentropy_logits(p, q):
     """see sparse cross entropy"""
-    linear = (p * q).sum(1)
-    logsumexp = T.logsumexp(q, 1)
-    return -linear + logsumexp
+    return -(p * log_softmax(q)).sum(-1)
 
 
 def sigmoid_crossentropy_logits(labels, logits):
@@ -398,13 +394,67 @@ def multiclass_hinge_loss(predictions, targets, delta=1):
     return T.activations.relu(rest - corrects + delta)
 
 
-def squared_differences(targets, predictions):
-    return (targets - predictions) ** 2
+def squared_differences(x, y):
+    """elementwise squared differences.
+
+    Computes
+
+    .. math::
+        \left(x-y\right^2)
+
+    element-wise, is shapes are not equal, broadcasting applies as in any
+    operations.
+
+    Parameters
+    ----------
+
+    x: tensor-like
+
+    y: tensor-like
+
+    Returns
+    -------
+
+    tensor-like
+
+    """
+
+    return (x - y) ** 2
 
 
 def accuracy(targets, predictions):
+    """elementwise squared differences.
+
+    Computes
+
+    .. math::
+        \frac{1}{N}\sum_{n=1}^N1_{\{y_n == p_n\}}
+
+    where :mat:`p` denotes the predictions
+
+    Parameters
+    ----------
+
+    targets: tensor-like
+
+    predictions: tensor-like
+        it can be a :math:`2D` matrix in which case the ``argmax`` is used to 
+        get the prediction
+
+    Returns
+    -------
+
+    tensor-like
+    """
+    if targets.ndim != 1:
+        raise RuntimeError("targets should be of rank 1, given rank is {targets.ndim}")
+
     if predictions.ndim == 2:
         accu = T.cast(T.equal(targets, predictions.argmax(1)), "float32")
-    else:
+    elif predictions.ndim == 1:
         accu = T.cast(T.equal(targets, predictions), "float32")
+    else:
+        raise RuntimeError(
+            "predictions should be of rank 1 or 2, given rank is {predictions.ndim}"
+        )
     return accu.mean()

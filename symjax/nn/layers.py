@@ -171,7 +171,7 @@ class Conv1D(Layer):
         input,
         n_filters,
         filter_length,
-        W=initializers.he,
+        W=initializers.glorot_uniform,
         b=numpy.zeros,
         stride=1,
         padding="VALID",
@@ -220,7 +220,7 @@ class Conv2DTranspose(Layer):
         filter_shape,
         pad="VALID",
         strides=1,
-        W=initializers.he,
+        W=initializers.glorot_uniform,
         b=numpy.zeros,
         trainable_W=True,
         trainable_b=True,
@@ -268,7 +268,7 @@ class Conv2D(Layer):
         filter_shape,
         pad="VALID",
         strides=1,
-        W=initializers.he,
+        W=initializers.glorot_uniform,
         b=numpy.zeros,
         trainable_W=True,
         trainable_b=True,
@@ -583,9 +583,9 @@ class BatchNormalization(Layer):
         input,
         axis,
         deterministic,
-        const=1e-4,
-        beta1=0.9,
-        beta2=0.9,
+        const=0.001,
+        beta1=0.99,
+        beta2=0.99,
         W=T.ones,
         b=T.zeros,
         trainable_W=True,
@@ -607,23 +607,24 @@ class BatchNormalization(Layer):
         self.create_variable("b", b, parameter_shape, trainable=trainable_b)
 
         self.input_mean = T.mean(input, reduce_axes, keepdims=True)
-        self.input_inv_std = 1 / (T.std(input, reduce_axes, keepdims=True) + const)
+        self.input_var = T.var(input, reduce_axes, keepdims=True)
 
         self.avg_mean = schedules.ExponentialMovingAverage(
             self.input_mean, beta1, debias=False
         )[1]
-        self.avg_inv_std = schedules.ExponentialMovingAverage(
-            self.input_inv_std,
+        self.avg_var = schedules.ExponentialMovingAverage(
+            self.input_var,
             beta2,
             init=T.ones_like(self.input_mean, detach=True),
             debias=False,
         )[1]
 
         use_mean = T.where(deterministic, self.avg_mean, self.input_mean)
-        use_inv_std = T.where(deterministic, self.avg_inv_std, self.input_inv_std)
+        use_var = T.where(deterministic, self.avg_var, self.input_var)
+
         W = self.W if self.W is not None else 1.0
         b = self.b if self.b is not None else 0.0
-        return W * (input - use_mean) * use_inv_std + b
+        return W * (input - use_mean) / T.sqrt(use_var + const) + b
 
 
 class RNN(Layer):
@@ -640,7 +641,7 @@ class RNN(Layer):
         sequence,
         init_h,
         units,
-        W=initializers.glorot,
+        W=initializers.glorot_uniform,
         H=initializers.orthogonal,
         b=T.zeros,
         trainable_W=True,
