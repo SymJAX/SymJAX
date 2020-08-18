@@ -219,7 +219,7 @@ def test_learn_bn():
 
     # test in training mode
 
-    for epoch in range(10):
+    for epoch in range(6):
         x = np.random.randn(batch_size, 3, 32, 32)
         y = np.random.randint(0, 10, size=batch_size)
 

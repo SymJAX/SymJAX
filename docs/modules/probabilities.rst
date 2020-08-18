@@ -6,7 +6,10 @@
 .. automodule:: symjax.probabilities
 
 
-Implementation (to be finished) of basic distribution, their (log) densities, sampling, KL divergence, entropies, ....
+Implementation of basic distribution, their (log) densities, sampling, KL divergence, entropies
 
-.. automodule:: symjax.probabilities
-   :members:
+..  autosummary::
+
+	Categorical
+	MultivariateNormal
+	KL

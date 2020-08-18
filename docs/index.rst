@@ -47,7 +47,7 @@ We briefly describe below the structure of `SymJAX`_ and what are (in term of fu
   + :ref:`symjax-nn-optimizers`: like :py:mod:`lasagne.optimizers` or :py:mod:`tf.keras.optimizers`
   + :ref:`symjax-nn-losses`: like :py:mod:`lasagne.losses` or :py:mod:`tf.keras.losses`
   + :ref:`symjax-nn-initializers`: like :py:mod:`lasagne.initializers` or :py:mod:`tf.keras.initializers`
-  + :ref:`symjax-nn-schedules`: external variable state control (s.a. for learning rate schedules) as in :py:mod:`lasagne.initializers` or :py:mod:`tf.keras.optimizers.schedules`
+  + :ref:`symjax-nn-schedules`: external variable state control (s.a. for learning rate schedules) as in :py:mod:`lasagne.initializers` or :py:mod:`tf.keras.optimizers.schedules` or `optax`_
 
 - :ref:`symjax-probabilities` : like :py:mod:`tensorflow-probabilities`
 
@@ -117,3 +117,4 @@ Gallery
 .. _Numpy: https://numpy.org
 .. _Tensorflow1: https://www.tensorflow.org/
 .. _NetworkX: https://networkx.github.io/
+.. _optax: https://github.com/deepmind/optax
