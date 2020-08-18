@@ -153,15 +153,18 @@ def test_bn():
     x = np.random.randn(batch_size, 3, 32, 32)
 
     # test in deterministic mode
-    assert np.isclose(f(x, 1), model(x, training=False), atol=1e-6).mean() > 0.95
+    nb = np.isclose(f(x, 1), model(x, training=False), atol=1e-6).mean()
+    assert nb > 0.95
 
     # test in training mode
     for i in range(100):
         x = np.random.randn(batch_size, 3, 32, 32)
-        assert np.isclose(g(x, 0), model(x, training=True), atol=1e-5).mean() > 0.99
+        nb = np.isclose(g(x, 0), model(x, training=True), atol=1e-5).mean()
+        assert nb > 0.99
     # then retest a posteriori
     x = np.random.randn(batch_size, 3, 32, 32)
-    assert np.isclose(f(x, 1), model(x, training=False), atol=1e-6).mean() > 0.95
+    nb = np.isclose(f(x, 1), model(x, training=False), atol=1e-6).mean()
+    assert nb > 0.95
 
 
 def test_ema():
