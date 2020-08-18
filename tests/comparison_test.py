@@ -160,7 +160,7 @@ def test_bn():
     for i in range(100):
         x = np.random.randn(batch_size, 3, 32, 32)
         nb = np.isclose(g(x, 0), model(x, training=True), atol=1e-5).mean()
-        assert nb > 0.99
+        assert nb > 0.98
     # then retest a posteriori
     x = np.random.randn(batch_size, 3, 32, 32)
     nb = np.isclose(f(x, 1), model(x, training=False), atol=1e-6).mean()
