@@ -167,6 +167,95 @@ def test_bn():
     assert nb > 0.95
 
 
+def test_learn_bn():
+
+    symjax.current_graph().reset()
+    import tensorflow as tf
+
+    tf.compat.v1.reset_default_graph()
+
+    from tensorflow.keras import layers
+    import symjax.nn as nn
+
+    np.random.seed(0)
+
+    batch_size = 128
+
+    W = np.random.randn(5, 5, 3, 2)
+    W2 = np.random.randn(2 * 28 * 28, 10)
+
+    inputs = layers.Input(shape=(3, 32, 32))
+    out = layers.Permute((2, 3, 1))(inputs)
+    init = lambda *args, **kwargs: W
+    init2 = lambda *args, **kwargs: W2
+    out = layers.Conv2D(2, 5, activation="linear", kernel_initializer=init)(out)
+    out = layers.BatchNormalization(-1)(out)
+    out1 = layers.Activation("relu")(out)
+    out = layers.Flatten()(out1)
+    out = layers.Dense(10, activation="linear", kernel_initializer=init2)(out)
+    model = tf.keras.Model(inputs, out)
+    optimizer = tf.keras.optimizers.SGD(learning_rate=0.001)
+
+    input = T.Placeholder((batch_size, 3, 32, 32), "float32")
+    label = T.Placeholder((batch_size,), "int32")
+    deterministic = T.Placeholder((), "bool")
+
+    out2 = nn.layers.Conv2D(input, 2, (5, 5), W=W.transpose((3, 2, 0, 1)))
+    out1 = nn.layers.BatchNormalization(out2, [1], deterministic=deterministic)
+    out = nn.relu(out1)
+    out = nn.layers.Dense(out.transpose((0, 2, 3, 1)), 10, W=W2)
+    loss = nn.losses.sparse_softmax_crossentropy_logits(label, out).mean()
+    nn.optimizers.SGD(loss, 0.001)
+
+    f = symjax.function(input, label, deterministic, outputs=[loss, out])
+    g = symjax.function(
+        input, label, deterministic, outputs=symjax.gradients(loss, [out2.W])[0],
+    )
+    train = symjax.function(
+        input, label, deterministic, outputs=loss, updates=symjax.get_updates(),
+    )
+
+    x = np.random.randn(batch_size, 3, 32, 32)
+
+    # test in training mode
+
+    for epoch in range(10):
+        x = np.random.randn(batch_size, 3, 32, 32)
+        y = np.random.randint(0, 10, size=batch_size)
+
+        preds = model(x, training=False)
+        nb = np.isclose(preds, f(x, y, 1)[1], atol=1e-3).mean()
+        print(nb)
+        assert nb > 0.8
+        loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(y, preds))
+        assert np.allclose(loss, f(x, y, 1)[0])
+
+        with tf.GradientTape() as tape:
+            preds = model(x, training=True)
+            loss = tf.reduce_mean(
+                tf.nn.sparse_softmax_cross_entropy_with_logits(y, preds)
+            )
+
+        grads = tape.gradient(loss, model.trainable_variables)
+        optimizer.apply_gradients(zip(grads, model.trainable_variables))
+        losss = train(x, y, 0)
+        assert np.abs(losss - loss) < 1e-3
+
+        with tf.GradientTape() as tape:
+            preds = model(x, training=False)
+            loss = tf.reduce_mean(
+                tf.nn.sparse_softmax_cross_entropy_with_logits(y, preds)
+            )
+
+        nb = np.isclose(
+            g(x, y, 1).transpose((2, 3, 1, 0)),
+            tape.gradient(loss, model.trainable_variables[0]),
+            atol=1e-4,
+        ).mean()
+        print(nb)
+        assert nb > 0.95
+
+
 def test_ema():
     np.random.seed(0)
     sample = np.random.randn(100)
@@ -191,6 +280,7 @@ def test_adam():
 
 
 if __name__ == "__main__":
+    test_learn_bn()
     test_bn()
     test_ema()
     test_adam()
