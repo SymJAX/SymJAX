@@ -13,3 +13,15 @@ Implementation of basic distribution, their (log) densities, sampling, KL diverg
 	Categorical
 	MultivariateNormal
 	KL
+
+
+
+
+
+Detailed Descriptions
+=====================
+
+
+.. autofunction:: KL
+.. autoclass:: Categorical
+.. autoclass:: MultivariateNormal
