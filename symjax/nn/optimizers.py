@@ -151,7 +151,9 @@ class NesterovMomentum(Optimizer):
 
     __NAME__ = "NesterovMomentumOptimizer"
 
-    def create_updates(self, grads_or_loss, learning_rate, momentum, params=None):
+    def create_updates(
+        self, grads_or_loss, learning_rate, momentum, params=None
+    ):
 
         if params is None:
             params = symjax.get_variables(trainable=True)
@@ -224,11 +226,11 @@ class Adam(Optimizer):
     learning_rate: constant or Tensor
         the learning rate use to update the parameters
 
-    beta1: constant or Tensor
+    beta_1: constant or Tensor
         the value of the exponential moving average of the average of the
         gradients through time (updates)
 
-    beta2: constant or Tensor
+    beta_2: constant or Tensor
         the value of the exponential moving average of the variance of the
         gradients through time
 
@@ -248,9 +250,9 @@ class Adam(Optimizer):
         grads_or_loss,
         learning_rate,
         amsgrad=False,
-        beta1=0.9,
-        beta2=0.999,
-        epsilon=1e-8,
+        beta_1=0.9,
+        beta_2=0.999,
+        epsilon=1e-7,
         params=None,
     ):
         if params is None:
@@ -261,13 +263,13 @@ class Adam(Optimizer):
         local_step = tensor.Variable(1, dtype="int32", trainable=False)
         updates = {local_step: local_step + 1}
 
-        beta1_t = tensor.power(beta1, local_step)
-        beta2_t = tensor.power(beta2, local_step)
-        lr = learning_rate * (tensor.sqrt(1 - beta2_t) / (1 - beta1_t))
+        beta_1_t = tensor.power(beta_1, local_step)
+        beta_2_t = tensor.power(beta_2, local_step)
+        lr = learning_rate * (tensor.sqrt(1 - beta_2_t) / (1 - beta_1_t))
 
         for param, grad in zip(params, grads):
-            m = ExponentialMovingAverage(grad, beta1, debias=False)[0]
-            v = ExponentialMovingAverage(grad ** 2, beta2, debias=False)[0]
+            m = ExponentialMovingAverage(grad, beta_1, debias=False)[0]
+            v = ExponentialMovingAverage(grad ** 2, beta_2, debias=False)[0]
             if amsgrad:
                 v_hat = tensor.Variable(
                     tensor.zeros_like(param), name="v_hat", trainable=False

@@ -32,7 +32,7 @@ def normal(shape, scale=0.05):
     return np.random.normal(loc=0.0, scale=scale, size=shape)
 
 
-def orthogonal(shape, gain=1):
+def orthogonal(shape, scale=1):
     """ From Lasagne. Reference: Saxe et al., http://arxiv.org/abs/1312.6120
     """
     flat_shape = (shape[0], np.prod(shape[1:]))
@@ -46,13 +46,38 @@ def orthogonal(shape, gain=1):
 
 def get_fans(shape):
     """
-    in all cases the fan_in is shape[0], and the fan_out is prod(shape[1:])
+    utility giving `fan_in` and `fan_out` of a tensor (shape).
+
+    The concept of `fan_in` and `fan_out` helps to create weight
+    initializers. Those quantities represent the number of units
+    that the current weight takes as input (from the previous layer)
+    and the number of output is produces. From those two numbers, the
+    variance of random variables can be obtained such that the layer
+    feature maps do not vanish or explode in amplitude.
+
+    Parameters
+    ----------
+
+    shape: tuple
+        the shape of the tensor. For a densely connected this is
+        (previous layer width, current layer width) and for convolutional (2D)
+        it is (n_filters, input_channels)+ spatial shapes
+
+    Returns
+    -------
+
+    fan_in: int
+
+    fan_out: int
     """
     if len(shape) == 2:
         fan_in, fan_out = shape
     else:
-        fan_out = shape[0]
-        fan_in = np.prod(shape[1:])
+        fan_out, fan_in = shape[:2]
+        kernel_spatial = np.prod(shape[2:])
+
+        fan_in = fan_in * kernel_spatial
+        fan_out = fan_out * kernel_spatial
     return fan_in, fan_out
 
 
@@ -61,7 +86,9 @@ def variance_scaling(shape, mode, gain=1, distribution=normal):
     """
 
     if len(shape) < 2:
-        raise RuntimeError("This initializer only works with shapes of length >= 2")
+        raise RuntimeError(
+            "This initializer only works with shapes of length >= 2"
+        )
 
     fan_in, fan_out = get_fans(shape)
     if mode == "fan_in":
@@ -76,16 +103,14 @@ def variance_scaling(shape, mode, gain=1, distribution=normal):
         raise ValueError(
             "mode must be fan_in, fan_out, fan_avg or fan_sum, value passed was {mode}"
         )
-    scale = gain * np.sqrt(1.0 / den)
+    scale = gain / np.sqrt(den)
     return distribution(shape, scale=scale)
 
 
 def glorot_uniform(shape):
     """ Reference: Glorot & Bengio, AISTATS 2010
     """
-    return variance_scaling(
-        shape, mode="fan_sum", gain=np.sqrt(6), distribution=uniform
-    )
+    return variance_scaling(shape, mode="fan_avg", distribution=uniform)
 
 
 def glorot_normal(shape):
@@ -97,17 +122,19 @@ def glorot_normal(shape):
 def he_normal(shape):
     """ Reference:  He et al., http://arxiv.org/abs/1502.01852
     """
-    return variance_scaling(shape, mode="fan_in", gain=np.sqrt(2), distribution=normal)
+    return variance_scaling(shape, mode="fan_in", distribution=normal)
 
 
 def he_uniform(shape):
     """ Reference:  He et al., http://arxiv.org/abs/1502.01852
     """
-    return variance_scaling(shape, mode="fan_in", gain=np.sqrt(6), distribution=uniform)
+    return variance_scaling(shape, mode="fan_in", distribution=uniform)
 
 
 def lecun_uniform(shape, name=None):
     """ Reference: LeCun 98, Efficient Backprop
         http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
     """
-    return variance_scaling(shape, mode="fan_in", gain=np.sqrt(3), distribution=uniform)
+    return variance_scaling(
+        shape, mode="fan_in", gain=np.sqrt(3), distribution=uniform
+    )
