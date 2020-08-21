@@ -86,9 +86,7 @@ def variance_scaling(shape, mode, gain=1, distribution=normal):
     """
 
     if len(shape) < 2:
-        raise RuntimeError(
-            "This initializer only works with shapes of length >= 2"
-        )
+        raise RuntimeError("This initializer only works with shapes of length >= 2")
 
     fan_in, fan_out = get_fans(shape)
     if mode == "fan_in":
@@ -135,6 +133,4 @@ def lecun_uniform(shape, name=None):
     """ Reference: LeCun 98, Efficient Backprop
         http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
     """
-    return variance_scaling(
-        shape, mode="fan_in", gain=np.sqrt(3), distribution=uniform
-    )
+    return variance_scaling(shape, mode="fan_in", gain=np.sqrt(3), distribution=uniform)

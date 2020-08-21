@@ -22,9 +22,7 @@ def test_bn():
 
     bn = nn.layers.BatchNormalization(input, [1], deterministic=deterministic)
 
-    update = sj.function(
-        input, deterministic, outputs=bn, updates=sj.get_updates()
-    )
+    update = sj.function(input, deterministic, outputs=bn, updates=sj.get_updates())
     get_stats = sj.function(input, outputs=bn.avg_mean[0])
 
     data = np.random.randn(50, DIM) * 4 + 2
@@ -37,9 +35,7 @@ def test_bn():
 
         output = update(batch, 0)
         assert np.allclose(
-            output,
-            (batch - batch.mean(0)) / np.sqrt(0.0001 + batch.var(0)),
-            1e-4,
+            output, (batch - batch.mean(0)) / np.sqrt(0.0001 + batch.var(0)), 1e-4,
         )
 
         actual_means.append(get_stats(batch))
@@ -95,9 +91,7 @@ def test_flip():
     input = T.Placeholder((BATCH_SIZE, DIM, DIM), "float32", name="input")
     deterministic = T.Placeholder((1,), "bool", name="deterministic")
 
-    bn = nn.layers.RandomFlip(
-        input, axis=2, p=0.5, deterministic=deterministic
-    )
+    bn = nn.layers.RandomFlip(input, axis=2, p=0.5, deterministic=deterministic)
 
     update = sj.function(input, deterministic, outputs=bn)
 

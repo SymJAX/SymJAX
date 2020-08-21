@@ -151,9 +151,7 @@ class NesterovMomentum(Optimizer):
 
     __NAME__ = "NesterovMomentumOptimizer"
 
-    def create_updates(
-        self, grads_or_loss, learning_rate, momentum, params=None
-    ):
+    def create_updates(self, grads_or_loss, learning_rate, momentum, params=None):
 
         if params is None:
             params = symjax.get_variables(trainable=True)

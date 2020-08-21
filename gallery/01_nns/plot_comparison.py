@@ -65,9 +65,7 @@ def classif_tf(train_x, train_y, test_x, test_y, mlp=True):
                 )
                 print(preds)
                 sdfg
-            accu += tf.reduce_mean(
-                tf.cast(y == tf.argmax(preds, 1), "float32")
-            )
+            accu += tf.reduce_mean(tf.cast(y == tf.argmax(preds, 1), "float32"))
             grads = tape.gradient(loss, model.trainable_variables)
             optimizer.apply_gradients(zip(grads, model.trainable_variables))
         print("training", accu / (len(train_x) // batch_size))
@@ -76,9 +74,7 @@ def classif_tf(train_x, train_y, test_x, test_y, mlp=True):
             test_x, test_y, batch_size=batch_size, option="continuous"
         ):
             preds = model(x, training=False)
-            accu += tf.reduce_mean(
-                tf.cast(y == tf.argmax(preds, 1), "float32")
-            )
+            accu += tf.reduce_mean(tf.cast(y == tf.argmax(preds, 1), "float32"))
         print(accu / (len(test_x) // batch_size))
 
 
@@ -116,9 +112,7 @@ def classif_sj(train_x, train_y, test_x, test_y, mlp=True):
         for i in range(6):
             out = nn.layers.Dense(out, 4000)
             out = nn.relu(
-                nn.layers.BatchNormalization(
-                    out, [1], deterministic=deterministic
-                )
+                nn.layers.BatchNormalization(out, [1], deterministic=deterministic)
             )
 
     outputs = nn.layers.Dense(out, 10)

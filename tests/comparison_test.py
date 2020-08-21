@@ -34,9 +34,7 @@ def TF1(x, y, N, lr, model, preallocate=False):
     tf_W = tf.Variable(np.random.randn(D, 1).astype("float32"))
     tf_b = tf.Variable(np.random.randn(1,).astype("float32"))
 
-    tf_loss = tf.reduce_mean(
-        (tf.matmul(tf_input, tf_W) + tf_b - tf_output) ** 2
-    )
+    tf_loss = tf.reduce_mean((tf.matmul(tf_input, tf_W) + tf_b - tf_output) ** 2)
     if model == "SGD":
         train_op = tf.train.GradientDescentOptimizer(lr).minimize(tf_loss)
     elif model == "Adam":
@@ -51,9 +49,7 @@ def TF1(x, y, N, lr, model, preallocate=False):
     losses = []
     for i in tqdm(range(N)):
         losses.append(
-            sess.run(
-                [tf_loss, train_op], feed_dict={tf_input: x, tf_output: y}
-            )[0]
+            sess.run([tf_loss, train_op], feed_dict={tf_input: x, tf_output: y})[0]
         )
 
     return losses
@@ -85,9 +81,7 @@ def TF_EMA(X):
 def SJ_EMA(X, debias=True):
     symjax.current_graph().reset()
     x = T.Placeholder((), "float32", name="x")
-    value = symjax.nn.schedules.ExponentialMovingAverage(
-        x, 0.9, debias=debias
-    )[0]
+    value = symjax.nn.schedules.ExponentialMovingAverage(x, 0.9, debias=debias)[0]
     train = symjax.function(x, outputs=value, updates=symjax.get_updates())
     outputs = []
     for i in range(len(X)):
@@ -139,9 +133,7 @@ def test_bn():
     inputs = layers.Input(shape=(3, 32, 32))
     out = layers.Permute((2, 3, 1))(inputs)
     init = lambda *args, **kwargs: W
-    out = layers.Conv2D(2, 5, activation="linear", kernel_initializer=init)(
-        out
-    )
+    out = layers.Conv2D(2, 5, activation="linear", kernel_initializer=init)(out)
     out = layers.BatchNormalization(-1, epsilon=0.0001)(out)
     model = tf.keras.Model(inputs, out)
 
@@ -150,9 +142,7 @@ def test_bn():
 
     out = nn.layers.Conv2D(input, 2, (5, 5), W=W.transpose((3, 2, 0, 1)))
     out = nn.layers.BatchNormalization(out, [1], deterministic=deterministic)
-    f = symjax.function(
-        input, deterministic, outputs=out.transpose((0, 2, 3, 1))
-    )
+    f = symjax.function(input, deterministic, outputs=out.transpose((0, 2, 3, 1)))
     g = symjax.function(
         input,
         deterministic,
@@ -221,17 +211,10 @@ def test_learn_bn():
 
     f = symjax.function(input, label, deterministic, outputs=[loss, out])
     g = symjax.function(
-        input,
-        label,
-        deterministic,
-        outputs=symjax.gradients(loss, [conv.W])[0],
+        input, label, deterministic, outputs=symjax.gradients(loss, [conv.W])[0],
     )
     train = symjax.function(
-        input,
-        label,
-        deterministic,
-        outputs=loss,
-        updates=symjax.get_updates(),
+        input, label, deterministic, outputs=loss, updates=symjax.get_updates(),
     )
 
     x = np.random.randn(batch_size, 3, 32, 32)
@@ -248,17 +231,14 @@ def test_learn_bn():
         assert nb > 0.8
 
         preds = model(x, training=True)
-        print(preds, f(x, y, 0)[1])
-        asdf
         nb = np.isclose(preds, f(x, y, 0)[1], atol=1e-3).mean()
         print(nb)
         assert nb > 0.8
 
-        loss = tf.reduce_mean(
-            tf.nn.sparse_softmax_cross_entropy_with_logits(y, preds)
-        )
-        print(loss, f(x, y, 1)[0])
-        assert np.allclose(loss, f(x, y, 1)[0])
+        loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(y, preds))
+        print(f(x, y, 0)[0], f(x, y, 0)[0])
+        print(loss, f(x, y, 0)[0])
+        assert np.allclose(loss, f(x, y, 0)[0])
 
         with tf.GradientTape() as tape:
             preds = model(x, training=True)
@@ -289,10 +269,7 @@ def test_learn_bn():
 def test_ema():
     np.random.seed(0)
     sample = np.random.randn(100)
-    assert (
-        np.isclose(TF_EMA(sample), SJ_EMA(sample, True), atol=1e-3).mean()
-        >= 0.45
-    )
+    assert np.isclose(TF_EMA(sample), SJ_EMA(sample, True), atol=1e-3).mean() >= 0.45
     assert np.allclose(TF_EMA(sample), SJ_EMA(sample, False), atol=1e-7)
 
 
