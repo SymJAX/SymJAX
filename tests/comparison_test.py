@@ -166,7 +166,7 @@ def test_learn_bn():
         input, label, deterministic, outputs=loss, updates=symjax.get_updates(),
     )
 
-    for epoch in range(60):
+    for epoch in range(10):
         # generate some random inputs and labels
         x = np.random.randn(batch_size, 3, 32, 32)
         y = np.random.randint(0, 10, size=batch_size)
@@ -204,7 +204,7 @@ def test_learn_bn():
 
             print(sj_g.shape, tf_g.shape)
             nb = np.isclose(
-                np.reshape(sj_g, -1), np.reshape(tf_g, -1), atol=1e-3,
+                np.reshape(sj_g, -1), np.reshape(tf_g, -1), atol=1e-2,
             ).mean()
             print("grads training", nb)
             assert nb > 0.95

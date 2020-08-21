@@ -136,9 +136,7 @@ def classif_sj(train_x, train_y, test_x, test_y, mlp=True):
         for x, y in symjax.data.utils.batchify(
             train_x, train_y, batch_size=batch_size, option="random"
         ):
-            # accu += train(x, y, 0)[1]
-            print(train(x, y, 0)[2])
-            asdf
+            accu += train(x, y, 0)[1]
 
         print("training", accu / (len(train_x) // batch_size))
 
@@ -170,6 +168,7 @@ test_x /= test_x.max()
 # tf.Tensor(0.7845553, shape=(), dtype=float32)
 
 classif_sj(train_x, train_y, test_x, test_y)
+classif_tf(train_x, train_y, test_x, test_y)
 # training 0.43359375
 # 0.36157852564102566
 # training 0.5697115384615384
