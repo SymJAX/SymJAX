@@ -70,9 +70,7 @@ class Layer(T.Op):
                 _jax_function=jax.numpy.add,
             )
 
-    def create_variable(
-        self, name, tensor_or_func, shape, trainable, dtype="float32"
-    ):
+    def create_variable(self, name, tensor_or_func, shape, trainable, dtype="float32"):
         if tensor_or_func is None:
             self.__dict__[name] = None
             return
@@ -118,9 +116,7 @@ class Upsample2D(Layer):
         p1 = T.upsample_1d(
             input, repeat=repeat[0], axis=axis[0], mode=mode, value=value,
         )
-        p2 = T.upsample_1d(
-            p1, repeat=repeat[1], axis=axis[1], mode=mode, value=value,
-        )
+        p2 = T.upsample_1d(p1, repeat=repeat[1], axis=axis[1], mode=mode, value=value,)
         return p2
 
 
@@ -193,10 +189,7 @@ class Conv1D(Layer):
         self.padding = padding
 
         self.create_variable(
-            "W",
-            W,
-            (n_filters, input.shape[1], filter_length),
-            trainable=trainable_W,
+            "W", W, (n_filters, input.shape[1], filter_length), trainable=trainable_W,
         )
         self.create_variable("b", b, (n_filters,), trainable=trainable_b)
         conv = T.signal.batch_convolve(
@@ -317,9 +310,7 @@ class Pool1D(Layer):
 
     __NAME__ = "Pool1D"
 
-    def forward(
-        self, input_or_shape, pool_shape, pool_type="MAX", strides=None
-    ):
+    def forward(self, input_or_shape, pool_shape, pool_type="MAX", strides=None):
 
         self.init_input(input_or_shape)
         self.pool_type = pool_type
@@ -330,10 +321,7 @@ class Pool1D(Layer):
             self.strides = (1, 1, strides)
 
         return T.signal.batch_pool(
-            input,
-            self.pool_shape,
-            strides=self.strides,
-            reducer=self.pool_type,
+            input, self.pool_shape, strides=self.strides, reducer=self.pool_type,
         )
 
 
@@ -357,10 +345,7 @@ class Pool2D(Layer):
                 self.strides = (1, 1, strides, strides)
 
         return T.signal.batch_pool(
-            input,
-            self.pool_shape,
-            strides=self.strides,
-            reducer=self.pool_type,
+            input, self.pool_shape, strides=self.strides, reducer=self.pool_type,
         )
 
 
@@ -446,9 +431,7 @@ class RandomFlip(Layer):
         self.axis = axis
         extra_dims = input.ndim - 1
         self.flip = T.random.bernoulli(
-            shape=symjax.current_graph().get(
-                (input.shape[0],) + (1,) * extra_dims
-            ),
+            shape=symjax.current_graph().get((input.shape[0],) + (1,) * extra_dims),
             p=p,
             seed=seed,
         )
@@ -510,8 +493,7 @@ class RandomCrop(Layer):
         # else
         else:
             self.pad_shape = [
-                (pad, pad) if not hasattr(pad, "__len__") else pad
-                for pad in padding
+                (pad, pad) if not hasattr(pad, "__len__") else pad for pad in padding
             ]
 
         assert len(self.pad_shape) == len(self.crop_shape)
@@ -629,12 +611,13 @@ class BatchNormalization(Layer):
         # mean((x - mean(x))**2) but may be faster and even, given typical
         # activation distributions and low-precision arithmetic, more accurate
         # when used in neural network normalization layers
-        self.input_var = (input ** 2).mean(
-            r_axes, keepdims=True
-        ) - self.input_mean ** 2
+        self.input_var = (
+            (input ** 2).mean(r_axes, keepdims=True) - self.input_mean ** 2 + self.const
+        )
+        self.input_var = input.var(r_axes, keepdims=True)
 
         self.avg_mean = schedules.ExponentialMovingAverage(
-            self.input_mean, beta1, debias=False
+            self.input_mean, beta1, debias=False,
         )[1]
         self.avg_var = schedules.ExponentialMovingAverage(
             self.input_var,
@@ -676,9 +659,7 @@ class RNN(Layer):
         only_last=False,
     ):
 
-        self.create_variable(
-            "W", W, (sequence.shape[2], units), trainable=trainable_W
-        )
+        self.create_variable("W", W, (sequence.shape[2], units), trainable=trainable_W)
         self.create_variable("H", H, (units, units), trainable=trainable_H)
         self.create_variable("b", b, (units,), trainable=trainable_b)
 
@@ -758,9 +739,7 @@ class GRU(Layer):
             self.create_variable(
                 "Wr", Wr, (sequence.shape[2], units), trainable=trainable_Wr
             )
-            self.create_variable(
-                "Ur", Ur, (units, units), trainable=trainable_Ur
-            )
+            self.create_variable("Ur", Ur, (units, units), trainable=trainable_Ur)
             self.create_variable("br", br, (units,), trainable=trainable_br)
 
         if gate == "minimal":
@@ -772,14 +751,7 @@ class GRU(Layer):
                 fn,
                 init=init_h,
                 sequences=[sequence.transpose((1, 0, 2))],
-                non_sequences=[
-                    self.Wh,
-                    self.Uh,
-                    self.bh,
-                    self.Wz,
-                    self.Uz,
-                    self.bz,
-                ],
+                non_sequences=[self.Wh, self.Uh, self.bh, self.Wz, self.Uz, self.bz,],
             )
 
         elif gate == "full":

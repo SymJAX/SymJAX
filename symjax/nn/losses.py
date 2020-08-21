@@ -74,9 +74,7 @@ def vae(x, x_hat, z_mu, z_logvar, mu, logvar, logvar_x=0.0, eps=1e-8):
     return loss
 
 
-def vae_gmm(
-    x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0.0, eps=1e-8
-):
+def vae_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0.0, eps=1e-8):
     """N samples of dimension D to latent space of C sluters in K dimension
 
     Parameters
@@ -132,10 +130,7 @@ def vae_gmm(
     ll_z = -0.5 * (
         pt_z
         * (
-            logvar
-            + z_var[:, None, :] / var
-            - 1
-            + (z_mu[:, None, :] - mu) ** 2 / var
+            logvar + z_var[:, None, :] / var - 1 + (z_mu[:, None, :] - mu) ** 2 / var
         ).sum(-1)
     ).sum(-1)
 
@@ -147,9 +142,7 @@ def vae_gmm(
     return loss, px_z + p_c, pt_z
 
 
-def vae_comp_gmm(
-    x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0.0, eps=1e-8
-):
+def vae_comp_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0.0, eps=1e-8):
     """N samples of dimension D to latent space of I pieces each of C sluters
     in K dimension
 
@@ -291,23 +284,17 @@ def FGMM_VAE(
     log2pi = T.log(2 * np.pi)
 
     # reconstruction part (first expectation)
-    E1 = -0.5 * (
-        ((x - x_rec) ** 2 / x_var).sum(1) + x_logvar.sum() + D * log2pi
-    )
+    E1 = -0.5 * (((x - x_rec) ** 2 / x_var).sum(1) + x_logvar.sum() + D * log2pi)
 
     E2_1 = -0.5 * (log2pi + z_logvar + (q_var + q_mu ** 2) / z_var).sum(1)
 
     E2_2 = T.einsum("nf,nfc,fck,nk->n", q_eta, q_gamma, mu, q_mu / z_var)
 
-    E2_3 = -0.5 * (
-        T.einsum("nf,nfc,fck->nk", q_eta, q_gamma, mu ** 2) / z_var
-    ).sum(1)
+    E2_3 = -0.5 * (T.einsum("nf,nfc,fck->nk", q_eta, q_gamma, mu ** 2) / z_var).sum(1)
 
     if mode == "bernoulli":
         q_gammaeta = T.einsum("nf,nfc->nfc", q_eta, q_gamma)
-        corr = T.einsum(
-            "fcd,nfc,abk,nab->nfa", mu / z_var, q_gammaeta, mu, q_gammaeta
-        )
+        corr = T.einsum("fcd,nfc,abk,nab->nfa", mu / z_var, q_gammaeta, mu, q_gammaeta)
         E2_4 = -0.5 * T.sum(corr * (1 - T.eye(F)), (1, 2))
     else:
         E2_4 = 0.0
@@ -361,8 +348,8 @@ def sparse_softmax_crossentropy_logits(p, q):
     vectors which should be nonnegative and sum to one.
     """
     # the linear part of the loss
-    one = T.equal(p[:, None], T.arange(q.shape[1])).astype("float32")
-    return -(one * log_softmax(q)).sum(1)
+    # one = T.equal(p[:, None], T.arange(q.shape[1])).astype("float32")
+    # return -(one * log_softmax(q)).sum(1)
     return -T.take_along_axis(log_softmax(q), p[:, None], 1).squeeze(1)
 
 
@@ -462,9 +449,7 @@ def accuracy(targets, predictions):
     tensor-like
     """
     if targets.ndim != 1:
-        raise RuntimeError(
-            "targets should be of rank 1, given rank is {targets.ndim}"
-        )
+        raise RuntimeError("targets should be of rank 1, given rank is {targets.ndim}")
 
     if predictions.ndim == 2:
         accu = T.cast(T.equal(targets, predictions.argmax(1)), "float32")

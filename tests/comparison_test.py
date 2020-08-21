@@ -34,9 +34,7 @@ def TF1(x, y, N, lr, model, preallocate=False):
     tf_W = tf.Variable(np.random.randn(D, 1).astype("float32"))
     tf_b = tf.Variable(np.random.randn(1,).astype("float32"))
 
-    tf_loss = tf.reduce_mean(
-        (tf.matmul(tf_input, tf_W) + tf_b - tf_output) ** 2
-    )
+    tf_loss = tf.reduce_mean((tf.matmul(tf_input, tf_W) + tf_b - tf_output) ** 2)
     if model == "SGD":
         train_op = tf.train.GradientDescentOptimizer(lr).minimize(tf_loss)
     elif model == "Adam":
@@ -51,9 +49,7 @@ def TF1(x, y, N, lr, model, preallocate=False):
     losses = []
     for i in tqdm(range(N)):
         losses.append(
-            sess.run(
-                [tf_loss, train_op], feed_dict={tf_input: x, tf_output: y}
-            )[0]
+            sess.run([tf_loss, train_op], feed_dict={tf_input: x, tf_output: y})[0]
         )
 
     return losses
@@ -85,9 +81,7 @@ def TF_EMA(X):
 def SJ_EMA(X, debias=True):
     symjax.current_graph().reset()
     x = T.Placeholder((), "float32", name="x")
-    value = symjax.nn.schedules.ExponentialMovingAverage(
-        x, 0.9, debias=debias
-    )[0]
+    value = symjax.nn.schedules.ExponentialMovingAverage(x, 0.9, debias=debias)[0]
     train = symjax.function(x, outputs=value, updates=symjax.get_updates())
     outputs = []
     for i in range(len(X)):
@@ -120,61 +114,6 @@ def SJ(x, y, N, lr, model, preallocate=False):
         losses.append(train(x, y))
 
     return losses
-
-
-def test_bn():
-
-    symjax.current_graph().reset()
-    import tensorflow as tf
-
-    tf.compat.v1.reset_default_graph()
-
-    from tensorflow.keras import layers
-    import symjax.nn as nn
-
-    batch_size = 128
-
-    W = np.random.randn(5, 5, 3, 2)
-
-    inputs = layers.Input(shape=(3, 32, 32))
-    out = layers.Permute((2, 3, 1))(inputs)
-    init = lambda *args, **kwargs: W
-    out = layers.Conv2D(2, 5, activation="linear", kernel_initializer=init)(
-        out
-    )
-    out = layers.BatchNormalization(-1, epsilon=0.0001)(out)
-    model = tf.keras.Model(inputs, out)
-
-    input = T.Placeholder((batch_size, 3, 32, 32), "float32")
-    deterministic = T.Placeholder((), "bool")
-
-    out = nn.layers.Conv2D(input, 2, (5, 5), W=W.transpose((3, 2, 0, 1)))
-    out = nn.layers.BatchNormalization(out, [1], deterministic=deterministic)
-    f = symjax.function(
-        input, deterministic, outputs=out.transpose((0, 2, 3, 1))
-    )
-    g = symjax.function(
-        input,
-        deterministic,
-        outputs=out.transpose((0, 2, 3, 1)),
-        updates=symjax.get_updates(),
-    )
-
-    x = np.random.randn(batch_size, 3, 32, 32)
-
-    # test in deterministic mode
-    nb = np.isclose(f(x, 1), model(x, training=False), atol=1e-6).mean()
-    assert nb > 0.95
-
-    # test in training mode
-    for i in range(100):
-        x = np.random.randn(batch_size, 3, 32, 32)
-        nb = np.isclose(g(x, 0), model(x, training=True), atol=1e-5).mean()
-        assert nb > 0.98
-    # then retest a posteriori
-    x = np.random.randn(batch_size, 3, 32, 32)
-    nb = np.isclose(f(x, 1), model(x, training=False), atol=1e-6).mean()
-    assert nb > 0.95
 
 
 def test_learn_bn():
@@ -221,80 +160,63 @@ def test_learn_bn():
         input,
         label,
         deterministic,
-        outputs=symjax.gradients(loss, [conv.W])[0],
+        outputs=symjax.gradients(loss, symjax.get_variables(trainable=True)),
     )
     train = symjax.function(
-        input,
-        label,
-        deterministic,
-        outputs=loss,
-        updates=symjax.get_updates(),
+        input, label, deterministic, outputs=loss, updates=symjax.get_updates(),
     )
 
-    x = np.random.randn(batch_size, 3, 32, 32)
-
-    # test in training mode
-
-    for epoch in range(6):
+    for epoch in range(60):
+        # generate some random inputs and labels
         x = np.random.randn(batch_size, 3, 32, 32)
         y = np.random.randint(0, 10, size=batch_size)
 
+        # test predictions during testing mode
         preds = model(x, training=False)
         nb = np.isclose(preds, f(x, y, 1)[1], atol=1e-3).mean()
-        print(nb)
+        print("preds not training", nb)
         assert nb > 0.8
 
-        preds = model(x, training=True)
-        nb = np.isclose(preds, f(x, y, 0)[1], atol=1e-3).mean()
-        print(nb)
-        assert nb > 0.8
-
-        loss = tf.reduce_mean(
-            tf.nn.sparse_softmax_cross_entropy_with_logits(y, preds)
-        )
-
-        print(loss, f(x, y, 0)[0])
-        assert np.allclose(loss, f(x, y, 0)[0])
-
+        # test prediction during training mode
+        # now get the gradients
         with tf.GradientTape() as tape:
             preds = model(x, training=True)
             loss = tf.reduce_mean(
                 tf.nn.sparse_softmax_cross_entropy_with_logits(y, preds)
             )
 
-        grads = tape.gradient(loss, model.trainable_variables)
-        optimizer.apply_gradients(zip(grads, model.trainable_variables))
-        losss = train(x, y, 0)
-        print(losss, loss)
+        nb = np.isclose(preds, f(x, y, 0)[1], atol=1e-3).mean()
+        print("preds training", nb)
+        assert nb > 0.8
+
+        # test loss function during training
+        losss = f(x, y, 0)[0]
+        print("losses", losss, loss)
         assert np.abs(losss - loss) < 1e-3
 
-        sj_grad = g(x, y, 0).transpose((2, 3, 1, 0))
-        tf_grad = tape.gradient(loss, model.trainable_variables[0])
-        print(sj_grad, tf_grad)
-        asdf
+        # test the gradients
+        grads = tape.gradient(loss, model.trainable_variables)
+        sj_grads = g(x, y, 0)
 
-        with tf.GradientTape() as tape:
-            preds = model(x, training=True)
-            loss = tf.reduce_mean(
-                tf.nn.sparse_softmax_cross_entropy_with_logits(y, preds)
-            )
+        for tf_g, sj_g in zip(grads, sj_grads):
+            if sj_g.ndim == 4:
+                sj_g = sj_g.transpose((2, 3, 1, 0))
 
-        sj_grad = g(x, y, 0).transpose((2, 3, 1, 0))
-        tf_grad = tape.gradient(loss, model.trainable_variables[0])
-        print(sj_grad, tf_grad)
-        asdf
-        nb = np.isclose(sj_grad, tf_grad, atol=1e-4,).mean()
-        print(nb)
-        assert nb > 0.95
+            print(sj_g.shape, tf_g.shape)
+            nb = np.isclose(
+                np.reshape(sj_g, -1), np.reshape(tf_g, -1), atol=1e-3,
+            ).mean()
+            print("grads training", nb)
+            assert nb > 0.95
+
+        optimizer.apply_gradients(zip(grads, model.trainable_variables))
+        train(x, y, 0)
 
 
 def test_ema():
     np.random.seed(0)
     sample = np.random.randn(100)
-    assert (
-        np.isclose(TF_EMA(sample), SJ_EMA(sample, True), atol=1e-3).mean()
-        >= 0.45
-    )
+    assert np.isclose(TF_EMA(sample), SJ_EMA(sample, True), atol=1e-3).mean() >= 0.45
     assert np.allclose(TF_EMA(sample), SJ_EMA(sample, False), atol=1e-7)
 
 
@@ -316,6 +238,5 @@ def test_adam():
 
 if __name__ == "__main__":
     test_learn_bn()
-    test_bn()
     test_ema()
     test_adam()
