@@ -67,7 +67,9 @@ def _extract_signal_patches(signal, window_length, hop=1, data_format="NCW"):
             signal_3d = signal
 
         N = (signal_3d.shape[2] - window_length) // hop + 1
-        indices = jnp.arange(window_length) + jnp.expand_dims(jnp.arange(N) * hop, 1)
+        indices = jnp.arange(window_length) + jnp.expand_dims(
+            jnp.arange(N) * hop, 1
+        )
         indices = jnp.reshape(indices, [1, 1, N * window_length])
         patches = jnp.take_along_axis(signal_3d, indices, 2)
         output = jnp.reshape(patches, signal_3d.shape[:2] + (N, window_length))
@@ -91,7 +93,8 @@ def _extract_image_patches(
         p1 = window_shape[0] - 1
         p2 = window_shape[1] - 1
         image = jnp.pad(
-            image, [(0, 0), (0, 0), (p1 // 2, p1 - p1 // 2), (p2 // 2, p2 - p2 // 2)],
+            image,
+            [(0, 0), (0, 0), (p1 // 2, p1 - p1 // 2), (p2 // 2, p2 - p2 // 2)],
         )
     if not hasattr(hop, "__len__"):
         hop = (hop, hop)
@@ -113,7 +116,9 @@ def _extract_image_patches(
             jnp.arange(N[0]) * hop[0] * image.shape[3], (-1, 1, 1, 1)
         )
         hor_shifts = jnp.reshape(jnp.arange(N[1]) * hop[1], (-1, 1, 1))
-        all_cols = patch_indices + jnp.reshape(jnp.arange(N[1]) * hop[1], (-1, 1, 1))
+        all_cols = patch_indices + jnp.reshape(
+            jnp.arange(N[1]) * hop[1], (-1, 1, 1)
+        )
         indices = patch_indices + ver_shifts + hor_shifts
 
         # now extract shape (1, 1, H'W'a'b')
@@ -149,7 +154,12 @@ def one_hot(i, N, dtype="float32"):
         return index_add(z, i, 1)
 
 
-for name in ["index_update", "index_min", "index_add", "index_max"]:
+for name in [
+    "index_update",
+    "index_min",
+    "index_add",
+    "index_max",
+]:
     module.__dict__.update({name: jax_wrap(jax.ops.__dict__[name])})
 
 stop_gradient = jax_wrap(jla.stop_gradient)
@@ -157,10 +167,16 @@ dynamic_slice_in_dim = jax_wrap(jla.dynamic_slice_in_dim)
 dynamic_slice = jax_wrap(jla.dynamic_slice)
 index = jax.ops.index
 
+index_take = jax_wrap(jax.lax.index_take)
+index_in_dim = jax_wrap(jax.lax.index_in_dim)
+dynamic_index_in_dim = jax_wrap(jax.lax.dynamic_index_in_dim)
+
 
 module = sys.modules[__name__]
 
-_NAMES = [c[0] for c in inspect.getmembers(jax.scipy.special, inspect.isfunction)]
+_NAMES = [
+    c[0] for c in inspect.getmembers(jax.scipy.special, inspect.isfunction)
+]
 
 
 for name in _NAMES:
@@ -173,7 +189,9 @@ def reshape_weight_to_matrix(self, weight, dim=1):
 
     if dim != 0:
         # permute dim to front
-        weight_t = weight.permute(dim, *[d for d in range(weight.ndim) if d != dim])
+        weight_t = weight.permute(
+            dim, *[d for d in range(weight.ndim) if d != dim]
+        )
     else:
         weight_t = weight
 
