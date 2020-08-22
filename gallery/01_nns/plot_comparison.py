@@ -40,7 +40,7 @@ def classif_tf(train_x, train_y, test_x, test_y, mlp=True):
                 out = layers.Add()([out, bn])
             out = layers.AveragePooling2D()(out)
             out = layers.Conv2D(32 * (i + 2), 1, activation="linear")(out)
-
+            print(out.shape)
         out = layers.GlobalAveragePooling2D()(out)
     else:
         out = layers.Flatten()(inputs)
@@ -63,8 +63,6 @@ def classif_tf(train_x, train_y, test_x, test_y, mlp=True):
                 loss = tf.reduce_mean(
                     tf.nn.sparse_softmax_cross_entropy_with_logits(y, preds)
                 )
-                print(preds)
-                sdfg
             accu += tf.reduce_mean(tf.cast(y == tf.argmax(preds, 1), "float32"))
             grads = tape.gradient(loss, model.trainable_variables)
             optimizer.apply_gradients(zip(grads, model.trainable_variables))
@@ -105,8 +103,8 @@ def classif_sj(train_x, train_y, test_x, test_y, mlp=True):
 
             out = nn.layers.Pool2D(out, (2, 2), pool_type="AVG")
             out = nn.layers.Conv2D(out, 32 * (i + 2), (1, 1))
-
-        out = nn.layers.Pool2D(out, out.shape[-2:], pool_type="AVG")
+        # out = out.mean((2, 3))
+        out = nn.layers.Pool2D(out, out.shape.get()[-2:], pool_type="AVG")
     else:
         out = input
         for i in range(6):
@@ -166,9 +164,20 @@ test_x /= test_x.max()
 # tf.Tensor(0.7421875, shape=(), dtype=float32)
 # training tf.Tensor(0.85697114, shape=(), dtype=float32)
 # tf.Tensor(0.7845553, shape=(), dtype=float32)
+classif_sj(train_x, train_y, test_x, test_y, False)
+classif_tf(train_x, train_y, test_x, test_y, False)
+# classif_sj(train_x, train_y, test_x, test_y, False)
+# training 0.4132411858974359
+# 0.18098958333333334
+# training 0.5680488782051282
+# 0.37049278846153844
+# training 0.6580528846153846
+# 0.5872395833333334
+# training 0.7153044871794871
+# 0.5900440705128205
+# training 0.7565905448717949
+# 0.6393229166666666
 
-classif_sj(train_x, train_y, test_x, test_y)
-classif_tf(train_x, train_y, test_x, test_y)
 # training 0.43359375
 # 0.36157852564102566
 # training 0.5697115384615384

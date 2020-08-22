@@ -6,36 +6,6 @@ import numpy
 import jax
 
 
-def _is_shape(x):
-    """utility function that checks if the input is a shape or not"""
-    if not hasattr(x, "__len__"):
-        return False
-    if isinstance(x[0], int):
-        return True
-    elif isinstance(x[0], float):
-        raise RuntimeError("invalid float value in shape")
-
-
-def forward(input, layers):
-    """ perform a forward path in the layers given an input
-
-    utility function
-
-    Parameters
-    ----------
-
-    input: Tensor
-        the tensor to be forwarded across the given layers
-
-    layers: list of layers
-        the layers to forward the input in a consecutive manner
-    """
-    outputs = [layers[0].forward(input)]
-    for layer in layers[1:]:
-        outputs.append(layer.forward(outputs[-1]))
-    return outputs
-
-
 class Layer(T.Op):
     # def __new__(cls, *args, name=None, **kwargs):
 
@@ -320,7 +290,7 @@ class Pool1D(Layer):
         else:
             self.strides = (1, 1, strides)
 
-        return T.signal.batch_pool(
+        return T.signal.pool(
             input, self.pool_shape, strides=self.strides, reducer=self.pool_type,
         )
 
@@ -335,16 +305,13 @@ class Pool2D(Layer):
     def forward(self, input, pool_shape, pool_type="MAX", strides=None):
 
         self.pool_type = pool_type
-        self.pool_shape = (1, 1, pool_shape[0], pool_shape[1])
+        self.pool_shape = (1, 1) + symjax.data.utils.as_tuple(pool_shape, 2)
         if strides is None:
             self.strides = self.pool_shape
         else:
-            if hasattr(strides, "__len__"):
-                self.strides = (1, 1, strides[0], strides[1])
-            else:
-                self.strides = (1, 1, strides, strides)
+            self.strides = (1, 1) + symjax.data.utils.as_tuple(strides, 2)
 
-        return T.signal.batch_pool(
+        return T.signal.pool(
             input, self.pool_shape, strides=self.strides, reducer=self.pool_type,
         )
 

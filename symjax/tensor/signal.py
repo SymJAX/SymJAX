@@ -1027,34 +1027,60 @@ def batch_convolve_transpose(
 
 
 @jax_wrap
-def batch_pool(
+def pool(
     input,
     window_shape,
     reducer="MAX",
     strides=None,
     padding="VALID",
-    init_val=None,
-    rescalor=None,
+    base_dilation=None,
+    window_dilation=None,
 ):
+    """ apply arbitrary pooling on a Tensor.
+
+    Parameters
+    ----------
+
+    input: Tensor
+        the input to pool over
+
+    window_shape: tuple of int
+        the shape of the pooling operator, it must have same length than the
+        number of dimension in `input`
+
+    reducer: str
+        the type of pooling to apply, must be one of `MAX`, `AVG`, `SUM`
+
+    strides: tuple of int
+        the stride of the pooling operator
+
+    padding: str
+        the type of padding, must be `VALID`, `SAME` or `FULL`
+
+    base_dilation: tuple (optional)
+        dilations of the input. This corresponds to the number of `0` inserted
+        in between the values in the input
+
+    window_dilation: tuple (optional)
+        dilations of the window, this corresponds to the number
+        of `0`s inserted in the window
+
+    Returns
+    -------
+
+    pooled Tensor
+
+    """
 
     # set up the reducer
     if reducer == "MAX":
-        reducer = jla.max
-        rescalor = numpy.float32(1.0)
-        init_val = -numpy.inf
+        reduce = jla.max
+        init_val = -jnp.inf
     elif reducer == "SUM" or reducer == "AVG":
-        reducer = jla.add
-        if reducer == "AVG":
-            rescalor = numpy.float32(1.0 / numpy.prod(window_shape))
-        else:
-            rescalor = numpy.float32(1.0)
-        if init_val is None:
-            init_val = 0.0
-
+        reduce = jla.add
+        init_val = 0.0
     # set up the window_shape
-    if numpy.isscalar(window_shape):
-        window_shape = (window_shape,) * input.ndim
-    elif len(window_shape) != input.ndim:
+    if len(window_shape) != input.ndim:
         msg = "Given window_shape {} not the same length ".format(
             strides
         ) + "as input shape {}".format(input.ndim)
@@ -1063,20 +1089,24 @@ def batch_pool(
     # set up the strides
     if strides is None:
         strides = window_shape
-    elif numpy.isscalar(strides):
-        strides = (strides,) * len(window_shape)
     elif len(strides) != len(window_shape):
         msg = "Given strides {} not the same length ".format(
             strides
         ) + "as window_shape {}".format(window_shape)
         raise ValueError(msg)
 
+    if reducer == "AVG":
+        input = input / numpy.prod(window_shape)
+
     out = jla.reduce_window(
-        operand=input * rescalor,
+        operand=input,
         init_value=init_val,
-        computation=reducer,
+        computation=reduce,
         window_dimensions=window_shape,
         window_strides=strides,
         padding=padding,
+        base_dilation=base_dilation,
+        window_dilation=window_dilation,
     )
+
     return out

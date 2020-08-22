@@ -12,6 +12,53 @@ import gzip
 import zipfile
 
 
+def as_tuple(x, N, t=None):
+    """
+    Coerce a value to a tuple of given length (and possibly given type).
+    Parameters
+    ----------
+    x : value or iterable
+    N : integer
+        length of the desired tuple
+    t : type or tuple of type, optional
+        required type or types for all elements
+    Returns
+    -------
+    tuple
+        ``tuple(x)`` if `x` is iterable, ``(x,) * N`` otherwise.
+    Raises
+    ------
+    TypeError
+        if `type` is given and `x` or any of its elements do not match it
+    ValueError
+        if `x` is iterable, but does not have exactly `N` elements
+    """
+    try:
+        X = tuple(x)
+    except TypeError:
+        X = (x,) * N
+
+    if (t is not None) and not all(isinstance(v, t) for v in X):
+        if t == int_types:
+            expected_type = "int"  # easier to understand
+        elif isinstance(t, tuple):
+            expected_type = " or ".join(tt.__name__ for tt in t)
+        else:
+            expected_type = t.__name__
+        raise TypeError(
+            "expected a single value or an iterable "
+            "of {0}, got {1} instead".format(expected_type, x)
+        )
+
+    if len(X) != N:
+        raise ValueError(
+            "expected a single value or an iterable "
+            "with length {0}, got {1} instead".format(N, x)
+        )
+
+    return X
+
+
 def create_cmap(values, colors):
 
     from matplotlib.pyplot import Normalize
