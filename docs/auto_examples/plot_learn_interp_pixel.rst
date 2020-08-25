@@ -32,7 +32,9 @@ image values from learned coordinates
 
             ... mnist.pkl.gz already exists
     Loading mnist
-    Dataset mnist loaded in 1.29s.
+    Dataset mnist loaded in 0.67s.
+    /home/vrael/anaconda3/lib/python3.7/site-packages/jax/lib/xla_bridge.py:130: UserWarning: No GPU/TPU found, falling back to CPU.
+      warnings.warn('No GPU/TPU found, falling back to CPU.')
     [[ 0.  0.  0. ... 27. 27. 27.]
      [ 0.  1.  2. ... 25. 26. 27.]]
     /home/vrael/anaconda3/lib/python3.7/site-packages/matplotlib/tight_layout.py:345: UserWarning: tight_layout not applied: number of columns in subplot specifications mustbe multiples of one another.
@@ -72,13 +74,11 @@ image values from learned coordinates
 
     coordinates = T.meshgrid(T.range(28), T.range(28))
     coordinates = T.Variable(
-        T.stack([coordinates[1].flatten(), coordinates[0].flatten()]).astype(
-            "float32"
-        )
+        T.stack([coordinates[1].flatten(), coordinates[0].flatten()]).astype("float32")
     )
-    interp = T.interpolation.map_coordinates(
-        images[0], coordinates, order=1
-    ).reshape((28, 28))
+    interp = T.interpolation.map_coordinates(images[0], coordinates, order=1).reshape(
+        (28, 28)
+    )
 
     loss = ((interp - images[1]) ** 2).mean()
 
@@ -149,7 +149,7 @@ image values from learned coordinates
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  2.963 seconds)
+   **Total running time of the script:** ( 0 minutes  1.922 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_learn_interp_pixel.py:

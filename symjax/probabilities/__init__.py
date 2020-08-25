@@ -3,4 +3,4 @@
 
 __all__ = ["pdfs"]
 
-from .base import Categorical, MultivariateNormal
+from .base import Categorical, MultivariateNormal, KL

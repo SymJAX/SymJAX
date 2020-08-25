@@ -105,9 +105,7 @@ in TF and SymJAX and compare the computation time
         tf_W = tf.Variable(np.random.randn(D, 1).astype("float32"))
         tf_b = tf.Variable(np.random.randn(1,).astype("float32"))
 
-        tf_loss = tf.reduce_mean(
-            (tf.matmul(tf_input, tf_W) + tf_b - tf_output) ** 2
-        )
+        tf_loss = tf.reduce_mean((tf.matmul(tf_input, tf_W) + tf_b - tf_output) ** 2)
 
         train_op = tf.train.AdamOptimizer(lr).minimize(tf_loss)
 
@@ -205,18 +203,14 @@ in TF and SymJAX and compare the computation time
 
     for i, ls in enumerate(["-", "--"]):
         for j, c in enumerate(["r", "g"]):
-            plt.plot(
-                Ns, values[i, :, j], linestyle=ls, c=c, linewidth=3, alpha=0.8
-            )
-    plt.legend(
-        ["TF1 no prealloc.", "SJ no prealloc.", "TF1 prealloc.", "SJ prealloc."]
-    )
+            plt.plot(Ns, values[i, :, j], linestyle=ls, c=c, linewidth=3, alpha=0.8)
+    plt.legend(["TF1 no prealloc.", "SJ no prealloc.", "TF1 prealloc.", "SJ prealloc."])
     plt.show()
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 1 minutes  17.226 seconds)
+   **Total running time of the script:** ( 1 minutes  18.375 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_timing_adam.py:

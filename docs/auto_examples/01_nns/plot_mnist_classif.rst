@@ -30,7 +30,7 @@ and with a small architecture
 
             ... mnist.pkl.gz already exists
     Loading mnist
-    Dataset mnist loaded in 0.93s.
+    Dataset mnist loaded in 0.89s.
     (64, 1, 28, 28)
     (64, 64, 26, 26)
     (64, 64, 26, 26)
@@ -43,65 +43,65 @@ and with a small architecture
     (64, 64, 1, 1)
     (64, 10)
     ...epoch: 0
-    Test Loss and Accu: [2.3026714  0.10276442]
-    Train Loss and Accu [1.9802395 0.4092742]
+    Test Loss and Accu: [2.303416   0.09815705]
+    Train Loss and Accu [1.9887893 0.4032258]
     ...epoch: 1
-    Test Loss and Accu: [2.5816264  0.11348157]
-    Train Loss and Accu [1.6424525  0.63004035]
+    Test Loss and Accu: [2.8440666  0.11348157]
+    Train Loss and Accu [1.6667411  0.59727824]
     ...epoch: 2
-    Test Loss and Accu: [1.9070722  0.20933494]
-    Train Loss and Accu [1.4449486  0.70060486]
+    Test Loss and Accu: [1.9810963 0.2217548]
+    Train Loss and Accu [1.4739343 0.7021169]
     ...epoch: 3
-    Test Loss and Accu: [1.4708972 0.5521835]
-    Train Loss and Accu [1.2993451 0.7641129]
+    Test Loss and Accu: [1.4481678  0.62369794]
+    Train Loss and Accu [1.3121623 0.7636089]
     ...epoch: 4
-    Test Loss and Accu: [1.2808527 0.6897035]
-    Train Loss and Accu [1.1622738 0.8059476]
+    Test Loss and Accu: [1.3252217 0.6608574]
+    Train Loss and Accu [1.1772408  0.81602824]
     ...epoch: 5
-    Test Loss and Accu: [1.1994443 0.7092348]
-    Train Loss and Accu [1.0483605 0.828125 ]
+    Test Loss and Accu: [1.1886992 0.7281651]
+    Train Loss and Accu [1.0639273 0.8251008]
     ...epoch: 6
-    Test Loss and Accu: [1.0837309 0.7782452]
-    Train Loss and Accu [0.9590779 0.8518145]
+    Test Loss and Accu: [1.0929953  0.79547274]
+    Train Loss and Accu [0.9512595  0.86441535]
     ...epoch: 7
-    Test Loss and Accu: [1.0044572 0.7897636]
-    Train Loss and Accu [0.8599169  0.87247986]
+    Test Loss and Accu: [1.0527598 0.7073317]
+    Train Loss and Accu [0.87056917 0.88508064]
     ...epoch: 8
-    Test Loss and Accu: [0.96697557 0.76011616]
-    Train Loss and Accu [0.7870807  0.88810486]
+    Test Loss and Accu: [0.9697831 0.7624199]
+    Train Loss and Accu [0.7969418 0.8840726]
     ...epoch: 9
-    Test Loss and Accu: [0.9209642  0.75340545]
-    Train Loss and Accu [0.7239348 0.8966734]
+    Test Loss and Accu: [0.9283603 0.7219551]
+    Train Loss and Accu [0.7198963 0.8986895]
     ...epoch: 10
-    Test Loss and Accu: [0.9281626 0.7411859]
-    Train Loss and Accu [0.6565298 0.9128024]
+    Test Loss and Accu: [0.8994963  0.73297274]
+    Train Loss and Accu [0.66082746 0.9153226 ]
     ...epoch: 11
-    Test Loss and Accu: [0.9744095  0.64813703]
-    Train Loss and Accu [0.6110032 0.9128024]
+    Test Loss and Accu: [0.7540454  0.82471955]
+    Train Loss and Accu [0.6040695 0.9203629]
     ...epoch: 12
-    Test Loss and Accu: [0.8637302 0.7772436]
-    Train Loss and Accu [0.5666782 0.9188508]
+    Test Loss and Accu: [0.6891631  0.86588544]
+    Train Loss and Accu [0.55794346 0.9279234 ]
     ...epoch: 13
-    Test Loss and Accu: [0.76896995 0.7823518 ]
-    Train Loss and Accu [0.51209766 0.9304435 ]
+    Test Loss and Accu: [0.88701797 0.7079327 ]
+    Train Loss and Accu [0.5097796 0.9309476]
     ...epoch: 14
-    Test Loss and Accu: [0.63755596 0.85396636]
-    Train Loss and Accu [0.477681  0.9354839]
+    Test Loss and Accu: [0.6690547 0.8370393]
+    Train Loss and Accu [0.45673898 0.9485887 ]
     ...epoch: 15
-    Test Loss and Accu: [0.83588773 0.72375804]
-    Train Loss and Accu [0.44902894 0.94102824]
+    Test Loss and Accu: [0.6740171  0.82261616]
+    Train Loss and Accu [0.42886272 0.94758064]
     ...epoch: 16
-    Test Loss and Accu: [0.56575525 0.8772035 ]
-    Train Loss and Accu [0.41248325 0.9465726 ]
+    Test Loss and Accu: [0.66504765 0.79917866]
+    Train Loss and Accu [0.41574922 0.9465726 ]
     ...epoch: 17
-    Test Loss and Accu: [0.58106077 0.8576723 ]
-    Train Loss and Accu [0.3823703 0.9551411]
+    Test Loss and Accu: [0.5708862 0.8608774]
+    Train Loss and Accu [0.36107954 0.9596774 ]
     ...epoch: 18
-    Test Loss and Accu: [0.61149865 0.8235176 ]
-    Train Loss and Accu [0.35944167 0.9611895 ]
+    Test Loss and Accu: [0.49747434 0.89663464]
+    Train Loss and Accu [0.34122872 0.9621976 ]
     ...epoch: 19
-    Test Loss and Accu: [0.6215606 0.8192107]
-    Train Loss and Accu [0.34505492 0.95866936]
+    Test Loss and Accu: [0.5516419  0.85917467]
+    Train Loss and Accu [0.31652793 0.96622986]
 
     Text(0.5, 0.98, 'MNIST (1K data) classification task')
 
@@ -133,12 +133,8 @@ and with a small architecture
     mnist["train_set/images"] = mnist["train_set/images"][:2000]
     mnist["train_set/labels"] = mnist["train_set/labels"][:2000]
 
-    mnist["train_set/images"] /= mnist["train_set/images"].max(
-        (1, 2, 3), keepdims=True
-    )
-    mnist["test_set/images"] /= mnist["test_set/images"].max(
-        (1, 2, 3), keepdims=True
-    )
+    mnist["train_set/images"] /= mnist["train_set/images"].max((1, 2, 3), keepdims=True)
+    mnist["test_set/images"] /= mnist["test_set/images"].max((1, 2, 3), keepdims=True)
 
     # create the network
     BATCH_SIZE = 64
@@ -162,9 +158,7 @@ and with a small architecture
         layer.append(nn.layers.Pool2D(layer[-1], (2, 2)))
 
 
-    layer.append(
-        nn.layers.Pool2D(layer[-1], layer[-1].shape.get()[2:], pool_type="AVG")
-    )
+    layer.append(nn.layers.Pool2D(layer[-1], layer[-1].shape.get()[2:], pool_type="AVG"))
 
     layer.append(nn.layers.Dense(layer[-1], 10))
 
@@ -235,7 +229,7 @@ and with a small architecture
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 2 minutes  6.271 seconds)
+   **Total running time of the script:** ( 2 minutes  12.597 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_nns_plot_mnist_classif.py:

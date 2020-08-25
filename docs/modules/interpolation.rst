@@ -5,22 +5,22 @@
 
 .. autosummary::
 
-   symjax.tensor.interpolation.map_coordinates
-   symjax.tensor.interpolation.upsample_1d
-   symjax.tensor.interpolation.hermite_1d
-   symjax.tensor.interpolation.hermite_2d
-   symjax.tensor.interpolation.thin_plate_spline
-   symjax.tensor.interpolation.affine_transform
+   map_coordinates
+   upsample_1d
+   hermite_1d
+   hermite_2d
+   thin_plate_spline
+   affine_transform
 
 
 Detailed Descriptions
 =====================
 
-.. autofunction::  symjax.tensor.interpolation.map_coordinates
-.. autofunction::  symjax.tensor.interpolation.upsample_1d
-.. autofunction::  symjax.tensor.interpolation.hermite_1d
-.. autofunction::  symjax.tensor.interpolation.hermite_2d
-.. autofunction::  symjax.tensor.interpolation.thin_plate_spline
-.. autofunction::  symjax.tensor.interpolation.affine_transform
+.. autofunction:: map_coordinates
+.. autofunction:: upsample_1d
+.. autofunction:: hermite_1d
+.. autofunction:: hermite_2d
+.. autofunction:: thin_plate_spline
+.. autofunction:: affine_transform
 
 
