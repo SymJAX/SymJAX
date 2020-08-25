@@ -93,6 +93,8 @@ def load(path=None):
         "train_set/labels": train_labels,
         "test_set/images": test_images,
         "test_set/labels": test_labels,
+        "label_to_name": label_to_name,
+        "DOC": DOC,
     }
 
     print("Dataset cifar10 loaded in{0:.2f}s.".format(time.time() - t0))

@@ -1,8 +1,8 @@
 """
-RNN/GRU example
-===========
+Image classification, Keras and SymJAX
+======================================
 
-example of vanilla RNN for time series regression
+example of image classification with deep networks using Keras and SymJAX
 """
 import symjax.tensor as T
 from symjax import nn

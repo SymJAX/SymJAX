@@ -3,10 +3,10 @@
     .. note::
         :class: sphx-glr-download-link-note
 
-        Click :ref:`here <sphx_glr_download_auto_examples_plot_tps.py>`     to download the full example code
+        Click :ref:`here <sphx_glr_download_auto_examples_plot_learn_interp_pixel.py>`     to download the full example code
     .. rst-class:: sphx-glr-example-title
 
-    .. _sphx_glr_auto_examples_plot_tps.py:
+    .. _sphx_glr_auto_examples_plot_learn_interp_pixel.py:
 
 
 Pixel interpolation learning
@@ -19,7 +19,7 @@ image values from learned coordinates
 
 
 
-.. image:: /auto_examples/images/sphx_glr_plot_tps_001.svg
+.. image:: /auto_examples/images/sphx_glr_plot_learn_interp_pixel_001.svg
     :alt: Training loss, input, target, reconstruction, Initialized coordinates, Learned coordinates
     :class: sphx-glr-single-img
 
@@ -30,13 +30,9 @@ image values from learned coordinates
 
  .. code-block:: none
 
-    Downloading dataset
-            ...Downloading mnist.pkl.gz
-    mnist downloaded in 0.0003371238708496094 sec.
+            ... mnist.pkl.gz already exists
     Loading mnist
-    Dataset mnist loaded in 1.08s.
-    /home/vrael/anaconda3/lib/python3.7/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
-      warnings.warn('No GPU/TPU found, falling back to CPU.')
+    Dataset mnist loaded in 1.29s.
     [[ 0.  0.  0. ... 27. 27. 27.]
      [ 0.  1.  2. ... 25. 26. 27.]]
     /home/vrael/anaconda3/lib/python3.7/site-packages/matplotlib/tight_layout.py:345: UserWarning: tight_layout not applied: number of columns in subplot specifications mustbe multiples of one another.
@@ -67,7 +63,7 @@ image values from learned coordinates
     symjax.current_graph().reset()
 
 
-    mnist = symjax.data.mnist.load()
+    mnist = symjax.data.mnist()
     # 2d image
     images = mnist["train_set/images"][mnist["train_set/labels"] == 2][:2, 0]
     images /= images.max()
@@ -76,11 +72,13 @@ image values from learned coordinates
 
     coordinates = T.meshgrid(T.range(28), T.range(28))
     coordinates = T.Variable(
-        T.stack([coordinates[1].flatten(), coordinates[0].flatten()]).astype("float32")
+        T.stack([coordinates[1].flatten(), coordinates[0].flatten()]).astype(
+            "float32"
+        )
     )
-    interp = T.interpolation.map_coordinates(images[0], coordinates, order=1).reshape(
-        (28, 28)
-    )
+    interp = T.interpolation.map_coordinates(
+        images[0], coordinates, order=1
+    ).reshape((28, 28))
 
     loss = ((interp - images[1]) ** 2).mean()
 
@@ -151,10 +149,10 @@ image values from learned coordinates
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  3.190 seconds)
+   **Total running time of the script:** ( 0 minutes  2.963 seconds)
 
 
-.. _sphx_glr_download_auto_examples_plot_tps.py:
+.. _sphx_glr_download_auto_examples_plot_learn_interp_pixel.py:
 
 
 .. only :: html
@@ -166,13 +164,13 @@ image values from learned coordinates
 
   .. container:: sphx-glr-download sphx-glr-download-python
 
-     :download:`Download Python source code: plot_tps.py <plot_tps.py>`
+     :download:`Download Python source code: plot_learn_interp_pixel.py <plot_learn_interp_pixel.py>`
 
 
 
   .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-     :download:`Download Jupyter notebook: plot_tps.ipynb <plot_tps.ipynb>`
+     :download:`Download Jupyter notebook: plot_learn_interp_pixel.ipynb <plot_learn_interp_pixel.ipynb>`
 
 
 .. only:: html

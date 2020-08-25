@@ -29,12 +29,11 @@ the true output
 
  .. code-block:: none
 
+            ... mnist.pkl.gz already exists
     Loading mnist
-    Dataset mnist loaded in 1.57s.
-    /home/vrael/anaconda3/envs/jax/lib/python3.7/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
-      warnings.warn('No GPU/TPU found, falling back to CPU.')
-    /home/vrael/SymJAX/gallery/plot_deconvolution.py:103: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
-      plt.show()
+    Dataset mnist loaded in 0.95s.
+    /home/vrael/anaconda3/lib/python3.7/site-packages/matplotlib/figure.py:445: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+      % get_backend())
 
 
 
@@ -60,7 +59,7 @@ the true output
     symjax.current_graph().reset()
 
 
-    true_image = symjax.data.mnist.load()
+    true_image = symjax.data.mnist()
     # 2d image
     true_image = true_image["train_set/images"][0, 0]
     true_image /= true_image.max()
@@ -144,7 +143,7 @@ the true output
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  26.230 seconds)
+   **Total running time of the script:** ( 0 minutes  32.168 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_deconvolution.py:

@@ -21,7 +21,7 @@ os.environ["DATASET_PATH"] = "/home/vrael/DATASETS/"
 symjax.current_graph().reset()
 
 
-mnist = symjax.data.mnist.load()
+mnist = symjax.data.mnist()
 # 2d image
 images = mnist["train_set/images"][mnist["train_set/labels"] == 2][:2, 0]
 images /= images.max()

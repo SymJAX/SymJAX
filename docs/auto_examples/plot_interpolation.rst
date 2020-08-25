@@ -33,6 +33,7 @@ In this example we demonstrate how to employ the utility functions from
 
     import symjax
     import symjax.tensor as T
+    import numpy as np
 
     w = T.Placeholder((3,), "float32", name="w")
     w_interp1 = T.interpolation.upsample_1d(w, repeat=4, mode="nearest")
@@ -46,7 +47,7 @@ In this example we demonstrate how to employ the utility functions from
 
     f = symjax.function(w, outputs=[w_interp1, w_interp2, w_interp3, w_interp4])
 
-    samples = f([1, 2, 3])
+    samples = f(np.array([1, 2, 3]))
     fig = plt.figure(figsize=(6, 6))
     plt.subplot(411)
     plt.plot(samples[0], "xg", linewidth=3, markersize=15)
@@ -76,7 +77,7 @@ In this example we demonstrate how to employ the utility functions from
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.508 seconds)
+   **Total running time of the script:** ( 0 minutes  0.825 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_interpolation.py:

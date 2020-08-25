@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 
 import symjax
 import symjax.tensor as T
+import numpy as np
 
 w = T.Placeholder((3,), "float32", name="w")
 w_interp1 = T.interpolation.upsample_1d(w, repeat=4, mode="nearest")
@@ -24,7 +25,7 @@ w_interp4 = T.interpolation.upsample_1d(w, repeat=4)
 
 f = symjax.function(w, outputs=[w_interp1, w_interp2, w_interp3, w_interp4])
 
-samples = f([1, 2, 3])
+samples = f(np.array([1, 2, 3]))
 fig = plt.figure(figsize=(6, 6))
 plt.subplot(411)
 plt.plot(samples[0], "xg", linewidth=3, markersize=15)

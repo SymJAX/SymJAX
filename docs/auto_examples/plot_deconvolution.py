@@ -21,7 +21,7 @@ os.environ["DATASET_PATH"] = "/home/vrael/DATASETS/"
 symjax.current_graph().reset()
 
 
-true_image = symjax.data.mnist.load()
+true_image = symjax.data.mnist()
 # 2d image
 true_image = true_image["train_set/images"][0, 0]
 true_image /= true_image.max()

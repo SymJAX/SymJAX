@@ -137,7 +137,7 @@ plt.legend()
 
 
 plt.figure()
-Ns = [10, 100, 200, 400, 1000]
+Ns = [400, 1000]
 lrs = [0.001, 0.01, 0.1]
 colors = ["r", "b", "g"]
 for k, N in enumerate(Ns):
@@ -152,7 +152,7 @@ plt.suptitle("Adam Optimization quadratic loss (-:TF, --:SJ)")
 
 
 plt.figure()
-Ns = [10, 100, 200, 400, 1000]
+Ns = [400, 1000]
 lrs = [0.001, 0.01, 0.1]
 colors = ["r", "b", "g"]
 for k, N in enumerate(Ns):

@@ -23,12 +23,12 @@ tiem series regression and classification
 
  .. code-block:: none
 
-    Op(name=multiply, fn=multiply, shape=(3, 3), dtype=float32, scope=/main/)
-    [array([[237.16048, 104.28426, 101.88152],
-           [104.28426, 277.24307,  75.75771],
-           [101.88152,  75.75771, 325.72128]], dtype=float32), array([[41.979485, 36.638058, 35.94562 ],
-           [36.638058, 49.499   , 32.211906],
-           [35.94562 , 32.211906, 56.90088 ]], dtype=float32)]
+    Op(name=multiply, fn=multiply, shape=(3, 3), dtype=float32, scope=/)
+    [array([[374.33334, 120.098  , 131.59918],
+           [120.098  , 302.12424,  86.20666],
+           [131.59918,  86.20666, 203.82948]], dtype=float32), array([[71.971275, 48.085426, 45.39569 ],
+           [48.085426, 60.663128, 35.050926],
+           [45.39569 , 35.050926, 38.225647]], dtype=float32)]
 
 
 
@@ -118,7 +118,7 @@ tiem series regression and classification
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  4.380 seconds)
+   **Total running time of the script:** ( 0 minutes  4.321 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_datasets_plot_rntk.py:

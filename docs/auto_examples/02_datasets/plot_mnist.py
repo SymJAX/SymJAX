@@ -13,7 +13,7 @@ This example shows how to download/load/import MNIST
 import symjax
 import matplotlib.pyplot as plt
 
-mnist = symjax.data.mnist.load()
+mnist = symjax.data.mnist()
 
 plt.figure(figsize=(10, 4))
 for i in range(10):

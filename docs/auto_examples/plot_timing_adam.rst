@@ -3,51 +3,63 @@
     .. note::
         :class: sphx-glr-download-link-note
 
-        Click :ref:`here <sphx_glr_download_auto_examples_plot_adam.py>`     to download the full example code
+        Click :ref:`here <sphx_glr_download_auto_examples_plot_timing_adam.py>`     to download the full example code
     .. rst-class:: sphx-glr-example-title
 
-    .. _sphx_glr_auto_examples_plot_adam.py:
+    .. _sphx_glr_auto_examples_plot_timing_adam.py:
 
 
-Adam TF and SymJAX
-==================
+Computation times
+=================
 
-In this example we demonstrate how to perform a simple optimization with Adam in TF and SymJAX
+In this example we demonstrate how to perform a simple optimization with Adam
+in TF and SymJAX and compare the computation time
+
+
+
+.. image:: /auto_examples/images/sphx_glr_plot_timing_adam_001.svg
+    :alt: plot timing adam
+    :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
 
+ Out:
 
-.. code-block:: pytb
+ .. code-block:: none
 
-    Traceback (most recent call last):
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/sphinx_gallery/gen_gallery.py", line 159, in call_memory
-        return 0., func()
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/sphinx_gallery/gen_rst.py", line 466, in __call__
-        exec(self.code, self.fake_main.__dict__)
-      File "/home/vrael/SymJAX/gallery/plot_adam.py", line 133, in <module>
-        values.append(TF2(X, Y, N, pre))
-      File "/home/vrael/SymJAX/gallery/plot_adam.py", line 89, in TF2
-        l = train(x, y)
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/eager/def_function.py", line 780, in __call__
-        result = self._call(*args, **kwds)
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/eager/def_function.py", line 840, in _call
-        return self._stateless_fn(*args, **kwds)
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 2829, in __call__
-        return graph_function._filtered_call(args, kwargs)  # pylint: disable=protected-access
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 1848, in _filtered_call
-        cancellation_manager=cancellation_manager)
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 1938, in _call_flat
-        flat_outputs = forward_function.call(ctx, args_with_tangents)
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 579, in call
-        executor_type=executor_type)
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/ops/functional_ops.py", line 1175, in partitioned_call
-        args = [ops.convert_to_tensor(x) for x in args]
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/ops/functional_ops.py", line 1175, in <listcomp>
-        args = [ops.convert_to_tensor(x) for x in args]
-      File "/home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/framework/ops.py", line 1465, in convert_to_tensor
-        raise RuntimeError("Attempting to capture an EagerTensor without "
-    RuntimeError: Attempting to capture an EagerTensor without building a function.
+    False 10
+    TF1
+    SJ
+    False 100
+    TF1
+    SJ
+    False 200
+    TF1
+    SJ
+    False 400
+    TF1
+    SJ
+    False 1000
+    TF1
+    SJ
+    True 10
+    TF1
+    SJ
+    True 100
+    TF1
+    SJ
+    True 200
+    TF1
+    SJ
+    True 400
+    TF1
+    SJ
+    True 1000
+    TF1
+    SJ
+    /home/vrael/anaconda3/lib/python3.7/site-packages/matplotlib/figure.py:445: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+      % get_backend())
 
 
 
@@ -93,7 +105,9 @@ In this example we demonstrate how to perform a simple optimization with Adam in
         tf_W = tf.Variable(np.random.randn(D, 1).astype("float32"))
         tf_b = tf.Variable(np.random.randn(1,).astype("float32"))
 
-        tf_loss = tf.reduce_mean((tf.matmul(tf_input, tf_W) + tf_b - tf_output) ** 2)
+        tf_loss = tf.reduce_mean(
+            (tf.matmul(tf_input, tf_W) + tf_b - tf_output) ** 2
+        )
 
         train_op = tf.train.AdamOptimizer(lr).minimize(tf_loss)
 
@@ -106,11 +120,11 @@ In this example we demonstrate how to perform a simple optimization with Adam in
         if not preallocate:
             t = time.time()
             for i in range(N):
-                l = sess.run([tf_loss, train_op], feed_dict={tf_input: x, tf_output: y})
+                sess.run(train_op, feed_dict={tf_input: x, tf_output: y})
         else:
             t = time.time()
             for i in range(N):
-                l = sess.run([tf_loss, train_op])
+                sess.run(train_op)
         return time.time() - t
 
 
@@ -159,9 +173,7 @@ In this example we demonstrate how to perform a simple optimization with Adam in
 
         optimizers.Adam(sj_loss, lr)
 
-        train = symjax.function(
-            sj_input, sj_output, outputs=sj_loss, updates=symjax.get_updates()
-        )
+        train = symjax.function(sj_input, sj_output, updates=symjax.get_updates())
 
         if preallocate:
             import jax
@@ -171,7 +183,7 @@ In this example we demonstrate how to perform a simple optimization with Adam in
 
         t = time.time()
         for i in range(N):
-            l = train(x, y)
+            train(x, y)
 
         return time.time() - t
 
@@ -183,36 +195,31 @@ In this example we demonstrate how to perform a simple optimization with Adam in
             print(pre, N)
             print("TF1")
             values.append(TF1(X, Y, N, pre))
-            print("TF2")
-            values.append(TF2(X, Y, N, pre))
+            # print("TF2")
+            # values.append(TF2(X, Y, N, pre))
             print("SJ")
             values.append(SJ(X, Y, N, pre))
 
 
-    values = np.array(values).reshape((2, len(Ns), 3))
+    values = np.array(values).reshape((2, len(Ns), 2))
 
     for i, ls in enumerate(["-", "--"]):
-        for j, c in enumerate(["r", "g", "b"]):
-            plt.plot(values[i, :, j], linestyle=ls, c=c, linewidth=3, alpha=0.8)
+        for j, c in enumerate(["r", "g"]):
+            plt.plot(
+                Ns, values[i, :, j], linestyle=ls, c=c, linewidth=3, alpha=0.8
+            )
     plt.legend(
-        [
-            "TF1 no prealloc.",
-            "TF2 no prealloc.",
-            "SJ no prealloc.",
-            "TF1 prealloc.",
-            "TF2 prealloc.",
-            "SJ prealloc.",
-        ]
+        ["TF1 no prealloc.", "SJ no prealloc.", "TF1 prealloc.", "SJ prealloc."]
     )
     plt.show()
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  2.093 seconds)
+   **Total running time of the script:** ( 1 minutes  17.226 seconds)
 
 
-.. _sphx_glr_download_auto_examples_plot_adam.py:
+.. _sphx_glr_download_auto_examples_plot_timing_adam.py:
 
 
 .. only :: html
@@ -224,13 +231,13 @@ In this example we demonstrate how to perform a simple optimization with Adam in
 
   .. container:: sphx-glr-download sphx-glr-download-python
 
-     :download:`Download Python source code: plot_adam.py <plot_adam.py>`
+     :download:`Download Python source code: plot_timing_adam.py <plot_timing_adam.py>`
 
 
 
   .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-     :download:`Download Jupyter notebook: plot_adam.ipynb <plot_adam.ipynb>`
+     :download:`Download Jupyter notebook: plot_timing_adam.ipynb <plot_timing_adam.ipynb>`
 
 
 .. only:: html

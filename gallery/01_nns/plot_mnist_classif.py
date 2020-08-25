@@ -18,7 +18,7 @@ import os
 os.environ["DATASET_PATH"] = "/home/vrael/DATASETS/"
 symjax.current_graph().reset()
 # load the dataset
-mnist = mnist.load()
+mnist = mnist()
 
 # some renormalization, and we only keep the first 2000 images
 mnist["train_set/images"] = mnist["train_set/images"][:2000]
@@ -28,7 +28,7 @@ mnist["train_set/images"] /= mnist["train_set/images"].max((1, 2, 3), keepdims=T
 mnist["test_set/images"] /= mnist["test_set/images"].max((1, 2, 3), keepdims=True)
 
 # create the network
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 images = T.Placeholder((BATCH_SIZE, 1, 28, 28), "float32", name="images")
 labels = T.Placeholder((BATCH_SIZE,), "int32", name="labels")
 deterministic = T.Placeholder((1,), "bool")
@@ -36,25 +36,33 @@ deterministic = T.Placeholder((1,), "bool")
 
 layer = [nn.layers.Identity(images)]
 
-for l in range(3):
-    layer.append(nn.layers.Conv2D(layer[-1], 32, (3, 3), b=None, pad="SAME"))
-    layer.append(nn.layers.BatchNormalization(layer[-1], [1], deterministic))
+for l in range(2):
+    layer.append(nn.layers.Conv2D(layer[-1], 64, (3, 3), b=None))
+    # due to the small size of the dataset we can
+    # increase the update of the bn moving averages
+    layer.append(
+        nn.layers.BatchNormalization(
+            layer[-1], [1], deterministic, beta_1=0.9, beta_2=0.9
+        )
+    )
     layer.append(nn.leaky_relu(layer[-1]))
     layer.append(nn.layers.Pool2D(layer[-1], (2, 2)))
 
-layer.append(nn.layers.Pool2D(layer[-1], layer[-1].shape[2:], pool_type="AVG"))
+
+layer.append(nn.layers.Pool2D(layer[-1], layer[-1].shape.get()[2:], pool_type="AVG"))
+
 layer.append(nn.layers.Dense(layer[-1], 10))
 
 # each layer is itself a tensor which represents its output and thus
 # any tensor operation can be used on the layer instance, for example
 for l in layer:
-    print(l.shape)
+    print(l.shape.get())
 
 
 loss = nn.losses.sparse_softmax_crossentropy_logits(labels, layer[-1]).mean()
 accuracy = nn.losses.accuracy(labels, layer[-1])
 
-nn.optimizers.Adam(loss, 0.01)
+nn.optimizers.Adam(loss, 0.001)
 
 test = symjax.function(images, labels, deterministic, outputs=[loss, accuracy])
 
@@ -69,7 +77,8 @@ train = symjax.function(
 test_accuracy = []
 train_accuracy = []
 
-for epoch in range(10):
+for epoch in range(20):
+    print("...epoch:", epoch)
     L = list()
     for x, y in batchify(
         mnist["test_set/images"],

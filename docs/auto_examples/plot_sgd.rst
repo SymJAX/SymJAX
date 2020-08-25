@@ -28,7 +28,7 @@ rule to minimize some loss function
 
  .. code-block:: none
 
-    /home/vrael/anaconda3/envs/jax/lib/python3.7/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
+    /home/vrael/anaconda3/lib/python3.7/site-packages/jax/lib/xla_bridge.py:130: UserWarning: No GPU/TPU found, falling back to CPU.
       warnings.warn('No GPU/TPU found, falling back to CPU.')
 
 
@@ -81,7 +81,7 @@ rule to minimize some loss function
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.433 seconds)
+   **Total running time of the script:** ( 0 minutes  0.278 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_sgd.py:

@@ -28,8 +28,9 @@ This example shows how to download/load/import CIFAR10
 
  .. code-block:: none
 
-    Loading cifar10:   0%|          | 0/5 [00:00<?, ?it/s]    Loading cifar10:  20%|##        | 1/5 [00:04<00:16,  4.13s/it]    Loading cifar10:  40%|####      | 2/5 [00:05<00:09,  3.25s/it]    Loading cifar10:  60%|######    | 3/5 [00:06<00:05,  2.54s/it]    Loading cifar10:  80%|########  | 4/5 [00:06<00:01,  1.86s/it]    Loading cifar10: 100%|##########| 5/5 [00:07<00:00,  1.64s/it]    Loading cifar10: 100%|##########| 5/5 [00:07<00:00,  1.52s/it]
-    Dataset cifar10 loaded in10.33s.
+            ... cifar-10-python.tar.gz already exists
+    Loading cifar10:   0%|          | 0/5 [00:00<?, ?it/s]    Loading cifar10:  20%|##        | 1/5 [00:03<00:13,  3.34s/it]    Loading cifar10:  40%|####      | 2/5 [00:04<00:07,  2.65s/it]    Loading cifar10:  60%|######    | 3/5 [00:05<00:04,  2.08s/it]    Loading cifar10:  80%|########  | 4/5 [00:05<00:01,  1.53s/it]    Loading cifar10: 100%|##########| 5/5 [00:06<00:00,  1.37s/it]    Loading cifar10: 100%|##########| 5/5 [00:06<00:00,  1.28s/it]
+    Dataset cifar10 loaded in7.01s.
 
 
 
@@ -46,7 +47,7 @@ This example shows how to download/load/import CIFAR10
     import symjax
     import matplotlib.pyplot as plt
 
-    cifar10 = symjax.data.cifar10.load()
+    cifar10 = symjax.data.cifar10()
 
     plt.figure(figsize=(10, 4))
     for i in range(10):
@@ -56,17 +57,19 @@ This example shows how to download/load/import CIFAR10
         image = cifar10["train_set/images"][i]
         label = cifar10["train_set/labels"][i]
 
-        plt.imshow(image.transpose((1, 2, 0)) / image.max(), aspect="auto", cmap="Greys")
+        plt.imshow(
+            image.transpose((1, 2, 0)) / image.max(), aspect="auto", cmap="Greys"
+        )
         plt.xticks([])
         plt.yticks([])
-        plt.title("{}:{}".format(label, symjax.data.cifar10.label_to_name[label]))
+        plt.title("{}:{}".format(label, cifar10["label_to_name"][label]))
 
     plt.tight_layout()
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  10.720 seconds)
+   **Total running time of the script:** ( 0 minutes  7.259 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_datasets_plot_cifar10.py:

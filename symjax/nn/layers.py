@@ -551,16 +551,16 @@ class BatchNormalization(Layer):
         axis,
         deterministic,
         const=0.001,
-        beta1=0.99,
-        beta2=0.99,
+        beta_1=0.99,
+        beta_2=0.99,
         W=T.ones,
         b=T.zeros,
         trainable_W=True,
         trainable_b=True,
     ):
 
-        self.beta1 = beta1
-        self.beta2 = beta2
+        self.beta_1 = beta_1
+        self.beta_2 = beta_2
         self.const = const
         self.axis = axis
         self.deterministic = deterministic
@@ -584,11 +584,11 @@ class BatchNormalization(Layer):
         self.input_var = input.var(r_axes, keepdims=True)
 
         self.avg_mean = schedules.ExponentialMovingAverage(
-            self.input_mean, beta1, debias=False,
+            self.input_mean, beta_1, debias=False,
         )[1]
         self.avg_var = schedules.ExponentialMovingAverage(
             self.input_var,
-            beta2,
+            beta_2,
             init=T.ones_like(self.input_var, detach=True),
             debias=False,
         )[1]

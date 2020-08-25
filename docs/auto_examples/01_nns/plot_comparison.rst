@@ -9,10 +9,10 @@
     .. _sphx_glr_auto_examples_01_nns_plot_comparison.py:
 
 
-RNN/GRU example
-===========
+Image classification, Keras and SymJAX
+======================================
 
-example of vanilla RNN for time series regression
+example of image classification with deep networks using Keras and SymJAX
 
 
 
@@ -24,8 +24,8 @@ example of vanilla RNN for time series regression
  .. code-block:: none
 
             ... cifar-10-python.tar.gz already exists
-    Loading cifar10:   0%|          | 0/5 [00:00<?, ?it/s]    Loading cifar10:  20%|##        | 1/5 [00:02<00:09,  2.26s/it]    Loading cifar10:  40%|####      | 2/5 [00:03<00:05,  1.86s/it]    Loading cifar10:  60%|######    | 3/5 [00:03<00:03,  1.51s/it]    Loading cifar10:  80%|########  | 4/5 [00:04<00:01,  1.13s/it]    Loading cifar10: 100%|##########| 5/5 [00:05<00:00,  1.06s/it]    Loading cifar10: 100%|##########| 5/5 [00:05<00:00,  1.01s/it]
-    Dataset cifar10 loaded in5.62s.
+    Loading cifar10:   0%|          | 0/5 [00:00<?, ?it/s]    Loading cifar10:  20%|##        | 1/5 [00:03<00:12,  3.01s/it]    Loading cifar10:  40%|####      | 2/5 [00:03<00:07,  2.40s/it]    Loading cifar10:  60%|######    | 3/5 [00:04<00:03,  1.91s/it]    Loading cifar10:  80%|########  | 4/5 [00:04<00:01,  1.41s/it]    Loading cifar10: 100%|##########| 5/5 [00:05<00:00,  1.29s/it]    Loading cifar10: 100%|##########| 5/5 [00:05<00:00,  1.20s/it]
+    Dataset cifar10 loaded in6.93s.
 
 
 
@@ -96,7 +96,9 @@ example of vanilla RNN for time series regression
                     loss = tf.reduce_mean(
                         tf.nn.sparse_softmax_cross_entropy_with_logits(y, preds)
                     )
-                accu += tf.reduce_mean(tf.cast(y == tf.argmax(preds, 1), "float32"))
+                accu += tf.reduce_mean(
+                    tf.cast(y == tf.argmax(preds, 1), "float32")
+                )
                 grads = tape.gradient(loss, model.trainable_variables)
                 optimizer.apply_gradients(zip(grads, model.trainable_variables))
             print("training", accu / (len(train_x) // batch_size))
@@ -105,7 +107,9 @@ example of vanilla RNN for time series regression
                 test_x, test_y, batch_size=batch_size, option="continuous"
             ):
                 preds = model(x, training=False)
-                accu += tf.reduce_mean(tf.cast(y == tf.argmax(preds, 1), "float32"))
+                accu += tf.reduce_mean(
+                    tf.cast(y == tf.argmax(preds, 1), "float32")
+                )
             print(accu / (len(test_x) // batch_size))
 
 
@@ -143,7 +147,9 @@ example of vanilla RNN for time series regression
             for i in range(6):
                 out = nn.layers.Dense(out, 4000)
                 out = nn.relu(
-                    nn.layers.BatchNormalization(out, [1], deterministic=deterministic)
+                    nn.layers.BatchNormalization(
+                        out, [1], deterministic=deterministic
+                    )
                 )
 
         outputs = nn.layers.Dense(out, 10)
@@ -192,7 +198,7 @@ example of vanilla RNN for time series regression
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  5.914 seconds)
+   **Total running time of the script:** ( 0 minutes  7.100 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_nns_plot_comparison.py:

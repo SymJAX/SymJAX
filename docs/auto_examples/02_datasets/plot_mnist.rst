@@ -28,8 +28,9 @@ This example shows how to download/load/import MNIST
 
  .. code-block:: none
 
+            ... mnist.pkl.gz already exists
     Loading mnist
-    Dataset mnist loaded in 1.17s.
+    Dataset mnist loaded in 0.81s.
 
 
 
@@ -46,7 +47,7 @@ This example shows how to download/load/import MNIST
     import symjax
     import matplotlib.pyplot as plt
 
-    mnist = symjax.data.mnist.load()
+    mnist = symjax.data.mnist()
 
     plt.figure(figsize=(10, 4))
     for i in range(10):
@@ -61,7 +62,7 @@ This example shows how to download/load/import MNIST
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  1.547 seconds)
+   **Total running time of the script:** ( 0 minutes  1.088 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_datasets_plot_mnist.py:

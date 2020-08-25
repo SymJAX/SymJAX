@@ -27,8 +27,8 @@ example of vanilla RNN for time series regression
 
  .. code-block:: none
 
-    /home/vrael/SymJAX/gallery/01_nns/plot_rnn.py:90: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
-      plt.show()
+    /home/vrael/anaconda3/lib/python3.7/site-packages/matplotlib/figure.py:445: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+      % get_backend())
 
 
 
@@ -128,7 +128,7 @@ example of vanilla RNN for time series regression
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  47.108 seconds)
+   **Total running time of the script:** ( 0 minutes  46.737 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_nns_plot_rnn.py:

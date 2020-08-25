@@ -89,10 +89,10 @@ Introductory examples that teach how to use SymJAX.
 
 .. only:: html
 
- .. figure:: /auto_examples/images/thumb/sphx_glr_plot_tps_thumb.svg
+ .. figure:: /auto_examples/images/thumb/sphx_glr_plot_learn_interp_pixel_thumb.svg
      :alt: Pixel interpolation learning
 
-     :ref:`sphx_glr_auto_examples_plot_tps.py`
+     :ref:`sphx_glr_auto_examples_plot_learn_interp_pixel.py`
 
 .. raw:: html
 
@@ -102,7 +102,7 @@ Introductory examples that teach how to use SymJAX.
 .. toctree::
    :hidden:
 
-   /auto_examples/plot_tps
+   /auto_examples/plot_learn_interp_pixel
 
 .. raw:: html
 
@@ -148,14 +148,14 @@ Introductory examples that teach how to use SymJAX.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="In this example we demonstrate how to perform a simple optimization with Adam in TF and SymJAX">
+    <div class="sphx-glr-thumbcontainer" tooltip="In this example we demonstrate how to employ the utility functions from symjax.tensor.interpola...">
 
 .. only:: html
 
- .. figure:: /auto_examples/images/thumb/sphx_glr_timing_adam_thumb.png
-     :alt: Adam TF and SymJAX
+ .. figure:: /auto_examples/images/thumb/sphx_glr_plot_image_transformation_thumb.svg
+     :alt: Basic image transform (TPS/affine)
 
-     :ref:`sphx_glr_auto_examples_timing_adam.py`
+     :ref:`sphx_glr_auto_examples_plot_image_transformation.py`
 
 .. raw:: html
 
@@ -165,7 +165,28 @@ Introductory examples that teach how to use SymJAX.
 .. toctree::
    :hidden:
 
-   /auto_examples/timing_adam
+   /auto_examples/plot_image_transformation
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this example we demonstrate how to perform a simple optimization with Adam in TF and SymJAX ...">
+
+.. only:: html
+
+ .. figure:: /auto_examples/images/thumb/sphx_glr_plot_timing_adam_thumb.svg
+     :alt: Computation times
+
+     :ref:`sphx_glr_auto_examples_plot_timing_adam.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/plot_timing_adam
 
 .. raw:: html
 
@@ -247,12 +268,12 @@ Deep Neural Networks
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="example of vanilla RNN for time series regression">
+    <div class="sphx-glr-thumbcontainer" tooltip="example of image classification with deep networks using Keras and SymJAX">
 
 .. only:: html
 
  .. figure:: /auto_examples/01_nns/images/thumb/sphx_glr_plot_comparison_thumb.png
-     :alt: RNN/GRU example
+     :alt: Image classification, Keras and SymJAX
 
      :ref:`sphx_glr_auto_examples_01_nns_plot_comparison.py`
 

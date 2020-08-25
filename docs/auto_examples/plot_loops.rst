@@ -129,7 +129,7 @@ We then demonstrate how to do a simple for loop and then a while loop.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.447 seconds)
+   **Total running time of the script:** ( 0 minutes  0.397 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_loops.py:

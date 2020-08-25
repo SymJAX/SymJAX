@@ -108,7 +108,7 @@ def load(path=None):
         "labels": y,
         "names": labels,
         "XC_identifiers": XC,
-        "INFOS": __INFO__,
+        "DOC": DOC,
     }
 
     print("Dataset picidae loaded in {0:.2f}s.".format(time.time() - t0))

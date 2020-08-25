@@ -13,7 +13,7 @@ This example shows how to download/load/import speech picidae
 import symjax
 import matplotlib.pyplot as plt
 
-picidae = symjax.data.picidae.load()
+picidae = symjax.data.picidae()
 
 plt.figure(figsize=(10, 4))
 for i in range(10):

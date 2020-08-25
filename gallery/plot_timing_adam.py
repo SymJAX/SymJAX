@@ -1,8 +1,9 @@
 """
-Adam TF and SymJAX
-==================
+Computation times
+=================
 
-In this example we demonstrate how to perform a simple optimization with Adam in TF and SymJAX
+In this example we demonstrate how to perform a simple optimization with Adam
+in TF and SymJAX and compare the computation time
 
 """
 
@@ -52,11 +53,11 @@ def TF1(x, y, N, preallocate=False):
     if not preallocate:
         t = time.time()
         for i in range(N):
-            l = sess.run([tf_loss, train_op], feed_dict={tf_input: x, tf_output: y})
+            sess.run(train_op, feed_dict={tf_input: x, tf_output: y})
     else:
         t = time.time()
         for i in range(N):
-            l = sess.run([tf_loss, train_op])
+            sess.run(train_op)
     return time.time() - t
 
 
@@ -105,9 +106,7 @@ def SJ(x, y, N, preallocate=False):
 
     optimizers.Adam(sj_loss, lr)
 
-    train = symjax.function(
-        sj_input, sj_output, outputs=sj_loss, updates=symjax.get_updates()
-    )
+    train = symjax.function(sj_input, sj_output, updates=symjax.get_updates())
 
     if preallocate:
         import jax
@@ -117,7 +116,7 @@ def SJ(x, y, N, preallocate=False):
 
     t = time.time()
     for i in range(N):
-        l = train(x, y)
+        train(x, y)
 
     return time.time() - t
 
@@ -129,25 +128,16 @@ for pre in [False, True]:
         print(pre, N)
         print("TF1")
         values.append(TF1(X, Y, N, pre))
-        print("TF2")
-        values.append(TF2(X, Y, N, pre))
+        # print("TF2")
+        # values.append(TF2(X, Y, N, pre))
         print("SJ")
         values.append(SJ(X, Y, N, pre))
 
 
-values = np.array(values).reshape((2, len(Ns), 3))
+values = np.array(values).reshape((2, len(Ns), 2))
 
 for i, ls in enumerate(["-", "--"]):
-    for j, c in enumerate(["r", "g", "b"]):
-        plt.plot(values[i, :, j], linestyle=ls, c=c, linewidth=3, alpha=0.8)
-plt.legend(
-    [
-        "TF1 no prealloc.",
-        "TF2 no prealloc.",
-        "SJ no prealloc.",
-        "TF1 prealloc.",
-        "TF2 prealloc.",
-        "SJ prealloc.",
-    ]
-)
+    for j, c in enumerate(["r", "g"]):
+        plt.plot(Ns, values[i, :, j], linestyle=ls, c=c, linewidth=3, alpha=0.8)
+plt.legend(["TF1 no prealloc.", "SJ no prealloc.", "TF1 prealloc.", "SJ prealloc."])
 plt.show()
