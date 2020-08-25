@@ -192,7 +192,7 @@ class Buffer(dict):
         else:
             batch = np.random.choice(indices, size=length)
 
-        batch = indices[:length]
+        # batch = indices[:length]
         self.current_indices = batch
 
         outputs = []
@@ -322,20 +322,19 @@ def run(
 ):
     global_step = 0
     losses = []
-    for i in range(max_episodes):
+    for episode in range(max_episodes):
         state = env.reset()
 
         for j in range(max_episode_steps):
-
-            action = agent.choose_action(state)
+            action = agent.get_action(state)
             global_step += 1
 
             if noise:
-                action = noise(action, episode=i)
+                action = noise(action, episode=episode)
             if action_processor:
                 action = action_processor(action)
 
-            value = agent.get_value(state)
+            value = 0  # agent.get_value(state)
 
             reward = 0
             for k in range(skip_frames):
@@ -352,7 +351,7 @@ def run(
                 "reward": reward,
                 "next-state": next_state,
                 "terminal": terminal,
-                "episode": i,
+                "episode": episode,
             }
             buffer.push(base)
 
@@ -365,13 +364,13 @@ def run(
                 and global_step % update_every == 0
                 and not wait_end_path
             ):
-                losses.append(agent.train(buffer, episode=i, step=j))
+                losses.append(agent.train(buffer, episode=episode, step=j))
 
             if terminal or j == (max_episode_steps - 1):
 
                 print(
                     "Episode:",
-                    i,
+                    episode,
                     ", return:",
                     buffer.episode_reward,
                     "episode_length:",
@@ -393,4 +392,19 @@ def run(
                 break
         if reset_each_episode:
             buffer.reset()
-    return (returns, q_losses, mu_losses)
+        # Testing:
+        TEST = 10
+        if episode % 10 == 0 and episode > 50:
+            total_reward = 0
+            for i in range(TEST):
+                state = env.reset()
+                for j in range(200):
+                    # env.render()
+                    action = agent.get_action(state)  # direct action for test
+                    state, reward, done, _ = env.step(action)
+                    total_reward += reward
+                    if done:
+                        break
+            ave_reward = total_reward / TEST
+            print("episode: ", episode, "Evaluation Average Reward:", ave_reward)
+    return 0

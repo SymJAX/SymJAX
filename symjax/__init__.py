@@ -8,6 +8,7 @@ from . import probabilities
 from . import nn
 from . import tensor
 from . import data
+from . import rl
 
 from .base import *
 from ._version import get_versions
@@ -17,4 +18,4 @@ del get_versions
 
 
 _graphs = [Graph("default")]
-__all__ = ["data", "tensor", "nn", "probabilities"]
+__all__ = ["data", "tensor", "nn", "probabilities", "rl"]

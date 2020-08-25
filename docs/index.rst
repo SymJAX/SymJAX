@@ -51,6 +51,11 @@ We briefly describe below the structure of `SymJAX`_ and what are (in term of fu
 
 - :ref:`symjax-probabilities` : like :py:mod:`tensorflow-probabilities`
 
+- :ref:`symjax-rl` : like `tfagents`_ or OpenAI `SpinningUp`_ and `Baselines`_ (no environment is implemented as `Gym`_ already provides a large collection), submodules are
+
+  + :py:mod:`symjax.rl.utils` providing utilities to interesact with environments, play, learn, buffers, ...
+  + :py:mod:`symjax.rl.agents` providing the basic agents such as DDPG, PPO, DQN, ...
+
 **Roadmap of incoming updates** : :ref:`roadmap`
 
 
@@ -105,6 +110,7 @@ Gallery
   modules/schedules
   modules/losses
   modules/probabilities
+  modules/rl
 
 
 
@@ -118,3 +124,7 @@ Gallery
 .. _Tensorflow1: https://www.tensorflow.org/
 .. _NetworkX: https://networkx.github.io/
 .. _optax: https://github.com/deepmind/optax
+.. _tfagents: https://www.tensorflow.org/agents/overview
+.. _SpinningUp: https://openai.com/blog/spinning-up-in-deep-rl/
+.. _Baselines: https://github.com/openai/baselines
+.. _Gym: https://gym.openai.com/

@@ -439,6 +439,8 @@ class Scope:
 
     def save_variables(self, path):
         """Save graph."""
+        if ".npz" != path[:-4]:
+            path += ".npz"
         numpy.savez(
             path, **dict([(v.name, symjax.tensor.get(v)) for v in self.variables]),
         )
@@ -493,42 +495,6 @@ class Scope:
             count += 1
 
         return name + "_" + str(count), scope
-
-    # def add(self, tensor):
-
-    #     if not t.isvar(tensor) or type(tensor) == tuple:
-    #         return
-
-    #     # fake graph entrance if not used by user
-    #     if self.full_name is None:
-    #         self.__enter__()
-
-    #     # in this case we were given updates
-    #     if type(tensor) == dict:
-    #         self.graph._updates.update(tensor)
-    #         return
-
-    #     tensor.scope = self.full_name
-    #     name = self.full_name + tensor.name
-    #     if isinstance(tensor, symjax.tensor.Placeholder):
-    #         names = self.graph._placeholders
-    #     elif isinstance(tensor, symjax.tensor.Variable):
-    #         names = self.graph._variables
-    #     else:
-    #         names = self.graph._ops
-
-    #     if name not in names.keys():
-    #         names[name] = tensor
-    #         return
-
-    #     count = 1
-    #     while True:
-    #         if name + "_" + str(count) in names.keys():
-    #             count += 1
-    #         else:
-    #             break
-    #     names[name + "_" + str(count)] = tensor
-    #     tensor._set_name(tensor.name + "_" + str(count))
 
 
 def reset_variables(name="*", scope="*", trainable=None):
@@ -587,38 +553,75 @@ def reset_variables(name="*", scope="*", trainable=None):
 
 
 def save_variables(
-    name, path, scope="*", trainable=None,
+    path_or_file, name="*", scope="*", trainable=None,
 ):
-    """Save graph."""
+    """saves the graph variables.
+
+    The saving is done via ``numpy.savez`` for fast and compressed storage.
+
+    Parameters:
+    -----------
+
+    path_or_file: str or file
+        the path and name of the file to save the variables in or an
+        open file object
+
+    name: str (optional)
+        the name string that the variables to save must match
+
+    scope: str (optional)
+        the scope name string that the variables to save must match
+
+    trainable: bool or None
+        the option of the variables to save (``True``, ``False`` or ``None``)
+
+
+    """
+    if type(path_or_file) == str:
+        if path_or_file[-4:] != ".npz":
+            path_or_file += ".npz"
     variables = get_variables(name, scope, trainable)
     numpy.savez(
-        path, **dict([(v.scope + v.name, symjax.tensor.get(v),) for v in variables]),
+        path_or_file,
+        **dict([(v.scope + v.name, symjax.tensor.get(v),) for v in variables]),
     )
 
 
-def load_variables(name, path_or_file, scope_mapping=None):
-    """Load graph."""
+def load_variables(path_or_file, name="*", scope="*", trainable=None):
+    """loads the graph variables.
+
+    The loading is done via ``numpy.savez`` for fast and compressed storage.
+
+    Parameters:
+    -----------
+
+    path_or_file: str or file
+        the path and name of the file to load the variables from or an
+        open file object
+
+    name: str (optional)
+        the name string that the variables to load must match
+
+    scope: str (optional)
+        the scope name string that the variables to load must match
+
+    trainable: bool or None
+        the option of the variables to save (``True``, ``False`` or ``None``)
+
+
+    """
 
     if type(path_or_file) == str:
         if path_or_file[-4:] != ".npz":
             path_or_file += ".npz"
 
-    scope_mapping = scope_mapping or {}
-
-    matched = fnmatch.filter(symjax._variables.keys(), name)
+    variables = get_variables(name, scope, trainable=trainable)
     data = numpy.load(path_or_file)
-    for name in matched:
-        if symjax._variables[name].scope in scope_mapping:
-            name_in_file = (
-                scope_mapping[symjax._variables[name].scope]
-                + "/"
-                + symjax._variables[name].name
-            )
-        else:
-            name_in_file = name
+    for var in variables:
+        name_in_file = var.scope + var.name
         if name_in_file not in data:
             raise Warning("{} not in loaded file".format(name_in_file))
-        symjax._variables[name].update(data[name_in_file])
+        var.update(data[name_in_file])
 
 
 def get_variables(name="*", scope="/", trainable=True):

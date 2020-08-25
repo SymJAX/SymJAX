@@ -244,6 +244,27 @@ Deep Neural Networks
    :hidden:
 
    /auto_examples/01_nns/plot_mnist_classif
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="example of vanilla RNN for time series regression">
+
+.. only:: html
+
+ .. figure:: /auto_examples/01_nns/images/thumb/sphx_glr_plot_comparison_thumb.png
+     :alt: RNN/GRU example
+
+     :ref:`sphx_glr_auto_examples_01_nns_plot_comparison.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/01_nns/plot_comparison
 .. raw:: html
 
     <div class="sphx-glr-clear"></div>
