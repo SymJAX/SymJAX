@@ -5,7 +5,7 @@ Development
 
 
 The SymJAX project was started by Randall Balestriero in early 2020.
-As an open-source project, we highly welcome contributions (`current contributors <https://github.com/RandallBalestriero/SymJAX/graphs/contributors>`_) ! If you are willing to help, we recommand to follow the following steps before requesting a pull request
+As an open-source project, we highly welcome contributions (`current contributors <https://github.com/RandallBalestriero/SymJAX/graphs/contributors>`_) !
 
 
 Philosophy
@@ -15,7 +15,7 @@ SymJAX started from the need to combine the best functionalities
 of Theano, Tensorflow (v1) and Lasagne. While we propose various deep learning
 oriented methods, SymJAX shall remain as general as possible in its core,
 methods should be grouped as much as possible into specialized submodules, and
-a complete documentation should be provided, preferably along a working example
+a complete documentation should be provided, preferably along with a working example
 located in the Gallery.
 
 
@@ -25,9 +25,12 @@ How to contribute
 
 If you are willing to help, we recommend to follow the following steps before requesting a pull request. Recall that
 
-#. **Coding conventions**: we used the `PEP8 style guide for Python Code <https://www.python.org/dev/peps/pep-0008/>`_
+#. **Coding conventions**: we used the `PEP8 style guide for Python Code <https://www.python.org/dev/peps/pep-0008/>`_ and the `black <https://black.readthedocs.io/en/stable/>`_ formatting
 
-#. **Docstrings**: we used the `numpydoc docstring guide <https://numpydoc.readthedocs.io/en/latest/format.html>`_ for documenting the functions directly from the docstrings and automatically generating the documentation with `sphinx <https://www.sphinx-doc.org/en/master/>`_. Please provide codes with up-to-date docstrings.
+#. **Docstrings**: we use the `numpydoc docstring guide <https://numpydoc.readthedocs.io/en/latest/format.html>`_ for documenting the functions directly from the docstrings and automatically generating the documentation with `sphinx <https://www.sphinx-doc.org/en/master/>`_. Please provide codes with up-to-date docstrings.
+
+#. **Continuous Integration**: to ensure that all the SymJAX functionalities are tested after each modifition run ``pytest`` from the main SymJAX directory. All tests should pass before considering a change to be successful. If new functionalities are added, it is highly preferable to also add a simple test in the ``tests/`` directory to ensure that results are as expected. A Github action will automatically test the code at each ``push`` (see :ref:`testcode`).
+
 
 
 Build/Test the doc
@@ -59,6 +62,10 @@ documentations (at `symjax.readthedocs.io <https://symjax.readthedocs.io/>`_) is
 the ``.readthedocs.yml`` and the ``docs/conf.py`` configuration files.
 For each automated documentation build you can see the
 `documentation build logs <https://readthedocs.org/projects/symjax/builds/>`_.
+
+
+.. _testcode:
+
 
 Test the code
 '''''''''''''

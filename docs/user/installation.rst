@@ -4,20 +4,19 @@ Installation
 ============
 
 
-SymJAX has a couple of prerequisites that need to be installed first without
-hard version requirements. However, as SymJAX is tightly coupled with Jax, it will
-require a recent version of Jax.
+SymJAX has a couple of prerequisites that need to be installed first.
 
 
 CPU only installation
 ---------------------
 
-Installation of SymJAX and all its dependencies (including Jax) for CPU only
-support is done simply as follows
+Installation of SymJAX and all its dependencies (including Jax). For CPU only support is done simply as follows
 
     .. code-block:: bash
 
-        $ pip install symjax
+        $ pip install --upgrade jaxlib
+        $ pip install --upgrade jax
+        $ pip install --upgrade symjax
  
 
 GPU installation
@@ -36,12 +35,12 @@ In short, the steps involve
 
     .. code-block:: bash
 
-        $ pip install symjax
+        $ pip install --upgrade symjax
 
 
 
-Manual (bleeding-edge) installation of SymJAX
----------------------------------------------
+Manual (local/bleeding-edge) installation of SymJAX
+---------------------------------------------------
 
 In place of the base installation of SymJAX from the latest official release from PyPi, one can install the latest version of SymJAX from the github repository as follows
 
@@ -57,7 +56,19 @@ In place of the base installation of SymJAX from the latest official release fro
     .. code-block:: bash
 
         $ cd SymJAX
-        $ pip install -r requirements.txt
         $ pip install .
+
+Note that whenever changes are made to the SymJAX github repository, one can pull those changes bu running
+
+    .. code-block:: bash
+
+        $ git pull
+
+from within the cloned repository. However the changes won't impact the installed version unless the install was done with
+
+    .. code-block:: bash
+
+        $ pip install -e .
+
 
 
