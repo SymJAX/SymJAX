@@ -227,7 +227,12 @@ def PiecewiseConstant(init, steps_and_values):
         all_steps = T.stack([0] + list(steps_and_values.keys()) + [np.inf])
         all_values = T.stack([init] + list(steps_and_values.values()) + [0])
 
-        step = T.Variable(0, trainable=False, name="step", dtype="int32",)
+        step = T.Variable(
+            0,
+            trainable=False,
+            name="step",
+            dtype="int32",
+        )
 
         value = all_values[(step >= all_steps).argmin() - 1]
 

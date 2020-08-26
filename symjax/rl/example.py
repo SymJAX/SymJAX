@@ -53,9 +53,9 @@ init = 0.1 * (env.action_space.high - env.action_space.low)
 # noise = utils.OrnsteinUhlenbeckProcess(
 #     dim=agent.num_actions, initial_noise_scale=init
 # )
-
+act = actor(batch_size=128, state_shape=(3,))
 agent = DDPG(
-    actor(batch_size=128, state_shape=(3,)),
+    act,
     critic(batch_size=128, state_shape=(3,), action_shape=(1,)),
     lr=1e-3,
 )
@@ -75,5 +75,17 @@ agent = DDPG(
 # symjax.save_variables("saved_model")
 symjax.load_variables("saved_model")
 # run_pendulum(env, RL)
-r, s = utils.play(env, agent, 10, 200)
-print(r.sum() / s.sum())
+# r, s = utils.play(env, agent, 10, 200)
+# print(r.sum() / s.sum())
+
+probe = symjax.function(act.state, outputs=act.action)
+grid = np.meshgrid(np.linspace(-np.pi, np.pi, 200), np.linspace(-8, 8))
+grid = np.stack([grid[0].flatten(), np.zeros(200 * 200), grid[1].flatten()], 1)
+
+a = []
+for g in grid:
+    a.append(probe(g[None]))
+
+a = np.array(a).reshape((200, 200))
+plt.imshow(a)
+plt.show()

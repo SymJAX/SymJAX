@@ -265,7 +265,11 @@ def read(
     _cuelabels = [m["label"] for m in _markerslist]
 
     return (
-        (rate, data, bits,)
+        (
+            rate,
+            data,
+            bits,
+        )
         + ((_cue,) if readmarkers else ())
         + ((_cuelabels,) if readmarkerlabels else ())
         + ((_markerslist,) if readmarkerslist else ())

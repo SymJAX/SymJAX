@@ -91,7 +91,8 @@ def _extract_image_patches(
         p1 = window_shape[0] - 1
         p2 = window_shape[1] - 1
         image = jnp.pad(
-            image, [(0, 0), (0, 0), (p1 // 2, p1 - p1 // 2), (p2 // 2, p2 - p2 // 2)],
+            image,
+            [(0, 0), (0, 0), (p1 // 2, p1 - p1 // 2), (p2 // 2, p2 - p2 // 2)],
         )
     if not hasattr(hop, "__len__"):
         hop = (hop, hop)

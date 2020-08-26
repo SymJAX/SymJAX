@@ -288,7 +288,12 @@ class Gaussian:
     """dXt = theta*(mu-Xt)*dt + sigma*dWt"""
 
     def __init__(
-        self, dim, mu=0.0, sigma=1, noise_decay=0.99, initial_noise_scale=1,
+        self,
+        dim,
+        mu=0.0,
+        sigma=1,
+        noise_decay=0.99,
+        initial_noise_scale=1,
     ):
         self.mu = mu
         self.sigma = sigma
