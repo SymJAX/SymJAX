@@ -27,6 +27,7 @@ class Actor(object):
     def __init__(self, batch_size, state_shape, tau=0.99):
         self.tau = tau
         self.batch_size = batch_size
+        self.state_shape = state_shape
         self.states = T.Placeholder((batch_size,) + state_shape, "float32")
         self.state = T.Placeholder((1,) + state_shape, "float32")
         with symjax.Scope("actor"):
@@ -73,14 +74,14 @@ class Actor(object):
         self.update_target(0)
 
     def get_action(self, state):
-        if state.ndim < 2:
+        if state.ndim == len(self.state_shape):
             state = state[np.newaxis, :]
         if not hasattr(self, "_get_action"):
             raise RuntimeError("actor not well initialized")
         return self._get_action(state)
 
     def get_noise_action(self, state):
-        if state.ndim < 2:
+        if state.ndim == len(self.state_shape):
             state = state[np.newaxis, :]
         if not hasattr(self, "_get_noise_action"):
             raise RuntimeError("actor not well initialized")
@@ -97,14 +98,14 @@ class Actor(object):
         return self._get_noise_actions(state)
 
     def get_target_action(self, state):
-        if state.ndim < 2:
+        if state.ndim == len(self.state_shape):
             state = state[np.newaxis, :]
         if not hasattr(self, "_get_target_action"):
             raise RuntimeError("actor not well initialized")
         return self._get_target_action(state)
 
     def get_target_noise_action(self, state):
-        if state.ndim < 2:
+        if state.ndim == len(self.state_shape):
             state = state[np.newaxis, :]
         if not hasattr(self, "_get_target_noise_action"):
             raise RuntimeError("actor not well initialized")
@@ -134,6 +135,8 @@ class Critic(object):
     def __init__(self, batch_size, state_shape, action_shape=None, tau=0.99):
         self.tau = tau
         self.batch_size = batch_size
+        self.state_shape = state_shape
+        self.action_shape = action_shape
         self.states = T.Placeholder(
             (batch_size,) + state_shape, "float32", name="critic_states"
         )
@@ -228,10 +231,10 @@ class Critic(object):
         self.update_target(0)
 
     def get_q_value(self, state, action=None):
-        if state.ndim < 2:
+        if state.ndim == len(self.state_shape):
             state = state[np.newaxis, :]
         if action:
-            if action.ndim < 2:
+            if action.ndim == len(self.action_shape):
                 action = action[np.newaxis, :]
         if not hasattr(self, "_get_q_value"):
             raise RuntimeError("critic not well initialized")
@@ -249,10 +252,10 @@ class Critic(object):
             return self._get_q_values(states)
 
     def get_target_q_value(self, state, action=None):
-        if state.ndim < 2:
+        if state.ndim == len(self.state_shape):
             state = state[np.newaxis, :]
         if action:
-            if action.ndim < 2:
+            if action.ndim == len(self.action_shape):
                 action = action[np.newaxis, :]
         if not hasattr(self, "_get_target_q_value"):
             raise RuntimeError("critic not well initialized")

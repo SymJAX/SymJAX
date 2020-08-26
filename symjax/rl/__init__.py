@@ -3,3 +3,4 @@
 
 from . import utils
 from . import agents
+from .ddpg import DDPG

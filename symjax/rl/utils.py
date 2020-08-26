@@ -394,17 +394,24 @@ def run(
             buffer.reset()
         # Testing:
         TEST = 10
-        if episode % 10 == 0 and episode > 50:
-            total_reward = 0
-            for i in range(TEST):
-                state = env.reset()
-                for j in range(200):
-                    # env.render()
-                    action = agent.get_action(state)  # direct action for test
-                    state, reward, done, _ = env.step(action)
-                    total_reward += reward
-                    if done:
-                        break
-            ave_reward = total_reward / TEST
-            print("episode: ", episode, "Evaluation Average Reward:", ave_reward)
+        rewards, steps = play(env, agent, 10, 200)
+        ave_reward = rewards.sum() / steps.sum()
+        print("episode: ", episode, "Evaluation Average Reward:", ave_reward)
     return 0
+
+
+def play(environment, agent, max_episodes, max_episode_steps):
+    episode_rewards = []
+    episode_steps = []
+    for i in range(max_episodes):
+        episode_rewards.append(0)
+        episode_rewards.append(0)
+        state = environment.reset()
+        for j in range(max_episode_steps):
+            episode_steps[-1] += 1
+            action = agent.get_action(state)
+            state, reward, done, _ = environment.step(action)
+            episode_reward[-1] += reward
+            if done:
+                break
+    return np.array(episode_rewards), np.array(episode_length)
