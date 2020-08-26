@@ -120,6 +120,18 @@ def test_clone_5():
     assert not np.allclose(outs[0], outs2[0])
 
 
+def test_clone_6():
+    sj.current_graph().reset()
+    a = T.ones(20).astype("float32")
+    final, each = T.scan(lambda c, i: (c + i, c + i), sequences=[a], init=float(0))
+    assert each.shape.get() == (20,)
+    each2 = each.clone({a: a * 4})
+    assert each2.shape.get() == (20,)
+    f = sj.function(outputs=[each, each2])
+    assert np.array_equal(f()[0], np.arange(20) + 1)
+    assert np.array_equal(f()[1], (np.arange(20) + 1) * 4)
+
+
 def test_clone_base():
     sj.current_graph().reset()
     w = T.Variable(1.0, dtype="float32")
@@ -153,3 +165,4 @@ if __name__ == "__main__":
     test_clone_3()
     test_clone_4()
     test_clone_5()
+    test_clone_6()

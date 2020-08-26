@@ -158,6 +158,11 @@ class Graph(nx.DiGraph):
             return input_givens[node]
         elif len(input_givens) == 0:
             return node
+        elif isinstance(node, t.OpItem):
+            parent = list(self.predecessors(node))[0]
+            print(parent)
+            index = int(self[parent][node]["name"].split("parent_index")[1])
+            return self.clone(parent, input_givens)[index]
         givens = input_givens.copy()
 
         # first we remove the redundant givens
