@@ -17,6 +17,7 @@ def init_b(shape):
 
 class actor(agents.Actor):
     def create_network(self, state):
+        state = T.stack([T.arccos(state[:, 0]), state[:, 2]], 1)
         input = nn.relu(nn.layers.Dense(state, 32))
         input = nn.relu(nn.layers.Dense(input, 32))
         input = nn.layers.Dense(input, 1)
@@ -54,22 +55,25 @@ init = 0.1 * (env.action_space.high - env.action_space.low)
 # )
 
 agent = DDPG(
-    actor(batch_size=64, state_shape=(3,)),
-    critic(batch_size=64, state_shape=(3,), action_shape=(1,)),
+    actor(batch_size=128, state_shape=(3,)),
+    critic(batch_size=128, state_shape=(3,), action_shape=(1,)),
+    lr=1e-3,
 )
 
-utils.run(
-    env,
-    agent,
-    buffer,
-    rewarder=None,
-    noise=None,
-    skip_frames=1,
-    update_after=10000,
-    wait_end_path=False,
-    max_episodes=20,
-)
+# utils.run(
+#     env,
+#     agent,
+#     buffer,
+#     rewarder=None,
+#     noise=None,
+#     skip_frames=1,
+#     update_after=10000,
+#     wait_end_path=False,
+#     max_episodes=250,
+# )
 
-symjax.save_variables("saved_model")
+# symjax.save_variables("saved_model")
 symjax.load_variables("saved_model")
 # run_pendulum(env, RL)
+r, s = utils.play(env, agent, 10, 200)
+print(r.sum() / s.sum())
