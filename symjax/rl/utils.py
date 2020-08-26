@@ -280,6 +280,7 @@ def run(
     skip_frames=1,
     reset_each_episode=False,
     wait_end_path=False,
+    eval_every=10,
 ):
     global_step = 0
     losses = []
@@ -334,14 +335,12 @@ def run(
                 #     buffer.finish_path(agent.get_v(state))
                 # else:
                 print(
-                    "Episode:",
-                    episode,
-                    ", return:",
-                    buffer.episode_reward,
-                    "episode_length:",
-                    j,
-                    "losses:",
-                    losses[-1:],
+                    "Episode: {}\n\
+                        return: {}\n\
+                        episode_length: {}\n\
+                        losses: {}".format(
+                        episode, buffer.episode_reward, j, losses[-1:]
+                    )
                 )
                 buffer.finish_path(0)
 
