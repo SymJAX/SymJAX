@@ -414,4 +414,4 @@ def play(environment, agent, max_episodes, max_episode_steps):
             episode_steps[-1] += 1
             if done:
                 break
-    return np.array(episode_rewards), np.array(episode_length)
+    return np.array(episode_rewards), np.array(episode_steps)

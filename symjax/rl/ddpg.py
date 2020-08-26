@@ -4,8 +4,7 @@ import symjax
 import numpy as np
 from symjax import nn
 import symjax.tensor as T
-import agents
-
+from . import agents
 
 # https://gist.github.com/heerad/1983d50c6657a55298b67e69a2ceeb44
 
