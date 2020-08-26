@@ -24,7 +24,12 @@ class Agent(object):
 
 
 class Actor(object):
-    def __init__(self, batch_size, state_shape, tau=0.99):
+    def __init__(self, batch_size, state_shape, tau=0.99, noise=None):
+        if noise is None:
+
+            def noise(action):
+                return action
+
         self.tau = tau
         self.batch_size = batch_size
         self.state_shape = state_shape
@@ -32,7 +37,9 @@ class Actor(object):
         self.state = T.Placeholder((1,) + state_shape, "float32")
         with symjax.Scope("actor"):
             self.actions = self.create_network(self.states)
+            self.noise_actions = noise(self.actions)
             self.action = self.actions.clone({self.states: self.state})
+            self.noise_action = self.noise_actions.clone({self.states: self.state})
 
         with symjax.Scope("target_actor"):
             self.target_actions = self.create_network(self.states)
@@ -40,25 +47,19 @@ class Actor(object):
 
         self.params = symjax.get_variables(scope="*actor", trainable=True)
 
-        self._get_actions = symjax.function(self.states, outputs=self.target_actions)
+        self._get_actions = symjax.function(self.states, outputs=self.actions)
         self._get_noise_actions = symjax.function(
-            self.states, outputs=self.target_actions
+            self.states, outputs=self.noise_actions
         )
         self._get_action = symjax.function(self.state, outputs=self.action[0])
         self._get_noise_action = symjax.function(
-            self.state, outputs=self.target_action[0]
+            self.state, outputs=self.noise_action[0]
         )
 
         self._get_target_actions = symjax.function(
             self.states, outputs=self.target_actions
         )
-        self._get_target_noise_actions = symjax.function(
-            self.states, outputs=self.target_actions
-        )
         self._get_target_action = symjax.function(
-            self.state, outputs=self.target_action[0]
-        )
-        self._get_target_noise_action = symjax.function(
             self.state, outputs=self.target_action[0]
         )
 
@@ -104,22 +105,10 @@ class Actor(object):
             raise RuntimeError("actor not well initialized")
         return self._get_target_action(state)
 
-    def get_target_noise_action(self, state):
-        if state.ndim == len(self.state_shape):
-            state = state[np.newaxis, :]
-        if not hasattr(self, "_get_target_noise_action"):
-            raise RuntimeError("actor not well initialized")
-        return self._get_target_noise_action(state)
-
     def get_target_actions(self, state):
         if not hasattr(self, "_get_target_actions"):
             raise RuntimeError("actor not well initialized")
         return self._get_target_actions(state)
-
-    def get_target_noise_actions(self, state):
-        if not hasattr(self, "_get_target_noise_actions"):
-            raise RuntimeError("actor not well initialized")
-        return self._get_target_noise_actions(state)
 
     def update_target(self, tau=None):
         tau = tau or self.tau
@@ -280,3 +269,50 @@ class Critic(object):
 
     def create_network(self, states, actions=None):
         raise RuntimeError("Not implemented, user should define its own")
+
+
+class OrnsteinUhlenbeckProcess:
+    """dXt = theta*(mu-Xt)*dt + sigma*dWt"""
+
+    def __init__(
+        self,
+        mean=0.0,
+        std_dev=0.2,
+        theta=0.15,
+        dt=1e-2,
+        noise_decay=0.99,
+        initial_noise_scale=1,
+        init=None,
+    ):
+        self.theta = theta
+        self.mean = mean
+        self.std_dev = std_dev
+        self.dt = (dt,)
+        self.init = init
+        self.noise_decay = noise_decay
+        self.initial_noise_scale = initial_noise_scale
+        self.end_episode()
+
+    def __call__(self, action, episode):
+
+        with symjax.Scope("OUProcess"):
+            self.episode = T.Variable(1, "float32", name="episode", trainable=False)
+
+        self.noise_scale = self.initial_noise_scale * self.noise_decay ** episode
+
+        x = (
+            self.process
+            + self.theta * (self.mean - self.process) * self.dt
+            + self.std_dev * np.sqrt(self.dt) * np.random.normal(size=action.shape)
+        )
+        # Store x into process
+        # Makes next noise dependent on current one
+        self.process = x
+
+        return action + self.noise_scale * self.process
+
+    def end_episode(self):
+        if self.init is None:
+            self.process = np.zeros(1)
+        else:
+            self.process = self.init

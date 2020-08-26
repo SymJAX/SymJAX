@@ -240,50 +240,6 @@ class Buffer(dict):
         self.episode_reward = 0
 
 
-class OrnsteinUhlenbeckProcess:
-    """dXt = theta*(mu-Xt)*dt + sigma*dWt"""
-
-    def __init__(
-        self,
-        mean=0.0,
-        std_dev=0.2,
-        theta=0.15,
-        dt=1e-2,
-        noise_decay=0.99,
-        initial_noise_scale=1,
-        init=None,
-    ):
-        self.theta = theta
-        self.mean = mean
-        self.std_dev = std_dev
-        self.dt = (dt,)
-        self.init = init
-        self.noise_decay = noise_decay
-        self.initial_noise_scale = initial_noise_scale
-        self.end_episode()
-
-    def __call__(self, action, episode):
-
-        self.noise_scale = self.initial_noise_scale * self.noise_decay ** episode
-
-        x = (
-            self.process
-            + self.theta * (self.mean - self.process) * self.dt
-            + self.std_dev * np.sqrt(self.dt) * np.random.normal(size=action.shape)
-        )
-        # Store x into process
-        # Makes next noise dependent on current one
-        self.process = x
-
-        return action + self.noise_scale * self.process
-
-    def end_episode(self):
-        if self.init is None:
-            self.process = np.zeros(1)
-        else:
-            self.process = self.init
-
-
 class Gaussian:
     """dXt = theta*(mu-Xt)*dt + sigma*dWt"""
 
@@ -331,7 +287,7 @@ def run(
         state = env.reset()
 
         for j in range(max_episode_steps):
-            action = agent.get_action(state)
+            action = agent.get_noise_action(state)
             global_step += 1
 
             if noise:
@@ -377,14 +333,6 @@ def run(
                 # if not terminal:
                 #     buffer.finish_path(agent.get_v(state))
                 # else:
-                buffer.finish_path(0)
-
-                if wait_end_path and global_step > update_after:
-                    losses.append(agent.train(buffer, episode=i, step=j))
-
-                if noise:
-                    noise.end_episode()
-
                 print(
                     "Episode:",
                     episode,
@@ -395,6 +343,13 @@ def run(
                     "losses:",
                     losses[-1:],
                 )
+                buffer.finish_path(0)
+
+                if wait_end_path and global_step > update_after:
+                    losses.append(agent.train(buffer, episode=i, step=j))
+
+                if noise:
+                    noise.end_episode()
 
                 break
         if reset_each_episode:
@@ -402,8 +357,8 @@ def run(
 
         if episode % 10 == 0:
             rewards, steps = play(env, agent, 10, 200)
-        ave_reward = rewards.sum() / steps.sum()
-        print("episode: ", episode, "Evaluation Average Reward:", ave_reward)
+            ave_reward = rewards.sum() / steps.sum()
+            print("episode: ", episode, "Evaluation Average Reward:", ave_reward)
     return losses
 
 
