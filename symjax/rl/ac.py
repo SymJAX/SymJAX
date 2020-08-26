@@ -53,8 +53,7 @@ class ac:
                 pi = Categorical(logits=logits)
             else:
                 logstd = T.Variable(
-                    -0.5 * np.ones(num_actions, dtype=np.float32),
-                    name="logstd",
+                    -0.5 * np.ones(num_actions, dtype=np.float32), name="logstd",
                 )
                 pi = MultivariateNormal(mean=logits, diag_log_std=logstd)
 
@@ -71,15 +70,11 @@ class ac:
 
         with symjax.Scope("update_pi"):
             nn.optimizers.Adam(
-                actor_loss,
-                self.lr,
-                params=symjax.get_variables(scope="/actor/"),
+                actor_loss, self.lr, params=symjax.get_variables(scope="/actor/"),
             )
         with symjax.Scope("update_v"):
             nn.optimizers.Adam(
-                critic_loss,
-                self.lr,
-                params=symjax.get_variables(scope="/critic/"),
+                critic_loss, self.lr, params=symjax.get_variables(scope="/critic/"),
             )
 
         self.learn_pi = symjax.function(
@@ -99,10 +94,7 @@ class ac:
         single_action = actions.clone({state_ph: single_state})[0]
         single_v = critic_value.clone({state_ph: single_state})
 
-        self._act = symjax.function(
-            single_state,
-            outputs=[single_action, single_v],
-        )
+        self._act = symjax.function(single_state, outputs=[single_action, single_v],)
 
     def act(self, state):
         action, v = self._act(state)

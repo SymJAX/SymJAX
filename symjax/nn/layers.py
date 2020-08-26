@@ -74,11 +74,7 @@ class Upsample1D(Layer):
 
     def forward(self, input, repeat, axis=-1, mode="constant", value=0.0):
         return T.interpolation.upsample_1d(
-            input,
-            repeat=repeat,
-            axis=axis,
-            mode=mode,
-            value=value,
+            input, repeat=repeat, axis=axis, mode=mode, value=value,
         )
 
 
@@ -88,19 +84,9 @@ class Upsample2D(Layer):
 
     def forward(self, input, repeat, axis, mode="constant", value=0.0):
         p1 = T.upsample_1d(
-            input,
-            repeat=repeat[0],
-            axis=axis[0],
-            mode=mode,
-            value=value,
+            input, repeat=repeat[0], axis=axis[0], mode=mode, value=value,
         )
-        p2 = T.upsample_1d(
-            p1,
-            repeat=repeat[1],
-            axis=axis[1],
-            mode=mode,
-            value=value,
-        )
+        p2 = T.upsample_1d(p1, repeat=repeat[1], axis=axis[1], mode=mode, value=value,)
         return p2
 
 
@@ -129,10 +115,7 @@ class Dense(Layer):
             width_in = input.shape[-1]
 
         self.create_variable(
-            "W",
-            W,
-            (width_in, units),
-            trainable=trainable_W,
+            "W", W, (width_in, units), trainable=trainable_W,
         )
         self.create_variable("b", b, (units,), trainable=trainable_b)
 
@@ -174,10 +157,7 @@ class Conv1D(Layer):
         self.padding = padding
 
         self.create_variable(
-            "W",
-            W,
-            (n_filters, input.shape[1], filter_length),
-            trainable=trainable_W,
+            "W", W, (n_filters, input.shape[1], filter_length), trainable=trainable_W,
         )
         self.create_variable("b", b, (n_filters,), trainable=trainable_b)
         conv = T.signal.batch_convolve(
@@ -303,10 +283,7 @@ class Pool1D(Layer):
             self.strides = (1, 1, strides)
 
         return T.signal.pool(
-            input,
-            self.pool_shape,
-            strides=self.strides,
-            reducer=self.pool_type,
+            input, self.pool_shape, strides=self.strides, reducer=self.pool_type,
         )
 
 
@@ -325,10 +302,7 @@ class Pool2D(Layer):
             self.strides = (1, 1) + symjax.data.utils.as_tuple(strides, 2)
 
         return T.signal.pool(
-            input,
-            self.pool_shape,
-            strides=self.strides,
-            reducer=self.pool_type,
+            input, self.pool_shape, strides=self.strides, reducer=self.pool_type,
         )
 
 
@@ -600,9 +574,7 @@ class BatchNormalization(Layer):
         self.input_var = input.var(r_axes, keepdims=True)
 
         self.avg_mean = schedules.ExponentialMovingAverage(
-            self.input_mean,
-            beta_1,
-            debias=False,
+            self.input_mean, beta_1, debias=False,
         )[1]
         self.avg_var = schedules.ExponentialMovingAverage(
             self.input_var,
@@ -736,14 +708,7 @@ class GRU(Layer):
                 fn,
                 init=init_h,
                 sequences=[sequence.transpose((1, 0, 2))],
-                non_sequences=[
-                    self.Wh,
-                    self.Uh,
-                    self.bh,
-                    self.Wz,
-                    self.Uz,
-                    self.bz,
-                ],
+                non_sequences=[self.Wh, self.Uh, self.bh, self.Wz, self.Uz, self.bz,],
             )
 
         elif gate == "full":

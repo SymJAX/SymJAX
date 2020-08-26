@@ -39,10 +39,7 @@ nn.optimizers.Adam(loss + lossg, lr)
 
 
 train = symjax.function(
-    timeseries,
-    target,
-    outputs=[loss, lossg],
-    updates=symjax.get_updates(),
+    timeseries, target, outputs=[loss, lossg], updates=symjax.get_updates(),
 )
 
 predict = symjax.function(timeseries, outputs=[rnn[:, :, 0], gru[:, :, 0]])

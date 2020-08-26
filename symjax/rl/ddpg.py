@@ -76,7 +76,6 @@ class DDPG(agents.Agent):
         gradients = self._get_critic_gradients(s, actions)
 
         a_loss = self._train_actor(s, gradients)
-        # print(a_loss, c_loss, actions[:4])
         self.actor.update_target()
         self.critic.update_target()
-        return 0, 0
+        return a_loss, c_loss

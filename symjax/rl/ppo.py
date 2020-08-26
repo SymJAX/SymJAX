@@ -63,15 +63,13 @@ class ppo:
             logits = actor(state_ph)
             if continuous:
                 logstd = T.Variable(
-                    -0.5 * np.ones(num_actions, dtype=np.float32),
-                    name="logstd",
+                    -0.5 * np.ones(num_actions, dtype=np.float32), name="logstd",
                 )
         with symjax.Scope("old_actor"):
             old_logits = actor(state_ph)
             if continuous:
                 old_logstd = T.Variable(
-                    -0.5 * np.ones(num_actions, dtype=np.float32),
-                    name="logstd",
+                    -0.5 * np.ones(num_actions, dtype=np.float32), name="logstd",
                 )
 
         if not continuous:
@@ -119,18 +117,14 @@ class ppo:
         with symjax.Scope("update_pi"):
             print(len(actor_params), "actor parameters")
             nn.optimizers.Adam(
-                pi_loss,
-                self.lr,
-                params=actor_params,
+                pi_loss, self.lr, params=actor_params,
             )
         with symjax.Scope("update_v"):
             critic_params = symjax.get_variables(scope="/critic/")
             print(len(critic_params), "critic parameters")
 
             nn.optimizers.Adam(
-                v_loss,
-                self.lr,
-                params=critic_params,
+                v_loss, self.lr, params=critic_params,
             )
 
         self.get_params = symjax.function(outputs=critic_params)
@@ -180,8 +174,7 @@ class ppo:
         self.update_target()
 
         (s, a, r, adv) = buffer.sample(
-            buffer.length,
-            ["state", "action", "advantage", "reward-to-go"],
+            buffer.length, ["state", "action", "advantage", "reward-to-go"],
         )
 
         if not self.continuous:
@@ -201,11 +194,7 @@ class ppo:
         for _ in range(self.train_pi_iters):
             losses = []
             for s1, a1, adv1 in symjax.data.utils.batchify(
-                s,
-                a,
-                adv,
-                batch_size=self.batch_size,
-                option="random_see_all",
+                s, a, adv, batch_size=self.batch_size, option="random_see_all",
             ):
                 loss = self.learn_pi(s1, a1, adv1)
                 # losses.append(loss)
@@ -214,10 +203,7 @@ class ppo:
         for _ in range(self.train_v_iters):
             losses = []
             for s1, r1 in symjax.data.utils.batchify(
-                s,
-                r,
-                batch_size=self.batch_size,
-                option="random_see_all",
+                s, r, batch_size=self.batch_size, option="random_see_all",
             ):
 
                 losses.append(self.learn_v(s1, r1))

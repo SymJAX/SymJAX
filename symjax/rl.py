@@ -221,13 +221,9 @@ class ddpg:
         )
 
     def train(self):
-        (
-            s_batch,
-            a_batch,
-            r_batch,
-            s2_batch,
-            t_batch,
-        ) = self.env.buffer.sample(self.batch_size)
+        (s_batch, a_batch, r_batch, s2_batch, t_batch,) = self.env.buffer.sample(
+            self.batch_size
+        )
 
         # Calculate targets
         target_q = self.critic_predict_target(
@@ -365,14 +361,9 @@ class PPO:
 
     def train(self):
 
-        (
-            s_batch,
-            a_batch,
-            r_batch,
-            s2_batch,
-            t_batch,
-            batch,
-        ) = self.env.buffer.sample(self.batch_size)
+        (s_batch, a_batch, r_batch, s2_batch, t_batch, batch,) = self.env.buffer.sample(
+            self.batch_size
+        )
         # Calculate targets
         target_q = self.critic_predict_target(
             s2_batch, self.actor_predict_target(s2_batch)
@@ -488,20 +479,8 @@ class DeepQNetwork:
         next_state = T.Placeholder(
             [self.batch_size, self.n_states], "float32", name="s_"
         )
-        reward = T.Placeholder(
-            [
-                self.batch_size,
-            ],
-            "float32",
-            name="r",
-        )  # input reward
-        action = T.Placeholder(
-            [
-                self.batch_size,
-            ],
-            "int32",
-            name="a",
-        )  # input Action
+        reward = T.Placeholder([self.batch_size,], "float32", name="r",)  # input reward
+        action = T.Placeholder([self.batch_size,], "int32", name="a",)  # input Action
 
         with symjax.Scope("eval_net"):
             q_eval = Q(state, self.n_actions)
@@ -703,15 +682,7 @@ reward = Reward(REWARD_FACTOR, GAMMA, n=1)
 env = gym.make("Pendulum-v0")  # MountainCarContinuous-v0"
 # )  # "Pendulum-v0")  # gym.make("CartPole-v0")
 
-agent = ddpg(
-    env,
-    actor,
-    critic,
-    batch_size=128,
-    tau=TAU,
-    gamma=GAMMA,
-    reward=reward,
-)
+agent = ddpg(env, actor, critic, batch_size=128, tau=TAU, gamma=GAMMA, reward=reward,)
 
 
 env.buffer = BasicBuffer(size=int(1e5))

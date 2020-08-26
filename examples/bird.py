@@ -55,10 +55,7 @@ deterministic = T.Placeholder((1,), "bool")
 # first layer
 NN = 32
 if L > 0:
-    (
-        x,
-        y,
-    ) = T.meshgrid(T.linspace(-5, 5, NN), T.linspace(-5, 5, NN))
+    (x, y,) = T.meshgrid(T.linspace(-5, 5, NN), T.linspace(-5, 5, NN))
     grid = T.stack([x.flatten(), y.flatten()], 1)
     cov = T.Variable(np.eye(2), name="cov")
     gaussian = T.exp(-(grid.dot(cov.T().dot(cov)) * grid).sum(1)).reshape(

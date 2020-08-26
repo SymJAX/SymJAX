@@ -28,11 +28,7 @@ def _scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
 
 @jax_wrap
 def _while_loop(
-    cond_fun,
-    body_fun,
-    sequences,
-    non_sequences_cond=None,
-    non_sequences_body=None,
+    cond_fun, body_fun, sequences, non_sequences_cond=None, non_sequences_body=None,
 ):
 
     # get the fully jaxed function
@@ -204,11 +200,7 @@ def scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
 
 
 def while_loop(
-    cond_fun,
-    body_fun,
-    sequences,
-    non_sequences_cond=None,
-    non_sequences_body=None,
+    cond_fun, body_fun, sequences, non_sequences_cond=None, non_sequences_body=None,
 ):
     """Call ``body_fun`` repeatedly in a loop while ``cond_fun`` is True.
 

@@ -33,11 +33,7 @@ def TF1(x, y, N, lr, model, preallocate=False):
     np.random.seed(0)
 
     tf_W = tf.Variable(np.random.randn(D, 1).astype("float32"))
-    tf_b = tf.Variable(
-        np.random.randn(
-            1,
-        ).astype("float32")
-    )
+    tf_b = tf.Variable(np.random.randn(1,).astype("float32"))
 
     tf_loss = tf.reduce_mean((tf.matmul(tf_input, tf_W) + tf_b - tf_output) ** 2)
     if model == "SGD":
@@ -104,11 +100,7 @@ def SJ(x, y, N, lr, model, preallocate=False):
     np.random.seed(0)
 
     sj_W = T.Variable(np.random.randn(D, 1).astype("float32"))
-    sj_b = T.Variable(
-        np.random.randn(
-            1,
-        ).astype("float32")
-    )
+    sj_b = T.Variable(np.random.randn(1,).astype("float32"))
 
     sj_loss = ((sj_input.dot(sj_W) + sj_b - sj_output) ** 2).mean()
 

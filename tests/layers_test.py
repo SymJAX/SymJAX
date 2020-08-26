@@ -35,9 +35,7 @@ def test_bn():
 
         output = update(batch, 0)
         assert np.allclose(
-            output,
-            (batch - batch.mean(0)) / np.sqrt(0.001 + batch.var(0)),
-            1e-4,
+            output, (batch - batch.mean(0)) / np.sqrt(0.001 + batch.var(0)), 1e-4,
         )
 
         actual_means.append(get_stats(batch))

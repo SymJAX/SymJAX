@@ -82,20 +82,8 @@ class DeepQNetwork:
         next_state = T.Placeholder(
             [self.batch_size, self.n_states], "float32", name="s_"
         )
-        reward = T.Placeholder(
-            [
-                self.batch_size,
-            ],
-            "float32",
-            name="r",
-        )  # input reward
-        action = T.Placeholder(
-            [
-                self.batch_size,
-            ],
-            "int32",
-            name="a",
-        )  # input Action
+        reward = T.Placeholder([self.batch_size,], "float32", name="r",)  # input reward
+        action = T.Placeholder([self.batch_size,], "int32", name="a",)  # input Action
 
         with symjax.Scope("eval_net"):
             q_eval = Q(state, self.n_actions)

@@ -288,12 +288,7 @@ class Gaussian:
     """dXt = theta*(mu-Xt)*dt + sigma*dWt"""
 
     def __init__(
-        self,
-        dim,
-        mu=0.0,
-        sigma=1,
-        noise_decay=0.99,
-        initial_noise_scale=1,
+        self, dim, mu=0.0, sigma=1, noise_decay=0.99, initial_noise_scale=1,
     ):
         self.mu = mu
         self.sigma = sigma
@@ -373,20 +368,11 @@ def run(
 
             if terminal or j == (max_episode_steps - 1):
 
-                print(
-                    "Episode:",
-                    episode,
-                    ", return:",
-                    buffer.episode_reward,
-                    "episode_length:",
-                    j,
-                )
-
                 # bootstrap value
-                if not terminal:
-                    buffer.finish_path(agent.get_v(state))
-                else:
-                    buffer.finish_path(0)
+                # if not terminal:
+                #     buffer.finish_path(agent.get_v(state))
+                # else:
+                buffer.finish_path(0)
 
                 if wait_end_path and global_step > update_after:
                     losses.append(agent.train(buffer, episode=i, step=j))
@@ -394,15 +380,26 @@ def run(
                 if noise:
                     noise.end_episode()
 
+                print(
+                    "Episode:",
+                    episode,
+                    ", return:",
+                    buffer.episode_reward,
+                    "episode_length:",
+                    j,
+                    "losses:",
+                    losses[-1:],
+                )
+
                 break
         if reset_each_episode:
             buffer.reset()
-        # Testing:
-        TEST = 10
-        rewards, steps = play(env, agent, 10, 200)
+
+        if episode % 10 == 0:
+            rewards, steps = play(env, agent, 10, 200)
         ave_reward = rewards.sum() / steps.sum()
         print("episode: ", episode, "Evaluation Average Reward:", ave_reward)
-    return 0
+    return losses
 
 
 def play(environment, agent, max_episodes, max_episode_steps):
