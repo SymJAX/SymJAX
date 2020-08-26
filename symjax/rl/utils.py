@@ -281,6 +281,8 @@ def run(
     reset_each_episode=False,
     wait_end_path=False,
     eval_every=10,
+    eval_max_episode_steps=10000,
+    eval_max_episodes=10,
 ):
     global_step = 0
     losses = []
@@ -354,8 +356,8 @@ def run(
         if reset_each_episode:
             buffer.reset()
 
-        if episode % 10 == 0:
-            rewards, steps = play(env, agent, 10, 200)
+        if episode % eval_every == 0:
+            rewards, steps = play(env, agent, eval_max_episodes, eval_max_episode_steps)
             ave_reward = rewards.sum() / steps.sum()
             print("episode: ", episode, "Evaluation Average Reward:", ave_reward)
     return losses
