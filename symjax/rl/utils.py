@@ -227,12 +227,18 @@ class Buffer(dict):
         deltas = rews[:-1] + self.gamma * vals[1:] - vals[:-1]
         self["TD-error"][path_slice] = deltas
 
-        self["advantage"][path_slice] = discount_cumsum(deltas, self.gamma * self.lam)
+        self["advantage"][path_slice] = discount_cumsum(
+            deltas, self.gamma * self.lam
+        )
 
         # computes rewards-to-go, (targets of value function)
-        self["reward-to-go"][path_slice] = discount_cumsum(rews, self.gamma)[:-1]
+        self["reward-to-go"][path_slice] = discount_cumsum(rews, self.gamma)[
+            :-1
+        ]
 
-        self["advantage"][path_slice] = self["reward-to-go"][path_slice] - vals[:-1]
+        self["advantage"][path_slice] = (
+            self["reward-to-go"][path_slice] - vals[:-1]
+        )
 
         self["priority"][path_slice] = 1 + deltas
 
@@ -264,12 +270,16 @@ class OrnsteinUhlenbeckProcess:
 
     def __call__(self, action, episode):
 
-        self.noise_scale = self.initial_noise_scale * self.noise_decay ** episode
+        self.noise_scale = (
+            self.initial_noise_scale * self.noise_decay ** episode
+        )
 
         x = (
             self.process
             + self.theta * (self.mean - self.process) * self.dt
-            + self.std_dev * np.sqrt(self.dt) * np.random.normal(size=action.shape)
+            + self.std_dev
+            * np.sqrt(self.dt)
+            * np.random.normal(size=action.shape)
         )
         # Store x into process
         # Makes next noise dependent on current one
@@ -298,7 +308,9 @@ class Gaussian:
 
     def __call__(self, action, episode):
         noise = np.random.randn(self.dim) * self.sigma + self.mu
-        self.noise_scale = self.initial_noise_scale * self.noise_decay ** episode
+        self.noise_scale = (
+            self.initial_noise_scale * self.noise_decay ** episode
+        )
         return action + self.noise_scale * noise
 
     def end_episode(self):
@@ -405,7 +417,7 @@ def play(environment, agent, max_episodes, max_episode_steps):
     episode_steps = []
     for i in range(max_episodes):
         episode_rewards.append(0)
-        episode_rewards.append(0)
+        episode_steps.append(0)
         state = environment.reset()
         for j in range(max_episode_steps):
             episode_steps[-1] += 1
