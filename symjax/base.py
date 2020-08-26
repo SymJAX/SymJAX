@@ -442,7 +442,8 @@ class Scope:
         if ".npz" != path[:-4]:
             path += ".npz"
         numpy.savez(
-            path, **dict([(v.name, symjax.tensor.get(v)) for v in self.variables]),
+            path,
+            **dict([(v.name, symjax.tensor.get(v)) for v in self.variables]),
         )
 
     @property
@@ -553,7 +554,10 @@ def reset_variables(name="*", scope="*", trainable=None):
 
 
 def save_variables(
-    path_or_file, name="*", scope="*", trainable=None,
+    path_or_file,
+    name="*",
+    scope="*",
+    trainable=None,
 ):
     """saves the graph variables.
 
@@ -583,7 +587,15 @@ def save_variables(
     variables = get_variables(name, scope, trainable)
     numpy.savez(
         path_or_file,
-        **dict([(v.scope + v.name, symjax.tensor.get(v),) for v in variables]),
+        **dict(
+            [
+                (
+                    v.scope + v.name,
+                    symjax.tensor.get(v),
+                )
+                for v in variables
+            ]
+        ),
     )
 
 

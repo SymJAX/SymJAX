@@ -410,7 +410,16 @@ def mfcc(
     https://librosa.github.io/librosa/_modules/librosa/feature/spectral.html#mfcc
     """
     tf = melspectrogram(
-        signal, window, hop, n_filter, low_freq, high_freq, nyquist, nfft, mode, apod,
+        signal,
+        window,
+        hop,
+        n_filter,
+        low_freq,
+        high_freq,
+        nyquist,
+        nfft,
+        mode,
+        apod,
     )
     tf_db = power_to_db(tf)
     M = dct(tf_db, axes=(2,))
@@ -460,51 +469,51 @@ def dct(signal, axes=(-1,)):
 def phase_vocoder(D, rate, hop_length=None):
     """Phase vocoder.  Given an STFT matrix D, speed up by a factor of `rate`
 
-    Based on the implementation provided by [1]_.
+     Based on the implementation provided by [1]_.
 
-    .. note:: This is a simplified implementation, intended primarily for
-             reference and pedagogical purposes.  It makes no attempt to
-             handle transients, and is likely to produce many audible
-             artifacts.  For a higher quality implementation, we recommend
-             the RubberBand library [2]_ and its Python wrapper `pyrubberband`.
+     .. note:: This is a simplified implementation, intended primarily for
+              reference and pedagogical purposes.  It makes no attempt to
+              handle transients, and is likely to produce many audible
+              artifacts.  For a higher quality implementation, we recommend
+              the RubberBand library [2]_ and its Python wrapper `pyrubberband`.
 
-    .. [1] Ellis, D. P. W. "A phase vocoder in Matlab."
-        Columbia University, 2002.
-        http://www.ee.columbia.edu/~dpwe/resources/matlab/pvoc/
+     .. [1] Ellis, D. P. W. "A phase vocoder in Matlab."
+         Columbia University, 2002.
+         http://www.ee.columbia.edu/~dpwe/resources/matlab/pvoc/
 
-    .. [2] https://breakfastquay.com/rubberband/
+     .. [2] https://breakfastquay.com/rubberband/
 
-    Examples
-   --------
-    >>> # Play at double speed
-    >>> y, sr   = librosa.load(librosa.util.example_audio_file())
-    >>> D       = librosa.stft(y, n_fft=2048, hop_length=512)
-    >>> D_fast  = librosa.phase_vocoder(D, 2.0, hop_length=512)
-    >>> y_fast  = librosa.istft(D_fast, hop_length=512)
+     Examples
+    --------
+     >>> # Play at double speed
+     >>> y, sr   = librosa.load(librosa.util.example_audio_file())
+     >>> D       = librosa.stft(y, n_fft=2048, hop_length=512)
+     >>> D_fast  = librosa.phase_vocoder(D, 2.0, hop_length=512)
+     >>> y_fast  = librosa.istft(D_fast, hop_length=512)
 
-    >>> # Or play at 1/3 speed
-    >>> y, sr   = librosa.load(librosa.util.example_audio_file())
-    >>> D       = librosa.stft(y, n_fft=2048, hop_length=512)
-    >>> D_slow  = librosa.phase_vocoder(D, 1./3, hop_length=512)
-    >>> y_slow  = librosa.istft(D_slow, hop_length=512)
+     >>> # Or play at 1/3 speed
+     >>> y, sr   = librosa.load(librosa.util.example_audio_file())
+     >>> D       = librosa.stft(y, n_fft=2048, hop_length=512)
+     >>> D_slow  = librosa.phase_vocoder(D, 1./3, hop_length=512)
+     >>> y_slow  = librosa.istft(D_slow, hop_length=512)
 
-    Parameters
-    ----------
-    D : numpy.ndarray [shape=(d, t), dtype=complex]
-        STFT matrix
+     Parameters
+     ----------
+     D : numpy.ndarray [shape=(d, t), dtype=complex]
+         STFT matrix
 
-    rate :  float > 0 [scalar]
-        Speed-up factor: `rate > 1` is faster, `rate < 1` is slower.
+     rate :  float > 0 [scalar]
+         Speed-up factor: `rate > 1` is faster, `rate < 1` is slower.
 
-    hop_length : int > 0 [scalar] or None
-        The number of samples between successive columns of `D`.
+     hop_length : int > 0 [scalar] or None
+         The number of samples between successive columns of `D`.
 
-        If None, defaults to `n_fft/4 = (D.shape[0]-1)/2`
+         If None, defaults to `n_fft/4 = (D.shape[0]-1)/2`
 
-    Returns
-    -------
-    D_stretched : numpy.ndarray [shape=(d, t / rate), dtype=complex]
-        time-stretched STFT
+     Returns
+     -------
+     D_stretched : numpy.ndarray [shape=(d, t / rate), dtype=complex]
+         time-stretched STFT
 
     """
     n_fft = 2 * (D.shape[0] - 1)
@@ -1036,7 +1045,7 @@ def pool(
     base_dilation=None,
     window_dilation=None,
 ):
-    """ apply arbitrary pooling on a Tensor.
+    """apply arbitrary pooling on a Tensor.
 
     Parameters
     ----------

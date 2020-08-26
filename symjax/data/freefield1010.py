@@ -11,11 +11,11 @@ from tqdm import tqdm
 
 class freefield1010:
     """Audio binary classification, presence or absence of bird songs.
-    `freefield1010 <http://machine-listening.eecs.qmul.ac.uk/bird-audio-detection-challenge/#downloads>`_. 
-    is a collection of over 7,000 excerpts from field recordings 
-    around the world, gathered by the FreeSound project, and then standardised 
-    for research. This collection is very diverse in location and environment, 
-    and for the BAD Challenge we have newly annotated it for the 
+    `freefield1010 <http://machine-listening.eecs.qmul.ac.uk/bird-audio-detection-challenge/#downloads>`_.
+    is a collection of over 7,000 excerpts from field recordings
+    around the world, gathered by the FreeSound project, and then standardised
+    for research. This collection is very diverse in location and environment,
+    and for the BAD Challenge we have newly annotated it for the
     presence/absence of birds.
     """
 

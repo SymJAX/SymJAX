@@ -103,13 +103,13 @@ class esc:
 
     def load(path=None):
         """ESC 50.
-    
+
         https://github.com/karolpiczak/ESC-50#download
-    
-    
+
+
         Parameters
         ----------
-        
+
         path: str (optional)
                 default $DATASET_path), the path to look for the data and
                 where the data will be downloaded if not present
@@ -120,20 +120,20 @@ class esc:
         wavs: array
             the wavs as a numpy array (matrix) with first dimension the data
             and second dimension time
-        
+
         fine_labels: array
             the labels of the final classes (50 different ones) as a integer
             vector
-        
+
         coarse_labels: array
             the labels of the classes big cateogry (5 of them)
-        
+
         folds: array
             the fold as an integer from 1 to 5 specifying how to split the data
             one should not split a fold into train and set as it would
             make the same recording (but different subparts) be present in train
             and test, biasing optimistically the results.
-        
+
         esc10: array
             the boolean vector specifying if the corresponding datum (wav, label,
             ...) is in the ESC-10 dataset or not. That is, to load the ESC-10

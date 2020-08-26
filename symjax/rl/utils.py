@@ -76,13 +76,13 @@ class NStepRewarder(object):
 def discount_cumsum(x, discount):
     """
     computing discounted cumulative sums of vectors.
-    input: 
-        vector x, 
-        [x0, 
-         x1, 
+    input:
+        vector x,
+        [x0,
+         x1,
          x2]
     output:
-        [x0 + discount * x1 + discount^2 * x2,  
+        [x0 + discount * x1 + discount^2 * x2,
          x1 + discount * x2,
          x2]
     """
@@ -288,7 +288,12 @@ class Gaussian:
     """dXt = theta*(mu-Xt)*dt + sigma*dWt"""
 
     def __init__(
-        self, dim, mu=0.0, sigma=1, noise_decay=0.99, initial_noise_scale=1,
+        self,
+        dim,
+        mu=0.0,
+        sigma=1,
+        noise_decay=0.99,
+        initial_noise_scale=1,
     ):
         self.mu = mu
         self.sigma = sigma

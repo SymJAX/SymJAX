@@ -47,7 +47,7 @@ def ExponentialMovingAverage(value, alpha, init=None, decay_min=False, debias=Tr
         the value of the EMA of the previous pass. This is usefull if one wants
         to keep the estimate of the EMA fixed for new observations, then simply
         do not apply anymore updates (using a new function) and using this
-        fixed variable during testing (while ema will keep use the latest 
+        fixed variable during testing (while ema will keep use the latest
         observed value)
 
 
@@ -227,7 +227,12 @@ def PiecewiseConstant(init, steps_and_values):
         all_steps = T.stack([0] + list(steps_and_values.keys()) + [np.inf])
         all_values = T.stack([init] + list(steps_and_values.values()) + [0])
 
-        step = T.Variable(0, trainable=False, name="step", dtype="int32",)
+        step = T.Variable(
+            0,
+            trainable=False,
+            name="step",
+            dtype="int32",
+        )
 
         value = all_values[(step >= all_steps).argmin() - 1]
 

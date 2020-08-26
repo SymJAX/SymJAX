@@ -12,15 +12,15 @@ from tqdm import tqdm
 class warblr:
     """Binary audio classification, presence or absence of a bird.
 
-    `Warblr <http://machine-listening.eecs.qmul.ac.uk/bird-audio-detection-challenge/#downloads>`_ 
-    comes from a UK bird-sound crowdsourcing 
-    research spinout called Warblr. From this initiative we have 
-    10,000 ten-second smartphone audio recordings from around the UK. 
-    The audio totals around 44 hours duration. The audio will be 
-    published by Warblr under a Creative Commons licence. The audio 
-    covers a wide distribution of UK locations and environments, and 
-    includes weather noise, traffic noise, human speech and even human 
-    bird imitations. It is directly representative of the data that is 
+    `Warblr <http://machine-listening.eecs.qmul.ac.uk/bird-audio-detection-challenge/#downloads>`_
+    comes from a UK bird-sound crowdsourcing
+    research spinout called Warblr. From this initiative we have
+    10,000 ten-second smartphone audio recordings from around the UK.
+    The audio totals around 44 hours duration. The audio will be
+    published by Warblr under a Creative Commons licence. The audio
+    covers a wide distribution of UK locations and environments, and
+    includes weather noise, traffic noise, human speech and even human
+    bird imitations. It is directly representative of the data that is
     collected from a mobile crowdsourcing initiative.
     """
 

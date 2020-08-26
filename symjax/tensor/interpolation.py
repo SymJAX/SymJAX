@@ -12,12 +12,18 @@ import symjax
 __author__ = "Randall Balestriero"
 
 _HERMITE = np.array(
-    [[1, 0, -3, 2], [0, 0, 3, -2], [0, 1, -2, 1], [0, 0, -1, 1]], dtype="float32",
+    [[1, 0, -3, 2], [0, 0, 3, -2], [0, 1, -2, 1], [0, 0, -1, 1]],
+    dtype="float32",
 )
 
 
 def upsample_1d(
-    tensor, repeat, axis=-1, mode="constant", value=0.0, boundary_condition="periodic",
+    tensor,
+    repeat,
+    axis=-1,
+    mode="constant",
+    value=0.0,
+    boundary_condition="periodic",
 ):
     """1-d upsampling of tensor
 
@@ -413,9 +419,13 @@ def thin_plate_spline(input, dest_offsets, downsample_factor=1, border_mode="nea
         )
 
     # Create source points and L matrix
-    (right_mat, L_inv, source_points, out_height, out_width,) = _initialize_tps(
-        control_points, input_shp, downsample_factor
-    )
+    (
+        right_mat,
+        L_inv,
+        source_points,
+        out_height,
+        out_width,
+    ) = _initialize_tps(control_points, input_shp, downsample_factor)
 
     # compute output
     # see eq. (1) and sec 3.1 in [1]
@@ -632,7 +642,13 @@ def _get_transformed_points_tps(
     # Add in the coefficients for the affine translation (1, x, and y,
     # corresponding to a_1, a_x, and a_y)
     upper_array = T.concatenate(
-        [T.ones((batch_size, 1, new_points.shape[2]),), new_points], axis=1,
+        [
+            T.ones(
+                (batch_size, 1, new_points.shape[2]),
+            ),
+            new_points,
+        ],
+        axis=1,
     )
     right_mat = T.concatenate([upper_array, distances], axis=1)
 

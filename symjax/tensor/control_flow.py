@@ -28,7 +28,11 @@ def _scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
 
 @jax_wrap
 def _while_loop(
-    cond_fun, body_fun, sequences, non_sequences_cond=None, non_sequences_body=None,
+    cond_fun,
+    body_fun,
+    sequences,
+    non_sequences_cond=None,
+    non_sequences_body=None,
 ):
 
     # get the fully jaxed function
@@ -200,50 +204,54 @@ def scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
 
 
 def while_loop(
-    cond_fun, body_fun, sequences, non_sequences_cond=None, non_sequences_body=None,
+    cond_fun,
+    body_fun,
+    sequences,
+    non_sequences_cond=None,
+    non_sequences_body=None,
 ):
     """Call ``body_fun`` repeatedly in a loop while ``cond_fun`` is True.
 
-     The type signature in brief is
+    The type signature in brief is
 
-     .. code-block:: haskell
+    .. code-block:: haskell
 
-       while_loop :: (a -> Bool) -> (a -> a) -> a -> a
+      while_loop :: (a -> Bool) -> (a -> a) -> a -> a
 
-     The semantics of ``while_loop`` are given by this Python implementation::
+    The semantics of ``while_loop`` are given by this Python implementation::
 
-       def while_loop(cond_fun, body_fun, init_val):
-         val = init_val
-         while cond_fun(val):
-           val = body_fun(val)
-         return val
+      def while_loop(cond_fun, body_fun, init_val):
+        val = init_val
+        while cond_fun(val):
+          val = body_fun(val)
+        return val
 
-     Unlike that Python version, ``while_loop`` is a JAX primitive and is lowered
-     to a single XLA While HLO. That makes it useful for reducing compilation times
-     for jit-compiled functions, since native Python loop constructs in an ``@jit``
-     function are unrolled, leading to large XLA computations.
+    Unlike that Python version, ``while_loop`` is a JAX primitive and is lowered
+    to a single XLA While HLO. That makes it useful for reducing compilation times
+    for jit-compiled functions, since native Python loop constructs in an ``@jit``
+    function are unrolled, leading to large XLA computations.
 
-     Also unlike the Python analogue, the loop-carried value ``val`` must hold a
-     fixed shape and dtype across all iterations (and not just be consistent up to
-     NumPy rank/shape broadcasting and dtype promotion rules, for example). In
-     other words, the type ``a`` in the type signature above represents an array
-     with a fixed shape and dtype (or a nested tuple/list/dict container data
-     structure with a fixed structure and arrays with fixed shape and dtype at the
-     leaves).
+    Also unlike the Python analogue, the loop-carried value ``val`` must hold a
+    fixed shape and dtype across all iterations (and not just be consistent up to
+    NumPy rank/shape broadcasting and dtype promotion rules, for example). In
+    other words, the type ``a`` in the type signature above represents an array
+    with a fixed shape and dtype (or a nested tuple/list/dict container data
+    structure with a fixed structure and arrays with fixed shape and dtype at the
+    leaves).
 
-     Another difference from using Python-native loop constructs is that
-     ``while_loop`` is not reverse-mode differentiable because XLA computations
-     require static bounds on memory requirements.
+    Another difference from using Python-native loop constructs is that
+    ``while_loop`` is not reverse-mode differentiable because XLA computations
+    require static bounds on memory requirements.
 
-     Args:
-       cond_fun: function of type ``a -> Bool``.
-       body_fun: function of type ``a -> a``.
-       init_val: value of type ``a``, a type that can be a scalar, array, or any
-         pytree (nested Python tuple/list/dict) thereof, representing the initial
-         loop carry value.
+    Args:
+      cond_fun: function of type ``a -> Bool``.
+      body_fun: function of type ``a -> a``.
+      init_val: value of type ``a``, a type that can be a scalar, array, or any
+        pytree (nested Python tuple/list/dict) thereof, representing the initial
+        loop carry value.
 
-     Returns:
-       The output from the final iteration of body_fun, of type ``a``.
+    Returns:
+      The output from the final iteration of body_fun, of type ``a``.
     """
 
     if type(non_sequences_cond) == list:

@@ -18,13 +18,13 @@ class emnist:
     -------
     Gregory Cohen, Saeed Afshar, Jonathan Tapson,
     and Andre van Schaik
-    
+
     The MARCS Institute for Brain, Behaviour and Development
     Western Sydney University
     Penrith, Australia 2751
-    
+
     Email: g.cohen@westernsydney.edu.au
-    
+
     What is it?
     -----------
     The EMNIST dataset is a set of handwritten character digits
@@ -35,7 +35,7 @@ class emnist:
     (http://yann.lecun.com/exdb/mnist/). Further information on
     the dataset contents and conversion process can be found in
     the paper available at https://arxiv.org/abs/1702.05373v1.
-    
+
     Formats
     -------
     The dataset is provided in two file formats. Both versions of
@@ -46,7 +46,7 @@ class emnist:
     second version of the dataset is provided in the same binary
     format as the original MNIST dataset as outlined in
     http://yann.lecun.com/exdb/mnist/
-    
+
     Dataset Summary
     ---------------
     There are six different splits provided in this dataset.

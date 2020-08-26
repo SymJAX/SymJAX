@@ -368,10 +368,12 @@ def values_to_boundary(x, duplicate=0):
         np.pad(np.abs(x[:, 1:] - x[:, :-1]), [[0, 0], [1, 0]], "constant"), 0
     )
     g_diagonaldo = np.greater(
-        np.pad(np.abs(x[1:, 1:] - x[:-1, :-1]), [[1, 0], [1, 0]], "constant"), 0,
+        np.pad(np.abs(x[1:, 1:] - x[:-1, :-1]), [[1, 0], [1, 0]], "constant"),
+        0,
     )
     g_diagonalup = np.greater(
-        np.pad(np.abs(x[:-1:, 1:] - x[1:, :-1]), [[1, 0], [1, 0]], "constant"), 0,
+        np.pad(np.abs(x[:-1:, 1:] - x[1:, :-1]), [[1, 0], [1, 0]], "constant"),
+        0,
     )
     overall = g_vertical + g_horizontal + g_diagonaldo + g_diagonalup
     if duplicate > 0:
@@ -387,7 +389,7 @@ def values_to_boundary(x, duplicate=0):
 
 
 def vq_to_values(states, vq_to_value_dict=None, return_dict=False):
-    """Given binary masks obtained for example from the ReLU activation, 
+    """Given binary masks obtained for example from the ReLU activation,
     convert the binary vectors to a single float scalar, the same scalar for
     the same masks. This allows to drastically reduce the memory overhead to
     keep track of a large number of masks. The mapping mask -> real is kept
@@ -448,7 +450,8 @@ def resample_images(
 
     if data_format == "channels_first":
         output_images = np.zeros(
-            (len(images), images[0].shape[0]) + target_shape, dtype=images[0].dtype,
+            (len(images), images[0].shape[0]) + target_shape,
+            dtype=images[0].dtype,
         )
     else:
         output_images = np.zeros(

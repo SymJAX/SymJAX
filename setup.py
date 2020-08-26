@@ -39,6 +39,12 @@ setup(
         "Operating System :: Unix",
     ],
     python_requires=">=3.6",
-    install_requires=["numpy", "scipy", "jax", "jaxlib", "networkx",],
+    install_requires=[
+        "numpy",
+        "scipy",
+        "jax",
+        "jaxlib",
+        "networkx",
+    ],
     license="Apache-2.0",
 )

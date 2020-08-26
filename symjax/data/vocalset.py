@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 class vocalset:
     """singer/technique/vowel of singing voices
-    
+
     source: https://zenodo.org/record/1442513#.W7OaFBNKjx4
 
     We present VocalSet, a singing voice dataset consisting of 10.1 hours

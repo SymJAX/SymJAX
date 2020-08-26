@@ -5,21 +5,21 @@ from .ops_nn import softmax, log_softmax
 
 def huber(labels, predictions, delta=1.0):
     """Adds a [Huber Loss](https://en.wikipedia.org/wiki/Huber_loss) term to the training procedure.
-  For each value x in `error=labels-predictions`, the following is calculated:
-  ```
-    0.5 * x^2                  if |x| <= d
-    0.5 * d^2 + d * (|x| - d)  if |x| > d
-  ```
-  where d is `delta`.
+    For each value x in `error=labels-predictions`, the following is calculated:
+    ```
+      0.5 * x^2                  if |x| <= d
+      0.5 * d^2 + d * (|x| - d)  if |x| > d
+    ```
+    where d is `delta`.
 
-    Args:
-    labels: The ground truth output tensor, same dimensions as 'predictions'.
-    predictions: The predicted outputs.
-    delta: `float`, the point where the huber loss function changes from a
-      quadratic to linear.
-  Returns:
-    Weighted loss float, this has the same
-    shape as `labels`
+      Args:
+      labels: The ground truth output tensor, same dimensions as 'predictions'.
+      predictions: The predicted outputs.
+      delta: `float`, the point where the huber loss function changes from a
+        quadratic to linear.
+    Returns:
+      Weighted loss float, this has the same
+      shape as `labels`
     """
 
     error = predictions - labels
@@ -440,7 +440,7 @@ def accuracy(targets, predictions):
     targets: tensor-like
 
     predictions: tensor-like
-        it can be a :math:`2D` matrix in which case the ``argmax`` is used to 
+        it can be a :math:`2D` matrix in which case the ``argmax`` is used to
         get the prediction
 
     Returns

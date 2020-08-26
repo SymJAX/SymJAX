@@ -38,8 +38,7 @@ class dclde:
     """
 
     def download(path):
-        """ToDo
-        """
+        """ToDo"""
 
         # Load the dataset (download if necessary) and set
         # the class attributes.
@@ -58,8 +57,7 @@ class dclde:
                 urllib.request.urlretrieve(url, path + "DCLDE/DCLDE_LF_Dev.zip")
 
     def load(window_size=441000, path=None):
-        """ToDo
-        """
+        """ToDo"""
         if path is None:
             path = os.environ["DATASET_path"]
         dclde.download(path)

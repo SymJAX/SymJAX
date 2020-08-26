@@ -10,8 +10,7 @@ from tqdm import tqdm
 
 
 class univariate_timeseries:
-    """univariate_timeseries
-    """
+    """univariate_timeseries"""
 
     @staticmethod
     def download(path):

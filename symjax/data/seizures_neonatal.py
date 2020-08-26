@@ -11,7 +11,7 @@ class seizures_neonatal:
     """A dataset of neonatal EEG recordings with seizures annotations
 
     source: https://zenodo.org/record/2547147
-   
+
     Neonatal seizures are a common emergency inthe neonatal intensive care unit
     (NICU). There are many questions yet to be answered regarding the
     temporal/spatial characteristics of seizures from different pathologies,

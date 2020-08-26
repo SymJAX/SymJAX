@@ -33,8 +33,7 @@ def normal(shape, scale=0.05):
 
 
 def orthogonal(shape, scale=1):
-    """ From Lasagne. Reference: Saxe et al., http://arxiv.org/abs/1312.6120
-    """
+    """From Lasagne. Reference: Saxe et al., http://arxiv.org/abs/1312.6120"""
     flat_shape = (shape[0], np.prod(shape[1:]))
     a = np.random.normal(0.0, 1.0, flat_shape)
     u, _, v = np.linalg.svd(a, full_matrices=False)
@@ -82,8 +81,7 @@ def get_fans(shape):
 
 
 def variance_scaling(shape, mode, gain=1, distribution=normal):
-    """Variance Scaling initialization.
-    """
+    """Variance Scaling initialization."""
 
     if len(shape) < 2:
         raise RuntimeError("This initializer only works with shapes of length >= 2")
@@ -106,31 +104,27 @@ def variance_scaling(shape, mode, gain=1, distribution=normal):
 
 
 def glorot_uniform(shape):
-    """ Reference: Glorot & Bengio, AISTATS 2010
-    """
+    """Reference: Glorot & Bengio, AISTATS 2010"""
     return variance_scaling(shape, mode="fan_avg", distribution=uniform)
 
 
 def glorot_normal(shape):
-    """ Reference: Glorot & Bengio, AISTATS 2010
-    """
+    """Reference: Glorot & Bengio, AISTATS 2010"""
     return variance_scaling(shape, mode="fan_avg", distribution=normal)
 
 
 def he_normal(shape):
-    """ Reference:  He et al., http://arxiv.org/abs/1502.01852
-    """
+    """Reference:  He et al., http://arxiv.org/abs/1502.01852"""
     return variance_scaling(shape, mode="fan_in", distribution=normal)
 
 
 def he_uniform(shape):
-    """ Reference:  He et al., http://arxiv.org/abs/1502.01852
-    """
+    """Reference:  He et al., http://arxiv.org/abs/1502.01852"""
     return variance_scaling(shape, mode="fan_in", distribution=uniform)
 
 
 def lecun_uniform(shape, name=None):
-    """ Reference: LeCun 98, Efficient Backprop
-        http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
+    """Reference: LeCun 98, Efficient Backprop
+    http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
     """
     return variance_scaling(shape, mode="fan_in", gain=np.sqrt(3), distribution=uniform)

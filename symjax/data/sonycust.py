@@ -11,7 +11,7 @@ from scipy.io.wavfile import read as wav_read
 class sonycust:
     """multilabel urban sound classification
 
-    Reference at https://zenodo.org/record/3233082 
+    Reference at https://zenodo.org/record/3233082
 
     Description
 
@@ -32,8 +32,8 @@ class sonycust:
     dataset see the DCASE 2019 Urban Sound Tagging Task website.
 
     Audio data
-    
-    The provided audio has been acquired using the SONYC acoustic sensor network 
+
+    The provided audio has been acquired using the SONYC acoustic sensor network
     for urban noise pollution monitoring. Over 50 different sensors have been
     deployed in New York City, and these sensors have collectively gathered the
     equivalent of 37 years of audio data, of which we provide a small subset.

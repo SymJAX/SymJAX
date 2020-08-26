@@ -10,14 +10,14 @@ from scipy.ndimage import imread
 
 
 class cub200:
-    """ Image classification of bird species.
+    """Image classification of bird species.
     The `CUB-200 <http://www.vision.caltech.edu/visipedia/CUB-200-2011.html>`_.
     dataset  contains  11,788  images of  200  bird  species
-    This dataset contains 8732 labeled sound excerpts (<=4s) of urban sounds 
-    from 10 classes: air_conditioner, car_horn, children_playing, 
-    dog_bark, drilling, enginge_idling, gun_shot, jackhammer, siren, 
-    and street_music. The classes are drawn from the 
-    `urban sound taxonomy <https://urbansounddataset.weebly.com/taxonomy.html>`_. 
+    This dataset contains 8732 labeled sound excerpts (<=4s) of urban sounds
+    from 10 classes: air_conditioner, car_horn, children_playing,
+    dog_bark, drilling, enginge_idling, gun_shot, jackhammer, siren,
+    and street_music. The classes are drawn from the
+    `urban sound taxonomy <https://urbansounddataset.weebly.com/taxonomy.html>`_.
     The dataset is obtained from `Kaggle <https://www.kaggle.com/pavansanagapati/urban-sound-classification>_`
     """
 

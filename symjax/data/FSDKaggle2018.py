@@ -42,7 +42,7 @@ class FSDKaggle2018:
         """
         Parameters
         ----------
-        
+
         path: str (optional)
                 default $DATASET_path), the path to look for the data and
                 where the data will be downloaded if not present
@@ -53,7 +53,7 @@ class FSDKaggle2018:
         wavs: array
             the wavs as a numpy array (matrix) with first dimension the data
             and second dimension time
-        
+
         labels: array
             the labels of the final classes (41 different ones) as a integer
             vector

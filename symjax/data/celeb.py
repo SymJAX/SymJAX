@@ -107,8 +107,7 @@ def read_image_from_archive(arhive, image_name):
 
 
 class celebA:
-    """Celebrity faces.
-    """
+    """Celebrity faces."""
 
     file_list = [
         # File ID                         MD5 Hash                            Filename

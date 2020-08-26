@@ -53,7 +53,7 @@ def _add_method(cls):
 
 
 def _args_formatting(args, extra_args, indices):
-    """ utility function to be used in the Tensor class to correctly join the
+    """utility function to be used in the Tensor class to correctly join the
     args and extra_args based on the indices
 
     Parameters:
@@ -80,8 +80,8 @@ def _args_formatting(args, extra_args, indices):
 
 
 def isvar(item):
-    """ check whether an item (possibly a nested list etc) contains a variable
-    (any subtype of Tensor) """
+    """check whether an item (possibly a nested list etc) contains a variable
+    (any subtype of Tensor)"""
     # in case of nested lists/tuples, recursively call the function on it
     if type(item) == slice:
         return False
@@ -101,7 +101,7 @@ _numpy_signature_re = re.compile(r"^([\w., ]+=)?\s*[\w\.]+\(.*\)$")
 
 def update_numpydoc(docstr, fun, op):
     """Transforms the numpy docstring to remove references of
-       parameters that are supported by the numpy version but not the JAX version"""
+    parameters that are supported by the numpy version but not the JAX version"""
 
     # Some numpy functions have an extra tab at the beginning of each line,
     # If this function is one of those we remove this extra tab from all the lines
@@ -161,7 +161,9 @@ def create_dummy(item):
 
 
 def get_output_tree(
-    jax_function, *args, **kwargs,
+    jax_function,
+    *args,
+    **kwargs,
 ):
 
     # we need to remove the static arguments first
@@ -230,9 +232,17 @@ def jax_wrap(func, doc_func=None):
                 }
             )
             if func == jax.numpy.shape:
-                return Shape(*args, **feed, **kwargs,)
+                return Shape(
+                    *args,
+                    **feed,
+                    **kwargs,
+                )
             else:
-                return MultiOutputOp(*args, **feed, **kwargs,)
+                return MultiOutputOp(
+                    *args,
+                    **feed,
+                    **kwargs,
+                )
         else:
             feed.update({"_shape": tree.shape, "_dtype": tree.dtype})
             if is_random:
@@ -391,7 +401,12 @@ class Constant(Tensor):
         name, scope = symjax.current_graph()._get_name_scope("constant", self)
 
         super().__init__(
-            _attrs={"name": name, "scope": scope, "value": value, "root": False,},
+            _attrs={
+                "name": name,
+                "scope": scope,
+                "value": value,
+                "root": False,
+            },
         )
 
     @property
@@ -420,7 +435,13 @@ class Op(Tensor):
     """an Op generates a Tensor object obtained from a function"""
 
     def __init__(
-        self, *args, _jax_function, _shape, _dtype, name=None, **kwargs,
+        self,
+        *args,
+        _jax_function,
+        _shape,
+        _dtype,
+        name=None,
+        **kwargs,
     ):
 
         if name is None:
@@ -499,7 +520,9 @@ class MultiOutputOp(Op, tuple, Tensor):
 
         for i, child in enumerate(self):
             symjax.current_graph().add_edge(
-                self, child, name="parent_index" + str(i),
+                self,
+                child,
+                name="parent_index" + str(i),
             )
             symjax.current_graph().nodes[child]["parent"] = self
             child._set_shape_constant()
@@ -632,7 +655,12 @@ class Variable(Tensor):
     """
 
     def __init__(
-        self, initializer, name="unnamed", trainable=True, shape=None, dtype=None,
+        self,
+        initializer,
+        name="unnamed",
+        trainable=True,
+        shape=None,
+        dtype=None,
     ):
 
         if trainable and dtype == "bool":
@@ -705,9 +733,9 @@ class Variable(Tensor):
 
     @property
     def value(self):
-        """ utility function that takes the input and return
-            the actual value. It deals with cases where the input
-            was a function or not etc
+        """utility function that takes the input and return
+        the actual value. It deals with cases where the input
+        was a function or not etc
         """
         return symjax.current_graph().nodes[self]["value"]
 

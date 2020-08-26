@@ -7,19 +7,19 @@ import matplotlib.pyplot as plt
 
 
 class stl10:
-    """ Image classification with extra unlabeled images.
+    """Image classification with extra unlabeled images.
 
-    The `STL-10 <https://cs.stanford.edu/~acoates/stl10/>`_ dataset is an image 
-    recognition dataset for developing unsupervised feature learning, 
-    deep learning, self-taught learning algorithms. It is inspired by the 
-    CIFAR-10 dataset but with 
-    some modifications. In particular, each class has fewer labeled 
-    training examples than in CIFAR-10, but a very 
-    large set of unlabeled examples is provided to learn image models prior 
-    to supervised training. The primary challenge is to make use of the 
-    unlabeled data (which comes from a similar but different distribution from 
-    the labeled data) to build a useful prior. We also expect that the higher 
-    resolution of this dataset (96x96) will make it a challenging benchmark 
+    The `STL-10 <https://cs.stanford.edu/~acoates/stl10/>`_ dataset is an image
+    recognition dataset for developing unsupervised feature learning,
+    deep learning, self-taught learning algorithms. It is inspired by the
+    CIFAR-10 dataset but with
+    some modifications. In particular, each class has fewer labeled
+    training examples than in CIFAR-10, but a very
+    large set of unlabeled examples is provided to learn image models prior
+    to supervised training. The primary challenge is to make use of the
+    unlabeled data (which comes from a similar but different distribution from
+    the labeled data) to build a useful prior. We also expect that the higher
+    resolution of this dataset (96x96) will make it a challenging benchmark
     for developing more scalable unsupervised learning methods.
 
     """

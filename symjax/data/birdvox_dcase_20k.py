@@ -21,7 +21,7 @@ class birdvox_dcase_20k:
 
     BirdVox-DCASE-20k: a dataset for bird audio detection in 10-second
     clips
-    
+
     Version 2.0, March 2018.
 
     Created By
@@ -34,7 +34,7 @@ class birdvox_dcase_20k:
     (3): Music and Audio Research Lab, New York University
 
     `link <https://wp.nyu.edu/birdvox>`_
-     
+
     Description
 
     The BirdVox-DCASE-20k dataset contains 20,000 ten-second audio
