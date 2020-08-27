@@ -61,6 +61,8 @@ master_doc = "index"
 extensions = [
     "sphinx_rtd_theme",
     "matplotlib.sphinxext.plot_directive",
+    "matplotlib.sphinxext.mathmpl",
+    "sphinx.ext.mathjax",
     "sphinx.ext.todo",
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",

@@ -75,7 +75,10 @@ example of vanilla RNN for time series regression
 
 
     train = symjax.function(
-        timeseries, target, outputs=[loss, lossg], updates=symjax.get_updates(),
+        timeseries,
+        target,
+        outputs=[loss, lossg],
+        updates=symjax.get_updates(),
     )
 
     predict = symjax.function(timeseries, outputs=[rnn[:, :, 0], gru[:, :, 0]])
@@ -128,7 +131,7 @@ example of vanilla RNN for time series regression
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  46.737 seconds)
+   **Total running time of the script:** ( 1 minutes  7.615 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_nns_plot_rnn.py:

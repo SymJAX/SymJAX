@@ -92,7 +92,7 @@ def discount_cumsum(x, discount):
 
 class Buffer(dict):
     """
-    Bufer holding different values of experience
+    Buffer holding different values of experience
 
     By default this contains ``"reward", "reward-to-go", "V" or "Q", "action", "state", "episode", "priorities", "TD-error", "terminal", "next-state"``
     𝑄𝜋(𝑠,𝑎)=𝐸𝜋{𝑅𝑡|𝑠𝑡=𝑠,𝑎𝑡=𝑎}=𝐸𝜋{∑𝑘=0∞𝛾𝑘𝑟𝑡+𝑘+1|𝑠𝑡=𝑠,𝑎𝑡=𝑎}
@@ -285,9 +285,13 @@ def run(
     eval_max_episodes=10,
 ):
     global_step = 0
-    losses = []
+    all_losses = []
+    all_train_rewards = []
+    all_evals = []
+
     for episode in range(max_episodes):
         state = env.reset()
+        all_losses.append([])
 
         for j in range(max_episode_steps):
             action = agent.get_noise_action(state)
@@ -306,7 +310,7 @@ def run(
                 reward += r
                 if terminal:
                     break
-            reward /= k + 1
+            reward /= skip_frames
 
             base = {
                 "V": value,
@@ -317,6 +321,7 @@ def run(
                 "terminal": terminal,
                 "episode": episode,
             }
+
             buffer.push(base)
 
             state = next_state
@@ -328,7 +333,7 @@ def run(
                 and global_step % update_every == 0
                 and not wait_end_path
             ):
-                losses.append(agent.train(buffer, episode=episode, step=j))
+                all_losses[-1].append(agent.train(buffer, episode=episode, step=j))
 
             if terminal or j == (max_episode_steps - 1):
 
@@ -336,18 +341,19 @@ def run(
                 # if not terminal:
                 #     buffer.finish_path(agent.get_v(state))
                 # else:
+                all_train_rewards.append(buffer.episode_reward)
                 print(
                     "Episode: {}\n\
                         return: {}\n\
                         episode_length: {}\n\
                         losses: {}".format(
-                        episode, buffer.episode_reward, j, losses[-1:]
+                        episode, buffer.episode_reward, j, all_losses[-1][-1:]
                     )
                 )
                 buffer.finish_path(0)
 
                 if wait_end_path and global_step > update_after:
-                    losses.append(agent.train(buffer, episode=i, step=j))
+                    all_losses[-1].append(agent.train(buffer, episode=i, step=j))
 
                 if noise:
                     noise.end_episode()
@@ -357,10 +363,13 @@ def run(
             buffer.reset()
 
         if episode % eval_every == 0:
-            rewards, steps = play(env, agent, eval_max_episodes, eval_max_episode_steps)
-            ave_reward = rewards.sum() / steps.sum()
+            all_evals.append(
+                play(env, agent, eval_max_episodes, eval_max_episode_steps)
+            )
+            ave_reward = all_evals[-1][0].sum() / all_evals[-1][1].sum()
             print("episode: ", episode, "Evaluation Average Reward:", ave_reward)
-    return losses
+
+    return all_losses, all_train_rewards, all_evals
 
 
 def play(environment, agent, max_episodes, max_episode_steps):

@@ -30,7 +30,12 @@ in TF and SymJAX and compare the computation time
 
     False 10
     TF1
+    WARNING:tensorflow:From /home/vrael/anaconda3/lib/python3.7/site-packages/tensorflow/python/compat/v2_compat.py:96: disable_resource_variables (from tensorflow.python.ops.variable_scope) is deprecated and will be removed in a future version.
+    Instructions for updating:
+    non-resource variables are not supported in the long term
     SJ
+    /home/vrael/anaconda3/lib/python3.7/site-packages/jax/lib/xla_bridge.py:130: UserWarning: No GPU/TPU found, falling back to CPU.
+      warnings.warn('No GPU/TPU found, falling back to CPU.')
     False 100
     TF1
     SJ
@@ -103,7 +108,11 @@ in TF and SymJAX and compare the computation time
         np.random.seed(0)
 
         tf_W = tf.Variable(np.random.randn(D, 1).astype("float32"))
-        tf_b = tf.Variable(np.random.randn(1,).astype("float32"))
+        tf_b = tf.Variable(
+            np.random.randn(
+                1,
+            ).astype("float32")
+        )
 
         tf_loss = tf.reduce_mean((tf.matmul(tf_input, tf_W) + tf_b - tf_output) ** 2)
 
@@ -133,7 +142,11 @@ in TF and SymJAX and compare the computation time
         np.random.seed(0)
 
         tf_W = tf.Variable(np.random.randn(D, 1).astype("float32"))
-        tf_b = tf.Variable(np.random.randn(1,).astype("float32"))
+        tf_b = tf.Variable(
+            np.random.randn(
+                1,
+            ).astype("float32")
+        )
 
         @tf.function
         def train(tf_input, tf_output):
@@ -165,7 +178,11 @@ in TF and SymJAX and compare the computation time
         np.random.seed(0)
 
         sj_W = T.Variable(np.random.randn(D, 1).astype("float32"))
-        sj_b = T.Variable(np.random.randn(1,).astype("float32"))
+        sj_b = T.Variable(
+            np.random.randn(
+                1,
+            ).astype("float32")
+        )
 
         sj_loss = ((sj_input.dot(sj_W) + sj_b - sj_output) ** 2).mean()
 
@@ -210,7 +227,7 @@ in TF and SymJAX and compare the computation time
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 1 minutes  18.375 seconds)
+   **Total running time of the script:** ( 1 minutes  46.270 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_timing_adam.py:

@@ -16,6 +16,9 @@
   sigmoid_crossentropy_logits
 
   accuracy
+  huber
+  explained_variance
+  hinge_loss
   multiclass_hinge_loss
   squared_differences
 
@@ -24,13 +27,16 @@ Detailed Descriptions
 =====================
 
 
-.. autofunction::  vae
-.. autofunction::  vae_gmm
-.. autofunction::  vae_comp_gmm
-.. autofunction::  sparse_softmax_crossentropy_logits
-.. autofunction::  softmax_crossentropy_logits
-.. autofunction::  sigmoid_crossentropy_logits
+.. autofunction:: vae
+.. autofunction:: vae_gmm
+.. autofunction:: vae_comp_gmm
+.. autofunction:: sparse_softmax_crossentropy_logits
+.. autofunction:: softmax_crossentropy_logits
+.. autofunction:: sigmoid_crossentropy_logits
 
-.. autofunction::  accuracy
-.. autofunction::  multiclass_hinge_loss
-.. autofunction::  squared_differences
+.. autofunction:: accuracy
+.. autofunction:: huber
+.. autofunction:: explained_variance
+.. autofunction:: hinge_loss
+.. autofunction:: multiclass_hinge_loss
+.. autofunction:: squared_differences

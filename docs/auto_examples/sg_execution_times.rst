@@ -5,20 +5,20 @@
 
 Computation times
 =================
-**01:40.711** total execution time for **auto_examples** files:
+**02:13.699** total execution time for **auto_examples** files:
 
 +-----------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_auto_examples_plot_timing_adam.py` (``plot_timing_adam.py``)                   | 01:18.375 | 0.0 MB |
+| :ref:`sphx_glr_auto_examples_plot_timing_adam.py` (``plot_timing_adam.py``)                   | 01:46.270 | 0.0 MB |
 +-----------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_auto_examples_plot_compare_adam.py` (``plot_compare_adam.py``)                 | 00:20.414 | 0.0 MB |
-+-----------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_auto_examples_plot_learn_interp_pixel.py` (``plot_learn_interp_pixel.py``)     | 00:01.922 | 0.0 MB |
+| :ref:`sphx_glr_auto_examples_plot_compare_adam.py` (``plot_compare_adam.py``)                 | 00:27.428 | 0.0 MB |
 +-----------------------------------------------------------------------------------------------+-----------+--------+
 | :ref:`sphx_glr_auto_examples_plot_deconvolution.py` (``plot_deconvolution.py``)               | 00:00.000 | 0.0 MB |
 +-----------------------------------------------------------------------------------------------+-----------+--------+
 | :ref:`sphx_glr_auto_examples_plot_image_transformation.py` (``plot_image_transformation.py``) | 00:00.000 | 0.0 MB |
 +-----------------------------------------------------------------------------------------------+-----------+--------+
 | :ref:`sphx_glr_auto_examples_plot_interpolation.py` (``plot_interpolation.py``)               | 00:00.000 | 0.0 MB |
++-----------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_plot_learn_interp_pixel.py` (``plot_learn_interp_pixel.py``)     | 00:00.000 | 0.0 MB |
 +-----------------------------------------------------------------------------------------------+-----------+--------+
 | :ref:`sphx_glr_auto_examples_plot_loops.py` (``plot_loops.py``)                               | 00:00.000 | 0.0 MB |
 +-----------------------------------------------------------------------------------------------+-----------+--------+

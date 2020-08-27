@@ -80,7 +80,20 @@ class Optimizer:
 
 
 class SGD(Optimizer):
-    """Gradient Descent Optimization
+    """Stochastic gradient descent optimization.
+
+    Notice that SGD is also the acronym employed in ``tf.keras.optimizers.SGD``
+    and in ``torch.optim.sgd`` but might be misleading. In fact, those
+    and this implementation implement GD, the SGD term only applies if one
+    performs GD optimization only using 1 (random) sample to compute the gradients.
+    If multiple samples are used it is commonly referred as mini-batch GD and
+    when the entire dataset is used then the optimizer is refered as GD. See
+    an illustrative discussion `here <https://towardsdatascience.com/difference-between-batch-gradient-descent-and-stochastic-gradient-descent-1187f1291aa1>`_.
+
+    The produced update for parameter θ and a given learning rate α is:
+
+    .. math::
+        θ = θ - α  ∇_{θ} L
 
     Parameters
     ----------
@@ -174,35 +187,47 @@ class NesterovMomentum(Optimizer):
 
 
 class Adam(Optimizer):
-    """Adaptive Gradient Based Optimization with renormalization
+    """Adaptive Gradient Based Optimization with renormalization.
 
-    If amsgrad = False:
-      Initialization:
-      $$m_0 := 0 \text{(Initialize initial 1st moment vector)}$$
-      $$v_0 := 0 \text{(Initialize initial 2nd moment vector)}$$
-      $$t := 0 \text{(Initialize timestep)}$$
-      The update rule for `variable` with gradient `g` uses an optimization
-      described at the end of section 2 of the paper:
-      $$t := t + 1$$
-      $$lr_t := \text{learning\_rate} * \sqrt{1 - beta_2^t} / (1 - beta_1^t)$$
-      $$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$
-      $$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$
-      $$variable := variable - lr_t * m_t / (\sqrt{v_t} + \epsilon)$$
-    If amsgrad = True:
-      Initialization:
-      $$m_0 := 0 \text{(Initialize initial 1st moment vector)}$$
-      $$v_0 := 0 \text{(Initialize initial 2nd moment vector)}$$
-      $$v_hat_0 := 0 \text{(Initialize initial 2nd moment vector)}$$
-      $$t := 0 \text{(Initialize timestep)}$$
-      The update rule for `variable` with gradient `g` uses an optimization
-      described at the end of section 2 of the paper:
-      $$t := t + 1$$
-      $$lr_t := \text{learning\_rate} * \sqrt{1 - beta_2^t} / (1 - beta_1^t)$$
-      $$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$
-      $$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$
-      $$v_hat_t := max(v_hat_{t-1}, v_t)$$
-      $$variable := variable - lr_t * m_t / (\sqrt{v_hat_t} + \epsilon)$$
-    The default value of 1e-7 for epsilon might not be a good default in
+    The update rule for `variable` with gradient `g` uses an optimization
+    described at the end of section 2 of the paper with learning rate
+    α.
+
+    If ``amsgrad`` is ``False``:
+
+    **initialization**:
+
+        - :math:`m_0 = 0` (Initialize initial 1st moment vector)
+        - :math:`v_0 = 0` (Initialize initial 2nd moment vector)
+        - :math:`t = 0` (Initialize timestep)
+
+    **update**:
+
+        - :math:`t = t + 1`
+        - :math:`α_t = α × \sqrt{1 - β_2^t}/(1 - β_1^t)`
+        - :math:`m_t = β_1 × m_{t-1} + (1 - β_1) × g`
+        - :math:`v_t = β_2 × v_{t-1} + (1 - β_2) × g \odot g`
+        - :math:`variable = variable - α_t × m_t / (\sqrt{v_t} + \epsilon)`
+
+    If ``amsgrad`` is ``True``:
+
+    **initialization**:
+
+        - :math:`m_0 = 0` (Initialize initial 1st moment vector)
+        - :math:`v_0 = 0` (Initialize initial 2nd moment vector)
+        - :math:`v'_0 = 0` (Initialize initial 2nd moment vector)
+        - :math:`t = 0` (Initialize timestep)
+
+    **update**:
+
+        - :math:`t = t + 1`
+        - :math:`α_t = α × \sqrt{1 - β_2^t}/(1 - β_1^t)`
+        - :math:`m_t = β_1 × m_{t-1} + (1 - β_1) × g`
+        - :math:`v_t = β_2 × v_{t-1} + (1 - β_2) × g \odot g`
+        - :math:`v'_t := \max(v'_{t-1}, v_t)`
+        - :math:`variable = variable - α_t × m_t / (\sqrt{v'_t} + \epsilon)`
+
+    The default value of :math:`\epsilon=1e-7` might not be a good default in
     general. For example, when training an Inception network on ImageNet a
     current good choice is 1.0 or 0.1. Note that since AdamOptimizer uses the
     formulation just before Section 2.1 of the Kingma and Ba paper rather than
@@ -221,14 +246,14 @@ class Adam(Optimizer):
         if grads_or_loss is al list then it should be ordered w.r.t. the
         given parameters
 
-    learning_rate: constant or Tensor
+    learning_rate (α): constant or Tensor
         the learning rate use to update the parameters
 
-    beta_1: constant or Tensor
+    β_1: constant or Tensor
         the value of the exponential moving average of the average of the
         gradients through time (updates)
 
-    beta_2: constant or Tensor
+    β_2: constant or Tensor
         the value of the exponential moving average of the variance of the
         gradients through time
 

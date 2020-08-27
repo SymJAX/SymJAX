@@ -3,31 +3,103 @@ import numpy as np
 from .ops_nn import softmax, log_softmax
 
 
-def huber(labels, predictions, delta=1.0):
-    """Adds a [Huber Loss](https://en.wikipedia.org/wiki/Huber_loss) term to the training procedure.
-    For each value x in `error=labels-predictions`, the following is calculated:
-    ```
-      0.5 * x^2                  if |x| <= d
-      0.5 * d^2 + d * (|x| - d)  if |x| > d
-    ```
-    where d is `delta`.
+def huber(targets, predictions, delta=1.0):
+    """huber loss (regression).
 
-      Args:
-      labels: The ground truth output tensor, same dimensions as 'predictions'.
+    For each value x in `error=targets-predictions`, the following is calculated:
+
+        - :math:`0.5 × x^2`     if :math:`|x| <= Δ`
+        - :math:`0.5 × Δ^2 + Δ × (|x| - Δ)`  if :math:`|x| > Δ`
+
+    leading to
+
+    .. plot::
+
+      import matplotlib.pyplot as plt
+      import numpy as np
+      x = np.linspace(-3, 3, 300)
+      huber = lambda x, delta: np.where(np.abs(x)<= delta, 0.5*x**2, 0.5*delta**2+delta*(np.abs(x)-delta))
+      plt.plot(x, huber(x, 0.5))
+      plt.plot(x, huber(x, 1))
+      plt.plot(x, huber(x, 2))
+      plt.plot(x, x**2, '--k')
+      plt.xlabel(r'$x$')
+      plt.ylabel(r'huber$(x,\Delta)$')
+      plt.legend([r'$\Delta=0.5$',r'$\Delta=1$',r'$\Delta=2$', r'$x^2$'])
+      plt.tight_layout()
+      plt.show()
+
+
+    `Wikipedia <https://en.wikipedia.org/wiki/Huber_loss>`_
+
+
+    Args:
+      targets: The ground truth output tensor, same dimensions as 'predictions'.
       predictions: The predicted outputs.
-      delta: `float`, the point where the huber loss function changes from a
+      delta (Δ): `float`, the point where the huber loss function changes from a
         quadratic to linear.
     Returns:
-      Weighted loss float, this has the same
-      shape as `labels`
+      loss float, this has the same
+      shape as `targets`
     """
 
-    error = predictions - labels
+    error = predictions - targets
     abs_error = T.abs(error)
     losses = T.where(
         abs_error <= delta, 0.5 * error ** 2, delta * (abs_error - 0.5 * delta)
     )
     return losses
+
+
+def explained_variance(y, ypred, axis=None, epsilon=1e-6):
+    """
+    Computes fraction of variance that ypred explains about y.
+    The formula is
+
+    .. math::
+        1 - Var[y-ypred] / Var[y]
+
+    and in the special case of centered targets and predictions it becomes
+
+    .. math::
+        1 - \|y-ypred\|^2_2 / \|y\|_2^2
+
+    hence it can be seen as an :math:`ℓ_2' loss rescaled by the energy in the targets.
+
+    interpretation:
+
+        - ev=0  =>  might as well have predicted zero
+        - ev=1  =>  perfect prediction
+        - ev<0  =>  worse than just predicting zero
+
+    Parameters:
+    -----------
+
+    y: Tensor like
+        true target
+
+    ypred: Tensor like
+        prediction
+
+    axis: integer or None (default=None)
+        the axis along which to compute the var, by default uses all axes
+
+    epsilon (ϵ): float (default=1e-6)
+        the added constant in the denominator
+
+    Returns:
+    --------
+
+    .. math::
+        1 - Var(y-ypred)/(Var(y)+ϵ)
+
+    Notes:
+    ------
+
+    This is not a symmetric function
+
+    """
+    return 1 - (y - ypred).var(axis=axis) / (y.var(axis=axis) + epsilon)
 
 
 def vae(x, x_hat, z_mu, z_logvar, mu, logvar, logvar_x=0.0, eps=1e-8):
@@ -362,12 +434,66 @@ def sigmoid_crossentropy_logits(labels, logits):
     return -logits * labels + T.log1p(T.exp(logits))
 
 
-def multiclass_hinge_loss(predictions, targets, delta=1):
-    """Computes the multi-class hinge loss between predictions and targets.
-    .. math:: L_i = \\max_{j \\not = t_i} (0, p_j - p_{t_i} + \\delta)
+def hinge_loss(predictions, targets, delta=1):
+    """(binary) hinge loss.
+
+
+    For an intended output :math:`t = ±1` and a classifier score :math:`p`, the hinge loss is defined for each datum as
+
+    .. math::
+        \max ( 0 , Δ − t  p)
+
+    as soon as the loss is smaller than :math:`Δ` the datum is well classified, however margin is increased by pushing the loss to :math:`0` hence :math:`Δ` is the user-defined prefered margin to reach. In standard SVM :math:`Δ=1`
+    leading to
+
+    .. plot::
+
+      import matplotlib.pyplot as plt
+      import numpy as np
+      x = np.linspace(-3, 3, 300)
+      y = 1
+      hinge1 = np.maximum(0, 1-x*y)
+      hinge02 = np.maximum(0, 0.2-x*y)
+      plt.plot(x, hinge1)
+      plt.plot(x, hinge02)
+      plt.plot(x, (x < 0).astype('int32'), '--k')
+      plt.axvline(1,c='r')
+      plt.xlabel(r'predictions')
+      plt.ylabel(r'hinge$(p,1,\Delta)$')
+      plt.legend([r'hinge loss $\Delta=1$',r'hinge loss $\Delta=0.2$' '0-1 loss', 'true label'])
+      plt.tight_layout()
+      plt.show()
+
+
+    Note that :math:`p` should be the "raw" output of the classifier's decision function, not the predicted class label. For instance, in linear SVMs, :math:`p = <w, x> + b` where ( :math:`w , b` are the parameters of the hyperplane and :math:`x` is the input variable(s).
+
     Parameters
     ----------
-    predictions : Theano 2D tensor
+    predictions : 1D tensor
+        prediction of the classifier (raw,)
+    targets : 1D binary tensor with values in :math:`t\in\{-1,1\}`.
+
+    Returns
+    -------
+    1D tensor
+        An expression for the item-wise hinge loss
+
+    Notes
+    -----
+    This is an alternative to the categorical cross-entropy loss for
+    classification problems
+    """
+    return T.maximum(0, delta - predictions * targets)
+
+
+def multiclass_hinge_loss(predictions, targets, delta=1):
+    """multi-class hinge loss.
+
+    .. math::
+        L_i = \max_{j ≠ t_i} (0, p_j - p_{t_i} + Δ)
+    Parameters
+    ----------
+    predictions : 2D tensor
         Predictions in (0, 1), such as softmax output of a neural network,
         with data points in rows and class probabilities in columns.
     targets : Theano 2D tensor or 1D tensor
@@ -399,13 +525,16 @@ def multiclass_hinge_loss(predictions, targets, delta=1):
 def squared_differences(x, y):
     """elementwise squared differences.
 
-    Computes
+    Computes element-wise
 
     .. math::
-        \left(x-y\right^2)
 
-    element-wise, is shapes are not equal, broadcasting applies as in any
+        (x-y)^2
+
+    broadcasting applies as in any
     operations.
+
+    `Wikipedia <https://en.wikipedia.org/wiki/Loss_function#Quadratic_loss_function>`_
 
     Parameters
     ----------
@@ -425,19 +554,28 @@ def squared_differences(x, y):
 
 
 def accuracy(targets, predictions):
-    """elementwise squared differences.
+    """classification accuracy.
 
-    Computes
+    It is computed by averaging the `0-1 loss <https://en.wikipedia.org/wiki/Loss_function#0-1_loss_function>`_
+    as in
 
     .. math::
-        \frac{1}{N}\sum_{n=1}^N1_{\{y_n == p_n\}}
+        (Σ_{n=1}^N 1_{\{y_n == p_n\}})/N
 
-    where :mat:`p` denotes the predictions
+    where :math:`p` denotes the predictions. The inputs must be vectors but in
+    the special case where targets is a vector
+    but predictions is a matrix, then the
+    argmax is used to get the real predictions as in
+
+    .. math::
+        (Σ_{n=1}^N 1_{\{y_n == arg \max p_{n,:}\}})/N
+
+    `Wikipedia <https://en.wikipedia.org/wiki/Accuracy_and_precision>`_
 
     Parameters
     ----------
 
-    targets: tensor-like
+    targets: 1D tensor-like
 
     predictions: tensor-like
         it can be a :math:`2D` matrix in which case the ``argmax`` is used to
