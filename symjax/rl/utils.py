@@ -2,6 +2,7 @@ from collections import deque
 import random
 from scipy.signal import lfilter
 import numpy as np
+from collections import deque
 
 
 class NStepRewarder(object):
@@ -104,100 +105,80 @@ class Buffer(dict):
 
     def __init__(
         self,
-        action_shape,
-        state_shape,
-        size,
-        V_or_Q,
-        extras=None,
+        maxlen,
         priority_sampling=False,
         gamma=0.99,
-        lam=0.97,
+        lam=0.95,
     ):
 
         self.priority_sampling = priority_sampling
-        self.size = size
+        self.maxlen = maxlen
         self.lam = lam
-        self.episode_length = 0
         self.gamma = gamma
-        self.extras = {} if extras is None else extras
-        self.action_shape = action_shape
-        self.state_shape = state_shape
 
-        self.V_or_Q = V_or_Q
-        assert V_or_Q in ["V", "Q"]
         super().__init__()
         self.reset()
 
-    def reset(self):
+    def reset_data(self):
         for item in list(self.keys()):
             self.pop(item)
-
-        self["reward"] = np.empty((self.size,))
-        self["reward-to-go"] = np.empty((self.size,))
-        self["advantage"] = np.empty((self.size,))
-        self["terminal"] = np.empty((self.size,), dtype="bool")
-        self["TD-error"] = np.empty((self.size,))
-        if self.V_or_Q == "V":
-            self[self.V_or_Q] = np.empty(self.size)
-        else:
-            self[self.V_or_Q] = np.empty(self.size + self.action_shape)
-        self["action"] = np.empty((self.size,) + self.action_shape)
-        self["state"] = np.empty((self.size,) + self.state_shape)
-        self["next-state"] = np.empty((self.size,) + self.state_shape)
-        self["episode"] = np.zeros((self.size,), dtype="int32") - 1
-        self["priority"] = np.ones((self.size,))
-
-        for key, shape in self.extras.items():
-            self[key] = np.empty((self.size,) + shape)
-
-        self.ptr = 0
-        self.path_start_ptr = 0
-        self.episode_reward = 0
         self._length = 0
+
+    def reset(self):
+        self.reset_data()
+
+        self.episode_reward = 0
+        self.episode_length = 0
+        self.n_episodes = 0
+
+        # runing stats
+        # https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
+        # https://github.com/openai/baselines/blob/master/baselines/common/running_mean_std.py
+        self.mean = np.zeros((), "float64")
+        self.var = np.ones((), "float64")
+        self.std = np.ones((), "float64")
+        self.count = 1e-4
 
     def push(self, kwargs):
         """
         Append one timestep of agent-environment interaction to the buffer.
         """
-        assert "episode" in kwargs
-        assert "action" in kwargs
-        assert "reward" in kwargs
-        assert "state" in kwargs
-        assert "next-state" in kwargs
-        assert "terminal" in kwargs
-        assert self.V_or_Q in kwargs
 
         for key, value in kwargs.items():
-            self[key][self.ptr % self.size] = value
+            if key not in self:
+                self[key] = deque(maxlen=self.maxlen)
+            self[key].append(value)
 
-        self.ptr += 1
-        self.episode_reward += kwargs["reward"]
-        self._length += 1
+        if "reward" in kwargs:
+            self.episode_reward += kwargs["reward"]
+            self.episode_length += 1
+            self._length += 1
 
     @property
     def length(self):
-        return max(self._length, self.size)
+        return min(self._length, self.maxlen)
 
-    def sample(self, length, keys=None):
+    def sample(self, length_or_indices, keys=None):
 
         if keys is None:
             keys = ["state", "action", "reward", "next-state", "terminal"]
 
-        valid = self["episode"] >= 0
-        indices = np.arange(self.size, dtype="int32")[valid]
-        if self.priority_sampling:
-            p = np.array(self.priorities)[valid]
-            p /= p.sum()
-            batch = np.random.choice(indices, p=p, size=length)
-        else:
-            batch = np.random.choice(indices, size=length)
+        if np.isscalar(length_or_indices):
+            indices = np.arange(self.length, dtype="int32")
+            if self.priority_sampling:
+                p = np.array(self.priorities)[valid]
+                p /= p.sum()
+                batch = np.random.choice(indices, p=p, size=length_or_indices)
+            else:
+                batch = np.random.choice(indices, size=length_or_indices)
 
-        # batch = indices[:length]
-        self.current_indices = batch
+            self.current_indices = batch
+        else:
+            self.current_indices = length_or_indices
 
         outputs = []
         for key in keys:
-            outputs.append(self[key][batch])
+            outputs.append(np.array([self[key][i] for i in self.current_indices]))
 
         return outputs
 
@@ -212,32 +193,104 @@ class Buffer(dict):
 
         The "last_val" argument should be 0 if the trajectory ended
         because the agent reached a terminal state (died), and otherwise
-        should be V(s_T), the value function estimated for the last state.
+        should be :math:`V(s_T)`, the value function estimated for the last state.
         This allows us to bootstrap the reward-to-go calculation to account
         for timesteps beyond the arbitrary episode horizon (or epoch cutoff).
         """
 
-        path_slice = np.arange(self.path_start_ptr, self.ptr) % self.size
+        # check how far in the past (in the episode) can we get data
+        back = min(self.episode_length, self.length)
 
-        # the next lines implement GAE-Lambda advantage calculation
-        vals = np.append(self["V"][path_slice], last_val)
-        rews = np.append(self["reward"][path_slice], last_val)
+        # create the indices to conveniently access those data though
+        # the sample method
+        indices = range(-back, 0)
 
-        # temporal-difference (TD) error
-        deltas = rews[:-1] + self.gamma * vals[1:] - vals[:-1]
-        self["TD-error"][path_slice] = deltas
+        if "reward" in self:
 
-        self["advantage"][path_slice] = discount_cumsum(deltas, self.gamma * self.lam)
+            # access episode rewards
+            rews = np.append(self.sample(indices, ["reward"])[0], last_val)
+            # update running stats
+            self.update_stats(rews)
+            rews = np.clip((rews - self.mean) / self.std, -10, 10)
 
-        # computes rewards-to-go, (targets of value function)
-        self["reward-to-go"][path_slice] = discount_cumsum(rews, self.gamma)[:-1]
+            # computes rewards-to-go, (targets of value function) and push them
+            for val in discount_cumsum(rews, self.gamma)[:-1]:
+                self.push({"reward-to-go": val})
 
-        self["advantage"][path_slice] = self["reward-to-go"][path_slice] - vals[:-1]
+        if "V" in self:
 
-        self["priority"][path_slice] = 1 + deltas
+            # access state-values of the episode
+            vals = np.append(
+                self.sample(indices, ["V"])[0],
+                last_val,
+            )
 
-        self.path_start_ptr = self.ptr
+            # computes GAE-Lambda advantage calculation
+            # https://arxiv.org/abs/1506.02438
+            advantages = generalized_advantage_estimation(
+                vals, rews, self.gamma * self.lam
+            )
+            for v in advantages:
+                self.push({"advantage": v})
+
+            # # also add the returns
+            # for v in advantages + vals[:-1]:
+            #     self.push({"return": v})
+
+            # self["priority"][path_slice] = (
+            #     1 + rews[:-1] - vals[:-1] + self.gamma * vals[1:]
+            # )
+
         self.episode_reward = 0
+        self.episode_length = 0
+        self.n_episodes += 1
+
+    def update_stats(self, x):
+
+        batch_mean = np.mean(x)
+        batch_var = np.var(x)
+        batch_count = len(x)
+
+        delta = batch_mean - self.mean
+        new_mean = self.mean + delta * batch_count / (self.count + batch_count)
+        m_a = self.var * self.count
+        m_b = batch_var * batch_count
+        M2 = (
+            m_a
+            + m_b
+            + np.square(delta) * self.count * batch_count / (self.count + batch_count)
+        )
+        new_var = M2 / (self.count + batch_count)
+
+        self.mean = new_mean
+        self.var = new_var
+        self.std = np.maximum(np.sqrt(self.var), 1e-6)
+        self.count = batch_count + self.count
+
+
+def generalized_advantage_estimation(values, rewards, gamma, lam=0.95):
+    """
+    GAE-Lambda advantage calculation
+
+    Args:
+
+    values: the V_hat(s)
+
+    reward:
+        as return by the environment
+
+    gamma: reward discount
+
+    lam: lambda (see paper).
+        lam=0 : use TD residuals
+        lam=1 : A =  Sum Discounted Rewards - V_hat(s)
+
+    """
+
+    # temporal-difference (TD) error
+    deltas = rewards[:-1] + gamma * values[1:] - values[:-1]
+    advantages = discount_cumsum(deltas, gamma * lam)
+    return advantages
 
 
 class Gaussian:
@@ -294,37 +347,12 @@ def run(
         all_losses.append([])
 
         for j in range(max_episode_steps):
-            action = agent.get_noise_action(state)
+            # action = agent.get_noise_action(state)
+            state, terminal, infos = agent.play(state, env, skip_frames=skip_frames)
+            infos.update({"episode": episode})
+            buffer.push(infos)
+
             global_step += 1
-
-            if noise:
-                action = noise(action, episode=episode)
-            if action_processor:
-                action = action_processor(action)
-
-            value = 0  # agent.get_value(state)
-
-            reward = 0
-            for k in range(skip_frames):
-                next_state, r, terminal, info = env.step(action)
-                reward += r
-                if terminal:
-                    break
-            reward /= skip_frames
-
-            base = {
-                "V": value,
-                "state": state,
-                "action": action,
-                "reward": reward,
-                "next-state": next_state,
-                "terminal": terminal,
-                "episode": episode,
-            }
-
-            buffer.push(base)
-
-            state = next_state
 
             # Perform the updates
             if (
@@ -352,8 +380,14 @@ def run(
                 )
                 buffer.finish_path(0)
 
-                if wait_end_path and global_step > update_after:
-                    all_losses[-1].append(agent.train(buffer, episode=i, step=j))
+                if (
+                    wait_end_path
+                    and global_step >= update_after
+                    and global_step % update_every == 0
+                    and buffer.length >= agent.batch_size
+                ):
+                    all_losses[-1].append(agent.train(buffer, episode=episode, step=j))
+                    print(all_losses[-1][-1:])
 
                 if noise:
                     noise.end_episode()
@@ -380,7 +414,7 @@ def play(environment, agent, max_episodes, max_episode_steps):
         episode_steps.append(0)
         state = environment.reset()
         for j in range(max_episode_steps):
-            action = agent.get_action(state)
+            action = agent.get_action(state)[0]
             state, reward, done, _ = environment.step(action)
             episode_rewards[-1] += reward
             episode_steps[-1] += 1

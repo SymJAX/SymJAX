@@ -4,230 +4,192 @@ import numpy as np
 
 
 class Agent(object):
-    @property
-    def batch_size(self):
-        return self.actor.batch_size
-
     def get_action(self, state):
         return self.actor.get_action(state)
-
-    def get_noise_action(self, state):
-        return self.actor.get_noise_action(state)
 
     def get_actions(self, states):
         return self.actor.get_actions(states)
 
-    def get_noise_actions(self, states):
-        if not hasattr(self, "_noise_actions"):
-            raise RuntimeError("actor not well initialized")
-        return self.actor.get_noise_actions(states)
+    def play(self, state, env, skip_frames=1, reward_scaling=1):
+
+        action, extra = self.get_action(state)
+
+        if hasattr(self, "critic"):
+            if hasattr(self.critic, "actions"):
+                value = self.critic.get_q_value(state, action)
+            else:
+                value = self.critic.get_q_value(state)
+            extra.update({"V": value})
+
+        reward = 0
+        for k in range(skip_frames):
+            next_state, r, terminal, info = env.step(action)
+            reward += r
+            if terminal:
+                break
+        reward /= skip_frames
+        reward *= reward_scaling
+
+        base = {
+            "state": state,
+            "action": action,
+            "reward": reward,
+            "next-state": next_state,
+            "terminal": terminal,
+        }
+
+        return next_state, terminal, {**base, **extra}
+
+    def update_target(self, tau=None):
+
+        if not hasattr(self, "_update_target"):
+            with symjax.Scope("update_target"):
+                targets = []
+                currents = []
+                if hasattr(self, "target_actor"):
+                    targets += self.target_actor.params(True)
+                    currents += self.actor.params(True)
+                if hasattr(self, "target_critic"):
+                    targets += self.target_critic.params(True)
+                    currents += self.critic.params(True)
+
+                _tau = T.Placeholder((), "float32")
+                updates = {
+                    t: t * (1 - _tau) + a * _tau for t, a in zip(targets, currents)
+                }
+            self._update_target = symjax.function(_tau, updates=updates)
+
+        if tau is None:
+            if not hasattr(self, "tau"):
+                raise RuntimeError("tau must be specified")
+        tau = tau or self.tau
+        self._update_target(tau)
 
 
 class Actor(object):
-    def __init__(self, batch_size, state_shape, tau=0.99, noise=None):
-        if noise is None:
+    def __init__(self, states, noise=None, distribution="deterministic"):
 
-            def noise(action):
-                return action
+        self.states = states
+        self.state = T.Placeholder((1,) + states.shape.get()[1:], "float32")
+        self.state_shape = self.state.shape.get()[1:]
+        self.distribution = distribution
 
-        self.tau = tau
-        self.batch_size = batch_size
-        self.state_shape = state_shape
-        self.states = T.Placeholder((batch_size,) + state_shape, "float32")
-        self.state = T.Placeholder((1,) + state_shape, "float32")
-        with symjax.Scope("actor"):
-            self.actions = self.create_network(self.states)
-            self.noise_actions = noise(self.actions)
-            self.action = self.actions.clone({self.states: self.state})
-            self.noise_action = self.noise_actions.clone({self.states: self.state})
+        with symjax.Scope("actor") as q:
+            if distribution == "gaussian":
+                means, covs = self.create_network(self.states)
+                self.actions = symjax.probabilities.MultivariateNormal(
+                    means, diag_log_std=covs
+                )
+                self.samples = self.actions.sample()
+                self.samples_log_prob = self.actions.log_prob(self.samples)
+                mean = means.clone({self.states: self.state})
+                cov = covs.clone({self.states: self.state})
+                self.action = symjax.probabilities.MultivariateNormal(
+                    mean, diag_log_std=cov
+                )
+                self.sample = self.action.sample()
+                self.sample_log_prob = self.action.log_prob(self.sample)
+                self._get_actions = symjax.function(
+                    self.states, outputs=[self.samples, self.samples_log_prob]
+                )
+                self._get_action = symjax.function(
+                    self.state,
+                    outputs=[self.sample[0], self.sample_log_prob[0]],
+                )
+            else:
+                self.actions = self.create_network(self.states)
+                self.action = self.actions.clone({self.states: self.state})
 
-        with symjax.Scope("target_actor"):
-            self.target_actions = self.create_network(self.states)
-            self.target_action = self.target_actions.clone({self.states: self.state})
+                self._get_actions = symjax.function(self.states, outputs=self.actions)
+                self._get_action = symjax.function(self.state, outputs=self.action[0])
 
-        self.params = symjax.get_variables(scope="*actor", trainable=True)
+        self._params = q.variables(trainable=None)
 
-        self._get_actions = symjax.function(self.states, outputs=self.actions)
-        self._get_noise_actions = symjax.function(
-            self.states, outputs=self.noise_actions
-        )
-        self._get_action = symjax.function(self.state, outputs=self.action[0])
-        self._get_noise_action = symjax.function(
-            self.state, outputs=self.noise_action[0]
-        )
-
-        self._get_target_actions = symjax.function(
-            self.states, outputs=self.target_actions
-        )
-        self._get_target_action = symjax.function(
-            self.state, outputs=self.target_action[0]
-        )
-
-        tau = T.Placeholder((), "float32")
-        updates = {
-            t: t * tau + a * (1 - tau)
-            for t, a in zip(
-                symjax.get_variables(scope="/target_actor/"),
-                symjax.get_variables(scope="/actor/"),
-            )
-        }
-        self._update_target = symjax.function(tau, updates=updates)
-        self.update_target(0)
+    def params(self, trainable):
+        if trainable is None:
+            return self._params
+        return [p for p in self._params if p.trainable == trainable]
 
     def get_action(self, state):
         if state.ndim == len(self.state_shape):
             state = state[np.newaxis, :]
         if not hasattr(self, "_get_action"):
             raise RuntimeError("actor not well initialized")
-        return self._get_action(state)
-
-    def get_noise_action(self, state):
-        if state.ndim == len(self.state_shape):
-            state = state[np.newaxis, :]
-        if not hasattr(self, "_get_noise_action"):
-            raise RuntimeError("actor not well initialized")
-        return self._get_noise_action(state)
+        if self.distribution == "deterministic":
+            return self._get_action(state), {}
+        else:
+            a, probs = self._get_action(state)
+            return a, {"log_probs": probs}
 
     def get_actions(self, state):
         if not hasattr(self, "_get_actions"):
             raise RuntimeError("actor not well initialized")
-        return self._get_actions(state)
-
-    def get_noise_actions(self, state):
-        if not hasattr(self, "_get_noise_actions"):
-            raise RuntimeError("actor not well initialized")
-        return self._get_noise_actions(state)
-
-    def get_target_action(self, state):
-        if state.ndim == len(self.state_shape):
-            state = state[np.newaxis, :]
-        if not hasattr(self, "_get_target_action"):
-            raise RuntimeError("actor not well initialized")
-        return self._get_target_action(state)
-
-    def get_target_actions(self, state):
-        if not hasattr(self, "_get_target_actions"):
-            raise RuntimeError("actor not well initialized")
-        return self._get_target_actions(state)
-
-    def update_target(self, tau=None):
-        tau = tau or self.tau
-        if not hasattr(self, "_update_target"):
-            raise RuntimeError("actor not well initialized")
-        self._update_target(tau)
+        if self.distribution == "deterministic":
+            return self._get_actions(state), {}
+        else:
+            a, probs = self._get_actions(state)
+            return a, {"log_probs": probs}
 
     def create_network(self, states, action_dim):
         raise RuntimeError("Not implemented, user should define its own")
 
 
 class Critic(object):
-    def __init__(self, batch_size, state_shape, action_shape=None, tau=0.99):
-        self.tau = tau
-        self.batch_size = batch_size
-        self.state_shape = state_shape
-        self.action_shape = action_shape
-        self.states = T.Placeholder(
-            (batch_size,) + state_shape, "float32", name="critic_states"
+    def __init__(self, states, actions=None):
+        self.states = states
+        self.state = T.Placeholder(
+            (1,) + states.shape.get()[1:], "float32", name="critic_state"
         )
-        self.state = T.Placeholder((1,) + state_shape, "float32", name="critic_state")
-        if action_shape:
-            self.actions = T.Placeholder(
-                (batch_size,) + action_shape, "float32", name="critic_actions"
-            )
+        self.state_shape = self.state.shape.get()[1:]
+        if actions:
+            self.actions = actions
             self.action = T.Placeholder(
-                (1,) + action_shape, "float32", name="critic_action"
+                (1,) + actions.shape.get()[1:], "float32", name="critic_action"
             )
+            self.action_shape = self.action.shape.get()[1:]
 
-            with symjax.Scope("critic"):
+            with symjax.Scope("critic") as q:
                 self.q_values = self.create_network(self.states, self.actions)
+                if self.q_values.ndim == 2:
+                    assert self.q_values.shape.get()[1] == 1
+                    self.q_values = self.q_values[:, 0]
                 self.q_value = self.q_values.clone(
                     {self.states: self.state, self.actions: self.action}
                 )
+                self._params = q.variables(trainable=None)
 
-            self._get_q_values = symjax.function(
-                self.states, self.actions, outputs=self.q_values
-            )
-            self._get_noise_q_values = symjax.function(
-                self.states, self.actions, outputs=self.q_values
-            )
-            self._get_q_value = symjax.function(
-                self.state, self.action, outputs=self.q_value
-            )
-            self._get_noise_q_value = symjax.function(
-                self.state, self.action, outputs=self.q_value
-            )
+            inputs = [self.states, self.actions]
+            input = [self.state, self.action]
 
-            # now for the target
-            with symjax.Scope("target_critic"):
-                self.target_q_values = self.create_network(self.states, self.actions)
-                self.target_q_value = self.target_q_values.clone(
-                    {self.states: self.state, self.actions: self.action}
-                )
-            self._get_target_q_values = symjax.function(
-                self.states, self.actions, outputs=self.target_q_values
-            )
-            self._get_target_noise_q_values = symjax.function(
-                self.states, self.actions, outputs=self.target_q_values
-            )
-            self._get_target_q_value = symjax.function(
-                self.state, self.action, outputs=self.target_q_value
-            )
-            self._get_target_noise_q_value = symjax.function(
-                self.state, self.action, outputs=self.target_q_value
-            )
         else:
-            with symjax.Scope("critic"):
+            with symjax.Scope("critic") as q:
                 self.q_values = self.create_network(self.states)
+                if self.q_values.ndim == 2:
+                    assert self.q_values.shape.get()[1] == 1
+                    self.q_values = self.q_values[:, 0]
                 self.q_value = self.q_values.clone({self.states: self.state})
+                self._params = q.variables(trainable=None)
 
-            self._get_q_values = symjax.function(self.states, outputs=self.q_values)
-            self._get_noise_q_values = symjax.function(
-                self.states, outputs=self.q_values
-            )
-            self._get_q_value = symjax.function(self.state, outputs=self.q_value)
-            self._get_noise_q_value = symjax.function(self.state, outputs=self.q_value)
+            inputs = [self.states]
+            input = [self.state]
 
-            with symjax.Scope("target_critic"):
-                self.target_q_values = self.create_network(self.states)
-                self.target_q_value = self.target_q_values.clone(
-                    {self.states: self.state}
-                )
+        self._get_q_values = symjax.function(*inputs, outputs=self.q_values)
+        self._get_q_value = symjax.function(*input, outputs=self.q_value[0])
 
-            self._get_target_q_values = symjax.function(
-                self.states, outputs=self.target_q_values
-            )
-            self._get_target_noise_q_values = symjax.function(
-                self.states, outputs=self.target_q_values
-            )
-            self._get_target_q_value = symjax.function(
-                self.state, outputs=self.target_q_value
-            )
-            self._get_target_noise_q_value = symjax.function(
-                self.state, outputs=self.target_q_value
-            )
-
-        self.params = symjax.get_variables(scope="*/critic", trainable=True)
-
-        tau = T.Placeholder((), "float32")
-        updates = {
-            t: t * tau + a * (1 - tau)
-            for t, a in zip(
-                symjax.get_variables(scope="/target_critic/"),
-                symjax.get_variables(scope="/critic/"),
-            )
-        }
-        self._update_target = symjax.function(tau, updates=updates)
-        self.update_target(0)
+    def params(self, trainable):
+        if trainable is None:
+            return self._params
+        return [p for p in self._params if p.trainable == trainable]
 
     def get_q_value(self, state, action=None):
         if state.ndim == len(self.state_shape):
             state = state[np.newaxis, :]
-        if action:
+        if action is not None:
             if action.ndim == len(self.action_shape):
                 action = action[np.newaxis, :]
         if not hasattr(self, "_get_q_value"):
             raise RuntimeError("critic not well initialized")
-        if action:
+        if action is None:
             return self._get_q_value(state)
         else:
             return self._get_q_value(state, action)
@@ -235,37 +197,10 @@ class Critic(object):
     def get_q_values(self, states, actions=None):
         if not hasattr(self, "_get_q_values"):
             raise RuntimeError("critic not well initialized")
-        if actions:
+        if actions is not None:
             return self._get_q_values(states, actions)
         else:
             return self._get_q_values(states)
-
-    def get_target_q_value(self, state, action=None):
-        if state.ndim == len(self.state_shape):
-            state = state[np.newaxis, :]
-        if action:
-            if action.ndim == len(self.action_shape):
-                action = action[np.newaxis, :]
-        if not hasattr(self, "_get_target_q_value"):
-            raise RuntimeError("critic not well initialized")
-        if action:
-            return self._get_target_q_value(state)
-        else:
-            return self._get_target_q_value(state, action)
-
-    def get_target_q_values(self, states, actions=None):
-        if not hasattr(self, "_get_target_q_values"):
-            raise RuntimeError("critic not well initialized")
-        if actions is not None:
-            return self._get_target_q_values(states, actions)
-        else:
-            return self._get_target_q_values(states)
-
-    def update_target(self, tau=None):
-        tau = tau or self.tau
-        if not hasattr(self, "_update_target"):
-            raise RuntimeError("critic not well initialized")
-        self._update_target(tau)
 
     def create_network(self, states, actions=None):
         raise RuntimeError("Not implemented, user should define its own")

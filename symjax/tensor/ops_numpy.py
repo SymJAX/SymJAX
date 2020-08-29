@@ -180,17 +180,29 @@ _add_method(Tensor)(getitem, "__getitem__")
 # overloading the basic arithmetic operators
 _add_method(Tensor)(module.__dict__["add"], "__add__")
 _add_method(Tensor)(module.__dict__["add"], "__radd__")
+
 _add_method(Tensor)(module.__dict__["multiply"], "__mul__")
 _add_method(Tensor)(module.__dict__["multiply"], "__rmul__")
+
 _add_method(Tensor)(module.__dict__["true_divide"], "__truediv__")
 _add_method(Tensor)(lambda a, b: module.__dict__["true_divide"](b, a), "__rtruediv__")
+
 _add_method(Tensor)(module.__dict__["floor_divide"], "__floordiv__")
 _add_method(Tensor)(lambda a, b: module.__dict__["floor_divide"](b, a), "__rfloordiv__")
 
 _add_method(Tensor)(module.__dict__["subtract"], "__sub__")
 _add_method(Tensor)(lambda a, b: module.__dict__["subtract"](b, a), "__rsub__")
+
 _add_method(Tensor)(module.__dict__["power"], "__pow__")
-_add_method(Tensor)(lambda a: 0 - a, "__neg__")
+_add_method(Tensor)(module.__dict__["negative"], "__neg__")
+
+# logical operator
+_add_method(Tensor)(module.__dict__["bitwise_or"], "__or__")
+_add_method(Tensor)(module.__dict__["bitwise_and"], "__and__")
+_add_method(Tensor)(module.__dict__["bitwise_xor"], "__xor__")
+_add_method(Tensor)(module.__dict__["invert"], "__invert__")
+_add_method(Tensor)(module.__dict__["left_shift"], "__lshift__")
+_add_method(Tensor)(module.__dict__["right_shift"], "__rshift__")
 
 # overloading comparison operators
 _add_method(Tensor)(module.__dict__["less"], "__lt__")
@@ -202,7 +214,7 @@ _add_method(Tensor)(module.__dict__["less"], "__rge__")
 _add_method(Tensor)(module.__dict__["less_equal"], "__le__")
 _add_method(Tensor)(module.__dict__["greater"], "__rle__")
 
-# additional operators
+# additional basic arithmetic operators
 _add_method(Tensor)(module.__dict__["sum"], "sum")
 _add_method(Tensor)(module.__dict__["prod"], "prod")
 _add_method(Tensor)(module.__dict__["mean"], "mean")
@@ -213,8 +225,7 @@ _add_method(Tensor)(module.__dict__["var"], "var")
 _add_method(Tensor)(module.__dict__["argmax"], "argmax")
 _add_method(Tensor)(module.__dict__["argmin"], "argmin")
 
-# additional operators
-
+# additional convenient operators
 _add_method(Tensor)(module.__dict__["real"], "real")
 _add_method(Tensor)(module.__dict__["imag"], "imag")
 _add_method(Tensor)(module.__dict__["conjugate"], "conj")

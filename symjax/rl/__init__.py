@@ -3,4 +3,4 @@
 
 from . import utils
 from . import agents
-from .ddpg import DDPG
+from .ddpg import DDPG, PPO, ActorCritic, REINFORCE

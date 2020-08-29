@@ -433,6 +433,7 @@ class Scope:
             self.full_name = self.graph._current_scope
         self.graph._scopes.append(self)
         self.graph._scopes_history.append(self.full_name)
+        return self
 
     def __exit__(self, *a):
         """Delete globals."""
@@ -451,9 +452,8 @@ class Scope:
             **dict([(v.name, symjax.tensor.get(v)) for v in self.variables]),
         )
 
-    @property
-    def variables(self):
-        return get_variables(scope=self.full_name)
+    def variables(self, trainable=True):
+        return get_variables(scope=self.full_name, trainable=trainable)
 
     @property
     def ops(self):
