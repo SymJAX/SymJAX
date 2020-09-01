@@ -9,8 +9,8 @@ import numpy as np
 
 
 def test_pc():
-    a = symjax.nn.schedules.PiecewiseConstant(0, {4: 1, 8: 2})
-    f = symjax.function(outputs=a, updates=symjax.get_updates())
+    a, cpt = symjax.nn.schedules.PiecewiseConstant(0, {4: 1, 8: 2})
+    f = symjax.function(outputs=a, updates={cpt: cpt + 1})
     for i in range(10):
         value = f()
         if i < 4:
