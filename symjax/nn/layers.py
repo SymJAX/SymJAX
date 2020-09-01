@@ -484,7 +484,6 @@ class RandomCrop(Layer):
 
         self.start_indices = list()
         self.fixed_indices = list()
-        print("asdfasdf")
         for i, (pad, dim, crop) in enumerate(
             zip(self.pad_shape, input.shape[1:], self.crop_shape)
         ):

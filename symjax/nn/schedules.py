@@ -6,9 +6,7 @@ from ..base import current_graph, Scope
 import numpy as np
 
 
-def ExponentialMovingAverage(
-    value, alpha, init=None, decay_min=False, debias=True
-):
+def ExponentialMovingAverage(value, alpha, init=None, decay_min=False, debias=True):
 
     """exponential moving average of a given value
 
@@ -106,9 +104,7 @@ def ExponentialMovingAverage(
 
         init = init if init is not None else T.zeros_like(value, detach=True)
 
-        num_steps = T.Variable(
-            0, trainable=False, name="num_steps", dtype="int32"
-        )
+        num_steps = T.Variable(0, trainable=False, name="num_steps", dtype="int32")
 
         var = T.Variable(init, trainable=False, dtype="float32", name="EMA")
 
@@ -231,7 +227,12 @@ def PiecewiseConstant(init, steps_and_values):
         all_steps = T.stack([0] + list(steps_and_values.keys()) + [np.inf])
         all_values = T.stack([init] + list(steps_and_values.values()) + [0])
 
-        step = T.Variable(0, trainable=False, name="step", dtype="int32",)
+        step = T.Variable(
+            0,
+            trainable=False,
+            name="step",
+            dtype="int32",
+        )
 
         value = all_values[(step >= all_steps).argmin() - 1]
 
@@ -304,8 +305,6 @@ def SimpleMovingAverage(value, n):
 
         updated = T.index_update(last_values, T.mod(index, n), value)
         avg = T.nanmean(updated, axis=0)
-        current_graph().add_updates(
-            {var: avg, index: index + 1, last_values: updated}
-        )
+        current_graph().add_updates({var: avg, index: index + 1, last_values: updated})
 
     return avg, var

@@ -197,12 +197,8 @@ class Graph(nx.DiGraph):
             return self._branches[name]
 
         args, kwargs = self.get_args_kwargs(node, evaluate=False)
-        new_args = [
-            self.clone(n, givens) for n in args if not isinstance(n, t.Seed)
-        ]
-        new_kwargs = {
-            name: self.clone(n, givens) for name, n in kwargs.items()
-        }
+        new_args = [self.clone(n, givens) for n in args if not isinstance(n, t.Seed)]
+        new_kwargs = {name: self.clone(n, givens) for name, n in kwargs.items()}
 
         fun = self.get_node_attribute(node, "jax_function")
         self._branches[name] = symjax._fn_to_op[fun](*new_args, **new_kwargs)
@@ -260,9 +256,7 @@ class Graph(nx.DiGraph):
 
         elif isinstance(item, t.Placeholder):
             if item not in tracker:
-                raise ValueError(
-                    " no value given for placeholder {}".format(item)
-                )
+                raise ValueError(" no value given for placeholder {}".format(item))
 
         elif isinstance(item, t.Variable) or type(item) == t.Constant:
             tracker[item] = item.value
@@ -309,23 +303,18 @@ class Graph(nx.DiGraph):
 
             # first get the actual parents nodes (aka inputs to the function)
             args, kwargs = self.get_args_kwargs(item, evaluate=False)
-            return t.get_output_tree(
-                self.nodes[item]["jax_function"], *args, **kwargs
-            )
+            return t.get_output_tree(self.nodes[item]["jax_function"], *args, **kwargs)
 
     def get_args_kwargs(self, node, tracker=None, evaluate=True, frozen=True):
         if evaluate:
             assert tracker is not None
             all_args = {
-                self[parent][node]["name"]: self.get(
-                    parent, tracker, frozen=frozen
-                )
+                self[parent][node]["name"]: self.get(parent, tracker, frozen=frozen)
                 for parent in self.predecessors(node)
             }
         else:
             all_args = {
-                self[parent][node]["name"]: parent
-                for parent in self.predecessors(node)
+                self[parent][node]["name"]: parent for parent in self.predecessors(node)
             }
         # now we inspect if there are duplicate args
         for arg in list(all_args.keys()):
@@ -431,8 +420,7 @@ class Scope:
         cpt = 0
         if current + self.name + "/" in self.graph._scopes_history:
             while (
-                current + self.name + "_{}/".format(cpt)
-                in self.graph._scopes_history
+                current + self.name + "_{}/".format(cpt) in self.graph._scopes_history
             ):
                 cpt += 1
             self.name += "_{}".format(cpt)
@@ -570,7 +558,10 @@ def reset_variables(name="*", scope="*", trainable=None):
 
 
 def save_variables(
-    path_or_file, name="*", scope="*", trainable=None,
+    path_or_file,
+    name="*",
+    scope="*",
+    trainable=None,
 ):
     """saves the graph variables.
 
@@ -600,7 +591,15 @@ def save_variables(
     variables = get_variables(name, scope, trainable)
     numpy.savez(
         path_or_file,
-        **dict([(v.scope + v.name, symjax.tensor.get(v),) for v in variables]),
+        **dict(
+            [
+                (
+                    v.scope + v.name,
+                    symjax.tensor.get(v),
+                )
+                for v in variables
+            ]
+        ),
     )
 
 
@@ -742,9 +741,7 @@ def gradients(scalar, variables):
     if numpy.prod(scalar.shape.get()) != 1:
         raise RuntimeError("the variable to differentiate is not a scalar")
     if not isinstance(scalar, t.Tensor):
-        raise RuntimeError(
-            "the variable used in gradients should be a Tensor type"
-        )
+        raise RuntimeError("the variable used in gradients should be a Tensor type")
 
     if scalar.shape != ():
         scalar = scalar.sum()
@@ -772,9 +769,7 @@ def gradients(scalar, variables):
     # to the scalar varible s.t. automatic diffenrentiation can be applied
 
     def fn(*args):
-        return current_graph().get(
-            scalar, dict(zip(input_variables, list(args)))
-        )
+        return current_graph().get(scalar, dict(zip(input_variables, list(args))))
 
     # now we obtain the grad function. In fact, Jax returns a function that,
     # when it is called, returns the gradient values, this function is then
@@ -1016,9 +1011,7 @@ class function:
             jited_add_inputs = symjax.current_graph().get(
                 self.updates_keys + self.extra_inputs, tracker={"rng": rng}
             )
-            jitoutputs, jitupdates = self.jited(
-                *fnargs, *jited_add_inputs, seed=rng
-            )
+            jitoutputs, jitupdates = self.jited(*fnargs, *jited_add_inputs, seed=rng)
             for key, update in zip(self.updates_keys, jitupdates):
                 key.update(update)
 
