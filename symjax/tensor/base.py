@@ -13,7 +13,11 @@ def only_involves_shapes_or_constants(item):
     """checks if node only depends on constants/shapes"""
 
     key = "only_involves_shapes_or_constants"
-    if isinstance(item, Shape) or isinstance(item, Constant) or not isvar(item):
+    if (
+        isinstance(item, Shape)
+        or isinstance(item, Constant)
+        or not isvar(item)
+    ):
         return True
     elif (
         isinstance(item, Variable)
@@ -90,7 +94,9 @@ def isvar(item):
     # otherwise cheack that it is a subtype of Tensor or a Tracer and not
     # a callable
     else:
-        cond1 = isinstance(item, Tensor) or (type(item) in [Constant, MultiOutputOp])
+        cond1 = isinstance(item, Tensor) or (
+            type(item) in [Constant, MultiOutputOp]
+        )
         #        cond2 = isinstance(item, jax.interpreters.partial_eval.JaxprTracer)
         cond3 = callable(item)
         return cond1 and not cond3  # (cond1 or cond2) and cond3
@@ -156,14 +162,14 @@ def create_dummy(item):
         static = numpy.all([i[1] for i in items])
         return tuple([i[0] for i in items]), static
     else:
-        item = dummy(symjax.current_graph().get_shape_dtype(item).shape, item.dtype)
+        item = dummy(
+            symjax.current_graph().get_shape_dtype(item).shape, item.dtype
+        )
         return item, static
 
 
 def get_output_tree(
-    jax_function,
-    *args,
-    **kwargs,
+    jax_function, *args, **kwargs,
 ):
 
     # we need to remove the static arguments first
@@ -232,17 +238,9 @@ def jax_wrap(func, doc_func=None):
                 }
             )
             if func == jax.numpy.shape:
-                return Shape(
-                    *args,
-                    **feed,
-                    **kwargs,
-                )
+                return Shape(*args, **feed, **kwargs,)
             else:
-                return MultiOutputOp(
-                    *args,
-                    **feed,
-                    **kwargs,
-                )
+                return MultiOutputOp(*args, **feed, **kwargs,)
         else:
             feed.update({"_shape": tree.shape, "_dtype": tree.dtype})
             if is_random:
@@ -296,12 +294,16 @@ def wrap_class(c, method_exceptions=None):
             new_kwargs = {}
             for i in range(len(args)):
                 if isinstance(args[i], Tensor):
-                    new_args.append(jnp.zeros(args[i].shape, dtype=args[i].dtype))
+                    new_args.append(
+                        jnp.zeros(args[i].shape, dtype=args[i].dtype)
+                    )
                 else:
                     new_args.append(args[i])
             for i in kwargs:
                 if isinstance(kwargs[i], Tensor):
-                    new_kwargs[i] = jnp.zeros(kwargs[i].shape, dtype=kwargs[i].dtype)
+                    new_kwargs[i] = jnp.zeros(
+                        kwargs[i].shape, dtype=kwargs[i].dtype
+                    )
                 else:
                     new_kwargs[i] = kwargs[i]
 
@@ -316,7 +318,9 @@ def wrap_class(c, method_exceptions=None):
             news = [
                 n
                 for n in news
-                if isinstance(instance.__dict__[n], jax.interpreters.xla.DeviceArray)
+                if isinstance(
+                    instance.__dict__[n], jax.interpreters.xla.DeviceArray
+                )
             ]
 
             # this function maps the class inputs to the creator generated
@@ -380,7 +384,9 @@ class Tensor:
     def shape(self):
 
         if "shape" not in symjax.current_graph().nodes[self]:
-            symjax.current_graph().nodes[self]["shape"] = symjax.tensor.shape(self)
+            symjax.current_graph().nodes[self]["shape"] = symjax.tensor.shape(
+                self
+            )
         return symjax.current_graph().nodes[self]["shape"]
 
     @property
@@ -435,13 +441,7 @@ class Op(Tensor):
     """an Op generates a Tensor object obtained from a function"""
 
     def __init__(
-        self,
-        *args,
-        _jax_function,
-        _shape,
-        _dtype,
-        name=None,
-        **kwargs,
+        self, *args, _jax_function, _shape, _dtype, name=None, **kwargs,
     ):
 
         if name is None:
@@ -479,7 +479,9 @@ class Op(Tensor):
 
 
 class MultiOutputOp(Op, tuple, Tensor):
-    def __new__(cls, *args, _jax_function, _shapes, _dtypes, name=None, **kwargs):
+    def __new__(
+        cls, *args, _jax_function, _shapes, _dtypes, name=None, **kwargs
+    ):
         scope = symjax.current_graph().scope.full_name
         items = []
 
@@ -499,7 +501,9 @@ class MultiOutputOp(Op, tuple, Tensor):
             )
         return super(MultiOutputOp, cls).__new__(cls, tuple(items))
 
-    def __init__(self, *args, _jax_function, _shapes, _dtypes, name=None, **kwargs):
+    def __init__(
+        self, *args, _jax_function, _shapes, _dtypes, name=None, **kwargs
+    ):
         if name is None:
             name = _jax_function.__name__
 
@@ -520,9 +524,7 @@ class MultiOutputOp(Op, tuple, Tensor):
 
         for i, child in enumerate(self):
             symjax.current_graph().add_edge(
-                self,
-                child,
-                name="parent_index" + str(i),
+                self, child, name="parent_index" + str(i),
             )
             symjax.current_graph().nodes[child]["parent"] = self
             child._set_shape_constant()
@@ -729,7 +731,9 @@ class Variable(Tensor):
         return value
 
     def reset(self):
-        self.update(self._reset(self.initializer, self.shape.get(), self.dtype))
+        self.update(
+            self._reset(self.initializer, self.shape.get(), self.dtype)
+        )
 
     @property
     def value(self):
@@ -800,9 +804,23 @@ class Seed(Variable, Tensor):
             },
         )
 
-    def update(self):
-        new_key = jax.random.split(self.value, 1)[0]
-        symjax.current_graph().nodes[self]["value"] = new_key
+    def update(self, other_seed=None):
+        """
+
+        update the seed either by splitting the current one
+        effectively generating a new random seed
+        or by using a given one
+
+        """
+        if other_seed is not None:
+            if len(other_seed) != 2:
+                raise RuntimeError(
+                    "given updated seed {other_seed} is not valid"
+                )
+            symjax.current_graph().nodes[self]["value"] = other_seed
+        else:
+            new_key = jax.random.split(self.value, 1)[0]
+            symjax.current_graph().nodes[self]["value"] = new_key
 
     def __repr__(self):
         name = "Seed(name={}, scope={})"
