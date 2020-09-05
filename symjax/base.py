@@ -81,6 +81,39 @@ class Graph(nx.DiGraph):
     def _get_name_scope(self, name, tensor):
         return self.scope._get_name_scope(name, tensor)
 
+    def is_connected(self, node_1, node_2, directed=True):
+        """check if two nodes are connected in the graph.
+
+        This function is useful to check wheter two nodes (or Op)
+        as connected in the graph and are thus dependent on each other.
+        For example this is useful to select on trainable variables that
+        affect a specific tensor.
+
+        Args:
+
+            node_1: Tensor
+
+            node_2: Tensor
+
+            directed: bool
+
+                whether to test for both directions or not, if the graph
+                is not directed then this parameter has no effect.
+                If ``False`` then the function will return ``True``
+                is the nodes are connected no matter the direction
+
+        Returns:
+
+        bool
+
+        """
+        if directed:
+            return nx.has_path(self, node_1, node_2)
+        else:
+            return nx.has_path(self, node_1, node_2) or nx.has_path(
+                self, node_2, node_1
+            )
+
     def _add(self, tensor, *args, _attrs=None, **kwargs):
 
         _attrs = _attrs or {}
@@ -980,7 +1013,7 @@ class function:
             return symjax.current_graph().get(outputs, feed_dict)
 
         # take care of the presence of -1 dimensions
-        to_vectorize = [0 if 0 in a.shape else None for a in allargs]
+        to_vectorize = [0 if 0 in symjax.tensor.get(a.shape) else None for a in allargs]
 
         if any(to_vectorize):
             self.jited = jax.jit(

@@ -72,6 +72,15 @@ class Optimizer:
         else:
             return grads_or_loss
 
+    def _get_variables(self, loss):
+
+        params = symjax.get_variables(trainable=True)
+
+        print(params)
+        params = [p for p in params if symjax.current_graph().is_connected(p, loss)]
+        print(params)
+        return params
+
     def add_updates(self, update):
         if not hasattr(self, "_update"):
             self._updates = {}
@@ -103,12 +112,12 @@ class SGD(Optimizer):
         or the list of gradients already computed and possibly altered
         manually (such as clipping)
 
-    params: list of parameters to update
-        if grads_or_loss is al list then it should be ordered w.r.t. the
-        given parameters
-
     learning_rate: constant or Tensor
         the learning rate use to update the parameters
+
+    params: list (optional)
+        if grads_or_loss is al list then it should be ordered w.r.t. the
+        given parameters
 
     Attributes
     ----------
@@ -123,8 +132,11 @@ class SGD(Optimizer):
 
     def create_updates(self, grads_or_loss, learning_rate, params=None):
 
+        if isinstance(grads_or_loss, list):
+            assert params
+
         if params is None:
-            params = symjax.get_variables(trainable=True)
+            params = self._get_variables(grads_or_loss)
 
         grads = self._get_grads(grads_or_loss, params)
 
@@ -146,12 +158,16 @@ class NesterovMomentum(Optimizer):
         or the list of gradients already computed and possibly altered
         manually (such as clipping)
 
-    params: list of parameters to update
+    learning_rate: constant or Tensor
+        the learning rate use to update the parameters
+
+    momentum: constant or Tensor
+        the amount of momentum to be applied
+
+    params: list (optional)
         if grads_or_loss is al list then it should be ordered w.r.t. the
         given parameters
 
-    learning_rate: constant or Tensor
-        the learning rate use to update the parameters
 
     Attributes
     ----------
@@ -166,8 +182,10 @@ class NesterovMomentum(Optimizer):
 
     def create_updates(self, grads_or_loss, learning_rate, momentum, params=None):
 
+        if isinstance(grads_or_loss, list):
+            assert params
         if params is None:
-            params = symjax.get_variables(trainable=True)
+            params = self._get_variables(grads_or_loss)
 
         grads = self._get_grads(grads_or_loss, params)
 
@@ -207,7 +225,7 @@ class Adam(Optimizer):
         - :math:`α_t = α × \sqrt{1 - β_2^t}/(1 - β_1^t)`
         - :math:`m_t = β_1 × m_{t-1} + (1 - β_1) × g`
         - :math:`v_t = β_2 × v_{t-1} + (1 - β_2) × g \odot g`
-        - :math:`variable = variable - α_t × m_t / (\sqrt{v_t} + \epsilon)`
+        - :math:`variable = variable - α_t × m_t / (\sqrt{v_t} + ε)`
 
     If ``amsgrad`` is ``True``:
 
@@ -225,7 +243,7 @@ class Adam(Optimizer):
         - :math:`m_t = β_1 × m_{t-1} + (1 - β_1) × g`
         - :math:`v_t = β_2 × v_{t-1} + (1 - β_2) × g \odot g`
         - :math:`v'_t := \max(v'_{t-1}, v_t)`
-        - :math:`variable = variable - α_t × m_t / (\sqrt{v'_t} + \epsilon)`
+        - :math:`variable = variable - α_t × m_t / (\sqrt{v'_t} + ε)`
 
     The default value of :math:`\epsilon=1e-7` might not be a good default in
     general. For example, when training an Inception network on ImageNet a
@@ -242,12 +260,11 @@ class Adam(Optimizer):
         or the list of gradients already computed and possibly altered
         manually (such as clipping)
 
-    params: list of parameters to update
-        if grads_or_loss is al list then it should be ordered w.r.t. the
-        given parameters
-
     learning_rate (α): constant or Tensor
         the learning rate use to update the parameters
+
+    amsgrad: bool
+        whether to use the amsgrad updates or not
 
     β_1: constant or Tensor
         the value of the exponential moving average of the average of the
@@ -256,6 +273,15 @@ class Adam(Optimizer):
     β_2: constant or Tensor
         the value of the exponential moving average of the variance of the
         gradients through time
+
+    ε : constant or Tensor
+        the value added to the second order moment
+
+    params: list (optional)
+        if grads_or_loss is al list then it should be ordered w.r.t. the
+        given parameters, if not given then the optimizer will find
+        all variables that are traininable and involved with the
+        given loss
 
     Attributes
     ----------
@@ -278,8 +304,11 @@ class Adam(Optimizer):
         epsilon=1e-7,
         params=None,
     ):
+
+        if isinstance(grads_or_loss, list):
+            assert params
         if params is None:
-            params = symjax.get_variables(trainable=True)
+            params = self._get_variables(grads_or_loss)
 
         grads = self._get_grads(grads_or_loss, params)
 
