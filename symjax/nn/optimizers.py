@@ -137,6 +137,8 @@ class SGD(Optimizer):
 
         if params is None:
             params = self._get_variables(grads_or_loss)
+        elif type(params) != list:
+            raise RuntimeError("given params should be a list")
 
         grads = self._get_grads(grads_or_loss, params)
 
@@ -186,6 +188,8 @@ class NesterovMomentum(Optimizer):
             assert params
         if params is None:
             params = self._get_variables(grads_or_loss)
+        elif type(params) != list:
+            raise RuntimeError("given params should be a list")
 
         grads = self._get_grads(grads_or_loss, params)
 
@@ -309,6 +313,8 @@ class Adam(Optimizer):
             assert params
         if params is None:
             params = self._get_variables(grads_or_loss)
+        elif type(params) != list:
+            raise RuntimeError("given params should be a list")
 
         grads = self._get_grads(grads_or_loss, params)
 
