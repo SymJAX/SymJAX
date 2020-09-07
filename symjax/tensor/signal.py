@@ -133,7 +133,9 @@ def tukey(M, alpha=0.5):
 
     w1 = 0.5 * (1 + T.cos(numpy.pi * (-1 + 2.0 * n1 / alpha / (M - 1))))
     w2 = T.ones(n2.shape)
-    w3 = 0.5 * (1 + T.cos(numpy.pi * (-2.0 / alpha + 1 + 2.0 * n3 / alpha / (M - 1))))
+    w3 = 0.5 * (
+        1 + T.cos(numpy.pi * (-2.0 / alpha + 1 + 2.0 * n3 / alpha / (M - 1)))
+    )
 
     w = T.concatenate((w1, w2, w3))
 
@@ -387,7 +389,9 @@ def melspectrogram(
     apod=hanning,
 ):
     spec = spectrogram(signal, window, hop, apod, nfft, mode)
-    filterbank = mel_filterbank(spec.shape[-2], n_filter, low_freq, high_freq, nyquist)
+    filterbank = mel_filterbank(
+        spec.shape[-2], n_filter, low_freq, high_freq, nyquist
+    )
     flip_filterbank = filterbank.expand_dims(-1)
     output = (T.expand_dims(spec, -3) * flip_filterbank).sum(-2)
     return output
@@ -438,9 +442,9 @@ def wvd(signal, window, hop, L, apod=hanning, mode="valid"):
     step = 1 / window
     freq = T.linspace(-step * L, step * L, 2 * L + 1)
     time = T.range(s.shape[-1]).reshape((-1, 1))
-    mask = T.complex(T.cos(PI * time * freq), T.sin(PI * time * freq)) * hanning(
-        2 * L + 1
-    )
+    mask = T.complex(
+        T.cos(PI * time * freq), T.sin(PI * time * freq)
+    ) * hanning(2 * L + 1)
 
     # extract vertical (freq) partches to perform auto correlation
     patches = T.extract_image_patches(s, (2 * L + 1, 1), (2, 1), mode="same")[
@@ -457,7 +461,8 @@ def dct(signal, axes=(-1,)):
     if len(axes) > 1:
         raise NotImplemented("not yet implemented more than 1D")
     to_pad = [
-        (0, 0) if ax not in axes else (0, signal.shape[ax]) for ax in range(signal.ndim)
+        (0, 0) if ax not in axes else (0, signal.shape[ax])
+        for ax in range(signal.ndim)
     ]
     pad_signal = T.pad(signal, to_pad)
     exp = 2 * T.exp(-1j * 3.14159 * T.linspace(0, 0.5, signal.shape[axes[0]]))
@@ -537,7 +542,9 @@ def phase_vocoder(D, rate, hop_length=None):
     mag = (1.0 - alpha) * numpy.abs(D[:, :-1]) + alpha * numpy.abs(D[:, 1:])
 
     # Compute phase advance
-    dphase = numpy.angle(D[:, 1:]) - numpy.angle(D[:, :-1]) - phi_advance[:, None]
+    dphase = (
+        numpy.angle(D[:, 1:]) - numpy.angle(D[:, :-1]) - phi_advance[:, None]
+    )
     # Wrap to -pi:pi range
     dphase = dphase - 2.0 * numpy.pi * numpy.round(dphase / (2.0 * numpy.pi))
 
@@ -673,7 +680,9 @@ def istft(
     expected_signal_len = n_fft + hop_length * (n_frames - 1)
     y = numpy.zeros(expected_signal_len, dtype=dtype)
 
-    n_columns = int(util.MAX_MEM_BLOCK // (stft_matrix.shape[0] * stft_matrix.itemsize))
+    n_columns = int(
+        util.MAX_MEM_BLOCK // (stft_matrix.shape[0] * stft_matrix.itemsize)
+    )
 
     fft = get_fftlib()
 
@@ -746,7 +755,7 @@ def batch_convolve(
     input_dilation=None,
     filter_dilation=None,
 ):
-    """General n-dimensional convolution operator, with input/filter dilation.
+    """General n-dimensional batch convolution with dilations.
 
     Wraps Jax's conv_general_dilated functin, and thus also the XLA's `Conv
     <https://www.tensorflow.org/xla/operation_semantics#conv_convolution>`_

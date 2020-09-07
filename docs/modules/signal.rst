@@ -3,6 +3,12 @@
 :mod:`symjax.tensor.signal`
 ---------------------------
 
+Implementation of various signal processing related techniques such as
+time-frequency representations convolution/correlation/pooling operations,
+as well as various apodization windows and filter-banks creations.
+
+
+
 .. automodule:: symjax.tensor.signal
 
 
@@ -19,8 +25,8 @@ Apodization Windows
   tukey
 
 
-Additional Time-Frequency Representations
-=========================================
+Time-Frequency Representations
+==============================
 
 .. autosummary::
   mfcc
@@ -29,8 +35,8 @@ Additional Time-Frequency Representations
   wvd
   hilbert_transform
 
-Filters (Banks)
-===============
+Filters
+=======
 
 .. autosummary::
   fourier_complex_morlet
@@ -38,8 +44,8 @@ Filters (Banks)
   sinc_bandpass
   mel_filterbank
 
-Operations
-==========
+Convolution/Correlation/Pooling
+===============================
 
 .. autosummary::
   convolve
@@ -50,7 +56,7 @@ Operations
   batch_pool
 
 
-Detailed Descritpions
+Detailed Descriptions
 =====================
 
 .. autofunction:: blackman
