@@ -103,7 +103,8 @@ sphinx_gallery_conf = {
 
 # See https://github.com/rtfd/readthedocs.org/issues/283
 mathjax_path = (
-    "https://cdn.mathjax.org/mathjax/latest/MathJax.js?" "config=TeX-AMS-MML_HTMLorMML"
+    "https://cdn.mathjax.org/mathjax/latest/MathJax.js?"
+    "config=TeX-AMS-MML_HTMLorMML"
 )
 
 # see http://stackoverflow.com/q/12206334/562769
@@ -133,7 +134,7 @@ html_theme = "sphinx_rtd_theme"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 # removed _static
-html_static_path = []
+html_static_path = ["_static"]
 
 html_logo = "img/symjax_logo.png"
 html_theme_options = {"logo_only": True}
