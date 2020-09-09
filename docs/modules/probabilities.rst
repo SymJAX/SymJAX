@@ -11,7 +11,7 @@ Implementation of basic distribution, their (log) densities, sampling, KL diverg
 ..  autosummary::
 
 	Categorical
-	MultivariateNormal
+	Normal
 	KL
 
 
@@ -24,4 +24,4 @@ Detailed Descriptions
 
 .. autofunction:: KL
 .. autoclass:: Categorical
-.. autoclass:: MultivariateNormal
+.. autoclass:: Normal
