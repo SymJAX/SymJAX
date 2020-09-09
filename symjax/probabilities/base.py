@@ -112,17 +112,11 @@ class Normal:
 
         Parameters
         ----------
-        %(_doc_default_callparams)s
-        size : integer, optional
-            Number of samples to draw (default 1).
-        Notes
-        -----
-        %(_doc_callparams_note)s
+
         Returns
         -------
         rvs : ndarray or scalar
-            Random variates of size (`size`, `N`), where `N` is the
-            dimension of the random variable.
+            Random variates based on given `mean` and `cov`.
         """
         if mean.ndim == cov.ndim:
             return T.random.randn(mean.shape) * T.sqrt(cov) + mean

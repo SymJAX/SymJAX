@@ -509,18 +509,32 @@ ul.keywordmatches li.goodmatch a {
     font-weight: bold;
 }
 
-
-.wy-nav-content {
-max-width: 1200px !important;
+/*.wy-nav-content {
+max-width: 100%;
+min-width: 100%;
+}
+*/
+/* Create three equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 43.33%;
+  margin-left: 3%;
+  margin-right: 3%;
+  padding: 10px;
+  height: auto;
+  text-align: justify;
+  text-justify: inter-word;
 }
 
-div.leftside {
-  width: 43%;
-  padding: 0px 3px 0px 0px;
-  float: left;
+/* Clear floats after the columns */
+.row {
+  text-align: center;
+  left:auto;
+  margin-right:auto;
 }
 
-div.rightside {
-  margin-left: 45%;
-  float: left;
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
 }

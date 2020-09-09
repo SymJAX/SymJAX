@@ -5,35 +5,37 @@
 Welcome to SymJAX's documentation!
 ==================================
 
-.. centered:: **symbolic programming combining only the finest features of JAX, Theano, Lasagne and Tensorflow**
+.. centered:: **SymJAX = JAX+NetworkX**
+  
+.. raw:: html
+
+    <div class="row" style="text-align:center">
+      <div class="column" style="background-color:#bbb;">
+        <h2 style="text-align:center">JAX</h2>
+        <p><a href="https://github.com/google/jax">JAX</a> is a <a href="https://www.tensorflow.org/xla">XLA</a> python interface that provides a Numpy-like user experience with just-in-time compilation and <a href="https://github.com/hips/autograd">Autograd</a> powered automatic differenciation. <a href="https://www.tensorflow.org/xla">XLA</a> is a compiler that optimizes a computational graph by fusing multiple kernels into one preventing intermediate computation, reducing memory operations and increasing performances.</p>
+      </div>
+      <div class="column" style="background-color:#bbb;">
+        <h2 style="text-align:center">NetworkX</h2>
+        <p><a href="https://networkx.github.io/">NetworkX</a> is a Python package for the creation, manipulation, and study of directed and undirected graphs is a Python package for the creation, manipulation, and study of directed and undirected graphs is a Python package for the creation, manipulation, and study of directed and undirected graphs.</p>
+      </div>
+    </div>
 
 
-SymJAX = JAX+NetworkX
+.. raw:: html
 
-.. container:: twocol
+  <p style="text-align:justify"><a href="https://github.com/RandallBalestriero/SymJAX">SymJAX</a> is a symbolic programming version of <a href="https://github.com/google/jax">JAX</a> 
+  providing a <a href="https://github.com/Theano/Theano">Theano</a>-like user experience thanks to a <a href="https://networkx.github.io/">NetworkX</a> powered computational graph backend. In addition of simplifying graph input/output, variable updates and graph utilities, <a href="https://github.com/RandallBalestriero/SymJAX">SymJAX</a> also features machine learning and deep learning tools similar to <a href="https://github.com/Lasagne/Lasagne">Lasagne</a> and <a href="https://www.tensorflow.org/">Tensorflow1</a> as well as a lazy on-the-go execution capability like <a href="https://pytorch.org/">PyTorch</a> and <a href="https://www.tensorflow.org/tutorials/quickstart/beginner">Tensorflow2</a>.</p>
 
-    .. container:: leftside
+.. raw:: html
 
-        - `XLA`_ is a compiler that optimizes a computational graph by fusing multiple kernels into one preventing intermediate computation, reducing memory operations and increasing performances.
-
-        - `JAX`_ is a `XLA`_ python interface that provides a `Numpy`_-like user experience with just-in-time compilation and `Autograd`_ powered automatic differenciation.
-
-    .. container:: rightside
-
-        - `NetworkX`_ is a Python package for the creation, manipulation, and study of directed and undirected graphs is a Python package for the creation, manipulation, and study of directed and undirected graphs is a Python package for the creation, manipulation, and study of directed and undirected graphs
+  <p style="text-align:justify;font-style:italic">This is an under development research project, not an official product, expect bugs and sharp edges; please help by trying it out, reporting bugs and missing pieces.</p>
 
 
+.. centered:: **Installation Guide** : :ref:`installation`
 
-`SymJAX`_ is a symbolic programming version of `JAX`_ 
-providing a `Theano`_-like user experience thanks to a `NetworkX`_ powered computational graph backend. In addition of simplifying graph input/output, variable updates and graph utilities, `SymJAX`_ also features machine learning and deep learning tools similar to `Lasagne`_ and `Tensorflow1`_ .
+.. centered:: **Developer Guide** : :ref:`developer`
 
-
-*This is an under development research project, not an official product, expect bugs and sharp edges; please help by trying it out, reporting bugs and missing pieces.*
-
-
-**Installation Guide** : :ref:`installation`
-
-**Developer Guide** : :ref:`developer`
+.. centered:: **Updates Roadmap** : :ref:`roadmap`
 
 
 Modules
@@ -63,8 +65,6 @@ We briefly describe below the structure of `SymJAX`_ and what are (in term of fu
 
   + :py:mod:`symjax.rl.utils` providing utilities to interesact with environments, play, learn, buffers, ...
   + :py:mod:`symjax.rl.agents` providing the basic agents such as DDPG, PPO, DQN, ...
-
-**Roadmap of incoming updates** : :ref:`roadmap`
 
 
 
@@ -136,3 +136,5 @@ Gallery
 .. _SpinningUp: https://openai.com/blog/spinning-up-in-deep-rl/
 .. _Baselines: https://github.com/openai/baselines
 .. _Gym: https://gym.openai.com/
+.. _PyTorch: https://pytorch.org/
+.. _Tensorflow2: https://www.tensorflow.org/tutorials/quickstart/beginner

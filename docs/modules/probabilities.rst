@@ -23,5 +23,9 @@ Detailed Descriptions
 
 
 .. autofunction:: KL
+
 .. autoclass:: Categorical
+	:members:
+
 .. autoclass:: Normal
+	:members:
