@@ -16,6 +16,7 @@
   sigmoid_crossentropy_logits
 
   accuracy
+  clustering_accuracy
   huber
   explained_variance
   hinge_loss
@@ -35,6 +36,7 @@ Detailed Descriptions
 .. autofunction:: sigmoid_crossentropy_logits
 
 .. autofunction:: accuracy
+.. autofunction:: clustering_accuracy
 .. autofunction:: huber
 .. autofunction:: explained_variance
 .. autofunction:: hinge_loss

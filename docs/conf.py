@@ -103,8 +103,7 @@ sphinx_gallery_conf = {
 
 # See https://github.com/rtfd/readthedocs.org/issues/283
 mathjax_path = (
-    "https://cdn.mathjax.org/mathjax/latest/MathJax.js?"
-    "config=TeX-AMS-MML_HTMLorMML"
+    "https://cdn.mathjax.org/mathjax/latest/MathJax.js?" "config=TeX-AMS-MML_HTMLorMML"
 )
 
 # see http://stackoverflow.com/q/12206334/562769

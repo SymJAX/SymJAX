@@ -143,7 +143,10 @@ add_n = jax_wrap(_add_n)
 
 def one_hot(i, N, dtype="float32"):
     """Create a one-hot encoding of x of size k."""
-    if hasattr(i, "shape"):
+    if not hasattr(i, "shape"):
+        i = T.array(i)
+
+    if i.ndim:
         return T.equal(i[:, None], T.arange(N)).astype(dtype)
     else:
         z = T.zeros(N, dtype)

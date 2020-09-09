@@ -1,5 +1,6 @@
 from .. import tensor as T
 import numpy as np
+from .. import probabilities
 from .ops_nn import softmax, log_softmax
 
 
@@ -102,8 +103,8 @@ def explained_variance(y, ypred, axis=None, epsilon=1e-6):
     return 1 - (y - ypred).var(axis=axis) / (y.var(axis=axis) + epsilon)
 
 
-def vae(x, x_hat, z_mu, z_logvar, mu, logvar, logvar_x=0.0, eps=1e-8):
-    """N samples of dimension D to latent space in K dimension
+def vae(x, x_hat, z_mu, z_logvar, mu, logvar, x_logvar=0.0):
+    """N samples of dimension D to latent space in K dimension with Gaussian distributions
 
     Parameters
     ----------
@@ -121,27 +122,18 @@ def vae(x, x_hat, z_mu, z_logvar, mu, logvar, logvar_x=0.0, eps=1e-8):
         should be of shape (N, K), infered log-variance of variational Gaussian
 
     mu: array
-        should be of shape (K,), parameter (centroids)
+        should be of shape (K,), mean of z variable
 
     logvar: array
-        should be of shape (K,), parameter (logvar of clusters)
-        :param logvar_x:
-        :param eps:
+        should be of shape (K,), logstd of z variable
 
     """
 
-    var = T.exp(logvar)
+    p = probabilities.MultivariateNormal(x_hat, logstd=x_logvar)
+    q = probabilities.MultivariateNormal(z_mu, logstd=z_logvar)
+    z = probabilities.MultivariateNormal(mu, logstd=logvar)
 
-    # E_{q(z,c|x)}[log(p(x|z))]
-    px_z = -0.5 * ((x - x_hat) ** 2 / T.exp(logvar_x) + logvar_x).sum(1)
-
-    # - E_{q(z,c|x)}[log(q(z|x))] : entropy of normal
-    h_z = 0.5 * z_logvar.sum(1)
-
-    # E_{q(z,c|x)}[log(p(z|c)]
-    ll_z = -0.5 * (logvar + z_var / var - 1 + (z_mu - mu) ** 2 / var).sum(-1)
-
-    loss = -(px_z + ll_z + h_z)
+    loss = -(p.logprob(x) + probabilities.KL(z, q) + q.entropy())
 
     return loss
 
@@ -586,6 +578,10 @@ def accuracy(targets, predictions):
 
     tensor-like
     """
+
+    if not hasattr(targets, "ndim"):
+        targets = T.array(targets)
+
     if targets.ndim != 1:
         raise RuntimeError("targets should be of rank 1, given rank is {targets.ndim}")
 
@@ -598,3 +594,42 @@ def accuracy(targets, predictions):
             "predictions should be of rank 1 or 2, given rank is {predictions.ndim}"
         )
     return accu.mean()
+
+
+def _assign(cluster, pred, true):
+    c_labels = T.where(T.equal(pred, cluster)[:, None], true, 0)
+    per_cluster_counts = c_labels.sum(0)
+    assignment = per_cluster_counts.argmax()
+    return assignment
+
+
+def clustering_accuracy(labels, predictions, n_clusters):
+    """
+    find accuracy of clustering based on intra cluster labels
+
+    This accuracy allows to quantify the ability of a clustering algorithm to solve the clustering task
+    given the true labels of the data.
+    This functions finds for each predicted cluster
+    what is the most present label and uses it as the
+    cluster label. Based on those cluster labels the
+    accuracy is then computed.
+
+    Args:
+
+    labels: 1d integer Tensor
+        the true labels of the data
+
+    predictions: 1d integer Tensor
+        the predicted data clusters
+
+    n_clusters: int
+        the number of clusters
+
+    """
+    one_hot_labels = T.one_hot(labels, n_clusters)
+    cluster_assignment = T.map(
+        _assign,
+        sequences=[T.range(n_clusters, dtype="int32")],
+        non_sequences=[predictions, one_hot_labels],
+    )
+    return accuracy(labels, cluster_assignment[predictions])

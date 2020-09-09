@@ -11,7 +11,7 @@ body {
     font-size: 14px;
     letter-spacing: -0.01em;
     line-height: 150%;
-    text-align: center;
+    text-align: left;
     /*background-color: #AFC1C4; */
     background-color: #BFD1D4;
     color: black;
@@ -512,4 +512,15 @@ ul.keywordmatches li.goodmatch a {
 
 .wy-nav-content {
 max-width: 1200px !important;
+}
+
+div.leftside {
+  width: 43%;
+  padding: 0px 3px 0px 0px;
+  float: left;
+}
+
+div.rightside {
+  margin-left: 45%;
+  float: left;
 }
