@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from .mnist import load as mnist
-from .svhn import load as svhn
-from .cifar10 import load as cifar10
-from .cifar100 import load as cifar100
-from .imagenette import load as imagenette
-
-from .audiomnist import load as audiomnist
-from .speech_commands import load as speech_commands
-from .picidae import load as picidae
+from . import (
+    mnist,
+    fashionmnist,
+    svhn,
+    cifar10,
+    cifar100,
+    imagenette,
+    audiomnist,
+    speech_commands,
+    picidae,
+)
 
 from .utils import (
     patchify_1d,

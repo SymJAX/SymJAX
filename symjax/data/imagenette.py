@@ -8,21 +8,6 @@ import numpy as np
 from tqdm import tqdm
 
 
-DOC = """Imagenette is a subset of 10 easily classified classes 
-from Imagenet (tench, English springer, cassette player, chain saw, church, 
-French horn, garbage truck, gas pump, golf ball, parachute).
-
-'Imagenette' is pronounced just like 'Imagenet', except with a corny 
-inauthentic French accent. If you've seen Peter Sellars in The Pink Panther,
- then think something like that. It's important to ham up the accent as much as
-  possible, otherwise people might not be sure whether you're refering to 
-  "Imagenette" or "Imagenet". (Note to native French speakers: to avoid
-   confusion, be sure to use a corny inauthentic American accent when saying 
-   "Imagenet". Think something like the philosophy restaurant skit from Monty
-    Python's The Meaning of Life.)
-"""
-
-
 imagenette_map = {
     "n01440764": "tench",
     "n02102040": "springer",
@@ -43,7 +28,11 @@ _urls = {
 
 
 def load(path=None, n_processes=6):
-    """
+    """10-class image classification form imagenet
+    Imagenette is a subset of 10 easily classified classes
+    from Imagenet (tench, English springer, cassette player, chain saw, church,
+    French horn, garbage truck, gas pump, golf ball, parachute).
+
     Parameters
     ----------
         path: str (optional)
