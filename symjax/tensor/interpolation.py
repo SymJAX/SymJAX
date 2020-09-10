@@ -466,8 +466,9 @@ def _initialize_tps(num_control_points, input_shape, downsample_factor):
 
     # Create source grid
     grid_size = np.sqrt(num_control_points)
+    assert grid_size % 1 == 0
     x_control_source, y_control_source = np.meshgrid(
-        np.linspace(-1, 1, grid_size), np.linspace(-1, 1, grid_size)
+        np.linspace(-1, 1, int(grid_size)), np.linspace(-1, 1, int(grid_size))
     )
 
     # Create 2 x num_points array of source points
