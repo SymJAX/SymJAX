@@ -6,7 +6,6 @@
 This is an under-development research project, not an official product, expect bugs and sharp edges; please help by trying it out, reporting bugs.
 [**Reference docs**](https://symjax.readthedocs.io/en/latest/)
 
-**Announcement:** First major stable release expected by end of June.
 
 ## What is SymJAX ?
 
@@ -19,13 +18,14 @@ day. What SymJAX offers as opposed to most is an all-in-one library with diverse
 functionalities such as
 
 - dozens of various datasets with clear descriptions and one line import
-- advanced signal processing tools such as multiple wavelet familites (in time and frequency domain), multiple time-frequency representations, apodization windows, ...
+- versatile set of functions from ffts, linear algebraic tools, random variables, ...
+- advanced signal processing tools such as multiple wavelet families (in time and frequency domain), multiple time-frequency representations, apodization windows, ...
 - IO utilities to monitor/save/track specific statistics during graph execution through h5 files and numpy, simple and explicit graph saving allowing to save and load models without burden
 - side utilities such as automatic batching of dataset, data splitting, cross-validation, ...
 
-and most importantly, a SYMBOLIC/DECLARATIVE programming environment allowing CONCISE/EXPLICIT/OPTIMIZED computations across devices.
+and most importantly, a SYMBOLIC/DECLARATIVE programming environment allowing CONCISE/EXPLICIT/OPTIMIZED computations.
 
-For imperative programming using Jax see for example [FLAX](https://github.com/google/flax), and in general, [Tensorflow](https://www.tensorflow.org/), [PyTorch](https://pytorch.org/)
+For a deep network oriented imperative library built on JAX and with a JAX syntax check out [FLAX](https://github.com/google/flax).
 
 ## Examples
 
