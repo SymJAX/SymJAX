@@ -1,8 +1,15 @@
 import numpy as np
+from .utils import download_dataset
 
 
 # https://github.com/deepmind/dsprites-dataset
-class dsprites:
+
+_urls = {
+    "https://github.com/deepmind/dsprites-dataset/blob/master/dsprites_ndarray_co1sh3sc6or40x32y32_64x64.npz": "dsprites_ndarray_co1sh3sc6or40x32y32_64x64.npz"
+}
+
+
+def load(path=None):
     """greyscale image classification and disentanglement
 
     This dataset consists of 737,280 images of 2D shapes, procedurally generated
@@ -16,36 +23,9 @@ class dsprites:
 
     All possible combinations of these latents are present exactly once,
     generating N = 737280 total images.
-    """
 
-    def download(path):
+    https://github.com/deepmind/dsprites-dataset
 
-        """
-        Download the MNIST dataset and store the result into the given
-        path
-
-        Parameters
-        ----------
-
-            path: str
-                the path where the downloaded files will be stored. If the
-                directory does not exist, it is created.
-        """
-
-        # Check if directory exists
-        if not os.path.isdir(path + "dsprites"):
-            print("Creating mnist Directory")
-            os.mkdir(path + "dsprites")
-
-        filename = "dsprites_ndarray_co1sh3sc6or40x32y32_64x64.npz"
-        # Check if file exists
-        if not os.path.exists(path + "dsprites/" + filename):
-            td = time.time()
-            url = "https://github.com/deepmind/dsprites-dataset/blob/master/" + filename
-            urllib.request.urlretrieve(url, path + "dsprites/filename.npz")
-
-    def load(path=None):
-        """
         Parameters
         ----------
             path: str (optional)
@@ -61,17 +41,22 @@ class dsprites:
 
             classes: array
 
-        """
+    """
 
-        if path is None:
-            path = os.environ["DATASET_PATH"]
+    if path is None:
+        path = os.environ["DATASET_PATH"]
 
-        download(path)
+    download_dataset(path, _dataset, _urls)
 
-        t0 = time.time()
-        dataset_zip = np.load("dsprites_ndarray_co1sh3sc6or40x32y32_64x64.npz")
-        imgs = dataset_zip["imgs"]
-        latents_values = dataset_zip["latents_values"]
-        latents_classes = dataset_zip["latents_classes"]
-        metadata = dataset_zip["metadata"][()]
-        return imgs, latent_values, latents_classes
+    dataset_zip = np.load("dsprites_ndarray_co1sh3sc6or40x32y32_64x64.npz")
+    imgs = dataset_zip["imgs"]
+    latents_values = dataset_zip["latents_values"]
+    latents_classes = dataset_zip["latents_classes"]
+    metadata = dataset_zip["metadata"][()]
+    data = {
+        "train_set/images": imgs,
+        "train_set/latent_values": latents_values,
+        "train_set/latents_classes": latents_classes,
+        "metadata": metadata,
+    }
+    return data

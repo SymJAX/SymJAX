@@ -9,9 +9,18 @@ import numpy as np
 import time
 import h5py
 from tqdm import tqdm
+from .utils import download_dataset
 
 
-class birdvox_70k:
+_urls = {
+    "https://zenodo.org/record/1226427/files/BirdVox-70k_unit{}.hdf5?download=1".format(
+        i
+    ): "BirdVox-70k_unit{}.hdf5".format(i)
+    for i in ["01", "02", "03", "05", "07", "10"]
+}
+
+
+def load(path=None):
     """a dataset for avian flight call detection in half-second clips
 
     Version 1.0, April 2018.
@@ -65,86 +74,55 @@ class birdvox_70k:
     month = {April},
     }
 
+    Parameters
+    ----------
+        path: str (optional)
+            default ($DATASET_PATH), the path to look for the data and
+            where the data will be downloaded if not present
+
+    Returns
+    -------
+
+        wavs: array(70804, 12000)
+            the waveforms in the time amplitude domain
+
+        labels: array(70804,)
+            binary values representing the presence or not of an avian
+
+        recording: array(70804,)
+            the file number from which the sample has been extracted
+
     """
 
-    @staticmethod
-    def download(path):
-        """
-        Download the Birdvox dataset and store the result into the given
-        path
+    if path is None:
+        path = os.environ["DATASET_PATH"]
 
-        Parameters
-        ----------
+    if path is None:
+        path = os.environ["DATASET_PATH"]
+    download_dataset(path, "birdvox_70k", _urls)
 
-            path: str
-                the path where the downloaded files will be stored. If the
-                directory does not exist, it is created.
-        """
+    # Loading the file
+    path += "birdvox_70k/"
+    names = ["01", "02", "03", "05", "07", "10"]
+    basefile = "BirdVox-70k_unit{}.hdf5"
+    wavs = list()
+    label = list()
+    recording = list()
+    for name in names:
+        f = h5py.File(path + basefile.format(name), "r")
+        for filename in tqdm(
+            f["waveforms"].keys(), ascii=True, desc="recording {}".format(name)
+        ):
+            wavs.append(f["waveforms"][filename][...])
+            label.append(int(filename[-1]))
+            recording.append(int(name))
 
-        # Check if directory exists
-        if not os.path.isdir(path + "birdvox_70k"):
-            print("Creating birdvox_70k Directory")
-            os.mkdir(path + "birdvox_70k")
-        base = "https://zenodo.org/record/1226427/files/"
-        basefile = "BirdVox-70k_unit{}.hdf5"
-        names = ["01", "02", "03", "05", "07", "10"]
-        # Check if file exists
-        for name in names:
-            filename = basefile.format(name)
-            if not os.path.exists(path + "birdvox_70k/" + filename):
-                url = base + filename + "?download=1"
-                urllib.request.urlretrieve(url, path + "birdvox_70k/" + filename)
+    data = {
+        "wavs": np.array(wavs).astype("float32"),
+        "labels": np.array(label).astype("int32"),
+        "recording": np.array(recording).astype("int32"),
+    }
 
-    @staticmethod
-    def load(path=None):
-        """
-        Parameters
-        ----------
-            path: str (optional)
-                default ($DATASET_PATH), the path to look for the data and
-                where the data will be downloaded if not present
+    print("Dataset birdvox_70k loaded in {0:.2f}s.".format(time.time() - t0))
 
-        Returns
-        -------
-
-            wavs: array(70804, 12000)
-                the waveforms in the time amplitude domain
-
-            labels: array(70804,)
-                binary values representing the presence or not of an avian
-
-            recording: array(70804,)
-                the file number from which the sample has been extracted
-
-        """
-
-        if path is None:
-            path = os.environ["DATASET_PATH"]
-
-        birdvox_70k.download(path)
-
-        t0 = time.time()
-
-        # Loading the file
-        path += "birdvox_70k/"
-        names = ["01", "02", "03", "05", "07", "10"]
-        basefile = "BirdVox-70k_unit{}.hdf5"
-        wavs = list()
-        label = list()
-        recording = list()
-        for name in names:
-            f = h5py.File(path + basefile.format(name), "r")
-            for filename in tqdm(
-                f["waveforms"].keys(), ascii=True, desc="recording {}".format(name)
-            ):
-                wavs.append(f["waveforms"][filename][...])
-                label.append(int(filename[-1]))
-                recording.append(int(name))
-
-        wavs = np.array(wavs).astype("float32")
-        label = np.array(label).astype("int32")
-        recording = np.array(recording).astype("int32")
-
-        print("Dataset birdvox_70k loaded in {0:.2f}s.".format(time.time() - t0))
-
-        return wavs, label, recording
+    return data

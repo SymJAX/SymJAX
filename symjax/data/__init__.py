@@ -4,6 +4,7 @@
 from . import (
     mnist,
     fashionmnist,
+    dsprites,
     svhn,
     cifar10,
     cifar100,
@@ -11,6 +12,10 @@ from . import (
     audiomnist,
     speech_commands,
     picidae,
+    birdvox_70k,
+    esc,
+    gtzan,
+    irmas,
 )
 
 from .utils import (

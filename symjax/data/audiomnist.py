@@ -9,7 +9,13 @@ from scipy.io.wavfile import read as wav_read
 from tqdm import tqdm
 
 
-DOC = """digit recognition
+_dataset = "audiomnist"
+_urls = {"https://github.com/soerenab/AudioMNIST/archive/master.zip": "data.zip"}
+
+
+def load(path=None):
+    """
+    digit recognition
         https://github.com/soerenab/AudioMNIST
 
     A simple audio/speech dataset consisting of recordings of spoken digits in
@@ -26,13 +32,6 @@ DOC = """digit recognition
         2,000 recordings (50 of each digit per speaker)
         English pronunciations
     """
-
-_dataset = "audiomnist"
-_urls = {"https://github.com/soerenab/AudioMNIST/archive/master.zip": "data.zip"}
-
-
-def load(path=None):
-
     if path is None:
         path = os.environ["DATASET_PATH"]
     download_dataset(path, _dataset, _urls)

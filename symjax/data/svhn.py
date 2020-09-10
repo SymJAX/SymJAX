@@ -5,7 +5,16 @@ import numpy as np
 import time
 
 
-__DOC__ = """Street number classification.
+_dataset = "svhn"
+_baseurl = "http://ufldl.stanford.edu/housenumbers/"
+_urls = {
+    "train_32x32.mat": "train_32x32.mat",
+    "test_32x32.mat": "test_32x32.mat",
+}
+
+
+def load(path=None):
+    """Street number classification.
 
     The `SVHN <http://ufldl.stanford.edu/housenumbers/>`_
     dataset is a real-world
@@ -18,18 +27,7 @@ __DOC__ = """Street number classification.
     real world problem (recognizing digits and numbers in natural
     scene images). SVHN is obtained from house numbers in Google
     Street View images.
-    """
 
-_dataset = "svhn"
-_baseurl = "http://ufldl.stanford.edu/housenumbers/"
-_urls = {
-    "train_32x32.mat": "train_32x32.mat",
-    "test_32x32.mat": "test_32x32.mat",
-}
-
-
-def load(path=None):
-    """
     Parameters
     ----------
         path: str (optional)

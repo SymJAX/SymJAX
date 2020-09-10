@@ -25,7 +25,6 @@ MOCK_MODULES = ["soundfile"]
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
 
-
 # When building docs, enable `from __future__ import annotations` everywhere.
 def _rewrite(p):
     with open(p) as f:
@@ -119,7 +118,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
-add_module_names = False
+add_module_names = True
 
 autosummary_generate = True
 # Options for HTML output
