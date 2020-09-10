@@ -3,6 +3,10 @@
 :mod:`symjax.nn.initializers`
 -----------------------------
 
+
+This module provides all the basic initializers used in Deep Learning. All the involved operations are meant to take as input
+a shape of the desired weight tensor (vector, matrix, ...) and will return a numpy-array.
+
 .. automodule:: symjax.nn.initializers
 
 .. autosummary::

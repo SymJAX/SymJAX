@@ -47,6 +47,7 @@ We briefly describe below the structure of `SymJAX`_ and what are (in term of fu
 
 - :ref:`symjax-tensor` : everything related to operating with tensors (array like objects) similar to :py:mod:`numpy` and :py:mod:`theano.tensor`, specialized submodules are
 
+  + :ref:`symjax-tensor-linalg`: like :py:mod:`scipy.linalg` and :py:mod:`numpy.linalg` 
   + :ref:`symjax-tensor-fft`: like :py:mod:`numpy.fft`
   + :ref:`symjax-tensor-signal`: like :py:mod:`scipy.signal` + additional time-frequency and wavelet tools
   + :ref:`symjax-tensor-random`: like :py:mod:`numpy.random`
@@ -63,13 +64,16 @@ We briefly describe below the structure of `SymJAX`_ and what are (in term of fu
 
 - :ref:`symjax-rl` : like `tfagents`_ or OpenAI `SpinningUp`_ and `Baselines`_ (no environment is implemented as `Gym`_ already provides a large collection), submodules are
 
-  + :py:mod:`symjax.rl.utils` providing utilities to interesact with environments, play, learn, buffers, ...
+  + :py:mod:`symjax.rl.utils` providing utilities to interact with environments, play, learn, buffers, ...
   + :py:mod:`symjax.rl.agents` providing the basic agents such as DDPG, PPO, DQN, ...
 
 
 
 Tutorials
 ---------
+
+SymJAX
+''''''
 
 - :ref:`function`
 - :ref:`clone`
@@ -79,6 +83,18 @@ Tutorials
 - :ref:`viz`
 - :ref:`wrapf`
 - :ref:`wrapc`
+- :ref:`function`
+
+Amortized Variational Inference
+'''''''''''''''''''''''''''''''
+
+- :ref:`basic_avi`
+
+Reinforcement Learning
+''''''''''''''''''''''
+
+- :ref:`rl_notations`
+
 
 Gallery
 -------
@@ -91,10 +107,10 @@ Gallery
 
 .. toctree::
   :hidden:
-  :maxdepth: 1
+  :maxdepth: 2
 
   user/installation
-  user/tutorial
+  user/tutorials
   auto_examples/index
   user/developers
 

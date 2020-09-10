@@ -242,7 +242,7 @@ def _meshgrid(height, width):
     return grid
 
 
-def affine_transform(input, theta, downsample_factor=1, border_mode="nearest"):
+def affine_transform(input, theta, order=1, downsample_factor=1, border_mode="nearest"):
     """
     Spatial transformer layer
     The layer applies an affine transformation on the input. The affine
@@ -250,14 +250,15 @@ def affine_transform(input, theta, downsample_factor=1, border_mode="nearest"):
     The output is interpolated with a bilinear transformation.
     Parameters
     ----------
-    incoming : a :class:`Layer` instance or a tuple
-        The layer feeding into this layer, or the expected input shape. The
-        output of this layer should be a 4D tensor, with shape
+    incoming : :class:`Tensor`
+        The input which should be a 4D tensor, with shape
         ``(batch_size, num_input_channels, input_rows, input_columns)``.
-    theta : a :class:`Layer` instance
-        The network that calculates the parameters of the affine
+    theta : :class:`Tensor`
+        The parameters of the affine
         transformation. See the example for how to initialize to the identity
         transform.
+    order: int (default 1)
+        The order of the interpolation
     downsample_factor : float or iterable of float
         A float or a 2-element tuple specifying the downsample factor for the
         output image (in both spatial dimensions). A value of 1 will keep the
@@ -310,10 +311,10 @@ def affine_transform(input, theta, downsample_factor=1, border_mode="nearest"):
             "input_rows, input_columns)"
         )
 
-    return _transform_affine(theta, input, downsample_factor, border_mode)
+    return _transform_affine(theta, input, downsample_factor, border_mode, order)
 
 
-def _transform_affine(theta, input, downsample_factor, border_mode):
+def _transform_affine(theta, input, downsample_factor, border_mode, order):
     num_batch, num_channels, height, width = symjax.current_graph().get(input.shape)
     theta = T.reshape(theta, (-1, 2, 3))
 
@@ -323,22 +324,14 @@ def _transform_affine(theta, input, downsample_factor, border_mode):
     grid = _meshgrid(out_height, out_width)
 
     # Transform A x (x_t, y_t, 1)^T -> (x_s, y_s)
-    T_g = T.dot(theta, grid)
-    # print(T_g)
-    # asdf
-    # x_s = T_g[:, 0]
-    # y_s = T_g[:, 1]
-    # x_s_flat = x_s.flatten()
-    # y_s_flat = y_s.flatten()
-
-    transformed_points = T_g  # T.stack([x_s_flat, y_s_flat])
+    transformed_points = T.dot(theta, grid)
 
     transformed_points = (transformed_points + 1) / 2
     transformed_points = transformed_points * np.array([[width], [height]])
     output = T.map(
         lambda a, b: T.stack(
             [
-                T.interpolation.map_coordinates(a[i], b[::-1], order=1)
+                T.interpolation.map_coordinates(a[i], b[::-1], order=order)
                 for i in range(num_channels)
             ]
         ),
@@ -348,7 +341,9 @@ def _transform_affine(theta, input, downsample_factor, border_mode):
     return output
 
 
-def thin_plate_spline(input, dest_offsets, downsample_factor=1, border_mode="nearest"):
+def thin_plate_spline(
+    input, dest_offsets, order=1, downsample_factor=1, border_mode="nearest"
+):
     """
     applies a thin plate spline transformation [2]_ on the input
     as in [1]_.
@@ -373,6 +368,8 @@ def thin_plate_spline(input, dest_offsets, downsample_factor=1, border_mode="nea
         The number of control points to be used for the thin plate spline
         transformation. These points will be arranged as a grid along the
         image, so the value must be a perfect square. Default is 16.
+    order: int (default 1)
+        The order of the interpolation
     downsample_factor : float or iterable of float
         A float or a 2-element tuple specifying the downsample factor for the
         output image (in both spatial dimensions). A value of 1 will keep the
@@ -440,6 +437,7 @@ def thin_plate_spline(input, dest_offsets, downsample_factor=1, border_mode="nea
         out_width,
         downsample_factor,
         border_mode,
+        order,
     )
 
 
@@ -574,6 +572,7 @@ def _transform_thin_plate_spline(
     out_width,
     downsample_factor,
     border_mode,
+    order,
 ):
 
     num_batch, num_channels, height, width = symjax.current_graph().get(input.shape)
@@ -596,7 +595,7 @@ def _transform_thin_plate_spline(
     output = T.map(
         lambda a, b: T.stack(
             [
-                T.interpolation.map_coordinates(a[i], b[::-1], order=1)
+                T.interpolation.map_coordinates(a[i], b[::-1], order=order)
                 for i in range(num_channels)
             ]
         ),
