@@ -8,19 +8,6 @@ import numpy as np
 from tqdm import tqdm
 
 
-DOC = """Image classification.
-The `CIFAR-10 < https: // www.cs.toronto.edu/~kriz/cifar.html >`_ dataset
-was collected by Alex Krizhevsky, Vinod Nair, and Geoffrey
-Hinton. It consists of 60000 32x32 colour images in 10 classes, with
-6000 images per class. There are 50000 training images and 10000 test images.
-The dataset is divided into five training batches and one test batch,
-each with 10000 images. The test batch contains exactly 1000 randomly
-selected images from each class. The training batches contain the
-remaining images in random order, but some training batches may
-contain more images from one class than another. Between them, the
-training batches contain exactly 5000 images from each class.
-"""
-
 _dataset = "cifar10"
 _urls = {
     "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz": "cifar-10-python.tar.gz"
@@ -42,7 +29,17 @@ label_to_name = {
 
 
 def load(path=None):
-    """
+    """Image classification.
+    The `CIFAR-10 < https: // www.cs.toronto.edu/~kriz/cifar.html >`_ dataset
+    was collected by Alex Krizhevsky, Vinod Nair, and Geoffrey
+    Hinton. It consists of 60000 32x32 colour images in 10 classes, with
+    6000 images per class. There are 50000 training images and 10000 test images.
+    The dataset is divided into five training batches and one test batch,
+    each with 10000 images. The test batch contains exactly 1000 randomly
+    selected images from each class. The training batches contain the
+    remaining images in random order, but some training batches may
+    contain more images from one class than another. Between them, the
+    training batches contain exactly 5000 images from each class.
     Parameters
     ----------
         path: str (optional)
@@ -94,7 +91,6 @@ def load(path=None):
         "test_set/images": test_images,
         "test_set/labels": test_labels,
         "label_to_name": label_to_name,
-        "DOC": DOC,
     }
 
     print("Dataset cifar10 loaded in{0:.2f}s.".format(time.time() - t0))

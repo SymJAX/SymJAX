@@ -9,6 +9,7 @@ from . import (
     cifar10,
     cifar100,
     imagenette,
+    cub200,
     audiomnist,
     speech_commands,
     picidae,
