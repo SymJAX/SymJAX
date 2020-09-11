@@ -19,6 +19,7 @@ from . import (
     freefield1010,
     sonycust,
     stl10,
+    TUTacousticscenes2017,
 )
 
 from .utils import (

@@ -192,7 +192,7 @@ class batchify:
         extra_process=0,
         n_batches=None
     ):
-        """
+        """generator to iterate though mini-batches
 
         Parameters
         ----------

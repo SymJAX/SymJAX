@@ -57,7 +57,7 @@ Audio
    symjax.data.sonycust.load
    symjax.data.gtzan.load
    symjax.data.FSDKaggle2018.load
-   symjax.data.TUTacousticscences2017.load
+   symjax.data.TUTacousticscenes2017.load
 
 
 Detailed description
