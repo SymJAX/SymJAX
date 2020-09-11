@@ -16,6 +16,9 @@ from . import (
     esc,
     gtzan,
     irmas,
+    freefield1010,
+    sonycust,
+    stl10,
 )
 
 from .utils import (

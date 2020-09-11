@@ -2,7 +2,6 @@ import os
 import zipfile
 import io
 from tqdm import tqdm
-import urllib.request
 import numpy as np
 import time
 from scipy.io.wavfile import read as wav_read
@@ -44,7 +43,7 @@ def load(path=None):
     if path is None:
         path = os.environ["DATASET_PATH"]
 
-    download_dataset(path, _dataset, _urls)
+    download_dataset(path, "irmas", _urls)
 
     t0 = time.time()
 
@@ -78,24 +77,11 @@ def load(path=None):
             byt = io.BytesIO(f.read(filename.replace(".wav", ".txt")))
             test_labels.append(np.loadtxt(byt, dtype="str"))
 
-    unique_cat = np.unique(categories)
-    Id = np.eye(len(unique_cat))
-    train_labels = np.array([Id[unique_cat.index(cat)] for cat in train_labels]).astype(
-        "int32"
-    )
-    test_labels = np.array([Id[unique_cat.index(cat)] for cat in test_labels]).astype(
-        "int32"
-    )
-
-    train_wavs = np.array(train_wavs)
-    test_wavs = np.array(test_wavs)
-
     data = {
-        "train_set/wavs": train_wavs,
+        "train_set/wavs": np.array(train_wavs),
         "train_set/labels": train_labels,
-        "test_wavs": test_wavs,
+        "test_wavs": np.array(test_wavs),
         "test_labels": test_labels,
-        "INFOS": irmas.__doc__,
     }
 
     print("Dataset IRMAS loaded in {0:.2f}s.".format(time.time() - t0))
