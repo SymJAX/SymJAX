@@ -11,26 +11,29 @@ _LOG_2PI = np.log(2 * np.pi)
 
 
 class Categorical:
-    def __init__(self, probabilities=None, logits=None):
+    def __init__(self, probabilities=None, logits=None, eps=1e-8):
         if logits is not None:
-            self.logits = logits
+            self.log_probabilities = nn.log_softmax(logits)
+            self.probabilities = T.exp(self.log_probabilities)
         else:
             assert probabilities is not None
-            self.logits = T.log(probabilities)
-
-        self.log_probabilities = nn.log_softmax(logits)
+            self.log_probabilities = T.log(probabilities + eps)
+            self.probabilities = probabilities
 
     def log_prob(self, value):
-        return T.take_along_axis(self.log_probabilities, value[:, None], 1).squeeze(1)
+        # case where the values are discrete
+        return T.take_along_axis(self.log_probabilities, value[..., None], -1).squeeze(
+            -1
+        )
 
     def prob(self, value):
         return T.exp(self.log_prob(value))
 
     def sample(self):
-        return T.random.categorical(self.logits)
+        return T.random.categorical(self.log_probabilities)
 
     def entropy(self):
-        return -T.sum(T.exp(self.log_probabilities) * self.log_probabilities, -1)
+        return -T.sum(self.probabilities * self.log_probabilities, -1)
 
 
 class Normal:
@@ -139,7 +142,8 @@ class Normal:
         if self.mean.ndim == self.cov.ndim:
             return 1 / 2 * T.log(2 * np.pi * np.e * self.cov).sum(-1)
         else:
-            return 1 / 2 * T.log(T.linalg.det(2 * np.pi * np.e * self.cov))
+            # we do not need the signs since it is positive
+            return 1 / 2 * T.linalg.slogdet(2 * np.pi * np.e * self.cov)[1]
 
     def _psd_pinv_decomposed_log_pdet(mat, cond=1e-5):
         """
@@ -184,19 +188,24 @@ class Normal:
         return U, log_pdet
 
 
-def KL(X, Y):
+def cross_entropy(X, Y):
+    if isinstance(X, Categorical) and isinstance(Y, Categorical):
+        return -(X.probabilities * Y.log_probabilities).sum(-1)
+
+
+def KL(X, Y, EPS=1e-8):
     """
     Normal:
     distributions are specified by means and log stds.
     (https://en.wikipedia.org/wiki/Kullback-Leibler_divergence#Multivariate_normal_distributions)
     """
-    if isinstance(X, MultivariateNormal) and isinstance(Y, MultivariateNormal):
-        mu_0 = X.mean
-        mu_1 = Y.mean
+    if isinstance(X, Normal) and isinstance(Y, Normal):
+        mu0 = X.mean
+        mu1 = Y.mean
         log_std0 = X.diag_log_std
         log_std1 = Y.diag_log_std
 
-        var0, var1 = tf.exp(2 * log_std0), tf.exp(2 * log_std1)
+        var0, var1 = T.exp(2 * log_std0), T.exp(2 * log_std1)
         pre_sum = (
             0.5 * (((mu1 - mu0) ** 2 + var0) / (var1 + EPS) - 1) + log_std1 - log_std0
         )
