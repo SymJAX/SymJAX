@@ -293,6 +293,25 @@ Numpy Ops
     where
     zeros
     zeros_like
+    stop_gradient
+    one_hot
+
+
+Indexed Operations
+==================
+
+.. autosummary::
+
+    index
+    index_update
+    index_min
+    index_add
+    index_max
+    index_take
+    index_in_dim
+    dynamic_slice_in_dim
+    dynamic_slice
+    dynamic_index_in_dim
 
 
 
@@ -522,6 +541,20 @@ Detailed Descriptions
 .. autofunction:: symjax.tensor.vstack
 .. autofunction:: symjax.tensor.zeros
 .. autofunction:: symjax.tensor.zeros_like
+.. autofunction:: stop_gradient
+.. autofunction:: one_hot
+
+
+.. autofunction:: index
+.. autofunction:: index_update
+.. autofunction:: index_min
+.. autofunction:: index_add
+.. autofunction:: index_max
+.. autofunction:: index_take
+.. autofunction:: index_in_dim
+.. autofunction:: dynamic_slice_in_dim
+.. autofunction:: dynamic_slice
+.. autofunction:: dynamic_index_in_dim
 
 
 .. automodule:: symjax.tensor.control_flow

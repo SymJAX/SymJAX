@@ -43,6 +43,7 @@ Filters
   complex_morlet
   sinc_bandpass
   mel_filterbank
+  hat_1d
 
 Convolution/Correlation/Pooling
 ===============================
@@ -54,6 +55,14 @@ Convolution/Correlation/Pooling
   correlate
   correlate2d
   batch_pool
+
+
+Utilities
+===================
+
+.. autosummary::
+  extract_signal_patches
+  extract_image_patches
 
 
 Detailed Descriptions
@@ -76,6 +85,7 @@ Detailed Descriptions
 .. autofunction:: complex_morlet
 .. autofunction:: sinc_bandpass
 .. autofunction:: mel_filterbank
+.. autofunction:: hat_1d
 
 .. autofunction:: convolve
 .. autofunction:: batch_convolve
@@ -83,3 +93,7 @@ Detailed Descriptions
 .. autofunction:: correlate
 .. autofunction:: correlate2d
 .. autofunction:: batch_pool
+
+
+.. autofunction:: extract_signal_patches
+.. autofunction:: extract_image_patches
