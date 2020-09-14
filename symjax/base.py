@@ -176,11 +176,28 @@ class Graph(nx.DiGraph):
         else:
             if self.nodes[nodes]["root"]:
                 roots.append(nodes)
-            for i in nx.algorithms.ancestors(self, nodes):
+            for i in self.ancestors(nodes):
                 if self.nodes[i]["root"]:
                     roots.append(i)
 
         return list(set(roots))
+
+    def ancestors(self, nodes, acc=None):
+        
+        if acc is None:
+            acc = set()
+        
+        if type(nodes) == list:
+            for node in nodes:
+                acc = acc.union(self.ancestors(node, acc))
+            return acc
+        else:
+            predecessors = list(self.predecessors(nodes))
+            if len(predecessors) == 0:
+                return acc
+            else:
+                acc = acc.union(set(predecessors))
+                return self.ancestors(predecessors, acc)
 
     def clone(self, node, input_givens):
 
@@ -198,7 +215,7 @@ class Graph(nx.DiGraph):
         givens = input_givens.copy()
 
         # first we remove the redundant givens
-        ancestors = nx.algorithms.ancestors(self, node)
+        ancestors = self.ancestors(node)
         ancestors = set(ancestors).intersection(set(givens.keys()))
 
         # first is there is no more candidate, nothing todo
