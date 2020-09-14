@@ -65,8 +65,10 @@ class Normal:
         if mean.ndim == cov.ndim:
             self.log_det_cov = T.log(cov).sum(axis=-1)
             self.prec_U = 1 / T.sqrt(cov)
+            self.diagonal_cov = True
         else:
             self.prec_U, self.log_det_cov = self._psd_pinv_decomposed_log_pdet(cov)
+            self.diagonal_cov = False
 
     def log_prob(self, x):
         """
@@ -198,19 +200,34 @@ def KL(X, Y, EPS=1e-8):
     Normal:
     distributions are specified by means and log stds.
     (https://en.wikipedia.org/wiki/Kullback-Leibler_divergence#Multivariate_normal_distributions)
+
+    .. math::
+
+        KL(p||q)=\\int [\\log(p(x))-\\log(q(x))]p(x)dx
+
+        =\\int[\\frac{1}{2}log(\\frac{|\\Sigma_2|}{|\\Sigma_1|})−\\frac{1}{2}(x−\\mu_1)^𝑇\\Sigma_1^{-1}(x−\\mu_1)+\\frac{1}{2}(x−\\mu_2)^𝑇\\Sigma_2^{−1}(x−\\mu_2)] p(x)dx
+
+        =\\frac{1}{2}log(\\frac{|\\Sigma_2|}{|\\Sigma_1|})−\\frac{1}{2}tr {𝐸[(x−\\mu_1)(x−\\mu_1)^𝑇] Σ−11}+\\frac{1}{2}𝐸[(x−\\mu_2)^𝑇\\Sigma_2^{−1}(x−\\mu_2)]
+
+        =\\frac{1}{2}log(\\frac{|\\Sigma_2|}{|\\Sigma_1|})−\\frac{1}{2}tr {𝐼𝑑}+\\frac{1}{2}(\\mu_1−\\mu_2)^𝑇Σ_2^{-1}(\\mu_1−\\mu_2)+\\frac{1}{2}tr{\\Sigma_2^{-1}\\Sigma_1}
+
+        =\\frac{1}{2}[log(\\frac{|\\Sigma_2|}{|\\Sigma_1|})−𝑑+tr{\\Sigma_2^{−1}\\Sigma_1}+(\\mu_2−\\mu_1)^𝑇\\Sigma_2^{−1}(\\mu_2−\\mu_1)].
+
     """
     if isinstance(X, Normal) and isinstance(Y, Normal):
         mu0 = X.mean
         mu1 = Y.mean
-        log_std0 = X.diag_log_std
-        log_std1 = Y.diag_log_std
+        var0 = X.cov
+        var1 = Y.cov
 
-        var0, var1 = T.exp(2 * log_std0), T.exp(2 * log_std1)
-        pre_sum = (
-            0.5 * (((mu1 - mu0) ** 2 + var0) / (var1 + EPS) - 1) + log_std1 - log_std0
-        )
-        all_kls = pre_sum.sum(-1)
-        return all_kls
+        if X.diagonal_cov and Y.diagonal_cov:
+            pre_sum = (
+                (((mu1 - mu0) ** 2 + var0) / (var1 + EPS) - 1)
+                + T.log(var0)
+                - T.log(var1)
+            )
+
+            return 1 / 2 * pre_sum.sum(-1)
 
     elif isinstance(X, Categorical) and isinstance(Y, Categorical):
         all_kls = (

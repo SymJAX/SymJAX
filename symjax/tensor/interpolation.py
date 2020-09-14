@@ -244,56 +244,53 @@ def _meshgrid(height, width):
 
 def affine_transform(input, theta, order=1, downsample_factor=1, border_mode="nearest"):
     """
-    Spatial transformer layer
-    The layer applies an affine transformation on the input. The affine
-    transformation is parameterized with six learned parameters [1]_.
-    The output is interpolated with a bilinear transformation.
-    Parameters
-    ----------
-    incoming : :class:`Tensor`
-        The input which should be a 4D tensor, with shape
-        ``(batch_size, num_input_channels, input_rows, input_columns)``.
-    theta : :class:`Tensor`
-        The parameters of the affine
-        transformation. See the example for how to initialize to the identity
-        transform.
-    order: int (default 1)
-        The order of the interpolation
-    downsample_factor : float or iterable of float
-        A float or a 2-element tuple specifying the downsample factor for the
-        output image (in both spatial dimensions). A value of 1 will keep the
-        original size of the input. Values larger than 1 will downsample the
-        input. Values below 1 will upsample the input.
-    border_mode : 'nearest', 'mirror', or 'wrap'
-        Determines how border conditions are handled during interpolation.  If
-        'nearest', points outside the grid are clipped to the boundary. If
-        'mirror', points are mirrored across the boundary. If 'wrap', points
-        wrap around to the other side of the grid.  See
-        http://stackoverflow.com/q/22669252/22670830#22670830 for details.
-    References
-    ----------
-    .. [1]  Max Jaderberg, Karen Simonyan, Andrew Zisserman,
-            Koray Kavukcuoglu (2015):
-            Spatial Transformer Networks. NIPS 2015,
-            http://papers.nips.cc/paper/5854-spatial-transformer-networks.pdf
-    Examples
-    --------
-    Here we set up the layer to initially do the identity transform, similarly
-    to [1]_. Note that you will want to use a localization with linear output.
-    If the output from the localization networks is [t1, t2, t3, t4, t5, t6]
-    then t1 and t5 determines zoom, t2 and t4 determines skewness, and t3 and
-    t6 move the center position.
-    >>> import numpy as np
-    >>> import lasagne
-    >>> b = np.zeros((2, 3), dtype='float32')
-    >>> b[0, 0] = 1
-    >>> b[1, 1] = 1
-    >>> b = b.flatten()  # identity transform
-    >>> W = lasagne.init.Constant(0.0)
-    >>> l_in = lasagne.layers.InputLayer((None, 3, 28, 28))
-    >>> l_loc = lasagne.layers.DenseLayer(l_in, num_units=6, W=W, b=b,
-    ... nonlinearity=None)
-    >>> l_trans = lasagne.layers.TransformerLayer(l_in, l_loc)
+        Spatial transformer layer
+        The layer applies an affine transformation on the input. The affine
+        transformation is parameterized with six learned parameters [1]_.
+        The output is interpolated with a bilinear transformation if `order` is `1`.
+
+        It is also convenient to interpret (each) :math:`\\theta \\in \\mathbb{R}^6` vector in term of an affine transformation of the image coordinates. In that case the 2d coordinates `x` are
+        transformed to `Ax+b` with `A` a 2x2 matrix and `b` a 2d bias vector with
+
+        .. math::
+
+            A = \\begin{pmatrix}
+                    \\theta [0]& \\theta[1]\\\\
+                    \\theta[3]& \\theta[4]
+                \\end{pmatrix},
+            b = \\begin{pmatrix}
+                    \\theta [2]\\\\
+                    \\theta[5]
+                \\end{pmatrix}.
+
+        Parameters
+        ----------
+        incoming : :class:`Tensor`
+            The input which should be a 4D tensor, with shape
+            ``(batch_size, num_input_channels, input_rows, input_columns)``.
+        theta : :class:`Tensor`
+            The parameters of the affine
+            transformation. See the example for how to initialize to the identity
+            transform.
+        order: int (default 1)
+            The order of the interpolation
+        downsample_factor : float or iterable of float
+            A float or a 2-element tuple specifying the downsample factor for the
+            output image (in both spatial dimensions). A value of 1 will keep the
+            original size of the input. Values larger than 1 will downsample the
+            input. Values below 1 will upsample the input.
+        border_mode : 'nearest', 'mirror', or 'wrap'
+            Determines how border conditions are handled during interpolation.  If
+            'nearest', points outside the grid are clipped to the boundary. If
+            'mirror', points are mirrored across the boundary. If 'wrap', points
+            wrap around to the other side of the grid.  See
+            http://stackoverflow.com/q/22669252/22670830#22670830 for details.
+        References
+        ----------
+        .. [1]  Max Jaderberg, Karen Simonyan, Andrew Zisserman,
+                Koray Kavukcuoglu (2015):
+                Spatial Transformer Networks. NIPS 2015,
+                http://papers.nips.cc/paper/5854-spatial-transformer-networks.pdf
     """
 
     downsample_factor = as_tuple(downsample_factor, 2)
