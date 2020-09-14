@@ -183,16 +183,17 @@ class Graph(nx.DiGraph):
         return list(set(roots))
 
     def ancestors(self, nodes, acc=None):
-        
+
         if acc is None:
             acc = set()
-        
+
         if type(nodes) == list:
             for node in nodes:
                 acc = acc.union(self.ancestors(node, acc))
             return acc
         else:
             predecessors = list(self.predecessors(nodes))
+            predecessors = [p for p in predecessors if p not in acc]
             if len(predecessors) == 0:
                 return acc
             else:
