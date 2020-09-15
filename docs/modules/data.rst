@@ -8,6 +8,7 @@ Utilities
 =========
 
 .. autosummary::
+
     symjax.data.patchify_1d
     symjax.data.patchify_2d
     symjax.data.train_test_split

@@ -295,6 +295,7 @@ Numpy Ops
     zeros_like
     stop_gradient
     one_hot
+    dimshuffle
 
 
 Indexed Operations
@@ -543,6 +544,7 @@ Detailed Descriptions
 .. autofunction:: symjax.tensor.zeros_like
 .. autofunction:: stop_gradient
 .. autofunction:: one_hot
+.. autofunction:: dimshuffle
 
 
 .. autofunction:: index

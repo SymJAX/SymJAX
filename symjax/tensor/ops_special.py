@@ -4,11 +4,9 @@ import sys
 import jax
 import jax.lax as jla
 import jax.numpy as jnp
-import numpy
 
 from . import ops_numpy as T
 from .base import jax_wrap
-from ..nn.ops_nn import relu
 
 module = sys.modules[__name__]
 
@@ -75,3 +73,37 @@ def reshape_weight_to_matrix(self, weight, dim=1):
         weight_t = weight
 
     return weight_t.flatten2d()
+
+
+def dimshuffle(tensor, pattern):
+    """Reorder the dimensions of this variable, optionally inserting
+    broadcasted dimensions.
+
+    Parameters
+    ----------
+    tensor: Tensor
+
+    pattern: list of int and str
+        List/tuple of int mixed with 'x' for broadcastable dimensions.
+    Examples
+    --------
+    For example, to create a 3D view of a [2D] matrix, call
+    ``dimshuffle([0,'x',1])``.  This will create a 3D view such that the
+    middle dimension is an implicit broadcasted dimension.  To do the same
+    thing on the transpose of that matrix, call ``dimshuffle([1, 'x', 0])``.
+    Notes
+    -----
+    This function supports the pattern passed as a tuple, or as a
+    variable-length argument (e.g. ``a.dimshuffle(pattern)`` is equivalent
+    to ``a.dimshuffle(*pattern)`` where ``pattern`` is a list/tuple of ints
+    mixed with 'x' characters).
+    """
+
+    # first get the transpose ordering
+    transpose_pattern = [p for p in pattern if type(p) == int]
+    tensor_T = T.transpose(tensor, transpose_pattern)
+
+    # now take care of the expand_dims
+    shapes = tensor_T.shape.__iter__()
+    expand_shape = [shapes.__next__() if type(t) == int else 1 for t in pattern]
+    return tensor_T.reshape(expand_shape)
