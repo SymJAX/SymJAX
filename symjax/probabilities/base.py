@@ -110,8 +110,7 @@ class Normal:
         """
         return T.exp(self.log_prob(value))
 
-    @staticmethod
-    def sample(mean, cov):
+    def sample(self):
         """
         Draw random samples from a multivariate normal distribution.
 
@@ -123,10 +122,13 @@ class Normal:
         rvs : ndarray or scalar
             Random variates based on given `mean` and `cov`.
         """
-        if mean.ndim == cov.ndim:
-            return T.random.randn(mean.shape) * T.sqrt(cov) + mean
+        if self.mean.ndim == self.cov.ndim:
+            return T.random.randn(self.mean.shape) * T.sqrt(self.cov) + self.mean
         else:
-            return T.random.randn(mean.shape) * T.linalg.cholesky(cov) + mean
+            return (
+                T.random.randn(self.mean.shape) * T.linalg.cholesky(self.cov)
+                + self.mean
+            )
 
     def entropy(self):
         """
@@ -221,10 +223,8 @@ def KL(X, Y, EPS=1e-8):
         var1 = Y.cov
 
         if X.diagonal_cov and Y.diagonal_cov:
-            pre_sum = (
-                (((mu1 - mu0) ** 2 + var0) / (var1 + EPS) - 1)
-                + T.log(var0)
-                - T.log(var1)
+            pre_sum = (((mu1 - mu0) ** 2 + var0) / (var1 + EPS) - 1) + T.log(
+                var0 / (var1 + EPS)
             )
 
             return 1 / 2 * pre_sum.sum(-1)
