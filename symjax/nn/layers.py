@@ -188,7 +188,7 @@ class Conv1D(Layer):
             input_dilation=self.input_dilation,
             filter_dilation=self.filter_dilation,
         )
-        if hasattr(self, "b"):
+        if self.b is not None:
             return conv + self.b[:, None]
         else:
             return conv
