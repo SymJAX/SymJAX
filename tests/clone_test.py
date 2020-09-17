@@ -114,6 +114,7 @@ def test_clone_5():
     f = sj.function(outputs=[c, d])
 
     outs = f()
+    print(outs[0] * 2, outs[1])
     assert np.allclose(outs[0] * 2, outs[1])
     outs2 = f()
     assert np.allclose(outs2[0] * 2, outs2[1])

@@ -270,6 +270,40 @@ class Graph(nx.DiGraph):
         done[node] = symjax._fn_to_op[fun](*new_args, **new_kwargs)
         return done[node]
 
+    def clone(self, node, todos, done=None, share_random_ops=True):
+        if done is None:
+            done = {}
+
+        if node in done:
+            return done[node]
+        elif node in todos:
+            return todos[node]
+        elif isinstance(node, t.Variable) or isinstance(node, t.Placeholder):
+            return node
+        elif isinstance(node, t.RandomOp) and share_random_ops:
+            return node
+        elif isinstance(node, t.Constant):
+            return node.value
+        elif len(set(todos) - set(done)) == 0:
+            return node
+        elif isinstance(node, t.OpItem):
+            parent = list(self.predecessors(node))[0]
+            index = int(self[parent][node]["name"].split("parent_index")[1])
+            done[node] = self.clone(parent, todos, done)[index]
+            return done[node]
+        elif type(node) == tuple or type(node) == list or type(node) == t.Tuple:
+            return [self.clone(n, todos, done) for n in node]
+
+        args, kwargs = self.get_args_kwargs(node, evaluate=False)
+        new_args = [
+            self.clone(n, todos, done) for n in args if not isinstance(n, t.Seed)
+        ]
+        new_kwargs = {name: self.clone(n, todos, done) for name, n in kwargs.items()}
+
+        fun = self.get_node_attribute(node, "jax_function")
+        done[node] = symjax._fn_to_op[fun](*new_args, **new_kwargs)
+        return done[node]
+
     def get_node_attribute(self, node, attr):
         return nx.get_node_attributes(self, attr)[node]
 
