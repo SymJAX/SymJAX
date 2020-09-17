@@ -234,8 +234,7 @@ class Graph(nx.DiGraph):
             # loop through the path generator
             for path in paths:
                 # loop through the nodes in path and add the node to todos
-                for node in path:
-                    todos.add(node)
+                todos = todos.union(set(path))
 
         # and now we launch the path computations
         done = input_givens.copy()
