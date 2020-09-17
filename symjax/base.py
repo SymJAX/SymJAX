@@ -201,59 +201,77 @@ class Graph(nx.DiGraph):
                 return self.ancestors(predecessors, acc)
 
     def clone(self, node, input_givens):
+        """
+        Function that allows replacing subgraphs of a computational graph.
+        It returns a copy of the initial subgraph with the corresponding
+        substitutions.
+        Parameters
+        ----------
+        node : Tensor
+            the node to replace
+        input_givens : dict
+            Dictionary describing which subgraphs should be replaced by what.
+        """
 
+        # is the node is constant, then no clone can change it !
         if isinstance(node, t.Constant):
-            return node.value
-        # first simple case, if node is already in givens
-        if node in input_givens:
-            return input_givens[node]
+            return node
+        # or if there is nothing at all !
         elif len(input_givens) == 0:
             return node
+        # or if already given solution
+        elif node in input_givens:
+            return input_givens[node]
+
+        # those are all paths going to node from any of the givens
+        # we use that to gather all the nodes that need to be altered
+        # so we gather those nodes directly
+        print(node)
+        todos = set([node])
+        # loop through the nodes to alter
+        for source in input_givens:
+            print(source)
+            # compute all the paths from source to node
+            paths = nx.all_simple_paths(self, source=source, target=node)
+            # loop through the path generator
+            for path in paths:
+                # loop through the nodes in path and add the node to todos
+                for node in path:
+                    todos.add(node)
+
+        # and now we launch the path computations
+        done = input_givens.copy()
+        self._node_clone(node, todos, done)
+        # once all the paths are processed the node has also been done
+        # we can just return it
+        return done[node]
+
+    def _node_clone(self, node, todos, done):
+        if node in done:
+            return done[node]
+        elif node not in todos:
+            return node
+        elif isinstance(node, t.Constant):
+            return node.value
         elif isinstance(node, t.OpItem):
             parent = list(self.predecessors(node))[0]
             index = int(self[parent][node]["name"].split("parent_index")[1])
-            return self.clone(parent, input_givens)[index]
-        givens = input_givens.copy()
-
-        # first we remove the redundant givens
-        ancestors = self.ancestors(node)
-        ancestors = set(ancestors).intersection(set(givens.keys()))
-
-        # first is there is no more candidate, nothing todo
-        if len(ancestors) == 0:
-            return node
-
-        # otherwise we remove the irrelevant ones
-        for key in set(givens.keys()) - ancestors:
-            givens.pop(key)
-
-        if type(node) == list or type(node) == list or type(node) == t.Tuple:
-            return [self.clone(n, givens) for n in node]
-
-        # next we create a unique identifier. This will allow us to detect
-        # in case this clone has already been created
-        # this identifier is unique given a givens dictionnary
-        names = [
-            "{}{}->{}{}".format(m.scope, m.name, v.scope, v.name)
-            for m, v in givens.items()
-        ]
-        names.sort()
-        name = "_".join(names)
-
-        # ToDo: work on that, it is not
-        # good as it keeps in memory wrong
-        # tensors that resutls from previous
-        # call with different neighbours
-        if 0:  # name in self._branches:
-            return self._branches[name]
+            done[node] = self._node_clone(parent, todos, done)[index]
+            return done[node]
+        elif type(node) == tuple or type(node) == list or type(node) == t.Tuple:
+            return [self._node_clone(n, todos, done) for n in node]
 
         args, kwargs = self.get_args_kwargs(node, evaluate=False)
-        new_args = [self.clone(n, givens) for n in args if not isinstance(n, t.Seed)]
-        new_kwargs = {name: self.clone(n, givens) for name, n in kwargs.items()}
+        new_args = [
+            self._node_clone(n, todos, done) for n in args if not isinstance(n, t.Seed)
+        ]
+        new_kwargs = {
+            name: self._node_clone(n, todos, done) for name, n in kwargs.items()
+        }
 
         fun = self.get_node_attribute(node, "jax_function")
-        self._branches[name] = symjax._fn_to_op[fun](*new_args, **new_kwargs)
-        return self._branches[name]
+        done[node] = symjax._fn_to_op[fun](*new_args, **new_kwargs)
+        return done[node]
 
     def get_node_attribute(self, node, attr):
         return nx.get_node_attributes(self, attr)[node]
