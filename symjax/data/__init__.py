@@ -21,6 +21,7 @@ from . import (
     sonycust,
     stl10,
     TUTacousticscenes2017,
+    groove_MIDI,
 )
 
 from .utils import (

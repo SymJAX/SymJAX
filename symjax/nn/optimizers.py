@@ -76,9 +76,7 @@ class Optimizer:
 
         params = symjax.get_variables(trainable=True)
 
-        print(params)
         params = [p for p in params if symjax.current_graph().is_connected(p, loss)]
-        print(params)
         return params
 
     def add_updates(self, update):

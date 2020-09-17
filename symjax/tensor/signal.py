@@ -548,7 +548,6 @@ def wvd(signal, window, hop, L, apod=hanning, mode="valid"):
 
     # compute the stft with 2 times bigger window to interp.
     s = stft(signal, window, hop, apod, nfft=2 * window, mode=mode)
-    print("s", s.shape)
     # remodulate the stft prior the spectral correlation for simplicity
     # with the following mask
     step = 1 / window
