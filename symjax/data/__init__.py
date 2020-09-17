@@ -22,6 +22,7 @@ from . import (
     stl10,
     TUTacousticscenes2017,
     groove_MIDI,
+    dcase_2019_task4,
 )
 
 from .utils import (
