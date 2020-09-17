@@ -200,7 +200,7 @@ class Graph(nx.DiGraph):
                 acc = acc.union(set(predecessors))
                 return self.ancestors(predecessors, acc)
 
-    def clone(self, node, input_givens):
+    def clone(self, node, todos, done=None, share_random_ops=True):
         """
         Function that allows replacing subgraphs of a computational graph.
         It returns a copy of the initial subgraph with the corresponding
@@ -211,66 +211,12 @@ class Graph(nx.DiGraph):
             the node to replace
         input_givens : dict
             Dictionary describing which subgraphs should be replaced by what.
+        share_random_ops: bool
+            whether to get the same random variables
+            realisations or not between
+            the original tensor and the cloned
+            one
         """
-
-        # is the node is constant, then no clone can change it !
-        if isinstance(node, t.Constant):
-            return node
-        # or if there is nothing at all !
-        elif len(input_givens) == 0:
-            return node
-        # or if already given solution
-        elif node in input_givens:
-            return input_givens[node]
-
-        # those are all paths going to node from any of the givens
-        # we use that to gather all the nodes that need to be altered
-        # so we gather those nodes directly
-        todos = set([node])
-        # loop through the nodes to alter
-        for source in input_givens:
-            # compute all the paths from source to node
-            paths = nx.all_simple_paths(self, source=source, target=node)
-            # loop through the path generator
-            for path in paths:
-                # loop through the nodes in path and add the node to todos
-                todos = todos.union(set(path))
-
-        # and now we launch the path computations
-        done = input_givens.copy()
-        self._node_clone(node, todos, done)
-        # once all the paths are processed the node has also been done
-        # we can just return it
-        return done[node]
-
-    def _node_clone(self, node, todos, done):
-        if node in done:
-            return done[node]
-        elif node not in todos:
-            return node
-        elif isinstance(node, t.Constant):
-            return node.value
-        elif isinstance(node, t.OpItem):
-            parent = list(self.predecessors(node))[0]
-            index = int(self[parent][node]["name"].split("parent_index")[1])
-            done[node] = self._node_clone(parent, todos, done)[index]
-            return done[node]
-        elif type(node) == tuple or type(node) == list or type(node) == t.Tuple:
-            return [self._node_clone(n, todos, done) for n in node]
-
-        args, kwargs = self.get_args_kwargs(node, evaluate=False)
-        new_args = [
-            self._node_clone(n, todos, done) for n in args if not isinstance(n, t.Seed)
-        ]
-        new_kwargs = {
-            name: self._node_clone(n, todos, done) for name, n in kwargs.items()
-        }
-
-        fun = self.get_node_attribute(node, "jax_function")
-        done[node] = symjax._fn_to_op[fun](*new_args, **new_kwargs)
-        return done[node]
-
-    def clone(self, node, todos, done=None, share_random_ops=True):
         if done is None:
             done = {}
 
