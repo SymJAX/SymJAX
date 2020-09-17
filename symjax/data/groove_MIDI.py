@@ -8,7 +8,8 @@ import numpy as np
 from scipy.io.wavfile import read as wav_read
 from tqdm import tqdm
 from mido import MidiFile
-
+import pretty_midi
+import soundfile as sf
 
 _urls = {
     "https://storage.googleapis.com/magentadata/datasets/groove/groove-v1.0.0.zip": "groove-v1.0.0.zip"
@@ -139,7 +140,7 @@ def load(path=None):
     columns = "drummer,session,id,style,bpm,beat_type,time_signature,midi_filename,audio_filename,duration,split".split(
         ","
     )
-    info_file = f.read(filename)
+    info_file = f.open("groove/info.csv")
     infos = np.loadtxt(info_file, delimiter=",", dtype=str)
 
     data = [[] for i in range(len(columns))]
@@ -148,13 +149,18 @@ def load(path=None):
 
     for row in tqdm(infos[1:], ascii=True):
 
-        for column in indices:
-            data[column].append(row[columns])
+        try:
+            wav = f.read("groove/" + row[8])
+            byt = io.BytesIO(wav)
+            data[8].append(sf.read(byt)[0].astype("float32"))
+        except RuntimeError:
+            print("...skipping ", row[8])
+            continue
 
-        data[7].append(MidiFile(f.read(row[7])))
-        wav = f.read(row[8])
-        byt = io.BytesIO(wav)
-        data[8].append(wav_read(byt)[1].astype("float32"))
+        for column in indices:
+            data[column].append(row[column])
+
+        data[7].append(pretty_midi.PrettyMIDI(io.BytesIO(f.read("groove/" + row[7]))))
 
     data = {col: data for col, data in zip(columns, data)}
 

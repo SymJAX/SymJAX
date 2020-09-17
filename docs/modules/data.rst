@@ -43,6 +43,8 @@ Audio
 
    symjax.data.audiomnist.load
    symjax.data.univariate_timeseries.load
+   symjax.data.dcase_2019_task4.load
+   symjax.data.groove_MIDI.load
    symjax.data.speech_commands.load
    symjax.data.picidae.load
    symjax.data.esc.load

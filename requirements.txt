@@ -9,7 +9,7 @@ mne==0.20.6
 requests==2.22.0
 scikit_learn==0.23.1
 networkx==2.4
-mido==1.2.9
+pretty-midi==0.2.9
 wheel
 black>=19.3b0; platform.python_implementation!='PyPy'
 versioneer
