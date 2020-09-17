@@ -7,7 +7,6 @@ import zipfile
 import numpy as np
 from scipy.io.wavfile import read as wav_read
 from tqdm import tqdm
-from mido import MidiFile
 import pretty_midi
 import soundfile as sf
 
