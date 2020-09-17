@@ -226,11 +226,9 @@ class Graph(nx.DiGraph):
         # those are all paths going to node from any of the givens
         # we use that to gather all the nodes that need to be altered
         # so we gather those nodes directly
-        print(node)
         todos = set([node])
         # loop through the nodes to alter
         for source in input_givens:
-            print(source)
             # compute all the paths from source to node
             paths = nx.all_simple_paths(self, source=source, target=node)
             # loop through the path generator
