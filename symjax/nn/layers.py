@@ -292,9 +292,8 @@ class Pool1D(Layer):
 
     __NAME__ = "Pool1D"
 
-    def forward(self, input_or_shape, pool_shape, pool_type="MAX", strides=None):
+    def forward(self, input, pool_shape, pool_type="MAX", strides=None):
 
-        self.init_input(input_or_shape)
         self.pool_type = pool_type
         self.pool_shape = (1, 1, pool_shape)
         if strides is None:
