@@ -171,6 +171,20 @@ def flatten2d(input):
     return reshape(input, (input.shape[0], -1))
 
 
+def flatten3d(input):
+    assert input.ndim > 1
+    if input.ndim == 3:
+        return input
+    return reshape(input, (input.shape[0], input.shape[1], -1))
+
+
+def flatten4d(input):
+    assert input.ndim > 1
+    if input.ndim == 4:
+        return input
+    return reshape(input, (input.shape[0], input.shape[1], input.shape[2], -1))
+
+
 ################
 getitem = jax_wrap(jnp.lax_numpy._rewriting_take)
 
