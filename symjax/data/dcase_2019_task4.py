@@ -13,7 +13,9 @@ _urls = {
 
 
 def load(path=None):
-    """Synthetic data for DCASE 2019 task 4
+    """synthetic data for polyphonic event detection
+
+    Synthetic data for DCASE 2019 task 4
 
     Freesound dataset [1,2]: A subset of FSD is used as foreground sound events for the synthetic subset of the dataset for DCASE 2019 task 4. FSD is a large-scale, general-purpose audio dataset composed of Freesound content annotated with labels from the AudioSet Ontology [3].
 

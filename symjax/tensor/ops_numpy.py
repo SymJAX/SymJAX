@@ -161,10 +161,12 @@ range = module.__dict__["arange"]
 
 
 def flatten(input):
+    """reshape the input into a vector"""
     return module.__dict__["reshape"](input, (-1,))
 
 
 def flatten2d(input):
+    """reshape the input into a matrix"""
     assert input.ndim > 1
     if input.ndim == 2:
         return input
@@ -172,6 +174,7 @@ def flatten2d(input):
 
 
 def flatten3d(input):
+    """reshape the input into a 3D-tensor"""
     assert input.ndim > 1
     if input.ndim == 3:
         return input
@@ -179,6 +182,7 @@ def flatten3d(input):
 
 
 def flatten4d(input):
+    """reshape the input into a 4D-tensor"""
     assert input.ndim > 1
     if input.ndim == 4:
         return input

@@ -224,7 +224,7 @@ def KL(X, Y, EPS=1e-8):
 
         if X.diagonal_cov and Y.diagonal_cov:
             pre_sum = (((mu1 - mu0) ** 2 + var0) / (var1 + EPS) - 1) + T.log(
-                var0 / (var1 + EPS)
+                var1 / (var0 + EPS)
             )
 
             return 1 / 2 * pre_sum.sum(-1)
