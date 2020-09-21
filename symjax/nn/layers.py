@@ -40,18 +40,31 @@ class Layer(T.Op):
                 _jax_function=jax.numpy.add,
             )
 
-    def create_variable(self, name, tensor_or_func, shape, trainable, dtype="float32"):
+    def create_variable(
+        self,
+        name,
+        tensor_or_func,
+        shape,
+        trainable,
+        dtype="float32",
+        preprocessor=None,
+    ):
         if tensor_or_func is None:
             self.__dict__[name] = None
             return
 
-        self.__dict__[name] = T.Variable(
+        variable = T.Variable(
             tensor_or_func,
             name=name,
             shape=symjax.current_graph().get(shape),
             dtype=dtype,
             trainable=trainable,
         )
+        if preprocessor is not None:
+
+            self.__dict__[name] = preprocessor(variable)
+        else:
+            self.__dict__[name] = variable
 
     def add_updates(self, update):
         symjax.current_graph().add_updates(update)
@@ -121,6 +134,8 @@ class Dense(Layer):
         b=numpy.zeros,
         trainable_W=True,
         trainable_b=True,
+        W_preprocessor=None,
+        b_preprocessor=None,
         flatten=True,
     ):
         if flatten:
@@ -133,8 +148,15 @@ class Dense(Layer):
             W,
             (width_in, units),
             trainable=trainable_W,
+            preprocessor=W_preprocessor,
         )
-        self.create_variable("b", b, (units,), trainable=trainable_b)
+        self.create_variable(
+            "b",
+            b,
+            (units,),
+            trainable=trainable_b,
+            preprocessor=b_preprocessor,
+        )
 
         if flatten:
             flat_input = T.flatten2d(input)
@@ -164,6 +186,8 @@ class Conv1D(Layer):
         trainable_b=True,
         input_dilations=None,
         filter_dilations=None,
+        W_preprocessor=None,
+        b_preprocessor=None,
     ):
 
         if numpy.isscalar(input_dilations):
@@ -178,8 +202,15 @@ class Conv1D(Layer):
             W,
             (n_filters, input.shape[1], filter_length),
             trainable=trainable_W,
+            preprocessor=W_preprocessor,
         )
-        self.create_variable("b", b, (n_filters,), trainable=trainable_b)
+        self.create_variable(
+            "b",
+            b,
+            (n_filters,),
+            trainable=trainable_b,
+            preprocessor=b_preprocessor,
+        )
         conv = T.signal.batch_convolve(
             input,
             self.W,
@@ -258,6 +289,8 @@ class Conv2D(Layer):
         trainable_b=True,
         input_dilations=None,
         filter_dilations=None,
+        W_preprocessor=None,
+        b_preprocessor=None,
     ):
 
         self.input_dilation = input_dilations
@@ -270,8 +303,15 @@ class Conv2D(Layer):
             W,
             (n_filters, input.shape[1]) + tuple(filter_shape),
             trainable=trainable_W,
+            preprocessor=W_preprocessor,
         )
-        self.create_variable("b", b, (n_filters,), trainable=trainable_b)
+        self.create_variable(
+            "b",
+            b,
+            (n_filters,),
+            trainable=trainable_b,
+            preprocessor=b_preprocessor,
+        )
 
         conv = T.signal.batch_convolve(
             input,
