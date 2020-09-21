@@ -3,6 +3,7 @@
 
 from . import (
     mnist,
+    emnist,
     fashionmnist,
     dsprites,
     svhn,

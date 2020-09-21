@@ -7,9 +7,67 @@ import zipfile
 
 import numpy as np
 import tqdm
+from .utils import download_dataset
 
 
-class emnist:
+_urls = {"http://www.itl.nist.gov/iaui/vip/cs_links/EMNIST/gzip.zip": "gzip.zip"}
+
+
+def _read_images(filename, folder):
+
+    mat = folder.read(filename)
+    f = gzip.open(io.BytesIO(mat), "rb")
+
+    magic = f.read(4)
+    magic = int.from_bytes(magic, "big")
+    print("Magic is:", magic)
+
+    # Number of images in next 4 bytes
+    noimg = f.read(4)
+    noimg = int.from_bytes(noimg, "big")
+
+    # Number of rows in next 4 bytes
+    norow = f.read(4)
+    norow = int.from_bytes(norow, "big")
+
+    # Number of columns in next 4 bytes
+    nocol = f.read(4)
+    nocol = int.from_bytes(nocol, "big")
+
+    images = np.empty((noimg, norow, nocol), "float32")
+
+    for i in tqdm.tqdm(range(noimg), ascii=True):
+        for r in range(norow):
+            for c in range(nocol):
+                images[i, c, r] = float(int.from_bytes(f.read(1), "big"))
+
+    f.close()
+
+    return images
+
+
+def _read_labels(filename, folder):
+
+    mat = folder.read(filename)
+    f = gzip.open(io.BytesIO(mat), "rb")
+
+    magic = f.read(4)
+    magic = int.from_bytes(magic, "big")
+    print("Magic is:", magic)
+
+    # Number of images in next 4 bytes
+    nolab = f.read(4)
+    nolab = int.from_bytes(nolab, "big")
+
+    labels = [f.read(1) for i in range(nolab)]
+    labels = [int.from_bytes(label, "big") for label in labels]
+
+    f.close()
+
+    return np.array(labels)
+
+
+def load(path=None):
     """Grayscale digit/letter classification.
 
     The EMNIST Dataset
@@ -127,140 +185,23 @@ class emnist:
                             +-- Readme.txt
 
     """
+    if path is None:
+        path = os.environ["DATASET_PATH"]
 
-    @staticmethod
-    def download(path):
-        """
-        Download the EMNIST dataset and store the result into
-        the given path
+    download_dataset(path, "EMNIST", _urls)
 
-        Parameters
-        ----------
-
-            path: str
-                the path where the downloaded files will be
-                stored. If the directory does not exist, it is created.
-        """
-
-        # Check if directory exists
-        if not os.path.isdir(path + "emnist"):
-            print("Creating emnist Directory")
-            os.mkdir(path + "emnist")
-
-        # Check if file exists
-        if not os.path.exists(path + "emnist/gzip.zip"):
-            td = time.time()
-            print("Downloading emnist")
-            url = "http://www.itl.nist.gov/iaui/vip/cs_links/EMNIST/gzip.zip"
-            urllib.request.urlretrieve(url, path + "emnist/gzip.zip")
-
-    @staticmethod
-    def _read_images(filename, folder):
-
-        mat = folder.read(filename)
-        f = gzip.open(io.BytesIO(mat), "rb")
-
-        magic = f.read(4)
-        magic = int.from_bytes(magic, "big")
-        print("Magic is:", magic)
-
-        # Number of images in next 4 bytes
-        noimg = f.read(4)
-        noimg = int.from_bytes(noimg, "big")
-
-        # Number of rows in next 4 bytes
-        norow = f.read(4)
-        norow = int.from_bytes(norow, "big")
-
-        # Number of columns in next 4 bytes
-        nocol = f.read(4)
-        nocol = int.from_bytes(nocol, "big")
-
-        images = np.empty((noimg, norow, nocol), "float32")
-
-        for i in tqdm.tqdm(range(noimg), ascii=True):
-            for r in range(norow):
-                for c in range(nocol):
-                    images[i, c, r] = float(int.from_bytes(f.read(1), "big"))
-
-        f.close()
-
-        return images
-
-    @staticmethod
-    def _read_labels(filename, folder):
-
-        mat = folder.read(filename)
-        f = gzip.open(io.BytesIO(mat), "rb")
-
-        magic = f.read(4)
-        magic = int.from_bytes(magic, "big")
-        print("Magic is:", magic)
-
-        # Number of images in next 4 bytes
-        nolab = f.read(4)
-        nolab = int.from_bytes(nolab, "big")
-
-        labels = [f.read(1) for i in range(nolab)]
-        labels = [int.from_bytes(label, "big") for label in labels]
-
-        f.close()
-
-        return np.array(labels)
-
-    @staticmethod
-    def load(option="byclass", path=None):
-        """
-        Parameters
-        ----------
-
-            option: str
-                the emnist dataset to load (byclass, bymerge, balanced, letters,
-                digits, mnist)
-
-            path: str (optional)
-                default ($DATASET_PATH), the path to look for the data and
-                where the data will be downloaded if not present
-
-        Returns
-        -------
-
-            train_images: array
-
-            train_labels: array
-
-            valid_images: array
-
-            valid_labels: array
-
-            test_images: array
-
-            test_labels: array
-
-        """
-
-        if path is None:
-            path = os.environ["DATASET_PATH"]
-
-        emnist.download(path)
-
-        t0 = time.time()
-
-        # Loading the file
-        print("Loading emnist")
-        folder = zipfile.ZipFile(path + "emnist/gzip.zip")
-        filename = "gzip/emnist-{}-{}-{}-idx{}-ubyte.gz"
-        x_test = emnist._read_images(
-            filename.format(option, "test", "images", 3), folder
-        )
-        x_train = emnist._read_images(
-            filename.format(option, "train", "images", 3), folder
-        )
-        y_test = emnist._read_labels(
-            filename.format(option, "test", "labels", 1), folder
-        )
-        y_train = emnist._read_labels(
-            filename.format(option, "train", "labels", 1), folder
-        )
-
-        return x_train, y_train, x_test, y_test
+    # Loading the file
+    print("Loading emnist")
+    folder = zipfile.ZipFile(path + "EMNIST/gzip.zip")
+    filename = "gzip/emnist-{}-{}-{}-idx{}-ubyte.gz"
+    x_test = _read_images(filename.format("byclass", "test", "images", 3), folder)
+    x_train = _read_images(filename.format("byclass", "train", "images", 3), folder)
+    y_test = _read_labels(filename.format("byclass", "test", "labels", 1), folder)
+    y_train = _read_labels(filename.format("byclass", "train", "labels", 1), folder)
+    data = {
+        "train_set/images": x_train,
+        "train_set/labels": y_train,
+        "test_set/images": x_test,
+        "test_set/labels": y_test,
+    }
+    return data
