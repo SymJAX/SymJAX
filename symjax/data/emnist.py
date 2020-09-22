@@ -67,7 +67,7 @@ def _read_labels(filename, folder):
     return np.array(labels)
 
 
-def load(path=None):
+def load(option="byclass", path=None):
     """Grayscale digit/letter classification.
 
     The EMNIST Dataset
@@ -194,10 +194,10 @@ def load(path=None):
     print("Loading emnist")
     folder = zipfile.ZipFile(path + "EMNIST/gzip.zip")
     filename = "gzip/emnist-{}-{}-{}-idx{}-ubyte.gz"
-    x_test = _read_images(filename.format("byclass", "test", "images", 3), folder)
-    x_train = _read_images(filename.format("byclass", "train", "images", 3), folder)
-    y_test = _read_labels(filename.format("byclass", "test", "labels", 1), folder)
-    y_train = _read_labels(filename.format("byclass", "train", "labels", 1), folder)
+    x_test = _read_images(filename.format(option, "test", "images", 3), folder)
+    x_train = _read_images(filename.format(option, "train", "images", 3), folder)
+    y_test = _read_labels(filename.format(option, "test", "labels", 1), folder)
+    y_train = _read_labels(filename.format(option, "train", "labels", 1), folder)
     data = {
         "train_set/images": x_train,
         "train_set/labels": y_train,
