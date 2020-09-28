@@ -103,7 +103,7 @@ def explained_variance(y, ypred, axis=None, epsilon=1e-6):
     return 1 - (y - ypred).var(axis=axis) / (y.var(axis=axis) + epsilon)
 
 
-def vae(x, x_hat, z_mu, z_logvar, mu, logvar, x_logvar=0.0):
+def vae(x, x_hat, q_mean, q_cov, z_mean=None, z_cov=None, x_cov=None):
     """N samples of dimension D to latent space in K dimension with Gaussian distributions
 
     Parameters
@@ -115,30 +115,40 @@ def vae(x, x_hat, z_mu, z_logvar, mu, logvar, x_logvar=0.0):
     x_hat: array
         should be of shape (N, D)
 
-    z_mu: array
+    q_mean: array
         should be of shape (N, K), infered mean of variational Gaussian
 
-    z_logvar: array
+    q_cov: array
         should be of shape (N, K), infered log-variance of variational Gaussian
 
-    mu: array
+    z_mean: array
         should be of shape (K,), mean of z variable
 
-    logvar: array
+    z_cov: array
         should be of shape (K,), logstd of z variable
 
     """
+    if x_cov is None:
+        x_cov = T.ones_like(x_hat)
 
-    p = probabilities.MultivariateNormal(x_hat, logstd=x_logvar)
-    q = probabilities.MultivariateNormal(z_mu, logstd=z_logvar)
-    z = probabilities.MultivariateNormal(mu, logstd=logvar)
+    if z_mean is None:
+        z_mean = T.zeros_like(q_mean)
 
-    loss = -(p.logprob(x) + probabilities.KL(z, q) + q.entropy())
+    if z_cov is None:
+        z_cov = T.ones_like(z_mean)
+
+    p = probabilities.Normal(x, cov=x_cov)
+    q = probabilities.Normal(q_mean, cov=q_cov)
+    z = probabilities.Normal(z_mean, cov=z_cov)
+
+    loss = -(p.log_prob(x_hat) - probabilities.KL(z, q))
 
     return loss
 
 
-def vae_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0.0, eps=1e-8):
+def vae_gmm(
+    x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0.0, eps=1e-8
+):
     """N samples of dimension D to latent space of C sluters in K dimension
 
     Parameters
@@ -194,7 +204,10 @@ def vae_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0.0, eps=1e-8)
     ll_z = -0.5 * (
         pt_z
         * (
-            logvar + z_var[:, None, :] / var - 1 + (z_mu[:, None, :] - mu) ** 2 / var
+            logvar
+            + z_var[:, None, :] / var
+            - 1
+            + (z_mu[:, None, :] - mu) ** 2 / var
         ).sum(-1)
     ).sum(-1)
 
@@ -206,7 +219,9 @@ def vae_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0.0, eps=1e-8)
     return loss, px_z + p_c, pt_z
 
 
-def vae_comp_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0.0, eps=1e-8):
+def vae_comp_gmm(
+    x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0.0, eps=1e-8
+):
     """N samples of dimension D to latent space of I pieces each of C sluters
     in K dimension
 
@@ -348,17 +363,23 @@ def FGMM_VAE(
     log2pi = T.log(2 * np.pi)
 
     # reconstruction part (first expectation)
-    E1 = -0.5 * (((x - x_rec) ** 2 / x_var).sum(1) + x_logvar.sum() + D * log2pi)
+    E1 = -0.5 * (
+        ((x - x_rec) ** 2 / x_var).sum(1) + x_logvar.sum() + D * log2pi
+    )
 
     E2_1 = -0.5 * (log2pi + z_logvar + (q_var + q_mu ** 2) / z_var).sum(1)
 
     E2_2 = T.einsum("nf,nfc,fck,nk->n", q_eta, q_gamma, mu, q_mu / z_var)
 
-    E2_3 = -0.5 * (T.einsum("nf,nfc,fck->nk", q_eta, q_gamma, mu ** 2) / z_var).sum(1)
+    E2_3 = -0.5 * (
+        T.einsum("nf,nfc,fck->nk", q_eta, q_gamma, mu ** 2) / z_var
+    ).sum(1)
 
     if mode == "bernoulli":
         q_gammaeta = T.einsum("nf,nfc->nfc", q_eta, q_gamma)
-        corr = T.einsum("fcd,nfc,abk,nab->nfa", mu / z_var, q_gammaeta, mu, q_gammaeta)
+        corr = T.einsum(
+            "fcd,nfc,abk,nab->nfa", mu / z_var, q_gammaeta, mu, q_gammaeta
+        )
         E2_4 = -0.5 * T.sum(corr * (1 - T.eye(F)), (1, 2))
     else:
         E2_4 = 0.0
@@ -583,7 +604,9 @@ def accuracy(targets, predictions):
         targets = T.array(targets)
 
     if targets.ndim != 1:
-        raise RuntimeError("targets should be of rank 1, given rank is {targets.ndim}")
+        raise RuntimeError(
+            "targets should be of rank 1, given rank is {targets.ndim}"
+        )
 
     if predictions.ndim == 2:
         accu = T.cast(T.equal(targets, predictions.argmax(1)), "float32")
