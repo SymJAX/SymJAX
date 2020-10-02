@@ -156,13 +156,21 @@ def test_learn_bn():
     label = T.Placeholder((batch_size,), "int32")
     deterministic = T.Placeholder((), "bool")
 
-    conv = nn.layers.Conv2D(input, 2, (5, 5), W=W.transpose((3, 2, 0, 1)))
-    out = nn.layers.BatchNormalization(conv, [1], deterministic=deterministic)
-    out = nn.relu(out)
-    out = nn.layers.Dense(out.transpose((0, 2, 3, 1)), 10, W=W2)
-    loss = nn.losses.sparse_softmax_crossentropy_logits(label, out).mean()
-    nn.optimizers.SGD(loss, 0.001)
 
+#    conv = nn.layers.Conv2D(input, 2, (5, 5), W=W.transpose((3, 2, 0, 1)))
+
+#    conv = nn.layers.Conv2D(input, 2, (5, 5))
+#    out = nn.layers.BatchNormalization(conv, [1], deterministic=deterministic)
+#    out = conv
+#    out = nn.relu(out)
+#    out = nn.layers.Dense(out.transpose((0, 2, 3, 1)), 10)#, W=W2)
+    #out = nn.layers.Dense(input, 10)
+    #loss = nn.losses.sparse_softmax_crossentropy_logits(label, out).mean()
+    V2 = T.Variable(W2)
+    loss = input.sum() * V2.sum()
+    out=loss
+    nn.optimizers.SGD(loss, 0.001, params=[V2])
+    print(V2, loss, input, label, deterministic, out)
     f = symjax.function(input, label, deterministic, outputs=[loss, out])
     g = symjax.function(
         input,
