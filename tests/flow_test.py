@@ -10,6 +10,84 @@ import symjax.tensor as T
 import networkx as nx
 
 
+def test_cond1():
+    sj.current_graph().reset()
+    v = T.ones((10, 10))
+    u = T.Placeholder((), "int32")
+    out = T.cond(
+        u > 0,
+        lambda u: u,
+        lambda u: 2 * u,
+        true_inputs=(v,),
+        false_inputs=(v,),
+    )
+    f = sj.function(u, outputs=out)
+    assert np.array_equal(f(1), np.ones((10, 10)))
+    assert np.array_equal(f(0), 2 * np.ones((10, 10)))
+
+
+def test_cond2():
+    sj.current_graph().reset()
+    v = T.ones((10, 10))
+    u = T.Placeholder((), "int32")
+    out = T.cond(
+        u > 0,
+        lambda u: 4 * u,
+        lambda u: u,
+        true_inputs=(v,),
+        false_inputs=(2 * v,),
+    )
+    f = sj.function(u, outputs=out)
+    assert np.array_equal(f(1), 4 * np.ones((10, 10)))
+    assert np.array_equal(f(0), 2 * np.ones((10, 10)))
+
+
+def test_cond3():
+    sj.current_graph().reset()
+    v = T.ones((10, 10)) * 3
+    u = T.Placeholder((), "int32")
+    out = T.cond(
+        u > 0,
+        lambda a, u: a * u,
+        lambda a, u: a + u,
+        true_inputs=(
+            2 * T.ones((10, 10)),
+            v,
+        ),
+        false_inputs=(
+            2 * T.ones((10, 10)),
+            v,
+        ),
+    )
+    f = sj.function(u, outputs=out)
+    assert np.array_equal(f(1), 6 * np.ones((10, 10)))
+    assert np.array_equal(f(0), 5 * np.ones((10, 10)))
+
+
+def test_cond4():
+    sj.current_graph().reset()
+    v = T.ones((10, 10)) * 3
+    W = T.Variable(1)
+    u = T.Placeholder((), "int32")
+    out = T.cond(
+        u > 0,
+        lambda a, u: a * u,
+        lambda a, u: a + u,
+        true_inputs=(
+            W,
+            v,
+        ),
+        false_inputs=(
+            W,
+            v,
+        ),
+    )
+    f = sj.function(u, outputs=out, updates={W: W + 1})
+    assert np.array_equal(f(1), 3 * np.ones((10, 10)))
+    assert np.array_equal(f(0), 5 * np.ones((10, 10)))
+    assert np.array_equal(f(1), 9 * np.ones((10, 10)))
+
+
 def test_map():
     sj.current_graph().reset()
     w = T.Variable(1.0, dtype="float32")
@@ -57,6 +135,10 @@ def test_while():
 
 
 if __name__ == "__main__":
+    test_cond1()
+    test_cond2()
+    test_cond3()
+    test_cond4()
     test_while()
     test_map()
     test_grad_map()

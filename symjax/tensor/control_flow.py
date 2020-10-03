@@ -2,7 +2,7 @@ import jax.lax as jla
 
 from .base import jax_wrap, symjax_to_jax_fn
 
-cond = jax_wrap(jla.cond)
+# cond = jax_wrap(jla.cond)
 fori_loop = jax_wrap(jla.fori_loop)
 while_loop = jax_wrap(jla.while_loop)
 
@@ -24,6 +24,32 @@ def _scan(f, init, sequences, non_sequences=None, length=None, reverse=False):
             return truef(a, *args, *non_sequences)
 
     return jla.scan(finalf, init, sequences, length=length, reverse=reverse)
+
+
+@jax_wrap
+def _cond(
+    pred,
+    true_fun,
+    false_fun,
+    true_inputs,
+    false_inputs,
+):
+    # get the fully jaxed function
+    jax_true_fun = symjax_to_jax_fn(true_fun)
+    jax_false_fun = symjax_to_jax_fn(false_fun)
+
+    def final_true_fun(args):
+        return jax_true_fun(*args[: len(true_inputs)])
+
+    def final_false_fun(args):
+        return jax_false_fun(*args[len(true_inputs) :])
+
+    return jla.cond(
+        pred,
+        final_true_fun,
+        final_false_fun,
+        true_inputs + false_inputs,
+    )
 
 
 @jax_wrap
@@ -264,3 +290,37 @@ def while_loop(
     return _while_loop(
         cond_fun, body_fun, sequences, non_sequences_cond, non_sequences_body
     )
+
+
+def cond(
+    pred,
+    true_fun,
+    false_fun,
+    true_inputs=None,
+    false_inputs=None,
+    shared_inputs=None,
+):
+    """conditional branch evaluation
+
+    Parameters:
+    -----------
+    pred: Tensor (boolean scalar)
+        the condition for branch evaluation
+
+    true_fun: callable
+        the function to execute to produce the true output
+
+    false_fun: callable
+        the function to execute to produce the false output
+
+    true_inputs: list or tuple
+        the inputs of the true function
+
+    false_inputs: list or tuple
+        the inputs of the false function
+
+    true_inputs = () if true_inputs is None else tuple(true_inputs)
+    false_inputs = () if false_inputs is None else tuple(false_inputs)
+    """
+
+    return _cond(pred, true_fun, false_fun, true_inputs, false_inputs)

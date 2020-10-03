@@ -6,6 +6,12 @@ import numpy
 import jax
 
 
+# IMPORTANT NOTE
+# in order to make sphinx doc clean we use a hacky way to use the
+# __init__ method as a staticmethod wich has an actual return ...
+# not pythonic, suggestions welcome !
+
+
 def create_variable(
     name,
     tensor_or_func,
@@ -43,7 +49,7 @@ class Layer(T.Tensor):
 
         with symjax.Scope(name):
 
-            output = cls.forward(*args, **kwargs)
+            output = cls.__init__(cls, *args, **kwargs)
 
         return output
 
@@ -59,8 +65,7 @@ class Identity(Layer):
 
     __NAME__ = "Identity"
 
-    @staticmethod
-    def forward(input):
+    def __init__(self, input):
         return input
 
 
@@ -68,7 +73,7 @@ class Upsample1D(Layer):
 
     __NAME__ = "Upsample1D"
 
-    def forward(self, input, repeat, axis=-1, mode="constant", value=0.0):
+    def __init__(self, input, repeat, axis=-1, mode="constant", value=0.0):
         return T.interpolation.upsample_1d(
             input,
             repeat=repeat,
@@ -82,7 +87,7 @@ class Upsample2D(Layer):
 
     __NAME__ = "Upsample2D"
 
-    def forward(self, input, repeat, axis, mode="constant", value=0.0):
+    def __init__(self, input, repeat, axis, mode="constant", value=0.0):
         p1 = T.upsample_1d(
             input,
             repeat=repeat[0],
@@ -149,8 +154,8 @@ class Dense(Layer):
 
     __NAME__ = "Dense"
 
-    @staticmethod
-    def forward(
+    def __init__(
+        self,
         input,
         units,
         W=initializers.glorot_uniform,
@@ -244,8 +249,8 @@ class Conv1D(Layer):
 
     __NAME__ = "Conv1D"
 
-    @staticmethod
-    def forward(
+    def __init__(
+        self,
         input,
         n_filters,
         filter_length,
@@ -301,8 +306,8 @@ class Conv2DTranspose(Layer):
 
     __NAME__ = "Conv2DTranspose"
 
-    @staticmethod
-    def forward(
+    def __init__(
+        self,
         input,
         n_filters,
         filter_shape,
@@ -347,8 +352,8 @@ class Conv2D(Layer):
 
     __NAME__ = "Conv2D"
 
-    @staticmethod
-    def forward(
+    def __init__(
+        self,
         input,
         n_filters,
         filter_shape,
@@ -402,8 +407,7 @@ class Pool1D(Layer):
 
     __NAME__ = "Pool1D"
 
-    @staticmethod
-    def forward(input, pool_shape, pool_type="MAX", strides=None):
+    def __init__(self, input, pool_shape, pool_type="MAX", strides=None):
 
         pool_shape = (1, 1, pool_shape)
         if strides is None:
@@ -424,8 +428,7 @@ class Pool2D(Layer):
 
     __NAME__ = "Pool2D"
 
-    @staticmethod
-    def forward(self, input, pool_shape, pool_type="MAX", strides=None):
+    def __init__(self, input, pool_shape, pool_type="MAX", strides=None):
 
         pool_shape = (1, 1) + symjax.data.utils.as_tuple(pool_shape, 2)
         if strides is None:
@@ -469,8 +472,7 @@ class Dropout(Layer):
 
     __NAME__ = "Dropout"
 
-    @staticmethod
-    def forward(input, p, deterministic, seed=None):
+    def __init__(self, input, p, deterministic, seed=None):
 
         mask = T.random.bernoulli(shape=input.shape, p=p, seed=seed)
 
@@ -515,8 +517,7 @@ class RandomFlip(Layer):
 
     __NAME__ = "RandomFlip"
 
-    @staticmethod
-    def forward(input, p, axis, deterministic, seed=None):
+    def __init__(self, input, p, axis, deterministic, seed=None):
 
         extra_dims = input.ndim - 1
         flip = T.random.bernoulli(
@@ -573,8 +574,7 @@ class RandomCrop(Layer):
 
     __NAME__ = "RandomCrop"
 
-    @staticmethod
-    def forward(input, crop_shape, deterministic, padding=0, seed=None):
+    def __init__(self, input, crop_shape, deterministic, padding=0, seed=None):
 
         # if given only a scalar
         if not hasattr(padding, "__len__"):
@@ -664,8 +664,8 @@ class BatchNormalization(Layer):
 
     __NAME__ = "BatchNormalization"
 
-    @staticmethod
-    def forward(
+    def __init__(
+        self,
         input,
         axis,
         deterministic,
@@ -727,8 +727,8 @@ class RNN(Layer):
         ht = sigma(T.dot(x, W) + b + T.dot(h, H))
         return ht, ht
 
-    @staticmethod
-    def forward(
+    def __init__(
+        self,
         sequence,
         init_h,
         units,
@@ -777,8 +777,8 @@ class GRU(Layer):
         ht = (1 - ft) * h + ft * h_hat
         return ht, ht
 
-    @staticmethod
-    def forward(
+    def __init__(
+        self,
         sequence,
         init_h,
         units,
@@ -888,7 +888,7 @@ class LSTM(Layer):
         hnew = o * sigma_h(cnew)
         return T.stack([hnew, cnew]), h
 
-    def forward(
+    def __init__(
         self,
         sequence,
         init_h,

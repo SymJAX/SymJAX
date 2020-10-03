@@ -7,7 +7,7 @@ __all__ = ["random", "signal", "linagl", "fft", "interpolation"]
 from .base import *
 
 
-from .control_flow import map, scan, while_loop
+from .control_flow import map, scan, while_loop, cond
 
 from .ops_numpy import *
 from .ops_special import *
