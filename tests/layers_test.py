@@ -8,6 +8,7 @@ example of batch-normalization classification
 
 import symjax.tensor as T
 import symjax as sj
+import symjax
 from symjax import nn
 import numpy as np
 
@@ -23,7 +24,9 @@ def test_bn():
     bn = nn.layers.BatchNormalization(input, [1], deterministic=deterministic)
 
     update = sj.function(input, deterministic, outputs=bn, updates=sj.get_updates())
-    get_stats = sj.function(input, outputs=bn.avg_mean[0])
+    avmean = symjax.get_variables(trainable=None)[-3]
+    print(avmean)
+    get_stats = sj.function(input, outputs=avmean[0])
 
     data = np.random.randn(50, DIM) * 4 + 2
 
@@ -91,15 +94,13 @@ def test_flip():
     BATCH_SIZE = 2048
     DIM = 8
     input = T.Placeholder((BATCH_SIZE, DIM, DIM), "float32", name="input")
-    deterministic = T.Placeholder((1,), "bool", name="deterministic")
+    deterministic = T.Placeholder([1], "bool", name="deterministic")
 
     bn = nn.layers.RandomFlip(input, axis=2, p=0.5, deterministic=deterministic)
-
     update = sj.function(input, deterministic, outputs=bn)
 
     data = np.ones((BATCH_SIZE, DIM, DIM))
     data[:, :, : DIM // 2] = 0
-
     output1 = update(data, 0)
     output2 = update(data, 0)
     output3 = update(data, 1)
@@ -111,7 +112,7 @@ def test_flip():
 
 if __name__ == "__main__":
 
-    test_bn()
-    # test_flip()
+    # test_bn()
+    test_flip()
     # test_dropout()
     test_global_pool()

@@ -6,7 +6,14 @@ from ..base import current_graph, Scope
 import numpy as np
 
 
-def ExponentialMovingAverage(value, alpha, init=None, decay_min=False, debias=True):
+def ExponentialMovingAverage(
+    value,
+    alpha,
+    init=None,
+    decay_min=False,
+    debias=True,
+    name="ExponentialMovingAverage",
+):
 
     """exponential moving average of a given value
 
@@ -100,7 +107,7 @@ def ExponentialMovingAverage(value, alpha, init=None, decay_min=False, debias=Tr
 
     """
 
-    with Scope("ExponentialMovingAverage"):
+    with Scope(name):
 
         init = init if init is not None else T.zeros_like(value, detach=True)
 
@@ -290,7 +297,7 @@ def SimpleMovingAverage(value, n):
 
     with Scope("SimpleMovingAverage"):
         last_values = T.Variable(
-            np.ones((n,) + value.shape.get()) * np.nan,
+            np.ones((n,) + value.shape) * np.nan,
             trainable=False,
             name="n_last_values",
             dtype="float32",

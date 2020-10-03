@@ -14,6 +14,7 @@ from symjax.tensor import random
 import networkx as nx
 import re
 import collections
+import os
 
 
 def natural_key(string_):
@@ -42,28 +43,17 @@ class Graph(nx.DiGraph):
 
     def reset(self):
         self.clear()
-        self._current_scope = "/"
-        self._scopes = [Scope("", graph=self)]
+        self._scopes = [Scope(absolute_name="/" + self.name, graph=self)]
         self._updates = {}
         self._scopes_history = []
         self._branches = {}
 
     def __repr__(self):
-        msg = "Graph(name:{}, n_edges:{}, n_nodes:{})".format(
-            self.name, self.n_edges, self.n_nodes
-        )
+        msg = "Graph(name:{},  n_nodes:{})".format(self.name, len(self.nodes))
         return msg
 
     def __str__(self):
         return self.__repr__()
-
-    @property
-    def n_nodes(self):
-        return len(self.nodes)
-
-    @property
-    def n_edges(self):
-        return len(self.edges)
 
     @property
     def name(self):
@@ -120,29 +110,33 @@ class Graph(nx.DiGraph):
 
         # first we check is the not is a hashable, if it is not
         # already in the graph
-        if isinstance({}, collections.Hashable):
+
+        if isinstance(tensor, collections.Hashable) and type(tensor) != tuple:
             if tensor in self.nodes:
                 return tensor
 
         # then, if the node is a constant (not tensor, variable, ...)
-        elif not t.isvar(tensor):
+        if not t.isvar(tensor):
 
             # if it is hashable then we can add it as is as a node
             # and we return it since it is the same object
-            if isinstance({}, collections.Hashable):
-                self.add_node(tensor, root=False)
-                return tensor
+            # if isinstance(tensor, collections.Hashable):
+            #    self.add_node(tensor, root=False)
+            #    return tensor
             # otherwise we have to make it hashable, to do so we use
             # the constant object
             # during creation of the object, it will be added to the
             # graph automatically, we can return the object
+            # else:
             return t.Constant(tensor)
 
-        # now check if it is a list of a tuple
-        elif type(tensor) == list or type(tensor) == tuple:
+        if type(tensor) == list or type(tensor) == tuple:
             return t.Tuple(*tensor)
 
+        # now check if it is a list of a tuple
+
         if isinstance(tensor, t.Tensor):
+
             self.add_node(tensor, **_attrs)
 
             if isinstance(tensor, t.Op):
@@ -163,7 +157,7 @@ class Graph(nx.DiGraph):
                     else:
                         self.add_edge(node, tensor, name=key)
 
-        return tensor
+            return tensor
 
     def roots(self, nodes, roots=None):
 
@@ -263,9 +257,10 @@ class Graph(nx.DiGraph):
             >>> T.get(w+v)
             DeviceArray(15., dtype=float32)
         """
+        tracker = {} if tracker is None else tracker
         value = self._get(item, tracker, frozen)
-        if isinstance(value, jax.interpreters.xla.DeviceArray):
-            return jax.device_get(value)
+        # if isinstance(value, jax.interpreters.xla.DeviceArray):
+        #     return jax.device_get(value)
 
         return value
 
@@ -279,11 +274,6 @@ class Graph(nx.DiGraph):
             >>> T.get(w+v)
             DeviceArray(15., dtype=float32)
         """
-        if isinstance(item, t.Shape):
-            args, kwargs = self.get_args_kwargs(item, evaluate=False)
-            assert len(args) == 1
-            assert len(kwargs) == 0
-            return self.get_shape_dtype(args[0]).shape
 
         if tracker is None:
             tracker = {}
@@ -317,9 +307,10 @@ class Graph(nx.DiGraph):
         elif isinstance(item, t.Op):
 
             # first get the actual parents nodes (aka inputs to the function)
-            args, kwargs = self.get_args_kwargs(item, tracker, frozen=frozen)
-            tracker[item] = self.nodes[item]["jax_function"](*args, **kwargs)
 
+            args, kwargs = self.get_args_kwargs(item, tracker, frozen=frozen)
+
+            tracker[item] = self.nodes[item]["jax_function"](*args, **kwargs)
             return tracker[item]
 
         else:
@@ -338,7 +329,7 @@ class Graph(nx.DiGraph):
 
         if "_shape" in self.nodes[item]:
             return jax.ShapeDtypeStruct(
-                self.nodes[item]["_shape"], self.nodes[item]["dtype"]
+                self.nodes[item]["_shape"], self.nodes[item]["_dtype"]
             )
 
         elif type(item) == t.OpItem:
@@ -354,10 +345,12 @@ class Graph(nx.DiGraph):
     def get_args_kwargs(self, node, tracker=None, evaluate=True, frozen=True):
         if evaluate:
             assert tracker is not None
-            all_args = {
-                self[parent][node]["name"]: self.get(parent, tracker, frozen=frozen)
-                for parent in self.predecessors(node)
-            }
+            parents = list(self.predecessors(node))
+            all_args = {}
+            for i in range(len(parents)):
+                all_args[self[parents[i]][node]["name"]] = self.get(
+                    parents[i], tracker, frozen=frozen
+                )
         else:
             all_args = {
                 self[parent][node]["name"]: parent for parent in self.predecessors(node)
@@ -382,6 +375,10 @@ class Graph(nx.DiGraph):
     @property
     def scope(self):
         return self._scopes[-1]
+
+    @property
+    def scope_name(self):
+        return self._scopes[-1].absolute_name
 
     def variables(self, trainable=True):
         variables = [n for n in self.nodes if isinstance(n, t.Variable)]
@@ -449,81 +446,94 @@ class Scope:
 
     """
 
-    def __init__(self, name, graph=None, reattach=False):
+    def __init__(
+        self,
+        relative_name=None,
+        absolute_name=None,
+        reattach=False,
+        reuse=False,
+        graph=None,
+    ):
         """Constructor."""
-        if graph is None:
-            graph = current_graph()
+
+        assert relative_name is not None or absolute_name is not None
+        if relative_name is not None:
+            assert "/" not in relative_name
+
+        self.reattach = reattach
         self.graph = graph
-        # assert len(name)
-        # assert "_" != name[-1]
-        self.name = name
-        self.full_name = None
+        self.reuse = reuse
+        self.relative_name = relative_name
+        self.absolute_name = absolute_name
+
+        if reuse or reattach:
+            assert reattach
+            assert absolute_name in self.graph._scopes_history
 
     def __enter__(self):
+
         """Set global variables."""
+        if self.graph is None:
+            self.graph = current_graph()
 
-        current = self.graph._current_scope
-        cpt = 0
-        if current + self.name + "/" in self.graph._scopes_history:
-            while (
-                current + self.name + "_{}/".format(cpt) in self.graph._scopes_history
-            ):
+        if self.absolute_name is None:
+            self.absolute_name = os.path.join(self.graph.scope_name, self.relative_name)
+
+        if self.reattach:
+            return self
+
+        if self.absolute_name in self.graph._scopes_history:
+            cpt = 1
+            self.absolute_name += "_"
+            while self.absolute_name + str(cpt) in self.graph._scopes_history:
                 cpt += 1
-            self.name += "_{}".format(cpt)
+            self.absolute_name += str(cpt)
+            self.relative_name += "_" + str(cpt)
 
-        if len(self.name):
-            self.graph._current_scope += self.name + "/"
-            self.full_name = self.graph._current_scope
-        else:
-            self.full_name = self.graph._current_scope
+        self.graph._scopes_history.append(self.absolute_name)
         self.graph._scopes.append(self)
-        self.graph._scopes_history.append(self.full_name)
         return self
 
-    def __exit__(self, *a):
+    def __exit__(self, *args):
         """Delete globals."""
-        self.graph._scopes.pop(-1)
-        if self.graph._scopes[-1].full_name is not None:
-            self.graph._current_scope = self.graph._scopes[-1].full_name
-        else:
-            self.graph._current_scope = "/"
+        self.graph._scopes = self.graph._scopes[:-1]
 
-    def save_variables(self, path):
-        """Save graph."""
-        if ".npz" != path[:-4]:
-            path += ".npz"
-        numpy.savez(
-            path,
-            **dict([(v.name, symjax.tensor.get(v)) for v in self.variables]),
-        )
+    # def save_variables(self, path):
+    #     """Save graph."""
+    #     if ".npz" != path[:-4]:
+    #         path += ".npz"
+    #     numpy.savez(
+    #         path,
+    #         **dict([(v.name, symjax.tensor.get(v)) for v in self.variables]),
+    #     )
 
-    def variables(self, trainable=True):
-        return get_variables(scope=self.full_name, trainable=trainable)
+    # def variables(self, trainable=True):
+    #     return get_variables(scope=self.full_name, trainable=trainable)
 
-    @property
-    def ops(self):
-        return get_ops(scope=self.full_name)
+    # @property
+    # def ops(self):
+    #     return get_ops(scope=self.full_name)
 
-    @property
-    def placeholders(self):
-        return get_placeholders(scope=self.full_name)
+    # @property
+    # def placeholders(self):
+    #     return get_placeholders(scope=self.full_name)
 
-    def load_variables(self, path):
-        """Load graph."""
+    # def load_variables(self, path):
+    #     """Load graph."""
 
-        data = numpy.load(path)
-        for name, value in data.items():
-            self.variable[name].update(value)
+    #     data = numpy.load(path)
+    #     for name, value in data.items():
+    #         self.variable[name].update(value)
 
-    def reset(self):
+    # def reset(self):
 
-        for var in self.variables:
-            var.reset()
+    #     for var in self.variables:
+    #         var.reset()
 
     def _get_name_scope(self, name, tensor):
 
-        if self.full_name is None:
-            self.__enter__()
+        # if self.full_name is None:
+        #     self.__enter__()
 
         if isinstance(tensor, symjax.tensor.Placeholder):
             nodes = self.graph.placeholders
@@ -534,18 +544,18 @@ class Scope:
         else:
             nodes = self.graph.other_nodes
 
-        names = [m.scope + m.name for m in nodes if hasattr(m, "name")]
-        scope = self.full_name
-        test_name = self.full_name + name
+        names = [os.path.join(m.scope, m.name) for m in nodes if hasattr(m, "name")]
 
+        test_name = os.path.join(self.absolute_name, name)
         if test_name not in names:
-            return name, scope
-
-        count = 1
-        while test_name + "_" + str(count) in names:
-            count += 1
-
-        return name + "_" + str(count), scope
+            return name, self.absolute_name
+        else:
+            if self.reuse and isinstance(tensor, symjax.tensor.Variable):
+                return nodes[nodes.index(tensor)]
+            count = 1
+            while test_name + "_" + str(count) in names:
+                count += 1
+            return name + "_" + str(count), self.absolute_name
 
 
 def reset_variables(name="*", scope="*", trainable=None):
@@ -784,13 +794,11 @@ def gradients(scalar, variables):
         [6. 6. 6.]
 
     """
-    if numpy.prod(scalar.shape.get()) != 1:
+    if numpy.prod(scalar.shape) != 1:
         raise RuntimeError("the variable to differentiate is not a scalar")
     if not isinstance(scalar, t.Tensor):
         raise RuntimeError("the variable used in gradients should be a Tensor type")
 
-    if scalar.shape != ():
-        scalar = scalar.sum()
     if isinstance(variables, t.Tensor):
         input_variables = [variables]
         input_list = False
@@ -895,7 +903,7 @@ class function:
     Arguments
     ---------
 
-        classargs: trailing tuple
+        args: trailing tuple
             the inputs to the function to be compiled. The tuple should
             contain all the placeholders that are roots of any output
             given of the function and update values
@@ -944,7 +952,7 @@ class function:
 
     def __init__(
         self,
-        *classargs,
+        *args,
         outputs=[],
         updates=None,  # noqa
         device=None,
@@ -957,17 +965,15 @@ class function:
         # update Variable objects
         if updates is None:
             updates = {}
-        else:
-            current_graph().add_updates(updates)
 
-        for update in updates.keys():
+        for update in updates:
             if not isinstance(update, t.Variable):
                 raise RuntimeError(
                     "{} is not a Variable and cannot be updated".format(update)
                 )
 
         # ensure that all inputs are actual placeholders or variables
-        for arg in classargs:
+        for arg in args:
             if not isinstance(arg, t.Tensor):
                 raise RuntimeError(
                     "{} is not a Tensor type. Only tensor types can be"
@@ -980,7 +986,7 @@ class function:
         # function
         self.updates_keys = list(updates.keys())
         self.updates_values = list(updates.values())
-        self.classargs = classargs
+        self.args = args
         self.outputs = outputs
 
         outs = self.updates_values
@@ -995,7 +1001,7 @@ class function:
         ]
 
         # check for
-        non_givens = set(placeholders_in_root) - set(self.classargs)
+        non_givens = set(placeholders_in_root) - set(self.args)
         if len(non_givens) > 0:
             raise RuntimeError(
                 """\
@@ -1011,12 +1017,12 @@ class function:
         # function. Now we must ensure that the other ones will also be given
         # as inputs to not be treated as constants by jax.
         # we also remove update keys because we will expicitly feed them
-        self.extra_inputs = set(self.all_roots) - set(self.classargs).union(
+        self.extra_inputs = set(self.all_roots) - set(self.args).union(
             self.updates_keys
         )
 
         self.extra_inputs = list(self.extra_inputs)
-        allargs = list(self.classargs) + self.updates_keys + self.extra_inputs
+        allargs = list(self.args) + self.updates_keys + self.extra_inputs
 
         def to_jit(*jitargs, seed):
 
@@ -1040,13 +1046,10 @@ class function:
         # and internally compute and update the variables from updates if any
         def meta(*fnargs, rng):
             # ensure that the number of arguments is correct
-            assert len(fnargs) == len(self.classargs)
-            for fnarg, classarg in zip(fnargs, self.classargs):
+            assert len(fnargs) == len(self.args)
+            for fnarg, classarg in zip(fnargs, self.args):
                 if hasattr(fnarg, "shape"):
-                    if (
-                        fnarg.shape != classarg.shape.get()
-                        and 0 not in classarg.shape.get()
-                    ):
+                    if fnarg.shape != classarg.shape and 0 not in classarg.shape:
                         raise RuntimeError(
                             "wrong input given for {}".format(classarg)
                             + ", given is {}".format(fnarg)

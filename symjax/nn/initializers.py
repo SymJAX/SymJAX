@@ -69,10 +69,9 @@ def get_fans(shape):
 
     fan_out: int
     """
-    if len(shape) == 2:
-        fan_in, fan_out = shape
-    else:
-        fan_out, fan_in = shape[:2]
+
+    fan_out, fan_in = shape[:2]
+    if len(shape) > 2:
         kernel_spatial = np.prod(shape[2:])
 
         fan_in = fan_in * kernel_spatial

@@ -7,6 +7,14 @@
 
 
 
+Dense
+=====
+
+.. autosummary::
+
+  Dense
+
+
 Renormalization
 ===============
 

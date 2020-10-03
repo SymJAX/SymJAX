@@ -7,13 +7,19 @@ import jax.numpy as jnp
 import numpy
 import os
 import symjax
+import numpy as np
 
 
 def only_involves_shapes_or_constants(item):
     """checks if node only depends on constants/shapes"""
 
     key = "only_involves_shapes_or_constants"
-    if isinstance(item, Shape) or isinstance(item, Constant) or not isvar(item):
+    if (
+        type(item) == jax.interpreters.ad.JVPTracer
+        or type(item) == jax.interpreters.partial_eval.DynamicJaxprTracer
+    ):
+        return False
+    elif isinstance(item, Constant) or not isvar(item):
         return True
     elif (
         isinstance(item, Variable)
@@ -146,17 +152,14 @@ def create_dummy(item):
         return symjax.current_graph().get(item), static
 
     if isinstance(item, MultiOutputOp):
-        items = [
-            dummy(symjax.current_graph().get_shape_dtype(a).shape, a.dtype)
-            for a in item
-        ]
+        items = [dummy(a.shape, a.dtype) for a in item]
         return items, static
     elif isinstance(item, list) or isinstance(item, tuple):
         items = [create_dummy(i) for i in item]
         static = numpy.all([i[1] for i in items])
         return tuple([i[0] for i in items]), static
     else:
-        item = dummy(symjax.current_graph().get_shape_dtype(item).shape, item.dtype)
+        item = dummy(item.shape, item.dtype)
         return item, static
 
 
@@ -231,18 +234,11 @@ def jax_wrap(func, doc_func=None):
                     "_dtypes": [t.dtype for t in tree],
                 }
             )
-            if func == jax.numpy.shape:
-                return Shape(
-                    *args,
-                    **feed,
-                    **kwargs,
-                )
-            else:
-                return MultiOutputOp(
-                    *args,
-                    **feed,
-                    **kwargs,
-                )
+            return MultiOutputOp(
+                *args,
+                **feed,
+                **kwargs,
+            )
         else:
             feed.update({"_shape": tree.shape, "_dtype": tree.dtype})
             if is_random:
@@ -354,16 +350,19 @@ class Tensor:
 
     __array_priority__ = 1000
 
-    def __init__(self, *args, **kwargs):
+    def __new__(cls, *args, inplace_copy=None, **kwargs):
+        if inplace_copy is not None:
+            return inplace_copy
+        else:
+            obj = super(Tensor, cls).__new__(cls)
+            return obj
+
+    def __init__(self, *args, inplace_copy=None, **kwargs):
+
+        if inplace_copy is not None:
+            return
 
         symjax.current_graph()._add(self, *args, **kwargs)
-        if not isinstance(self, OpItem):
-            self._set_shape_constant()
-
-    def _set_shape_constant(self):
-        symjax.current_graph().nodes[self][
-            "only_involves_shapes_or_constants"
-        ] = only_involves_shapes_or_constants(self)
 
     @property
     def name(self):
@@ -377,15 +376,16 @@ class Tensor:
         return symjax.current_graph().clone(self, givens)
 
     @property
-    def shape(self):
+    def T(self):
+        return self.transpose()
 
-        if "shape" not in symjax.current_graph().nodes[self]:
-            symjax.current_graph().nodes[self]["shape"] = symjax.tensor.shape(self)
-        return symjax.current_graph().nodes[self]["shape"]
+    @property
+    def shape(self):
+        return symjax.current_graph().nodes[self]["_shape"]
 
     @property
     def dtype(self):
-        return symjax.current_graph().nodes[self]["dtype"]
+        return symjax.current_graph().nodes[self]["_dtype"]
 
     @property
     def ndim(self):
@@ -437,12 +437,15 @@ class Op(Tensor):
     def __init__(
         self,
         *args,
-        _jax_function,
-        _shape,
-        _dtype,
+        _jax_function=None,
+        _shape=None,
+        _dtype=None,
         name=None,
         **kwargs,
     ):
+
+        if self in symjax.current_graph().nodes:
+            return
 
         if name is None:
             name = _jax_function.__name__
@@ -455,7 +458,7 @@ class Op(Tensor):
                 "name": name,
                 "scope": scope,
                 "_shape": _shape,
-                "dtype": _dtype,
+                "_dtype": _dtype,
                 "jax_function": _jax_function,
                 "root": False,
             },
@@ -469,18 +472,35 @@ class Op(Tensor):
     def __repr__(self):
 
         name = "Op(name={}, fn={}, shape={}, dtype={}, scope={})"
-        return name.format(
-            self.name, self.fn_name, self.shape.get(), self.dtype, self.scope
-        )
+        return name.format(self.name, self.fn_name, self.shape, self.dtype, self.scope)
 
     def __str__(self):
 
         return self.__repr__()
 
 
+def _tuple(*args):
+    return tuple(args)
+
+
+_tuple.__name__ = "jax_tuple"
+
+Tuple = jax_wrap(_tuple)
+
+
 class MultiOutputOp(Op, tuple, Tensor):
-    def __new__(cls, *args, _jax_function, _shapes, _dtypes, name=None, **kwargs):
-        scope = symjax.current_graph().scope.full_name
+    __array_priority__ = 0
+
+    def __new__(
+        cls,
+        *args,
+        _jax_function,
+        _shapes,
+        _dtypes,
+        name=None,
+        **kwargs,
+    ):
+        scope = symjax.current_graph().scope.absolute_name
         items = []
 
         for i, (shape, dtype) in enumerate(zip(_shapes, _dtypes)):
@@ -493,7 +513,7 @@ class MultiOutputOp(Op, tuple, Tensor):
                         "root": False,
                         "parent_index": i,
                         "_shape": shape,
-                        "dtype": dtype,
+                        "_dtype": dtype,
                     }
                 )
             )
@@ -511,7 +531,7 @@ class MultiOutputOp(Op, tuple, Tensor):
             _attrs={
                 "name": name,
                 "scope": scope,
-                "dtype": MultiOutputOp,
+                "_dtype": MultiOutputOp,
                 "jax_function": _jax_function,
                 "root": False,
             },
@@ -525,23 +545,12 @@ class MultiOutputOp(Op, tuple, Tensor):
                 name="parent_index" + str(i),
             )
             symjax.current_graph().nodes[child]["parent"] = self
-            child._set_shape_constant()
 
     def __str__(self):
         return tuple.__str__(self)
 
     def __repr__(self):
         return tuple.__repr__(self)
-
-
-class Shape(MultiOutputOp):
-    def get(self):
-        if not hasattr(self, "_get"):
-            self._get = symjax.current_graph().get(self)
-        return self._get
-
-    def __getitem__(self, i):
-        return symjax.tensor.getitem(self, i)
 
 
 class OpItem(Op, Tensor):
@@ -555,15 +564,6 @@ class OpItem(Op, Tensor):
     @property
     def parent_index(self):
         return symjax.current_graph().nodes[self]["parent_index"]
-
-
-def _tuple(*args):
-    return tuple(args)
-
-
-_tuple.__name__ = "jax_tuple"
-
-Tuple = jax_wrap(_tuple)
 
 
 class RandomOp(Op, Tensor):
@@ -607,7 +607,7 @@ class RandomOp(Op, Tensor):
                 "name": name,
                 "scope": scope,
                 "_shape": _shape,
-                "dtype": _dtype,
+                "_dtype": _dtype,
                 "jax_function": _jax_function,
                 "root": False,
             },
@@ -620,9 +620,7 @@ class RandomOp(Op, Tensor):
 
     def __repr__(self):
         name = "RandomOp(name={}, fn={}, shape={}, dtype={}, scope={})"
-        return name.format(
-            self.name, self.fn_name, self.shape.get(), self.dtype, self.scope
-        )
+        return name.format(self.name, self.fn_name, self.shape, self.dtype, self.scope)
 
 
 class Variable(Tensor):
@@ -679,7 +677,7 @@ class Variable(Tensor):
                 "name": name,
                 "scope": scope,
                 "_shape": shape,
-                "dtype": dtype,
+                "_dtype": dtype,
                 "trainable": trainable,
                 "initializer": initializer,
                 "root": True,
@@ -729,7 +727,7 @@ class Variable(Tensor):
         return value
 
     def reset(self):
-        self.update(self._reset(self.initializer, self.shape.get(), self.dtype))
+        self.update(self._reset(self.initializer, self.shape, self.dtype))
 
     @property
     def value(self):
@@ -746,7 +744,7 @@ class Variable(Tensor):
 
         new_value = symjax.current_graph().get(update_value)
 
-        if self.shape.get() != jax.numpy.shape(new_value):
+        if self.shape != jax.numpy.shape(new_value):
             warnings.warn(
                 "Variable and update of {}".format(self)
                 + "are not the same shape (expected {}, got {}".format(
@@ -754,7 +752,7 @@ class Variable(Tensor):
                 )
                 + "... attempting to cast"
             )
-            new_value = jax.numpy.reshape(new_value, self.shape.get())
+            new_value = jax.numpy.reshape(new_value, self.shape)
 
         if hasattr(new_value, "dtype"):
             ntype = new_value.dtype
@@ -776,7 +774,7 @@ class Variable(Tensor):
     def __repr__(self):
         name = "Variable(name={}, shape={}, dtype={}, trainable={}, scope={})"
         return name.format(
-            self.name, self.shape.get(), self.dtype, self.trainable, self.scope
+            self.name, self.shape, self.dtype, self.trainable, self.scope
         )
 
 
@@ -795,7 +793,7 @@ class Seed(Variable, Tensor):
                 "value": jax.random.PRNGKey(seed),
                 "root": True,
                 "_shape": (2,),
-                "dtype": "uint32",
+                "_dtype": "uint32",
                 "trainable": False,
             },
         )
@@ -851,15 +849,15 @@ class Placeholder(Tensor):
             _attrs={
                 "name": name,
                 "scope": scope,
+                "_dtype": jax.numpy.dtype(dtype),
                 "_shape": tuple(shape),
-                "dtype": jax.numpy.dtype(dtype),
                 "root": True,
-            }
+            },
         )
 
     def __repr__(self):
         name = "Placeholder(name={}, shape={}, dtype={}, scope={})"
-        return name.format(self.name, self.shape.get(), self.dtype, self.scope)
+        return name.format(self.name, self.shape, self.dtype, self.scope)
 
 
 def placeholder_like(item, name=""):
