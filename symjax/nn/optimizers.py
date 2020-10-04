@@ -45,6 +45,7 @@ class Optimizer:
             name = self.__NAME__
         with symjax.Scope(name):
             self.create_updates(*args, **kwargs)
+            self._scope_name = symjax.current_graph().scope_name
 
     def reset(self):
         if hasattr(self, "variables"):
@@ -53,6 +54,7 @@ class Optimizer:
 
     @property
     def updates(self):
+        return symjax.get_updates(scope=self._scope_name)
         if hasattr(self, "_updates"):
             return self._updates
         else:
@@ -77,7 +79,9 @@ class Optimizer:
 
         params = symjax.get_variables(trainable=True)
 
-        params = [p for p in params if symjax.current_graph().is_connected(p, loss)]
+        params = [
+            p for p in params if symjax.current_graph().is_connected(p, loss)
+        ]
         return params
 
     def add_updates(self, update):
@@ -181,7 +185,9 @@ class NesterovMomentum(Optimizer):
 
     __NAME__ = "NesterovMomentumOptimizer"
 
-    def create_updates(self, grads_or_loss, learning_rate, momentum, params=None):
+    def create_updates(
+        self, grads_or_loss, learning_rate, momentum, params=None
+    ):
 
         if isinstance(grads_or_loss, list):
             assert params
