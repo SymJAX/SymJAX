@@ -727,6 +727,7 @@ class Variable(Tensor):
                     )
                 )
 
+        value = jax.device_put(value)
         return value
 
     def reset(self):
