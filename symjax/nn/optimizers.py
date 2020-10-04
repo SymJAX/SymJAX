@@ -79,9 +79,7 @@ class Optimizer:
 
         params = symjax.get_variables(trainable=True)
 
-        params = [
-            p for p in params if symjax.current_graph().is_connected(p, loss)
-        ]
+        params = [p for p in params if symjax.current_graph().is_connected(p, loss)]
         return params
 
     def add_updates(self, update):
@@ -185,9 +183,7 @@ class NesterovMomentum(Optimizer):
 
     __NAME__ = "NesterovMomentumOptimizer"
 
-    def create_updates(
-        self, grads_or_loss, learning_rate, momentum, params=None
-    ):
+    def create_updates(self, grads_or_loss, learning_rate, momentum, params=None):
 
         if isinstance(grads_or_loss, list):
             assert params
