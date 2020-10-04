@@ -394,6 +394,9 @@ class Tensor:
     def get(self, givens=None):
         return symjax.current_graph().get(self, givens)
 
+    def variables(self, trainable=True):
+        return symjax.get_variables(scope=self.scope, trainable=trainable)
+
 
 class Constant(Tensor):
     def __init__(self, value):
