@@ -88,6 +88,30 @@ def test_cond4():
     assert np.array_equal(f(1), 9 * np.ones((10, 10)))
 
 
+def test_cond5():
+    sj.current_graph().reset()
+    v = T.ones((10, 10)) * 3
+    W = T.Variable(1)
+    u = T.Placeholder((), "int32")
+    out = T.cond(
+        u > 0,
+        lambda a, u: a * u[0],
+        lambda a, u: a + u[1],
+        true_inputs=(
+            W,
+            v,
+        ),
+        false_inputs=(
+            W,
+            v,
+        ),
+    )
+    f = sj.function(u, outputs=out, updates={W: W + 1})
+    assert np.array_equal(f(1), 3 * np.ones(10))
+    assert np.array_equal(f(0), 5 * np.ones(10))
+    assert np.array_equal(f(1), 9 * np.ones(10))
+
+
 def test_map():
     sj.current_graph().reset()
     w = T.Variable(1.0, dtype="float32")
@@ -139,6 +163,7 @@ if __name__ == "__main__":
     test_cond2()
     test_cond3()
     test_cond4()
+    test_cond5()
     test_while()
     test_map()
     test_grad_map()

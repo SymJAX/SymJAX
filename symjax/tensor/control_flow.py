@@ -2,7 +2,6 @@ import jax.lax as jla
 
 from .base import jax_wrap, symjax_to_jax_fn
 
-# cond = jax_wrap(jla.cond)
 fori_loop = jax_wrap(jla.fori_loop)
 while_loop = jax_wrap(jla.while_loop)
 
@@ -127,7 +126,8 @@ def map(f, sequences, non_sequences=None):
                   [0., 0., 1.]], dtype=float32)
     """
 
-    g = lambda _, *args: (1, f(*args))
+    def g(_, *args):
+        return (1, f(*args))
 
     ys = scan(g, 0, sequences, non_sequences=non_sequences)
 
