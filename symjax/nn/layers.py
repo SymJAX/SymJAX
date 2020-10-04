@@ -292,8 +292,8 @@ class Conv1D(Layer):
             W,
             strides=stride,
             padding=padding,
-            input_dilation=input_dilation,
-            filter_dilation=filter_dilation,
+            input_dilation=input_dilations,
+            filter_dilation=filter_dilations,
         )
         if b is not None:
             return conv + b[:, None]
