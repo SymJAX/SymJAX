@@ -70,7 +70,6 @@ class Optimizer:
         ):
             return grads_or_loss
         elif isinstance(grads_or_loss, tensor.Tensor):
-            print(grads_or_loss, params)
             return gradients(grads_or_loss, params)
         else:
             return grads_or_loss

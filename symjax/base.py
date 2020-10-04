@@ -1006,9 +1006,8 @@ class function:
             raise RuntimeError(
                 """\
                 Missing placeholders from the function inputs...\n\
-                \t...Givens are: {}\n\
-                \t...Missings are: {}""".format(
-                    placeholders_in_root, non_givens
+                ...Missings are: {}""".format(
+                    non_givens
                 )
             )
 

@@ -17,6 +17,16 @@ def test_add():
     assert symjax.current_graph().get(a.max()) == 1
 
 
+def test_placeholders():
+    a = symjax.tensor.ones(1) * 2
+    x = symjax.tensor.Placeholder((), "int32")
+    f = symjax.function(x, outputs=x * a)
+    y = symjax.tensor.Placeholder((), "int32")
+    g = symjax.function(y, outputs=y * a)
+    assert np.isclose(f(1), 2)
+    assert np.isclose(g(2), 4)
+
+
 def test_ema():
     symjax.current_graph().reset()
     a = symjax.tensor.Placeholder((), "float32")
@@ -158,3 +168,4 @@ if __name__ == "__main__":
     test_g()
     test_ema()
     test_sma()
+    test_placeholders()
