@@ -70,8 +70,8 @@ class Actor(object):
     def __init__(self, states, noise=None, distribution="deterministic"):
 
         self.states = states
-        self.state = T.Placeholder((1,) + states.shape.get()[1:], "float32")
-        self.state_shape = self.state.shape.get()[1:]
+        self.state = T.Placeholder((1,) + states.shape[1:], "float32")
+        self.state_shape = self.state.shape[1:]
         self.distribution = distribution
 
         with symjax.Scope("actor") as q:
@@ -103,7 +103,9 @@ class Actor(object):
                 self._get_actions = symjax.function(self.states, outputs=self.actions)
                 self._get_action = symjax.function(self.state, outputs=self.action[0])
 
-        self._params = q.variables(trainable=None)
+            self._params = symjax.get_variables(
+                trainable=None, scope=symjax.current_graph().scope_name
+            )
 
     def params(self, trainable):
         if trainable is None:
@@ -138,25 +140,27 @@ class Critic(object):
     def __init__(self, states, actions=None):
         self.states = states
         self.state = T.Placeholder(
-            (1,) + states.shape.get()[1:], "float32", name="critic_state"
+            (1,) + states.shape[1:], "float32", name="critic_state"
         )
-        self.state_shape = self.state.shape.get()[1:]
+        self.state_shape = self.state.shape[1:]
         if actions:
             self.actions = actions
             self.action = T.Placeholder(
-                (1,) + actions.shape.get()[1:], "float32", name="critic_action"
+                (1,) + actions.shape[1:], "float32", name="critic_action"
             )
-            self.action_shape = self.action.shape.get()[1:]
+            self.action_shape = self.action.shape[1:]
 
             with symjax.Scope("critic") as q:
                 self.q_values = self.create_network(self.states, self.actions)
                 if self.q_values.ndim == 2:
-                    assert self.q_values.shape.get()[1] == 1
+                    assert self.q_values.shape[1] == 1
                     self.q_values = self.q_values[:, 0]
                 self.q_value = self.q_values.clone(
                     {self.states: self.state, self.actions: self.action}
                 )
-                self._params = q.variables(trainable=None)
+                self._params = symjax.get_variables(
+                    trainable=None, scope=symjax.current_graph().scope_name
+                )
 
             inputs = [self.states, self.actions]
             input = [self.state, self.action]
@@ -165,10 +169,12 @@ class Critic(object):
             with symjax.Scope("critic") as q:
                 self.q_values = self.create_network(self.states)
                 if self.q_values.ndim == 2:
-                    assert self.q_values.shape.get()[1] == 1
+                    assert self.q_values.shape[1] == 1
                     self.q_values = self.q_values[:, 0]
                 self.q_value = self.q_values.clone({self.states: self.state})
-                self._params = q.variables(trainable=None)
+                self._params = symjax.get_variables(
+                    trainable=None, scope=symjax.current_graph().scope_name
+                )
 
             inputs = [self.states]
             input = [self.state]

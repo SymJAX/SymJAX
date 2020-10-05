@@ -36,7 +36,7 @@ class DDPG(agents.Agent):
         self.target_critic = critic(states, actions)
 
         # create critic loss
-        targets = T.Placeholder(self.critic.q_values.shape.get(), "float32")
+        targets = T.Placeholder(self.critic.q_values.shape, "float32")
         critic_loss = ((self.critic.q_values - targets) ** 2).mean()
 
         # create optimizer
@@ -59,7 +59,7 @@ class DDPG(agents.Agent):
         # create actor loss
         self.actor = actor(states)
         self.target_actor = actor(states)
-        gradients = T.Placeholder(actions.shape.get(), "float32")
+        gradients = T.Placeholder(actions.shape, "float32")
         actor_loss = -(self.actor.actions * gradients).mean()
 
         # create optimizer
