@@ -67,45 +67,83 @@ class Agent(object):
 
 
 class Actor(object):
-    def __init__(self, states, noise=None, distribution="deterministic"):
+    """actor (state to action mapping) for RL
 
-        self.states = states
-        self.state = T.Placeholder((1,) + states.shape[1:], "float32")
-        self.state_shape = self.state.shape[1:]
-        self.distribution = distribution
+    This class implements an actor. The user must first define its own class
+    inheriting from  :py:class:`Actor` and implementing only the
+    `create_network` method. This method will then be used internally to
+    instantiace the actor network.
 
-        with symjax.Scope("actor") as q:
-            if distribution == "gaussian":
-                means, covs = self.create_network(self.states)
-                self.actions = symjax.probabilities.MultivariateNormal(
-                    means, diag_log_std=covs
+    If the used distribution is `symjax.probabilities.Normal` then the output
+    of the `create_network` method should be first the mean and then the
+    `covariance`.
+
+    Notes:
+    ------
+
+    In general the user should not instanciate this class, instead pass the
+    user's inherited class (uninstanciated) to a policy-learning method.
+
+    Parameters:
+    -----------
+
+    states: Tensor-like
+        the states of the environment (batch size in first axis)
+
+    batch_size: int
+        the batch size
+
+    actions_distribution: None or symjax.probabilities.Distribution object
+        the distribution for the actions, if the policy is deterministic, then
+        put this to `None`. Note, this is different than the noise parameter
+        employed for exploration, this is simply the rv modeling of the
+        actions used to compute probabilities of sampled actions and
+        the likes
+
+    """
+
+    def __init__(self, states, actions_distribution=None, name="actor"):
+
+        self.state_shape = states.shape[1:]
+        state = T.Placeholder((1,) + states.shape[1:], "float32")
+        self.actions_distribution = actions_distribution
+
+        with symjax.Scope(name):
+            if actions_distribution == symjax.probabilities.Normal:
+
+                means, covs = self.create_network(states)
+
+                actions = actions_distribution(means, cov=covs)
+                samples = actions.sample()
+                samples_log_prob = actions.log_prob(samples)
+
+                action = symjax.probabilities.MultivariateNormal(
+                    means.clone({states: state}),
+                    cov=covs.clone({states: state}),
                 )
-                self.samples = self.actions.sample()
-                self.samples_log_prob = self.actions.log_prob(self.samples)
-                mean = means.clone({self.states: self.state})
-                cov = covs.clone({self.states: self.state})
-                self.action = symjax.probabilities.MultivariateNormal(
-                    mean, diag_log_std=cov
-                )
-                self.sample = self.action.sample()
-                self.sample_log_prob = self.action.log_prob(self.sample)
+                sample = self.action.sample()
+                sample_log_prob = self.action.log_prob(sample)
+
                 self._get_actions = symjax.function(
-                    self.states, outputs=[self.samples, self.samples_log_prob]
+                    states, outputs=[samples, samples_log_prob]
                 )
                 self._get_action = symjax.function(
-                    self.state,
-                    outputs=[self.sample[0], self.sample_log_prob[0]],
+                    state,
+                    outputs=[sample[0], sample_log_prob[0]],
                 )
-            else:
-                self.actions = self.create_network(self.states)
-                self.action = self.actions.clone({self.states: self.state})
+            elif actions_distribution is None:
+                actions = self.create_network(states)
+                action = actions.clone({states: state})
 
-                self._get_actions = symjax.function(self.states, outputs=self.actions)
-                self._get_action = symjax.function(self.state, outputs=self.action[0])
+                self._get_actions = symjax.function(states, outputs=actions)
+                self._get_action = symjax.function(state, outputs=action[0])
 
             self._params = symjax.get_variables(
                 trainable=None, scope=symjax.current_graph().scope_name
             )
+        self.actions = actions
+        self.state = state
+        self.action = action
 
     def params(self, trainable):
         if trainable is None:
@@ -117,7 +155,7 @@ class Actor(object):
             state = state[np.newaxis, :]
         if not hasattr(self, "_get_action"):
             raise RuntimeError("actor not well initialized")
-        if self.distribution == "deterministic":
+        if self.actions_distribution is None:
             return self._get_action(state), {}
         else:
             a, probs = self._get_action(state)
@@ -126,61 +164,87 @@ class Actor(object):
     def get_actions(self, state):
         if not hasattr(self, "_get_actions"):
             raise RuntimeError("actor not well initialized")
-        if self.distribution == "deterministic":
+        if self.actions_distribution is None:
             return self._get_actions(state), {}
         else:
             a, probs = self._get_actions(state)
             return a, {"log_probs": probs}
 
-    def create_network(self, states, action_dim):
+    def create_network(self, states, action_shape):
+        """creating of the actor network returning the actions
+
+        This method has to be implemented by the user in a own actor class
+        inheriting from `symjax.rl.Actor`. This method should take
+        two arguments, the states and the action_dim, and return
+        the actions after a possible nonlinear transformation of the given
+        states by say a deep networks
+
+        Parameters:
+        -----------
+
+        states: Tensor
+            the states with shape (batch_size, *state_shape)
+
+        action_shape: tuple or list
+            the shape of a (single) action, for example in classical
+            pendulum this would be `(2,)`.
+
+        Returns:
+        --------
+
+        actions: Tensor
+            the actions with shape (batch_size, *action_shape)
+
+        """
         raise RuntimeError("Not implemented, user should define its own")
 
 
 class Critic(object):
     def __init__(self, states, actions=None):
-        self.states = states
-        self.state = T.Placeholder(
-            (1,) + states.shape[1:], "float32", name="critic_state"
-        )
-        self.state_shape = self.state.shape[1:]
+        self.state_shape = states.shape[1:]
+        state = T.Placeholder((1,) + states.shape[1:], "float32", name="critic_state")
         if actions:
-            self.actions = actions
-            self.action = T.Placeholder(
+            self.action_shape = actions.shape[1:]
+            action = T.Placeholder(
                 (1,) + actions.shape[1:], "float32", name="critic_action"
             )
-            self.action_shape = self.action.shape[1:]
+            action_shape = action.shape[1:]
 
-            with symjax.Scope("critic") as q:
-                self.q_values = self.create_network(self.states, self.actions)
-                if self.q_values.ndim == 2:
-                    assert self.q_values.shape[1] == 1
-                    self.q_values = self.q_values[:, 0]
-                self.q_value = self.q_values.clone(
-                    {self.states: self.state, self.actions: self.action}
-                )
+            with symjax.Scope("critic"):
+                q_values = self.create_network(states, actions)
+                if q_values.ndim == 2:
+                    assert q_values.shape[1] == 1
+                    q_values = q_values[:, 0]
+                q_value = q_values.clone({states: state, actions: action})
                 self._params = symjax.get_variables(
                     trainable=None, scope=symjax.current_graph().scope_name
                 )
 
-            inputs = [self.states, self.actions]
-            input = [self.state, self.action]
+            inputs = [states, actions]
+            input = [state, action]
+            self.actions = actions
+            self.action = action
 
         else:
-            with symjax.Scope("critic") as q:
-                self.q_values = self.create_network(self.states)
-                if self.q_values.ndim == 2:
-                    assert self.q_values.shape[1] == 1
-                    self.q_values = self.q_values[:, 0]
-                self.q_value = self.q_values.clone({self.states: self.state})
+            with symjax.Scope("critic"):
+                q_values = self.create_network(states)
+                if q_values.ndim == 2:
+                    assert q_values.shape[1] == 1
+                    q_values = q_values[:, 0]
+                q_value = q_values.clone({states: state})
                 self._params = symjax.get_variables(
                     trainable=None, scope=symjax.current_graph().scope_name
                 )
 
-            inputs = [self.states]
-            input = [self.state]
+            inputs = [states]
+            input = [state]
 
-        self._get_q_values = symjax.function(*inputs, outputs=self.q_values)
-        self._get_q_value = symjax.function(*input, outputs=self.q_value[0])
+        self.q_values = q_values
+        self.state = state
+        self.states = states
+
+        self._get_q_values = symjax.function(*inputs, outputs=q_values)
+        self._get_q_value = symjax.function(*input, outputs=q_value[0])
 
     def params(self, trainable):
         if trainable is None:

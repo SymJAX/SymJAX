@@ -10,7 +10,21 @@ import numpy as np
 _LOG_2PI = np.log(2 * np.pi)
 
 
-class Categorical:
+class Distribution:
+    def prob(self, value):
+        pass
+
+    def log_prob(self, value):
+        pass
+
+    def sample(self, value):
+        pass
+
+    def entropy(self, value):
+        pass
+
+
+class Categorical(Distribution):
     def __init__(self, probabilities=None, logits=None, eps=1e-8):
         if logits is not None:
             self.log_probabilities = nn.log_softmax(logits)
@@ -36,7 +50,7 @@ class Categorical:
         return -T.sum(self.probabilities * self.log_probabilities, -1)
 
 
-class Normal:
+class Normal(Distribution):
     """(batched, multivariate) normal distribution
 
     Parameters

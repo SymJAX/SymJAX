@@ -23,6 +23,7 @@ from . import (
     stl10,
     TUTacousticscenes2017,
     groove_MIDI,
+    rock_paper_scissors,
     dcase_2019_task4,
 )
 
