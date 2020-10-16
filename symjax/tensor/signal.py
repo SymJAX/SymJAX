@@ -479,10 +479,10 @@ def stft(signal, window, hop, apod=T.ones, nfft=None, mode="valid"):
 
     apodization = apod(window).reshape((1, 1, -1))
 
-    p = T.extract_signal_patches(psignal, window, hop) * apodization
+    p = extract_signal_patches(psignal, window, hop) * apodization
     assert nfft >= window
     pp = T.pad(p, [[0, 0], [0, 0], [0, 0], [0, nfft - window]])
-    S = fft(pp)
+    S = T.fft.fft(pp)
     return S[..., : int(numpy.ceil(nfft / 2))].transpose([0, 1, 3, 2])
 
 
@@ -558,7 +558,7 @@ def wvd(signal, window, hop, L, apod=hanning, mode="valid"):
     )
 
     # extract vertical (freq) partches to perform auto correlation
-    patches = T.extract_image_patches(s, (2 * L + 1, 1), (2, 1), mode="same")[
+    patches = extract_image_patches(s, (2 * L + 1, 1), (2, 1), mode="same")[
         ..., 0
     ]  # (N C F' T L)
     output = (patches * T.conj(T.flip(patches, -1)) * mask).sum(-1)
