@@ -47,7 +47,7 @@ print(g)
 
 # (Tensor: shape=(), dtype=float32)
 
-# create the compield function that will compute the cost and apply
+# create the compiled function that will compute the cost and apply
 # the update onto the variable
 f = sj.function(outputs=cost, updates={mu:mu-0.2*g})
 
@@ -62,4 +62,4 @@ for i in range(10):
 
 ## Installation
 
-Make sure to install all the needed GPU drivers (for GPU support, not mandatory) and install JAX as descrribed in this [**guide**](https://symjax.readthedocs.io/en/latest/user/installation.html).
+Make sure to install all the needed GPU drivers (for GPU support, not mandatory) and install JAX as described in this [**guide**](https://symjax.readthedocs.io/en/latest/user/installation.html).
