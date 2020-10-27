@@ -33,6 +33,7 @@ def only_involves_shapes_or_constants(item):
     elif type(item) in [list, tuple]:
         return numpy.all([only_involves_shapes_or_constants(p) for p in item])
     elif isinstance(item, Op):
+        return False
         if item in symjax.current_graph().nodes:
             if key in symjax.current_graph().nodes[item]:
                 return symjax.current_graph().nodes[item][key]
