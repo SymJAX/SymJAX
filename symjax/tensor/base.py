@@ -19,7 +19,7 @@ def only_involves_shapes_or_constants(item):
         or type(item) == jax.interpreters.partial_eval.DynamicJaxprTracer
     ):
         return False
-    elif isinstance(item, Constant) or not isvar(item):
+    elif isinstance(item, Constant) or not isvar(item) or item is None:
         return True
     elif (
         isinstance(item, Variable)
@@ -33,7 +33,6 @@ def only_involves_shapes_or_constants(item):
     elif type(item) in [list, tuple]:
         return numpy.all([only_involves_shapes_or_constants(p) for p in item])
     elif isinstance(item, Op):
-        return False
         if item in symjax.current_graph().nodes:
             if key in symjax.current_graph().nodes[item]:
                 return symjax.current_graph().nodes[item][key]
