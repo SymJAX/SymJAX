@@ -175,7 +175,7 @@ def norm(x, ord=2, axis=None, keepdims=False):
     >>> LA.norm(m[0, :, :]), LA.norm(m[1, :, :])
     (3.7416573867739413, 11.224972160321824)
     """
-    if axis is not None and len(axis) > 2:
+    if axis is not None and hasattr(axis, "__len__") and len(axis) > 2:
         return T.power(
             T.power(T.abs(x), ord).sum(axis=axis, keepdims=keepdims), 1.0 / ord
         )

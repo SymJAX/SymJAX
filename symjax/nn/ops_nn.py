@@ -60,6 +60,17 @@ def silu(x):
     return x * T.sigmoid(x)
 
 
+def swish(x, beta):
+    r"""Swish activation function.
+
+    Computes the element-wise function:
+
+    .. math::
+      \mathrm{silu}(x) = x \cdot \mathrm{sigmoid}(x) = \frac{x}{1 + e^{-\beta * x}}
+    """
+    return x * T.sigmoid(beta * x)
+
+
 def log_sigmoid(x):
     r"""Log-sigmoid activation function.
 
