@@ -1,9 +1,5 @@
 import symjax.tensor as T
 
-from jax.scipy.special import expit
-from jax.scipy.special import logsumexp as _logsumexp
-import jax.numpy as jnp
-
 
 def relu(x):
     r"""Rectified linear unit activation function.
@@ -69,6 +65,19 @@ def swish(x, beta):
       \mathrm{silu}(x) = x \cdot \mathrm{sigmoid}(x) = \frac{x}{1 + e^{-\beta * x}}
     """
     return x * T.sigmoid(beta * x)
+
+
+def leaky_swish(x, beta, negative_slope=1e-2):
+    r"""Swish activation function associated to leaky relu.
+
+    Computes the element-wise function:
+
+    .. math::
+      \mathrm{silu}(x) = x \cdot \mathrm{sigmoid}(x) = \frac{x}{1 + e^{-\beta * x}}
+    """
+
+    feature = T.stack([negative_slope * x, x], -1)
+    return (feature * softmax(feature * beta)).sum(-1)
 
 
 def log_sigmoid(x):

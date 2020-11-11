@@ -14,6 +14,7 @@ def test_base():
     f = symjax.function(outputs=a)
     [f() for i in range(100)]
 
+
 def test_seed():
     a = T.random.randn((), seed=10)
     b = T.random.randn(())
@@ -40,13 +41,13 @@ def test_seed():
     assert np.isclose(result1[0], result12[0])
     assert np.isclose(result1[2], result12[2])
     assert not np.isclose(result1[1], result12[1])
-    
+
     assert np.isclose(result2[0], result22[0])
     assert np.isclose(result2[2], result22[2])
     assert not np.isclose(result2[1], result22[1])
 
     symjax.current_graph().reset()
-    
+
     a = T.random.randn((), seed=10)
     b = T.random.randn(())
     c = T.random.randn((), seed=10)
@@ -61,7 +62,7 @@ def test_seed():
     assert np.isclose(result1[0], result12[0])
     assert np.isclose(result1[2], result12[2])
     assert not np.isclose(result1[1], result12[1])
-    
+
     assert np.isclose(result2[0], result22[0])
     assert np.isclose(result2[2], result22[2])
     assert not np.isclose(result2[1], result22[1])
