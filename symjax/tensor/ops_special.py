@@ -46,6 +46,7 @@ for name in [
 stop_gradient = jax_wrap(jla.stop_gradient)
 dynamic_slice_in_dim = jax_wrap(jla.dynamic_slice_in_dim)
 dynamic_slice = jax_wrap(jla.dynamic_slice)
+rsqrt = jax_wrap(jla.rsqrt)
 index = jax.ops.index
 
 index_take = jax_wrap(jax.lax.index_take)
