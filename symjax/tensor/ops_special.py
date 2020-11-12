@@ -35,6 +35,7 @@ def one_hot(i, N, dtype="float32"):
         return index_add(z, i, 1)
 
 
+# methods from jax.ops
 for name in [
     "index_update",
     "index_min",
@@ -43,25 +44,39 @@ for name in [
 ]:
     module.__dict__.update({name: jax_wrap(jax.ops.__dict__[name])})
 
-stop_gradient = jax_wrap(jla.stop_gradient)
-dynamic_slice_in_dim = jax_wrap(jla.dynamic_slice_in_dim)
-dynamic_slice = jax_wrap(jla.dynamic_slice)
-index = jax.ops.index
 
-index_take = jax_wrap(jax.lax.index_take)
-index_in_dim = jax_wrap(jax.lax.index_in_dim)
-dynamic_index_in_dim = jax_wrap(jax.lax.dynamic_index_in_dim)
+# methods from jax lax
+for name in [
+    "stop_gradient",
+    "dynamic_slice_in_dim",
+    "dynamic_slice",
+    "rsqrt",
+    "index_take",
+    "index_in_dim",
+    "dynamic_index_in_dim",
+]:
+    module.__dict__.update({name: jax_wrap(jax.lax.__dict__[name])})
+
+# stop_gradient = jax_wrap(jla.stop_gradient)
+# dynamic_slice_in_dim = jax_wrap(jla.dynamic_slice_in_dim)
+# dynamic_slice = jax_wrap(jla.dynamic_slice)
+# rsqrt = jax_wrap(jla.rsqrt)
+
+# index_take = jax_wrap(jax.lax.index_take)
+# index_in_dim = jax_wrap(jax.lax.index_in_dim)
+# dynamic_index_in_dim = jax_wrap(jax.lax.dynamic_index_in_dim)
 
 
-module = sys.modules[__name__]
+# from jax.scipy.special
+_NAMES = inspect.getmembers(jax.scipy.special, callable)  # inspect.isfunction)
 
-_NAMES = [c[0] for c in inspect.getmembers(jax.scipy.special, inspect.isfunction)]
 
-
-for name in _NAMES:
+for name, func in _NAMES:
     if name[0] == "_":
         continue
-    module.__dict__.update({name: jax_wrap(jax.scipy.special.__dict__[name])})
+    module.__dict__.update({name: jax_wrap(func)})
+
+module.__dict__["sigmoid"] = module.__dict__["expit"]
 
 
 def reshape_weight_to_matrix(self, weight, dim=1):

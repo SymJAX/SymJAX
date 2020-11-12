@@ -316,6 +316,10 @@ class Adam(Optimizer):
         elif type(params) != list:
             raise RuntimeError("given params should be a list")
 
+        if len(params) == 0:
+            raise RuntimeError(
+                "no parameters are given for the gradients, this can be due to passing explicitly an empty list or to passing a lost connected to no trainable weights"
+            )
         grads = self._get_grads(grads_or_loss, params)
 
         local_step = tensor.Variable(1, dtype="int32", trainable=False)

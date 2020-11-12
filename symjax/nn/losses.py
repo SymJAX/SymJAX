@@ -1,8 +1,8 @@
 from .. import tensor as T
 import numpy as np
 from .. import probabilities
-from .ops_nn import softmax, log_softmax
 from symjax import nn
+from .ops_nn import softmax, log_softmax, softplus
 
 
 def huber(targets, predictions, delta=1.0):
@@ -431,8 +431,8 @@ def softmax_crossentropy_logits(p, q):
     return -(p * log_softmax(q)).sum(-1)
 
 
-def sigmoid_crossentropy_logits(labels, logits):
-    return -logits * labels + T.log1p(T.exp(logits))
+def sparse_sigmoid_crossentropy_logits(labels, logits):
+    return -logits * labels + softplus(logits)
 
 
 def hinge_loss(predictions, targets, delta=1):
