@@ -19,7 +19,12 @@ def only_involves_shapes_or_constants(item):
         or type(item) == jax.interpreters.partial_eval.DynamicJaxprTracer
     ):
         return False
-    elif isinstance(item, Constant) or not isvar(item):
+    if hasattr(item, "_only_involves_shapes_or_constants"):
+        return item.__dict__["_only_involves_shapes_or_constants"]
+    elif isinstance(item, Constant):
+        item.__dict__["_only_involves_shapes_or_constants"] = True
+        return True
+    elif not isvar(item):
         return True
     elif (
         isinstance(item, Variable)
@@ -27,6 +32,7 @@ def only_involves_shapes_or_constants(item):
         or isinstance(item, RandomOp)
         or isinstance(item, Seed)
     ):
+        item.__dict__["_only_involves_shapes_or_constants"] = False
         return False
     elif isinstance(item, OpItem):
         return only_involves_shapes_or_constants(item.parent)
@@ -39,6 +45,7 @@ def only_involves_shapes_or_constants(item):
         parents = []
         for p in symjax.current_graph().predecessors(item):
             parents.append(only_involves_shapes_or_constants(p))
+        item.__dict__["_only_involves_shapes_or_constants"] = numpy.all(parents)
         return numpy.all(parents)
 
 
