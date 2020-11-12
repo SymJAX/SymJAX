@@ -311,7 +311,7 @@ class Conv2DTranspose(Layer):
         input,
         n_filters,
         filter_shape,
-        pad="VALID",
+        padding="VALID",
         strides=1,
         W=initializers.glorot_uniform,
         b=numpy.zeros,
@@ -325,7 +325,7 @@ class Conv2DTranspose(Layer):
         self.transpose_W = transpose_W
         self.filter_dilation = filter_dilations
         self.strides = strides
-        self.pad = pad
+        self.padding = padding
 
         self.create_variable(
             "W",
@@ -339,7 +339,7 @@ class Conv2DTranspose(Layer):
             input,
             self.W,
             strides=self.strides,
-            padding=self.pad,
+            padding=self.padding,
             transpose_kernel=self.transpose_W,
             filter_dilation=self.filter_dilation,
         )
@@ -357,7 +357,7 @@ class Conv2D(Layer):
         input,
         n_filters,
         filter_shape,
-        pad="VALID",
+        padding="VALID",
         strides=1,
         W=initializers.glorot_uniform,
         b=numpy.zeros,
@@ -392,7 +392,7 @@ class Conv2D(Layer):
             input,
             W,
             strides=strides,
-            padding=pad,
+            padding=padding,
             input_dilation=input_dilations,
             filter_dilation=filter_dilations,
         )

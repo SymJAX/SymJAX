@@ -1023,10 +1023,10 @@ class function:
         self.extra_inputs = list(self.extra_inputs)
         allargs = list(self.args) + self.updates_keys + self.extra_inputs
 
-        def to_jit(*jitargs, seed):
+        def to_jit(*jitargs):
 
             feed_dict = dict(zip(allargs, jitargs))
-            feed_dict.update({"rng": seed})
+            #            feed_dict.update({"rng": seed})
             outputs = [self.outputs, self.updates_values]
             return symjax.current_graph().get(outputs, feed_dict)
 
@@ -1043,7 +1043,7 @@ class function:
 
         # define the frontend function that takes as input the inputs variables
         # and internally compute and update the variables from updates if any
-        def meta(*fnargs, rng):
+        def meta(*fnargs):
             # ensure that the number of arguments is correct
             assert len(fnargs) == len(self.args)
             for fnarg, classarg in zip(fnargs, self.args):
@@ -1057,9 +1057,9 @@ class function:
 
             # retreive the function outputs, updated values and apply them
             jited_add_inputs = symjax.current_graph().get(
-                self.updates_keys + self.extra_inputs, tracker={"rng": rng}
+                self.updates_keys + self.extra_inputs, tracker={}
             )
-            jitoutputs, jitupdates = self.jited(*fnargs, *jited_add_inputs, seed=rng)
+            jitoutputs, jitupdates = self.jited(*fnargs, *jited_add_inputs)
             for key, update in zip(self.updates_keys, jitupdates):
                 key.update(update)
 
@@ -1072,17 +1072,13 @@ class function:
 
         self.meta = meta
 
-    def __call__(self, *args, rng=None, device_get=True):
+    def __call__(self, *args, device_get=True):
         """Callable fn."""
         # in the presence of RandomTensor(s) in the graph, we keep track of the
         # number of functions calls to keep accumulating the PRNGKey of the jax
         # key, otherwise each function call returns the same realisation
 
-        if rng is None:
-            rng = random._seed
-            random._seed += 1
-
-        outputs = self.meta(*args, rng=rng)
+        outputs = self.meta(*args)
 
         if device_get:
             outputs = jax.device_get(outputs)

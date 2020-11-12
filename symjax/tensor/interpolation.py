@@ -50,8 +50,8 @@ def upsample_1d(
 
     """
 
-    if axis == -1:
-        axis = tensor.ndim - 1
+    if axis < 0:
+        axis = tensor.ndim + axis
 
     if repeat == 0:
         return tensor

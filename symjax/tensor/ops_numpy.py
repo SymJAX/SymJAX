@@ -6,6 +6,7 @@ import jax.lax as jla
 import jax.numpy as jnp
 
 from .base import jax_wrap
+import symjax
 
 module = sys.modules[__name__]
 
@@ -261,3 +262,7 @@ _add_method(Tensor)(module.__dict__["matmul"], "matmul")
 _add_method(Tensor)(module.__dict__["round"], "round")
 _add_method(Tensor)(module.__dict__["transpose"], "transpose")
 _add_method(Tensor)(module.__dict__["clip"], "clip")
+
+from symjax.tensor.linalg import norm
+
+_add_method(Tensor)(norm, "norm")

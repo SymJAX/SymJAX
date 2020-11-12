@@ -1,7 +1,8 @@
 from .. import tensor as T
 import numpy as np
 from .. import probabilities
-from .ops_nn import softmax, log_softmax
+from symjax import nn
+from .ops_nn import softmax, log_softmax, softplus
 
 
 def huber(targets, predictions, delta=1.0):
@@ -187,13 +188,13 @@ def vae_gmm(x, x_hat, z_mu, z_logvar, mu, logvar, logpi, logvar_x=0.0, eps=1e-8)
         - 0.5 * (T.log(2 * np.pi) + logvar)
         - (z_mu[:, None, :] - mu) ** 2 / (2 * var)
     ).sum(2)
-    pt_z = T.softmax(logprob)
+    pt_z = nn.softmax(logprob)
 
     # E_{q(z,c|x)}[log(p(x|z))]
     px_z = -0.5 * ((x - x_hat) ** 2 / T.exp(logvar_x) + logvar_x).sum(1)
 
     # - E_{q(z,c|x)}[log(q(c|x))] entropy of categorical
-    h_c = -(pt_z * T.log_softmax(logprob)).sum(1)
+    h_c = -(pt_z * nn.log_softmax(logprob)).sum(1)
 
     # - E_{q(z,c|x)}[log(q(z|x))] : entropy of normal
     h_z = 0.5 * z_logvar.sum(1)
@@ -430,8 +431,8 @@ def softmax_crossentropy_logits(p, q):
     return -(p * log_softmax(q)).sum(-1)
 
 
-def sigmoid_crossentropy_logits(labels, logits):
-    return -logits * labels + T.log1p(T.exp(logits))
+def sparse_sigmoid_crossentropy_logits(labels, logits):
+    return -logits * labels + softplus(logits)
 
 
 def hinge_loss(predictions, targets, delta=1):
