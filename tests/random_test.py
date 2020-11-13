@@ -12,7 +12,7 @@ import numpy as np
 def test_base():
     a = T.random.randn(())
     f = symjax.function(outputs=a)
-    [f() for i in range(100)]
+    print([f() for i in range(100)])
 
 
 def test_seed():
@@ -22,8 +22,11 @@ def test_seed():
     f = symjax.function(outputs=[a, b, c])
     result1 = f()
     result2 = f()
+    print(result1)
+    print(result2)
     assert result1[0] == result1[2]
     assert result1[0] != result1[1]
+
     assert result2[0] == result2[2]
     assert result2[0] != result1[0]
 

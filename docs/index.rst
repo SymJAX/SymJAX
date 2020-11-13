@@ -33,6 +33,8 @@ Welcome to SymJAX's documentation!
 
 .. centered:: **Installation Guide** : :ref:`installation`
 
+.. centered:: **Implementation Walkthrough** : :ref:`walkthrough`
+
 .. centered:: **Developer Guide** : :ref:`developer`
 
 .. centered:: **Updates Roadmap** : :ref:`roadmap`

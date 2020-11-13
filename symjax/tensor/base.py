@@ -10,36 +10,16 @@ import symjax
 import numpy as np
 
 
-def only_involves_shapes_or_constants(item):
+def is_constant(item):
     """checks if node only depends on constants/shapes"""
 
     key = "only_involves_shapes_or_constants"
-    if (
-        type(item) == jax.interpreters.ad.JVPTracer
-        or type(item) == jax.interpreters.partial_eval.DynamicJaxprTracer
-    ):
-        return False
-    elif isinstance(item, Constant) or not isvar(item) or item is None:
+    if isinstance(item, Constant) or not isvar(item) or item is None:
         return True
-    elif (
-        isinstance(item, Variable)
-        or isinstance(item, Placeholder)
-        or isinstance(item, RandomOp)
-        or isinstance(item, Seed)
-    ):
-        return False
-    elif isinstance(item, OpItem):
-        return only_involves_shapes_or_constants(item.parent)
     elif type(item) in [list, tuple]:
-        return numpy.all([only_involves_shapes_or_constants(p) for p in item])
-    elif isinstance(item, Op):
-        if item in symjax.current_graph().nodes:
-            if key in symjax.current_graph().nodes[item]:
-                return symjax.current_graph().nodes[item][key]
-        parents = []
-        for p in symjax.current_graph().predecessors(item):
-            parents.append(only_involves_shapes_or_constants(p))
-        return numpy.all(parents)
+        return numpy.all([is_constant(p) for p in item])
+    else:
+        return False
 
 
 def _add_method(cls):
@@ -134,35 +114,6 @@ def update_numpydoc(docstr, fun, op):
     return docstr[: begin_idx + 1] + parameters + docstr[end_idx - 2 :]
 
 
-class dummy:
-    def __init__(self, shape, dtype):
-        self.shape = shape
-        self.dtype = dtype
-
-
-def create_dummy(item):
-    static = int(only_involves_shapes_or_constants(item))
-    # if it is static we can just return it straight without need for a
-    # shape dtype class dummy
-    if static:
-        # maybe it is a constant not yet added to the graph
-        if not isvar(item):
-            return item, static
-        # for all other cases (shapes, partial shapes, constants, ...)
-        return symjax.current_graph().get(item), static
-
-    if isinstance(item, MultiOutputOp):
-        items = [dummy(a.shape, a.dtype) for a in item]
-        return items, static
-    elif isinstance(item, list) or isinstance(item, tuple):
-        items = [create_dummy(i) for i in item]
-        static = numpy.all([i[1] for i in items])
-        return tuple([i[0] for i in items]), static
-    else:
-        item = dummy(item.shape, item.dtype)
-        return item, static
-
-
 def get_output_tree(
     jax_function,
     *args,
@@ -175,23 +126,25 @@ def get_output_tree(
     static_kwargs = {}
     var_kwargs = {}
     for name, arg in list(kwargs.items()):
-        dummy, static = create_dummy(arg)
-        if static:
-            static_kwargs.update({name: dummy})
+        # dummy, static = create_dummy(arg)
+        if is_constant(arg):
+            static_kwargs.update({name: arg})
         else:
-            var_kwargs.update({name: dummy})
+            var_kwargs.update({name: arg})
 
     # we need to do the same for the args
     static_args = []
     var_args = []
     who_static = []
     for i, arg in enumerate(args):
-        dummy, static = create_dummy(arg)
-        who_static.append(static)
-        if static:
-            static_args.append(dummy)
+        # dummy, static = create_dummy(arg)
+        # who_static.append(static)
+        if is_constant(arg):
+            who_static.append(1)
+            static_args.append(arg)
         else:
-            var_args.append(dummy)
+            who_static.append(0)
+            var_args.append(arg)
 
     # we need to define an abstract function that only takes as input the
     # non-static arguments, internally join them with the static ones
@@ -217,6 +170,15 @@ def jax_wrap(func, doc_func=None):
 
         # if there is a name we remove it for now to use the jax tracer
         op_name = kwargs.pop("name", None)
+        args = list(args)
+
+        for i in range(len(args)):
+            if isinstance(args[i], MultiOutputOp):
+                args[i] = tuple(args[i])
+        args = tuple(args)
+        for key, value in kwargs.items():
+            if isinstance(value, MultiOutputOp):
+                kwargs[key] = tuple(value)
 
         # first we check if we are in a random function to be careful
         # with the key. this is just to get shape and dtype so we do not bother
@@ -246,7 +208,8 @@ def jax_wrap(func, doc_func=None):
             else:
                 return Op(*args, **feed, **kwargs)
 
-    symjax._fn_to_op[func] = op
+    if func.__name__ not in symjax._fn_to_op:
+        symjax._fn_to_op[func.__name__] = op
     if not hasattr(func, "__doc__") or func.__doc__ is None:
         return op
 
@@ -361,7 +324,11 @@ class Tensor:
 
         if inplace_copy is not None:
             return
-
+        if "_attrs" in kwargs:
+            if "_shape" in kwargs["_attrs"]:
+                self._shape = kwargs["_attrs"]["_shape"]
+            if "_dtype" in kwargs["_attrs"]:
+                self._dtype = kwargs["_attrs"]["_dtype"]
         symjax.current_graph()._add(self, *args, **kwargs)
 
     @property
@@ -381,11 +348,11 @@ class Tensor:
 
     @property
     def shape(self):
-        return symjax.current_graph().nodes[self]["_shape"]
+        return self._shape  # symjax.current_graph().nodes[self]["_shape"]
 
     @property
     def dtype(self):
-        return symjax.current_graph().nodes[self]["_dtype"]
+        return self._dtype  # symjax.current_graph().nodes[self]["_dtype"]
 
     @property
     def ndim(self):
@@ -555,6 +522,9 @@ class MultiOutputOp(Op, tuple, Tensor):
     def __repr__(self):
         return tuple.__repr__(self)
 
+    def __len__(self):
+        return tuple.__len__(self)
+
 
 class OpItem(Op, Tensor):
     def __init__(self, *args, **kwargs):
@@ -671,8 +641,7 @@ class Variable(Tensor):
 
         name, scope = symjax.current_graph()._get_name_scope(name, self)
         value = self._reset(initializer, shape, dtype)
-        shape = shape or value.shape
-        shape = tuple(numpy.array(symjax.current_graph().get(shape)))
+        shape = tuple(shape or value.shape)
         dtype = jax.numpy.dtype(dtype) if dtype is not None else value.dtype
 
         super().__init__(

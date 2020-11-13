@@ -149,18 +149,28 @@ def test_pymc():
     f_(x_val, s_val, y_val), grad_fn(x_val, s_val, y_val)
 
 
+def test_stack():
+    u = tt.Variable(tt.ones((2,)))
+    output = tt.stack([u, 2 * u, 3 * u])
+    f = symjax.function(outputs=output)
+    assert np.allclose(f(), (np.arange(3)[:, None] + 1) * np.ones((3, 2)))
+    print(f())
+    print(f())
+
+
 def test_grad():
     w = tt.Placeholder((), "float32")
     v = tt.Variable(1.0, dtype="float32")
     x = w * v + 2
-    symjax.nn.optimizers.Adam(x, 0.001)
-    g = symjax.gradients(x, [v])
-    f = symjax.function(w, outputs=g[0])
+    #    symjax.nn.optimizers.Adam(x, 0.001)
+    g = symjax.gradients(x.sum(), [v])[0]
+    f = symjax.function(w, outputs=g)
     assert f(1) == 1
     assert f(10) == 10
 
 
 if __name__ == "__main__":
+    test_stack()
     test_grad()
     test_add()
     test_pymc()

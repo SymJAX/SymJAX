@@ -239,113 +239,119 @@ class Graph(nx.DiGraph):
             self.clone(n, todos, done) for n in args if not isinstance(n, t.Seed)
         ]
         new_kwargs = {name: self.clone(n, todos, done) for name, n in kwargs.items()}
-
         fun = self.get_node_attribute(node, "jax_function")
-        done[node] = symjax._fn_to_op[fun](*new_args, **new_kwargs)
+        done[node] = symjax._fn_to_op[fun.__name__](*new_args, **new_kwargs)
         return done[node]
 
     def get_node_attribute(self, node, attr):
         return nx.get_node_attributes(self, attr)[node]
 
-    def get(self, item, tracker=None, frozen=True):
-        """
-        Example:
+    def unnest(self, container):
+        for i in container:
+            if isinstance(i, (list, tuple)):
+                for j in self.unnest(i):
+                    yield j
+            else:
+                yield i
 
-            >>> import symjax.tensor as T
-            >>> w = T.ones(10).sum()+4
-            >>> v = T.Variable(1., name='v', dtype='float32')
-            >>> T.get(w+v)
-            DeviceArray(15., dtype=float32)
-        """
-        tracker = {} if tracker is None else tracker
-        value = self._get(item, tracker, frozen)
-        # if isinstance(value, jax.interpreters.xla.DeviceArray):
-        #     return jax.device_get(value)
-
-        return value
-
-    def _get(self, item, tracker, frozen):
-        """
-        Example:
-
-            >>> import symjax.tensor as T
-            >>> w = T.ones(10).sum()+4
-            >>> v = T.Variable(1., name='v', dtype='float32')
-            >>> T.get(w+v)
-            DeviceArray(15., dtype=float32)
-        """
-
+    def get(self, input_tensor, tracker=None, frozen=True):
+        if not t.isvar(input_tensor):
+            return input_tensor
         if tracker is None:
             tracker = {}
-
-        if not t.isvar(item):
-            return item
-
-        if type(item) == list:
-            return [self.get(i, tracker, frozen=frozen) for i in item]
-
-        elif type(item) == tuple:
-            return tuple([self.get(i, tracker, frozen=frozen) for i in item])
-
-        elif item in tracker:
-            return tracker[item]
-
-        elif isinstance(item, t.Placeholder):
-            if item not in tracker:
-                raise ValueError(" no value given for placeholder {}".format(item))
-
-        elif isinstance(item, t.Variable) or type(item) == t.Constant:
-            tracker[item] = item.value
-            if not frozen and isinstance(item, t.Seed):
-                item.update()
-            return tracker[item]
-
-        elif type(item) == t.OpItem:
-
-            return self.get(item.parent, tracker)[item.parent_index]
-
-        elif isinstance(item, t.Op):
-
-            # first get the actual parents nodes (aka inputs to the function)
-
-            args, kwargs = self.get_args_kwargs(item, tracker, frozen=frozen)
-
-            tracker[item] = self.nodes[item]["jax_function"](*args, **kwargs)
-            return tracker[item]
-
+            mapped = {}
         else:
-            return item
+            mapped = tracker.copy()
 
-    def get_shape_dtype(self, item):
-        """
-        Example:
+        tomap = []
+        tosearch = list(self.unnest([input_tensor]))
 
-            >>> import symjax.tensor as T
-            >>> w = T.ones(10).sum()+4
-            >>> v = T.Variable(1., name='v', dtype='float32')
-            >>> T.get(w+v)
-            DeviceArray(15., dtype=float32)
-        """
+        # the first graph traversal has for objective to go through the parents
+        # and readh the furthest parents to mapped their value into the mapped
+        # hashmap
+        while len(tosearch):
+            for item in tosearch:
+                tosearch.remove(item)
 
-        if "_shape" in self.nodes[item]:
-            return jax.ShapeDtypeStruct(
-                self.nodes[item]["_shape"], self.nodes[item]["_dtype"]
-            )
+                if item in tracker:
+                    mapped[item] = tracker[item]
+                elif isinstance(item, t.Variable) or isinstance(item, t.Constant):
+                    mapped[item] = item.value
+                elif isinstance(item, t.Placeholder):
+                    if item in tracker:
+                        mapped[item] = tracker[item]
+                    else:
+                        raise ValueError(
+                            " no value given for placeholder {}".format(item)
+                        )
+                elif isinstance(item, t.OpItem):
+                    parent = list(self.predecessors(item))[0]
+                    tomap.append(parent)
+                    if parent not in tosearch:
+                        tosearch.append(parent)
+                else:
+                    # this item is an Op and thus will need to be mapped later on
+                    tomap.append(item)
+                    # we retreive the parents of the Op node to go upper in the graph
+                    item_parents = list(self.predecessors(item))
+                    # we loop through the parents and only add the unique ones to the
+                    # searchlist for the next loop iteration
+                    for it in list(self.unnest(list(item_parents))):
+                        if it not in tosearch:
+                            tosearch.append(it)
+        # now tosearch is empty, and the parents of item that could be assigned
+        # an explicit value are mapped into the mapped hashmap
+        # we start from the end as the last added items will have parents already in mapped
+        for item in tomap[::-1]:
+            if isinstance(item, t.OpItem):
+                parent = list(self.predecessors(item))[0]
+                index = int(self[parent][item]["name"].split("parent_index")[1])
+                if parent not in mapped:
+                    mapped[parent] = self._get_value_given_mapped(
+                        parent, mapped, frozen=frozen
+                    )
+                mapped[item] = mapped[parent][index]
+            elif isinstance(item, t.MultiOutputOp):
+                mapped[item] = self._get_value_given_mapped(item, mapped, frozen=frozen)
+                for node, value in zip(item, mapped[item]):
+                    mapped[node] = value
 
-        elif type(item) == t.OpItem:
+            else:
+                mapped[item] = self._get_value_given_mapped(item, mapped, frozen=frozen)
 
-            return self.get_shape_dtype(item.parent)[item.parent_index]
+        # now generate the mapped inputs
+        output = self._to_mapped_value(input_tensor, mapped)
+        return self._to_mapped_value(input_tensor, mapped)
 
-        elif isinstance(item, t.Op):
+    def _get_value_given_mapped(self, item, mapped, frozen=False):
+        args, kwargs = self.get_args_kwargs(item, evaluate=False, frozen=frozen)
+        mapped_args = self._to_mapped_value(args, mapped)
+        mapped_kwargs = {
+            key: self._to_mapped_value(value, mapped) for key, value in kwargs.items()
+        }
+        return self.nodes[item]["jax_function"](*mapped_args, **mapped_kwargs)
 
-            # first get the actual parents nodes (aka inputs to the function)
-            args, kwargs = self.get_args_kwargs(item, evaluate=False)
-            return t.get_output_tree(self.nodes[item]["jax_function"], *args, **kwargs)
+    def _to_mapped_value(self, args, mapped):
+        if type(args) == list:
+            return [self._to_mapped_value(arg, mapped) for arg in args]
+        elif type(args) == tuple:
+            return tuple([self._to_mapped_value(arg, mapped) for arg in args])
+        else:
+            return mapped[args]
+
+    def all_predecessors(self, item):
+        if type(item) == list or type(item) == tuple:
+            predecessors = []
+            for i in item:
+                predecessors += self.all_predecessors(i)
+            return predecessors
+        else:
+            return self.predecessors(item)
 
     def get_args_kwargs(self, node, tracker=None, evaluate=True, frozen=True):
         if evaluate:
             assert tracker is not None
-            parents = list(self.predecessors(node))
+            parents = list(self.all_predecessors(node))
             all_args = {}
             for i in range(len(parents)):
                 all_args[self[parents[i]][node]["name"]] = self.get(
@@ -353,7 +359,8 @@ class Graph(nx.DiGraph):
                 )
         else:
             all_args = {
-                self[parent][node]["name"]: parent for parent in self.predecessors(node)
+                self[parent][node]["name"]: parent
+                for parent in self.all_predecessors(node)
             }
         # now we inspect if there are duplicate args
         for arg in list(all_args.keys()):
@@ -822,13 +829,16 @@ def gradients(scalar, variables):
     # roots
     # to the scalar varible s.t. automatic diffenrentiation can be applied
 
-    def fn(*args):
-        return current_graph().get(scalar, dict(zip(input_variables, list(args))))
+    def internal_gradient_function(*args):
+        return current_graph().get(
+            scalar,
+            {input_variables[i]: args[i] for i in range(len(input_variables))},
+        )
 
     # now we obtain the grad function. In fact, Jax returns a function that,
     # when it is called, returns the gradient values, this function is then
     # used to generate the Tuple of symbolic variables
-    grad_fn = jax.grad(fn, argnums)
+    grad_fn = jax.grad(internal_gradient_function, argnums)
     wrap_fn = t.jax_wrap(grad_fn)
     if input_list:
         return wrap_fn(*input_variables)
@@ -875,16 +885,16 @@ def jacobians(tensor, variables, mode="forward"):
     # this function is the one that builds the graph of computation from
     # all roots
     # to the scalar varible s.t. automatic diffenrentiation can be applied
-    def fn(*args):
+    def internal_jacobian(*args):
         return symjax.tensor.get(tensor, dict(zip(all_roots, list(args))))
 
     # now we obtain the jacobian function. In fact, Jax returns a function that
     # when it is called, returns the jacobian values, this function is then
     # used to generate the Tuple of symbolic variables
     if mode == "forward":
-        jacob_fn = jacfwd(fn, argnums)
+        jacob_fn = jacfwd(internal_jacobian, argnums)
     elif mode == "backward":
-        jacob_fn = jacrev(fn, argnums)
+        jacob_fn = jacrev(internal_jacobian, argnums)
     else:
         raise RuntimeError(
             "mode {} not recognized, use forward or backward".format(mode)
@@ -989,7 +999,7 @@ class function:
         self.args = args
         self.outputs = outputs
 
-        outs = self.updates_values
+        outs = self.updates_values.copy()
         outs += [outputs] if isinstance(outputs, t.Tensor) else outputs
 
         self.all_roots = set(symjax.current_graph().roots(outs))
@@ -1024,22 +1034,11 @@ class function:
         allargs = list(self.args) + self.updates_keys + self.extra_inputs
 
         def to_jit(*jitargs):
-
             feed_dict = dict(zip(allargs, jitargs))
-            #            feed_dict.update({"rng": seed})
             outputs = [self.outputs, self.updates_values]
             return symjax.current_graph().get(outputs, feed_dict)
 
-        # take care of the presence of -1 dimensions
-        to_vectorize = [0 if 0 in symjax.tensor.get(a.shape) else None for a in allargs]
-
-        if any(to_vectorize):
-            self.jited = jax.jit(
-                jax.vmap(to_jit, to_vectorize), device=device, backend=backend
-            )
-        else:
-            # we compile our underlying function using jit for performances
-            self.jited = jax.jit(to_jit, device=device, backend=backend)
+        self.jited = jax.jit(to_jit, device=device, backend=backend)
 
         # define the frontend function that takes as input the inputs variables
         # and internally compute and update the variables from updates if any
@@ -1057,12 +1056,14 @@ class function:
 
             # retreive the function outputs, updated values and apply them
             jited_add_inputs = symjax.current_graph().get(
-                self.updates_keys + self.extra_inputs, tracker={}
+                self.updates_keys + self.extra_inputs
             )
             jitoutputs, jitupdates = self.jited(*fnargs, *jited_add_inputs)
             for key, update in zip(self.updates_keys, jitupdates):
                 key.update(update)
 
+            # update the seed such that the random numbers of the
+            # next call are all different
             if not frozen:
                 for i in self.extra_inputs:
                     if isinstance(i, t.Seed):

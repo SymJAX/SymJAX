@@ -127,7 +127,7 @@ def map(f, sequences, non_sequences=None):
     """
 
     def g(_, *args):
-        return (1, f(*args))
+        return (_, f(*args))
 
     ys = scan(g, 0, sequences, non_sequences=non_sequences)
 

@@ -85,8 +85,7 @@ def test_clone_4():
     sj.current_graph().reset()
     a = T.ones((10, 1))
     b = T.ones((10, 1))
-    c = T.concatenate([a, b], 1)
-    arg, kwargs = sj.current_graph().get_args_kwargs(c, evaluate=False)
+    c = T.concatenate(T.Tuple(a, b), 1)
 
     w = T.Variable(T.ones((10, 1)))
     d = c.clone({a: 2 * w})
