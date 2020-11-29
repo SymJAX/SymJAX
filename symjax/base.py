@@ -47,6 +47,7 @@ class Graph(nx.DiGraph):
         self._updates = {}
         self._scopes_history = []
         self._branches = {}
+        self._name_counts = {}
 
     def __repr__(self):
         msg = "Graph(name:{},  n_nodes:{})".format(self.name, len(self.nodes))
@@ -554,15 +555,31 @@ class Scope:
         names = [os.path.join(m.scope, m.name) for m in nodes if hasattr(m, "name")]
 
         test_name = os.path.join(self.absolute_name, name)
+        # if we never used this name before then we can just keep it as is
         if test_name not in names:
             return name, self.absolute_name
+        # otherwise we append the suffix _N with N the number of times we
+        # already used this name. To keep track of how many times
+        # did we already use a name we employ a look up table to have
+        # fast retreival, we also update that count by 1
         else:
+            # note that if we allow reuse, then we just return the variable
+            # that had this name
             if self.reuse and isinstance(tensor, symjax.tensor.Variable):
                 return nodes[nodes.index(tensor)]
-            count = 1
-            while test_name + "_" + str(count) in names:
-                count += 1
-            return name + "_" + str(count), self.absolute_name
+
+            # if we never saw this variable before (first time it is repeated)
+            # then we create its entry in the look up table
+            if test_name not in self.graph._name_counts:
+                self.graph._name_counts[test_name] = 0
+
+            # we increase the counter
+            self.graph._name_counts[test_name] += 1
+
+            return (
+                name + "_" + str(self.graph._name_counts[test_name]),
+                self.absolute_name,
+            )
 
 
 def reset_variables(name="*", scope="*", trainable=None):
