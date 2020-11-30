@@ -476,7 +476,7 @@ class Dropout(Layer):
 
         mask = T.random.bernoulli(shape=input.shape, p=1 - p, seed=seed)
 
-        return T.where(deterministic, input, mask * input)
+        return T.where(deterministic, input, mask * input / T.maximum(1e-4, (1 - p)))
 
 
 class RandomFlip(Layer):

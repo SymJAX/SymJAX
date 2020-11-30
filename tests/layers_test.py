@@ -70,7 +70,7 @@ def test_dropout():
     output3 = update(data, 1)
 
     assert not np.allclose(output1, output2, 1e-1)
-    assert np.allclose(output1.mean(0) / 2 + output2.mean(0) / 2, 0.2, 0.08)
+    assert np.allclose(output1.mean(0) / 2 + output2.mean(0) / 2, 1, 0.08)
     assert np.all(output3)
 
 
