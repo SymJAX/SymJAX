@@ -474,7 +474,7 @@ class Dropout(Layer):
 
     def __init__(self, input, p, deterministic, seed=None):
 
-        mask = T.random.bernoulli(shape=input.shape, p=p, seed=seed)
+        mask = T.random.bernoulli(shape=input.shape, p=1 - p, seed=seed)
 
         return T.where(deterministic, input, mask * input)
 
