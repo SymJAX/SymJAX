@@ -97,7 +97,7 @@ extract_signal_patches = jax_wrap(_extract_signal_patches, module)
 def _extract_image_patches(
     image,
     window_shape,
-    hop=1,
+    strides=1,
     data_format="channel_first",
     padding="valid",
     flatten_patch=False,
@@ -138,7 +138,7 @@ def _extract_image_patches(
     patches = jla.conv_general_dilated_patches(
         image,
         filter_shape=window_shape,
-        window_strides=(1, 1),
+        window_strides=strides,
         padding=padding.upper(),
         dimension_numbers=formatting,
     )
@@ -572,9 +572,11 @@ def wvd(signal, window, hop, L, apod=hanning, mode="valid"):
     )
 
     # extract vertical (freq) partches to perform auto correlation
-    patches = extract_image_patches(s, (2 * L + 1, 1), hop=(2, 1), padding="same")[
-        ..., 0
-    ]  # (N C F' T L)
+    print(s)
+    patches = extract_image_patches(s, (2 * L + 1, 1), strides=(2, 1), padding="same")
+    patches = patches.transpose((0, 3, 1, 2, 4, 5))
+    patches = patches[..., 0]  # (N C F' T L)
+    print(patches)
     output = (patches * T.conj(T.flip(patches, -1)) * mask).sum(-1)
     return T.real(output)
 
