@@ -95,47 +95,61 @@ extract_signal_patches = jax_wrap(_extract_signal_patches, module)
 
 
 def _extract_image_patches(
-    image, window_shape, hop=1, data_format="NCHW", mode="valid"
+    image,
+    window_shape,
+    hop=1,
+    data_format="channel_first",
+    padding="valid",
+    flatten_patch=False,
 ):
-    if mode == "same":
-        p1 = window_shape[0] - 1
-        p2 = window_shape[1] - 1
-        image = jnp.pad(
-            image,
-            [(0, 0), (0, 0), (p1 // 2, p1 - p1 // 2), (p2 // 2, p2 - p2 // 2)],
-        )
-    if not hasattr(hop, "__len__"):
-        hop = (hop, hop)
-    if data_format == "NCHW":
+    """extract patches from an input tensor
 
-        # compute the number of windows in both dimensions
-        N = (
-            (image.shape[2] - window_shape[0]) // hop[0] + 1,
-            (image.shape[3] - window_shape[1]) // hop[1] + 1,
-        )
+    Args:
+    -----
 
-        # compute the base indices of a 2d patch
-        patch = jnp.arange(numpy.prod(window_shape)).reshape(window_shape)
-        offset = jnp.expand_dims(jnp.arange(window_shape[0]), 1)
-        patch_indices = patch + offset * (image.shape[3] - window_shape[1])
+    image: Tensor-like
+        the input to extract patches from
 
-        # create all the shifted versions of it
-        ver_shifts = jnp.reshape(
-            jnp.arange(N[0]) * hop[0] * image.shape[3], (-1, 1, 1, 1)
-        )
-        hor_shifts = jnp.reshape(jnp.arange(N[1]) * hop[1], (-1, 1, 1))
-        all_cols = patch_indices + jnp.reshape(jnp.arange(N[1]) * hop[1], (-1, 1, 1))
-        indices = patch_indices + ver_shifts + hor_shifts
+    window_shape: int or tuple of ints
+        the spatial shape of the patch to extract
 
-        # now extract shape (1, 1, H'W'a'b')
-        flat_indices = jnp.reshape(indices, [1, 1, -1])
-        # shape is now (N, C, W*H)
-        flat_image = jnp.reshape(image, (image.shape[0], image.shape[1], -1))
-        # shape is now (N, C)
-        patches = jnp.take_along_axis(flat_image, flat_indices, 2)
-        return jnp.reshape(patches, image.shape[:2] + N + tuple(window_shape))
+    hop: int or tuple of ints
+        the spatial hop of the patch to extract
+
+    data_format: str
+        either ``channel_first`` or ``channel_last``
+
+    padding: str
+        either ``same`` or ``valid``
+
+    flatten_patch: bool
+        whether to return patches as flattened or not
+
+    """
+
+    # 3-tuple (lhs_spec, rhs_spec, out_spec)
+    if data_format == "channel_first":
+        if len(jax.numpy.shape(image)) == 4:
+            formatting = ("NCHW", "OIHW", "NHWC")
     else:
-        error
+        if len(jax.numpy.shape(image)) == 4:
+            formatting = ("NHWC", "OIHW", "NHWC")
+
+    patches = jla.conv_general_dilated_patches(
+        image,
+        filter_shape=window_shape,
+        window_strides=(1, 1),
+        padding=padding.upper(),
+        dimension_numbers=formatting,
+    )
+
+    if flatten_patch:
+        return patches
+
+    # and now we reshape such that the patch is not flattened but of the correct shape
+    target_shape = jax.numpy.shape(patches)[:-1]
+    target_shape += (jax.numpy.shape(image)[1],) + window_shape
+    return jax.numpy.reshape(patches, target_shape)
 
 
 extract_image_patches = jax_wrap(_extract_image_patches)
