@@ -572,7 +572,7 @@ def wvd(signal, window, hop, L, apod=hanning, mode="valid"):
     )
 
     # extract vertical (freq) partches to perform auto correlation
-    patches = extract_image_patches(s, (2 * L + 1, 1), (2, 1), mode="same")[
+    patches = extract_image_patches(s, (2 * L + 1, 1), hop=(2, 1), padding="same")[
         ..., 0
     ]  # (N C F' T L)
     output = (patches * T.conj(T.flip(patches, -1)) * mask).sum(-1)
