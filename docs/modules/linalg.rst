@@ -43,6 +43,8 @@
 
   singular_vectors_power_iteration
   eigenvector_power_iteration
+  gram_schmidt
+  modified_gram_schmidt
 
 Detailed Description
 ====================

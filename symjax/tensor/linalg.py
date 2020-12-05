@@ -175,10 +175,14 @@ def norm(x, ord=2, axis=None, keepdims=False):
     >>> LA.norm(m[0, :, :]), LA.norm(m[1, :, :])
     (3.7416573867739413, 11.224972160321824)
     """
-    if axis is not None and hasattr(axis, "__len__") and len(axis) > 2:
-        return T.power(
-            T.power(T.abs(x), ord).sum(axis=axis, keepdims=keepdims), 1.0 / ord
-        )
+    if hasattr(axis, "__len__"):
+        if len(axis) > 2:
+            return T.power(
+                T.power(T.abs(x), ord).sum(axis=axis, keepdims=keepdims),
+                1.0 / ord,
+            )
+        else:
+            return _norm(x, ord, axis, keepdims)
     else:
         return _norm(x, ord, axis, keepdims)
 
@@ -209,3 +213,65 @@ def eigenvector_power_iteration(weight, axis=0, n_iters=1):
         u = normalize(weight.t().dot(u), dim=0)
 
     return u
+
+
+def gram_schmidt(V, normalize=True):
+    """gram-schmidt orthogonalization
+
+    Parameters:
+    -----------
+
+    V: Tensor of rank 2
+        a matrix to orthogonalize. The vectors should be in the rows of V
+
+    normalize: bool
+        whether to renormalize the orthogonalized vectors or not, default to ``True``
+
+    Returns:
+    --------
+
+    U: Tensor of rank 2
+        a matrix with orthogonalized rows from V, note that those vectors are not normalized
+    """
+
+    if normalize:
+        U = T.index_add(T.zeros_like(V), 0, V[0] / T.linalg.norm(V[0], 2))
+    else:
+        U = T.index_add(T.zeros_like(V), 0, V[0])
+
+    def fn(U, v, k):
+        coeffs = T.dot(U, v) / ((U ** 2).sum(1) + 1e-28)
+        p = v - (U * coeffs[:, None]).sum(0)
+        if normalize:
+            return T.index_update(U, k, p / T.linalg.norm(p, 2)), k
+        else:
+            return T.index_update(U, k, p / T.linalg.norm(p, 2)), k
+
+    U, _ = T.scan(fn, init=U, sequences=[V[1:], T.arange(1, V.shape[0])])
+    return U
+
+
+def modified_gram_schmidt(V):
+    """modified gram-schmidt orthogonalization
+
+    Parameters:
+    -----------
+
+    V: Tensor of rank 2
+        a matrix to orthogonalize. The vectors should be in the rows of V
+
+    Returns:
+    --------
+
+    U: Tensor of rank 2
+        a matrix with orthogonalized rows from V, note that those vectors are not normalized
+    """
+    U = T.index_add(T.zeros_like(V), 0, V[0] / T.linalg.norm(V[0], 2))
+
+    def fn(U, v, k):
+        coeffs = T.dot(U, v) / ((U ** 2).sum(1) + 1e-28)
+        uk, _ = T.scan(_proj, init=v, sequences=[U])
+        return T.index_update(U, k, uk / T.linalg.norm(uk, 2)), 0
+
+    U, _ = T.scan(fn, init=U, sequences=[V[1:], T.arange(1, V.shape[0])])
+    return U

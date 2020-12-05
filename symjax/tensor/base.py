@@ -833,11 +833,13 @@ class Placeholder(Tensor):
         return name.format(self.name, self.shape, self.dtype, self.scope)
 
 
-def placeholder_like(item, name=""):
+def placeholder_like(item, name="", force=True):
     if item is None:
         return None
     elif type(item) == list or type(item) == tuple:
-        return type(item)([placeholder_like(i) for i in item])
+        return type(item)([placeholder_like(i, force=force) for i in item])
+    elif not force and not isvar(item):
+        return item
     else:
         return Placeholder(item.shape, item.dtype, name=name)
 

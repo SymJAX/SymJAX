@@ -290,6 +290,8 @@ class Graph(nx.DiGraph):
                     tomap.append(parent)
                     if parent not in tosearch:
                         tosearch.append(parent)
+                elif not t.isvar(item) and not isinstance(item, t.Constant):
+                    tomap.append(t.Constant(item))
                 else:
                     # this item is an Op and thus will need to be mapped later on
                     tomap.append(item)
@@ -325,6 +327,12 @@ class Graph(nx.DiGraph):
         return self._to_mapped_value(input_tensor, mapped)
 
     def _get_value_given_mapped(self, item, mapped, frozen=False):
+
+        if isinstance(item, t.Constant):
+            return item.value
+        elif not t.isvar(item):
+            return item
+
         args, kwargs = self.get_args_kwargs(item, evaluate=False, frozen=frozen)
         mapped_args = self._to_mapped_value(args, mapped)
         mapped_kwargs = {
@@ -333,7 +341,9 @@ class Graph(nx.DiGraph):
         return self.nodes[item]["jax_function"](*mapped_args, **mapped_kwargs)
 
     def _to_mapped_value(self, args, mapped):
-        if type(args) == list:
+        if not t.isvar(args):
+            return args
+        elif type(args) == list:
             return [self._to_mapped_value(arg, mapped) for arg in args]
         elif type(args) == tuple:
             return tuple([self._to_mapped_value(arg, mapped) for arg in args])
