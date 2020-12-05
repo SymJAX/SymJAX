@@ -9,6 +9,8 @@ from .normalization import normalize
 
 from . import random
 from . import ops_numpy as T
+from . import ops_special as S
+from . import control_flow as C
 
 from_scipy = [
     "cholesky",
@@ -215,6 +217,10 @@ def eigenvector_power_iteration(weight, axis=0, n_iters=1):
     return u
 
 
+def _proj(v, u):
+    return v - v.dot(u) * u / (1e-28 + u.dot(u)), 0
+
+
 def gram_schmidt(V, normalize=True):
     """gram-schmidt orthogonalization
 
@@ -235,19 +241,19 @@ def gram_schmidt(V, normalize=True):
     """
 
     if normalize:
-        U = T.index_add(T.zeros_like(V), 0, V[0] / T.linalg.norm(V[0], 2))
+        U = S.index_add(T.zeros_like(V), 0, V[0] / norm(V[0], 2))
     else:
-        U = T.index_add(T.zeros_like(V), 0, V[0])
+        U = S.index_add(T.zeros_like(V), 0, V[0])
 
     def fn(U, v, k):
         coeffs = T.dot(U, v) / ((U ** 2).sum(1) + 1e-28)
         p = v - (U * coeffs[:, None]).sum(0)
         if normalize:
-            return T.index_update(U, k, p / T.linalg.norm(p, 2)), k
+            return S.index_update(U, k, p / norm(p, 2)), k
         else:
-            return T.index_update(U, k, p / T.linalg.norm(p, 2)), k
+            return S.index_update(U, k, p / norm(p, 2)), k
 
-    U, _ = T.scan(fn, init=U, sequences=[V[1:], T.arange(1, V.shape[0])])
+    U, _ = C.scan(fn, init=U, sequences=[V[1:], T.arange(1, V.shape[0])])
     return U
 
 
@@ -266,12 +272,12 @@ def modified_gram_schmidt(V):
     U: Tensor of rank 2
         a matrix with orthogonalized rows from V, note that those vectors are not normalized
     """
-    U = T.index_add(T.zeros_like(V), 0, V[0] / T.linalg.norm(V[0], 2))
+    U = S.index_add(T.zeros_like(V), 0, V[0] / norm(V[0], 2))
 
     def fn(U, v, k):
         coeffs = T.dot(U, v) / ((U ** 2).sum(1) + 1e-28)
-        uk, _ = T.scan(_proj, init=v, sequences=[U])
-        return T.index_update(U, k, uk / T.linalg.norm(uk, 2)), 0
+        uk, _ = C.scan(_proj, init=v, sequences=[U])
+        return S.index_update(U, k, uk / norm(uk, 2)), 0
 
-    U, _ = T.scan(fn, init=U, sequences=[V[1:], T.arange(1, V.shape[0])])
+    U, _ = C.scan(fn, init=U, sequences=[V[1:], T.arange(1, V.shape[0])])
     return U
