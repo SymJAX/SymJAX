@@ -62,7 +62,7 @@ def test_update():
     assert np.array_equal(f(), np.arange(10))
     w2 = symjax.tensor.zeros(10)
     for i in range(10):
-        w2 = symjax.tensor.index_update(w2, [i], i)
+        w2 = symjax.tensor.index_update(w2, (i,), i)
     f = symjax.function(outputs=w2)
     assert np.array_equal(f(), np.arange(10))
 
