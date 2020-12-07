@@ -899,21 +899,32 @@ def jacobians(tensor, variables, mode="forward"):
             :param tensor:
             :param mode:
     """
+    if isinstance(variables, t.Tensor):
+        input_variables = [variables]
+        input_list = False
+    else:
+        input_variables = variables.copy()
+        input_list = True
+
+    # get the argnum of the variables that we differentiate one
+    argnums = list(range(len(input_variables)))
+
     # get all the roots of the scalar, this is needed as otherwise they are not
     # as the input of the gradient function and thus a change of
     # their value will not change the gradient computation, we also ensure
     # uniqueness
-    all_roots = list(set(tensor.roots + variables))
-
-    # get the argnum of the variables that we differentiate one
-    argnums = [all_roots.index(var) for var in variables]
-
+    input_variables += [
+        i for i in current_graph().roots(tensor) if i not in input_variables
+    ]
     # create a dummy function that is needed for jax to compute a gradient func
     # this function is the one that builds the graph of computation from
     # all roots
     # to the scalar varible s.t. automatic diffenrentiation can be applied
     def internal_jacobian(*args):
-        return symjax.tensor.get(tensor, dict(zip(all_roots, list(args))))
+        return current_graph().get(
+            tensor,
+            {input_variables[i]: args[i] for i in range(len(input_variables))},
+        )
 
     # now we obtain the jacobian function. In fact, Jax returns a function that
     # when it is called, returns the jacobian values, this function is then
@@ -927,7 +938,10 @@ def jacobians(tensor, variables, mode="forward"):
             "mode {} not recognized, use forward or backward".format(mode)
         )
     wrap_fn = t.jax_wrap(jacob_fn, False)
-    return wrap_fn(*all_roots)
+    if input_list:
+        return wrap_fn(*input_variables)
+    else:
+        return wrap_fn(*input_variables)[0]
 
 
 class function:
