@@ -891,6 +891,9 @@ def jacobians(tensor, variables, mode="forward"):
         variables: List or Tuple
             the variables used to compute the derivative.
 
+        mode: str
+            either `forward` or `backward`, use the first for tall matrices and the latter for large matrices
+
     Returns
     -------
 
@@ -905,6 +908,9 @@ def jacobians(tensor, variables, mode="forward"):
     else:
         input_variables = variables.copy()
         input_list = True
+
+    if mode not in ["forward", "backward"]:
+        raise RuntimeError("mode can only be forward or backward")
 
     # get the argnum of the variables that we differentiate one
     argnums = list(range(len(input_variables)))
