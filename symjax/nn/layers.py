@@ -70,6 +70,27 @@ class Identity(Layer):
 
 
 class Upsample1D(Layer):
+    """1-d upsampling layer
+
+    Parameters:
+    -----------
+
+    input: Tensor
+        the input to upsample
+
+    repeat: int
+        the amount of additional values to insert in between the current ones
+
+    axis: int (optional)
+        default is `-1`, the last axis, defines which axis to upsample
+
+    mode: str (optional)
+        default is `constant` meaning that the upsampling repeats a constant value, it can be 'zero' or `linear`. for more informations
+        see `symjax.tensor.interpolation.upsample_1d`
+
+    value: Tensor or scalar
+        the value to use when setting `mode='constant'`, value that will be inserted in between the given values
+    """
 
     __NAME__ = "Upsample1D"
 
@@ -84,6 +105,27 @@ class Upsample1D(Layer):
 
 
 class Upsample2D(Layer):
+    """2-d upsampling layer
+
+    Parameters:
+    -----------
+
+    input: Tensor
+        the input to upsample
+
+    repeat: couple
+        the amount of additional values to insert in between the current ones
+
+    axis: couple
+        defines which axes to upsample
+
+    mode: str (optional)
+        default is `constant` meaning that the upsampling repeats a constant value, it can be 'zero' or `linear`. for more informations
+        see `symjax.tensor.interpolation.upsample_1d`
+
+    value: Tensor or scalar
+        the value to use when setting `mode='constant'`, value that will be inserted in between the given values
+    """
 
     __NAME__ = "Upsample2D"
 

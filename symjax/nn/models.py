@@ -1,4 +1,4 @@
-from . import layers
+from . import layers, initializers
 
 
 class ResidualBlockv1:
@@ -45,8 +45,42 @@ def ResNet(input, deterministic, widths, strides, block):
 
     initial = layers.Conv2D(input, widths[0], (3, 3), b=None, padding="SAME")
     initial = layers.BatchNormalization(initial, deterministic=deterministic, axis=[1])
+    initial = block.activation(inital)
     for width, stride in zip(widths, strides):
         initial = block(
             initial, width=width, stride=stride, deterministic=deterministic
         )
     return initial
+
+
+def AlexNet(input, activation):
+    """AlexNet model"""
+    stride_divider = int(227 / input.shape[2])
+
+    z = activation(
+        layers.Conv2D(
+            input,
+            96,
+            (11, 11),
+            strides=max(1, 4 // stride_divider),
+            W=initializers.he_normal,
+        )
+    )
+    z = layers.Pool2D(z, (3, 3), strides=(2, 2))
+    z = activation(
+        layers.Conv2D(z, 256, (5, 5), W=initializers.he_normal, padding="SAME")
+    )
+    z = layers.Pool2D(z, (3, 3), strides=(2, 2))
+    z = activation(
+        layers.Conv2D(z, 384, (3, 3), W=initializers.he_normal, padding="SAME")
+    )
+    z = activation(
+        layers.Conv2D(z, 384, (3, 3), W=initializers.he_normal, padding="SAME")
+    )
+    z = activation(
+        layers.Conv2D(z, 256, (3, 3), W=initializers.he_normal, padding="SAME")
+    )
+    z = layers.Pool2D(z, (3, 3), strides=(2, 2))
+    z = activation(layers.Dense(z, 4096))
+    z = activation(layers.Dense(z, 4096))
+    return z
