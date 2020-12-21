@@ -515,10 +515,14 @@ class Dropout(Layer):
     __NAME__ = "Dropout"
 
     def __init__(self, input, p, deterministic, seed=None):
-
         mask = T.random.bernoulli(shape=input.shape, p=1 - p, seed=seed)
-
-        return T.where(deterministic, input, mask * input / T.maximum(1e-4, (1 - p)))
+        return T.cond(
+            deterministic,
+            lambda x: x,
+            lambda x, mask: x * mask / T.maximum(1e-4, (1 - p)),
+            (input,),
+            (input, mask),
+        )
 
 
 class RandomFlip(Layer):
@@ -733,8 +737,7 @@ class BatchNormalization(Layer):
         # mean((x - mean(x))**2) but may be faster and even, given typical
         # activation distributions and low-precision arithmetic, more accurate
         # when used in neural network normalization layers
-        input_var = (input ** 2).mean(r_axes, keepdims=True) - input_mean ** 2 + const
-        input_var = input.var(r_axes, keepdims=True)
+        input_var = (input ** 2).mean(r_axes, keepdims=True) - input_mean ** 2
 
         avg_mean = schedules.ExponentialMovingAverage(
             input_mean, beta_1, debias=False, name="mean_ema"
@@ -747,9 +750,13 @@ class BatchNormalization(Layer):
             name="var_ema",
         )[1]
 
-        m = T.where(deterministic, avg_mean, input_mean)
-        v = T.where(deterministic, avg_var, input_var)
-        output = nn.normalize(input, mean=m, variance=v, epsilon=const)
+        output = T.cond(
+            deterministic,
+            lambda x, m, v, c: nn.normalize(x, mean=m, variance=v, epsilon=c),
+            lambda x, m, v, c: nn.normalize(x, mean=m, variance=v, epsilon=c),
+            (input, avg_mean, avg_var, const),
+            (input, input_mean, input_var, const),
+        )
         if b is None and W is not None:
             return W * output
         elif b is not None and W is None:

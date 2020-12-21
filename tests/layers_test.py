@@ -19,7 +19,7 @@ def test_bn():
     BATCH_SIZE = 5
     DIM = 2
     input = T.Placeholder((BATCH_SIZE, DIM), "float32", name="input")
-    deterministic = T.Placeholder((1,), "bool", name="deterministic")
+    deterministic = T.Placeholder((), "bool", name="deterministic")
 
     bn = nn.layers.BatchNormalization(input, [1], deterministic=deterministic)
 
@@ -57,7 +57,7 @@ def test_dropout():
     BATCH_SIZE = 4096
     DIM = 8
     input = T.Placeholder((BATCH_SIZE, DIM), "float32", name="input")
-    deterministic = T.Placeholder((1,), "bool", name="deterministic")
+    deterministic = T.Placeholder((), "bool", name="deterministic")
 
     bn = nn.layers.Dropout(input, p=0.2, deterministic=deterministic)
 
