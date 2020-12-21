@@ -61,6 +61,7 @@ We briefly describe below the structure of `SymJAX`_ and what are (in term of fu
   + :ref:`symjax-nn-losses`: like :py:mod:`lasagne.losses` or :py:mod:`tf.keras.losses`
   + :ref:`symjax-nn-initializers`: like :py:mod:`lasagne.initializers` or :py:mod:`tf.keras.initializers`
   + :ref:`symjax-nn-schedules`: external variable state control (s.a. for learning rate schedules) as in :py:mod:`lasagne.initializers` or :py:mod:`tf.keras.optimizers.schedules` or `optax`_
+  + :red:`symjax-nn-models`: implementation of various known architectures/models like AlexNet, ResNet and their dependencies
 
 - :ref:`symjax-probabilities` : like :py:mod:`tensorflow-probabilities`
 
@@ -135,6 +136,7 @@ Gallery
   modules/optimizers
   modules/schedules
   modules/losses
+  modules/models
   modules/probabilities
   modules/rl
 

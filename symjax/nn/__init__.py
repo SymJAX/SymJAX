@@ -10,3 +10,4 @@ from . import losses
 from . import schedules
 from . import optimizers
 from . import initializers
+from . import models
