@@ -6,7 +6,7 @@ SoundFile==0.10.3.post1
 tqdm==4.40.0
 pytest==5.3.5
 mne==0.20.6
-requests==2.22.0
+requests==2.31.0
 scikit_learn==0.23.1
 networkx==2.4
 pretty-midi==0.2.9
